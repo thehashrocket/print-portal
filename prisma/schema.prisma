@@ -225,6 +225,7 @@ model Office {
     shippingInfo ShippingInfo[]
     Address      Address[]
     workOrder    WorkOrder[]
+    Order        Order[]
 }
 
 // This takes information from the WorkOrder once it is approved and creates an Order.
@@ -262,6 +263,8 @@ model Order {
     Company           Company?            @relation(fields: [companyId], references: [id])
     companyId         String?
     shippingInfoId    String?
+    // belongs to Office
+    office            Office              @relation(fields: [officeId], references: [id])
 }
 
 // This aligns with the WorkOrderItem and is used to create an OrderItem
@@ -314,12 +317,11 @@ model ProcessingOptions {
 // A user can have many roles.
 // A role can have many permissions.
 model Role {
-    id           String      @id @default(uuid())
-    name         RoleName    @unique
-    description  String?
-    users        User[] // Many-to-many relation to User
-    Permission   Permission? @relation(fields: [permissionId], references: [id])
-    permissionId String?
+    id          String       @id @default(uuid())
+    name        RoleName     @unique
+    description String?
+    users       User[] // Many-to-many relation to User
+    permissions Permission[] // Many-to-many relation to Permission
 }
 
 model Session {
@@ -401,20 +403,22 @@ model TypesettingProof {
 // It has a many-to-many relationship with Role through UserRole.
 // Office is optional, but if it is present, it is required.
 model User {
-    id            String      @id @default(cuid())
+    id            String          @id @default(cuid())
     name          String?
-    email         String?     @unique
+    email         String?         @unique
     emailVerified DateTime?
     image         String?
-    createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @default(now())
+    createdAt     DateTime        @default(now())
+    updatedAt     DateTime        @default(now())
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
     roles         Role[] // Many-to-many relation to Role
-    Office        Office?     @relation(fields: [officeId], references: [id])
+    // Optional relationship to Office
+    Office        Office?         @relation(fields: [officeId], references: [id])
     officeId      String?
     workOrders    WorkOrder[]
+    WorkOrderNote WorkOrderNote[]
 }
 
 model VerificationToken {
@@ -476,6 +480,7 @@ model WorkOrder {
     Typesetting       Typesetting[]
     ProcessingOptions ProcessingOptions?
     Order             Order?
+    WorkOrderNote     WorkOrderNote[]
 }
 
 // It belongs to the WorkOrder and is used to store the items for the order.
@@ -497,6 +502,19 @@ model WorkOrderItem {
     amount       Decimal? @db.Decimal(10, 2)
 
     workOrder WorkOrder @relation(fields: [workOrderId], references: [id])
+}
+
+// It belongs to the WorkOrder and is used to store the notes for the order.
+model WorkOrderNote {
+    id          String   @id @default(uuid())
+    workOrderId String
+    note        String
+    user        User     @relation(fields: [userId], references: [id])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    workOrder WorkOrder @relation(fields: [workOrderId], references: [id])
+    userId    String
 }
 
 // It belongs to the WorkOrder and is used to store the stock for the order.
