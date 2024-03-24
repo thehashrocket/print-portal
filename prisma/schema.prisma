@@ -205,11 +205,9 @@ model Address {
 // Has many WorkOrders.
 // Indirectly related to many Users through Office.
 model Company {
-    id         String      @id @default(uuid())
-    name       String
-    offices    Office[]
-    workOrders WorkOrder[]
-    Order      Order[]
+    id      String   @id @default(uuid())
+    name    String
+    offices Office[]
 }
 
 // Belongs to Company.
@@ -260,8 +258,6 @@ model Order {
     workOrder         WorkOrder           @relation(fields: [workOrderId], references: [id])
     Typesetting       Typesetting[]
     ProcessingOptions ProcessingOptions[]
-    Company           Company?            @relation(fields: [companyId], references: [id])
-    companyId         String?
     shippingInfoId    String?
     // belongs to Office
     office            Office              @relation(fields: [officeId], references: [id])
@@ -414,7 +410,6 @@ model User {
     sessions      Session[]
     posts         Post[]
     roles         Role[] // Many-to-many relation to Role
-    // Optional relationship to Office
     Office        Office?         @relation(fields: [officeId], references: [id])
     officeId      String?
     workOrders    WorkOrder[]
@@ -472,8 +467,6 @@ model WorkOrder {
 
     shippingInfo ShippingInfo?
 
-    Company           Company?           @relation(fields: [companyId], references: [id])
-    companyId         String?
     workOrderItems    WorkOrderItem[]
     WorkOrderStock    WorkOrderStock[]
     WorkOrderVersions WorkOrderVersion[]

@@ -10,26 +10,10 @@ import GoogleProvider from 'next-auth/providers/google';
 import { env } from "~/env";
 import { db } from "~/server/db";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
-  }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
-}
+// We're augmenting the Session type to include user roles and permissions in the session object.
+// We're defining the user object to have an id, roles, and permissions.
+// We're declaring the type in a module declaration file so that TypeScript knows about the new properties.
+// This is located in src/types/next-auth.d.ts.
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -38,13 +22,37 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      // Fetch user roles and their permissions
+      const userWithRolesAndPermissions = await db.user.findUnique({
+        where: { id: user.id },
+        include: {
+          roles: {
+            include: {
+              permissions: true, // Include permissions for each role
+            },
+          },
+        },
+      });
+
+      if (userWithRolesAndPermissions) {
+        session.user.id = user.id;
+        // Map roles to their names
+        session.user.roles = userWithRolesAndPermissions.roles.map(role => role.name);
+
+        // Collect and de-duplicate permissions across all roles
+        const permissionsSet = new Set();
+        userWithRolesAndPermissions.roles.forEach(role => {
+          role.permissions.forEach(permission => {
+            permissionsSet.add(permission.name);
+          });
+        });
+
+        session.user.permissions = Array.from(permissionsSet);
+      }
+
+      return session;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
