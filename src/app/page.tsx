@@ -16,7 +16,12 @@ export default async function Home() {
         </h1>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
           <div className="card w-96 bg-base-100 shadow-xl">
-            <figure><img src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
+            <figure>
+              <img
+                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+                alt="Shoes"
+              />
+            </figure>
             <div className="card-body">
               <Link
                 className="prose"
@@ -25,14 +30,19 @@ export default async function Home() {
               >
                 <h3 className="">Documentation →</h3>
                 <p className="">
-                  Learn more about Create T3 App, the libraries it uses, and how to
-                  deploy it.
+                  Learn more about Create T3 App, the libraries it uses, and how
+                  to deploy it.
                 </p>
               </Link>
             </div>
           </div>
           <div className="card w-96 bg-base-100 shadow-xl">
-            <figure><img src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
+            <figure>
+              <img
+                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+                alt="Shoes"
+              />
+            </figure>
             <div className="card-body">
               <Link
                 className="prose"
@@ -47,8 +57,6 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-
-
         </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-white">
@@ -60,8 +68,22 @@ export default async function Home() {
               {session && <span>Logged in as {session.user?.name}</span>}
             </p>
             <p className="text-center text-2xl text-white">
-              {session && <Link className="btn btn-primary" href="/dashboard">Go to dashboard</Link>}<br />
-              {session && <Link className="btn btn-primary" href="/users">Go to users</Link>}
+              {session && (
+                <Link className="btn btn-primary" href="/dashboard">
+                  Go to dashboard
+                </Link>
+              )}
+              <br />
+              {session && (
+                <Link className="btn btn-primary" href="/users">
+                  Go to users
+                </Link>
+              )}
+              {session && (
+                <Link className="btn btn-primary" href="/orders">
+                  Go to orders
+                </Link>
+              )}
             </p>
             <Link
               href={session ? "/api/auth/signout" : "/api/auth/signin"}

@@ -233,6 +233,8 @@ model Office {
 model Order {
     id                  String      @id @default(uuid())
     workOrderId         String      @unique
+    orderNumber         String      @unique
+    description         String?
     officeId            String
     status              OrderStatus // Draft, Proofing, Approved, Completed, etc.
     pressRun            String
@@ -434,9 +436,10 @@ model VerificationToken {
 // It has many ProcessingOptions which are optional.
 // It has many Typesetting which are optional.
 model WorkOrder {
-    id       String @id @default(uuid())
-    officeId String
-
+    id                  String   @id @default(uuid())
+    officeId            String
+    workOrderNumber     String   @unique
+    description         String?
     dateIn              DateTime
     inHandsDate         DateTime
     estimateNumber      String
