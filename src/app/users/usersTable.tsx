@@ -40,12 +40,10 @@ const UsersTable: React.FC<User[]> = (users) => {
         return {
           name: user.name,
           email: user.email,
-          Roles: user.Roles.map((role) => role.name).join(", "),
-          Permissions: user.roles
-            .map((role) =>
-              role.Permissions.map((permission) => permission.name).join(", "),
-            )
-            .join(", "),
+          roles: user.Roles.map((role) => role.name).join(", "),
+          permissions: user.Roles.map((role) =>
+            role.Permissions.map((permission) => permission.name).join(", "),
+          ).join(", "),
         };
       }),
     );
