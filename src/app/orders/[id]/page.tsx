@@ -13,7 +13,7 @@ export default async function OrderPage({
   const session = await getServerAuthSession();
 
   // Check if user has permission to view the page
-  if (!session || !session.user.permissions.includes("work_order_read")) {
+  if (!session || !session.user.Permissions.includes("work_order_read")) {
     return "You do not have permission to view this page";
   }
 

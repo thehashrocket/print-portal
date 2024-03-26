@@ -11,8 +11,7 @@ export default async function OrdersPage() {
 
   if (
     !session ||
-    session.user.permissions
-      .map((permission) => permission)
+    session.user.Permissions.map((permission) => permission)
       .join(", ")
       .includes("order_read") === false
   ) {

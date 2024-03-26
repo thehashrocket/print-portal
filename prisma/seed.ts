@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 const prismaClient = new PrismaClient();
 
-const randomElementFromArray = <T,>(array: T[]): T =>
+const randomElementFromArray = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)];
 
 const addressTypes = ["Billing", "Shipping", "Mailing", "Other"];
@@ -40,7 +40,7 @@ async function createAdminUser() {
     data: {
       name: "Jason Shultz",
       email: "jason.shultz@1905newmedia.com",
-      roles: {
+      Roles: {
         connect: [{ name: "Admin" }],
       },
     },
@@ -84,282 +84,6 @@ async function createOffice(companyId) {
       // Additional data if needed
     },
   });
-}
-
-// Create ShippingInfo record for a work order:
-async function createShippingInfo(workOrderId, officeId) {
-  const shippingInfo = await prismaClient.shippingInfo.create({
-    data: {
-      workOrderId,
-      instructions: faker.lorem.sentence(),
-      shippingOther: faker.lorem.sentence(),
-      shippingDate: faker.date.future(),
-      shippingMethod: randomElementFromArray(shippingMethods),
-      shippingCost: faker.number.float({ min: 10, max: 100, precision: 2 }),
-      officeId,
-      shipToSameAsBillTo: faker.datatype.boolean(),
-      attentionTo: faker.person.fullName(),
-    },
-  });
-
-  console.log(`Shipping Info created: ${shippingInfo.id}`);
-  return shippingInfo.id;
-}
-
-// Create Typesetting record for a work order:
-async function createTypesetting(workOrderId) {
-  const typesetting = await prismaClient.typesetting.create({
-    data: {
-      workOrderId,
-      dateIn: faker.date.past(),
-      timeIn: faker.date.recent().toLocaleTimeString(),
-      cost: faker.number.float({ min: 50, max: 200, precision: 2 }),
-      approved: faker.datatype.boolean(),
-      prepTime: faker.number.int({ min: 0, max: 100 }),
-      plateRan: faker.word.sample(),
-    },
-  });
-
-  console.log(`Typesetting created: ${typesetting.id}`);
-  return typesetting.id;
-}
-
-// Create a TypesettingOption record for a typesetting record.
-async function createTypesettingOption(typesettingId) {
-  await prismaClient.typesettingOption.create({
-    data: {
-      typesettingId,
-      option: randomElementFromArray(typesettingOptions),
-      selected: faker.datatype.boolean(),
-    },
-  });
-}
-
-// Create a TypesettingProof record for a typesetting record.
-async function createTypesettingProof(typesettingId, proofNumber) {
-  return await prismaClient.typesettingProof.create({
-    data: {
-      typesettingId,
-      proofNumber,
-      dateSubmitted: faker.date.past(),
-      notes: faker.lorem.sentence(),
-      approved: faker.datatype.boolean(),
-    },
-  });
-}
-
-// Create a User record with a specific role and optionally office.
-async function createUser(roleName, officeId = null) {
-  const hashedPassword = await hashPassword("your-password");
-
-  // First, find the role by its name
-  const role = await prismaClient.role.findUnique({
-    where: {
-      name: roleName, // Make sure roleName matches one of the RoleName enum values
-    },
-  });
-
-  // Ensure the role exists before attempting to create a user and connect them
-  if (!role) {
-    console.error(`Role not found: ${roleName}`);
-    return;
-  }
-
-  // Create the user
-  // if officeId is null, the user is an internal user
-  // if officeId is not null, the user is an external user
-  // if officeId is null, then ignore the officeId field in the data object
-  const user = await prismaClient.user.create({
-    data: {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      // ignore officeID field if officeId is null
-      officeId: officeId,
-      // Correct way to connect the user to roles in a many-to-many relationship
-      roles: {
-        connect: [{ id: role.id }], // Use the role's ID directly for connecting
-      },
-    },
-  });
-
-  console.log(`User created: ${user.name}`);
-}
-
-// Create Users for an office
-async function createUsers(officeId) {
-  // Creating internal users with different roles
-  // officeID is the office to which the user belongs and is required..
-  const internalRoles = [
-    "Admin",
-    "Bindery",
-    "Finance",
-    "Manager",
-    "Prepress",
-    "Production",
-    "Sales",
-  ];
-  for (let i = 0; i < 15; i++) {
-    const roleName =
-      i < internalRoles.length
-        ? internalRoles[i % internalRoles.length]
-        : "User";
-    await createUser(roleName, officeId);
-  }
-
-  // Creating external users
-  for (let i = 0; i < 5; i++) {
-    await createUser("User", officeId);
-  }
-}
-
-// Create a work order
-async function createWorkOrder(officeId) {
-  // Fetch internal users (assuming they don't have the 'Customer' role)
-  const internalUsers = await prismaClient.user.findMany({
-    where: {
-      roles: {
-        some: {
-          NOT: {
-            name: "Customer",
-          },
-        },
-      },
-    },
-  });
-
-  const randomUser = randomElementFromArray(internalUsers);
-
-  const workOrder = await prismaClient.workOrder.create({
-    data: {
-      officeId,
-      dateIn: faker.date.past(),
-      inHandsDate: faker.date.future(),
-      estimateNumber: String(faker.number.int({ min: 500, max: 30000 })),
-      purchaseOrderNumber: faker.number.int().toString(),
-      pressRun: faker.word.sample(),
-      specialInstructions: faker.lorem.sentence(),
-      artwork: faker.internet.url(),
-      approved: faker.datatype.boolean(),
-      prepTime: faker.number.int({ min: 0, max: 100 }),
-      plateRan: faker.word.sample(),
-      expectedDate: faker.date.future(),
-      deposit: faker.number.int({ min: 100, max: 500 }) + 0.01,
-      costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
-      totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.03,
-      binderyTime: faker.word.sample(),
-      overUnder: faker.word.sample(),
-      version: 1,
-      workOrderNumber: faker.random.alphaNumeric(18),
-      description: faker.commerce.productName(),
-      status: randomElementFromArray(statuses),
-      userId: randomUser.id, // Correct field based on your schema's relation
-    },
-  });
-  console.log(`Work Order created: ${workOrder.estimateNumber}`);
-
-  return workOrder;
-}
-
-// Create work order items
-async function createWorkOrderItems(workOrderId: string, itemCount: number) {
-  // Create multiple work order items based on the itemCount
-  for (let i = 0; i < itemCount; i++) {
-    const workOrderItem = await prismaClient.workOrderItem.create({
-      data: {
-        workOrderId: workOrderId,
-        description: faker.commerce.productName(),
-        finishedQty: faker.number.int({ min: 1, max: 1000 }),
-        pressRun: faker.commerce.productMaterial(),
-        cs: randomElementFromArray(csOptions),
-        size: randomElementFromArray(sizes),
-        stockOnHand: faker.datatype.boolean(),
-        stockOrdered: faker.datatype.boolean()
-          ? faker.commerce.product()
-          : null,
-        inkColor: randomElementFromArray(inkColors),
-        amount: parseFloat(faker.commerce.price()),
-      },
-    });
-
-    console.log(`Work Order Item created: ${workOrderItem.description}`);
-  }
-}
-
-// Create work order notes
-async function createWorkOrderNotes(workOrderId: string, noteCount: number) {
-  // Fetch internal users (assuming they don't have the 'Customer' role)
-  const internalUsers = await prismaClient.user.findMany({
-    where: {
-      roles: {
-        some: {
-          NOT: {
-            name: "Customer",
-          },
-        },
-      },
-    },
-  });
-
-  for (let i = 0; i < noteCount; i++) {
-    // Randomly select an internal user
-    const randomUser = randomElementFromArray(internalUsers);
-
-    const workOrderNote = await prismaClient.workOrderNote.create({
-      data: {
-        workOrderId,
-        note: faker.lorem.sentence(),
-        userId: randomUser.id, // Correct field based on your schema's relation
-        createdAt: faker.date.past(),
-      },
-    });
-
-    console.log(`Work Order Note created: ${workOrderNote.note}`);
-  }
-}
-
-// Create a WorkOrderStock record
-async function createWorkOrderStock(workOrderId) {
-  const stockQty = faker.number.int({ min: 1, max: 1000 });
-  const costPerM = faker.number.float({ min: 50, max: 200, precision: 2 });
-  const totalCost = stockQty * costPerM;
-
-  return await prismaClient.workOrderStock.create({
-    data: {
-      workOrderId,
-      stockQty,
-      costPerM,
-      totalCost,
-      from: faker.company.name(),
-      expectedDate: faker.date.future(),
-      orderedDate: faker.date.past(),
-      received: faker.datatype.boolean(),
-      receivedDate: faker.date.past(),
-      notes: faker.lorem.sentence(),
-      stockStatus: randomElementFromArray([
-        "InStock",
-        "OnHand",
-        "CS",
-        "Ordered",
-        "OutOfStock",
-        "LowStock",
-      ]),
-    },
-  });
-}
-
-async function createWorkOrderVersions(workOrderId) {
-  const numberOfVersions = faker.number.int({ min: 1, max: 5 });
-
-  for (let i = 0; i < numberOfVersions; i++) {
-    await prismaClient.workOrderVersion.create({
-      data: {
-        workOrderId,
-        version: i + 2, // Assuming version 1 is the initial work order
-        createdBy: faker.person.fullName(),
-        createdAt: faker.date.past(),
-      },
-    });
-  }
 }
 
 async function createRolesAndPermissions() {
@@ -471,7 +195,7 @@ async function createRolesAndPermissions() {
   const roles = [
     {
       name: "Admin",
-      permissions: [
+      Permissions: [
         { name: "address_create" },
         { name: "address_read" },
         { name: "address_update" },
@@ -531,7 +255,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Bindery",
-      permissions: [
+      Permissions: [
         { name: "order_read" },
         { name: "order_item_read" },
         { name: "order_shipping_info_read" },
@@ -542,7 +266,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Customer",
-      permissions: [
+      Permissions: [
         { name: "address_read" },
         { name: "company_read" },
         { name: "office_read" },
@@ -560,7 +284,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Finance",
-      permissions: [
+      Permissions: [
         { name: "address_read" },
         { name: "company_read" },
         { name: "office_read" },
@@ -578,7 +302,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Manager",
-      permissions: [
+      Permissions: [
         { name: "address_create" },
         { name: "address_delete" },
         { name: "address_read" },
@@ -610,7 +334,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Prepress",
-      permissions: [
+      Permissions: [
         { name: "address_read" },
         { name: "order_read" },
         { name: "order_item_read" },
@@ -622,7 +346,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Production",
-      permissions: [
+      Permissions: [
         { name: "address_read" },
         { name: "order_read" },
         { name: "order_item_read" },
@@ -634,7 +358,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "Sales",
-      permissions: [
+      Permissions: [
         { name: "address_create" },
         { name: "address_delete" },
         { name: "address_read" },
@@ -674,7 +398,7 @@ async function createRolesAndPermissions() {
     },
     {
       name: "User",
-      permissions: [
+      Permissions: [
         { name: "address_create" },
         { name: "address_delete" },
         { name: "address_read" },
@@ -701,8 +425,8 @@ async function createRolesAndPermissions() {
     await prismaClient.role.create({
       data: {
         name: role.name,
-        permissions: {
-          connect: role.permissions.map((perm) => ({ name: perm.name })),
+        Permissions: {
+          connect: role.Permissions.map((perm) => ({ name: perm.name })),
         },
       },
     });
@@ -710,6 +434,282 @@ async function createRolesAndPermissions() {
   }
 
   console.log("Roles created with associated permissions");
+}
+
+// Create ShippingInfo record for a work order:
+async function createShippingInfo(workOrderId, officeId) {
+  const shippingInfo = await prismaClient.shippingInfo.create({
+    data: {
+      workOrderId,
+      instructions: faker.lorem.sentence(),
+      shippingOther: faker.lorem.sentence(),
+      shippingDate: faker.date.future(),
+      shippingMethod: randomElementFromArray(shippingMethods),
+      shippingCost: faker.number.float({ min: 10, max: 100, precision: 2 }),
+      officeId,
+      shipToSameAsBillTo: faker.datatype.boolean(),
+      attentionTo: faker.person.fullName(),
+    },
+  });
+
+  console.log(`Shipping Info created: ${shippingInfo.id}`);
+  return shippingInfo.id;
+}
+
+// Create Typesetting record for a work order:
+async function createTypesetting(workOrderId) {
+  const typesetting = await prismaClient.typesetting.create({
+    data: {
+      workOrderId,
+      dateIn: faker.date.past(),
+      timeIn: faker.date.recent().toLocaleTimeString(),
+      cost: faker.number.float({ min: 50, max: 200, precision: 2 }),
+      approved: faker.datatype.boolean(),
+      prepTime: faker.number.int({ min: 0, max: 100 }),
+      plateRan: faker.word.sample(),
+    },
+  });
+
+  console.log(`Typesetting created: ${typesetting.id}`);
+  return typesetting.id;
+}
+
+// Create a TypesettingOption record for a typesetting record.
+async function createTypesettingOption(typesettingId) {
+  await prismaClient.typesettingOption.create({
+    data: {
+      typesettingId,
+      option: randomElementFromArray(typesettingOptions),
+      selected: faker.datatype.boolean(),
+    },
+  });
+}
+
+// Create a TypesettingProof record for a typesetting record.
+async function createTypesettingProof(typesettingId, proofNumber) {
+  return await prismaClient.typesettingProof.create({
+    data: {
+      typesettingId,
+      proofNumber,
+      dateSubmitted: faker.date.past(),
+      notes: faker.lorem.sentence(),
+      approved: faker.datatype.boolean(),
+    },
+  });
+}
+
+// Create a User record with a specific role and optionally office.
+async function createUser(roleName, officeId = null) {
+  const hashedPassword = await hashPassword("your-password");
+
+  // First, find the role by its name
+  const role = await prismaClient.role.findUnique({
+    where: {
+      name: roleName, // Make sure roleName matches one of the RoleName enum values
+    },
+  });
+
+  // Ensure the role exists before attempting to create a user and connect them
+  if (!role) {
+    console.error(`Role not found: ${roleName}`);
+    return;
+  }
+
+  // Create the user
+  // if officeId is null, the user is an internal user
+  // if officeId is not null, the user is an external user
+  // if officeId is null, then ignore the officeId field in the data object
+  console.log("officeId ", officeId ?? null);
+  const user = await prismaClient.user.create({
+    data: {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      // ignore officeID field if officeId is null
+      officeId: officeId,
+      // Correct way to connect the user to roles in a many-to-many relationship
+      Roles: {
+        connect: [{ id: role.id }], // Use the role's ID directly for connecting
+      },
+    },
+  });
+
+  console.log(`User created: ${user.name}`);
+}
+
+// Create Users for an office
+async function createUsers(officeId) {
+  // Creating internal users with different roles
+  // officeID is the office to which the user belongs and is required..
+  const internalRoles = [
+    "Admin",
+    "Bindery",
+    "Finance",
+    "Manager",
+    "Prepress",
+    "Production",
+    "Sales",
+  ];
+  for (let i = 0; i < 15; i++) {
+    const roleName =
+      i < internalRoles.length
+        ? internalRoles[i % internalRoles.length]
+        : "User";
+    await createUser(roleName, officeId);
+  }
+
+  // Creating external users
+  for (let i = 0; i < 5; i++) {
+    await createUser("User", officeId);
+  }
+}
+
+// Create a work order
+async function createWorkOrder(officeId) {
+  // Fetch internal users (assuming they don't have the 'Customer' role)
+  const internalUsers = await prismaClient.user.findMany({
+    where: {
+      Roles: {
+        some: {
+          NOT: {
+            name: "Customer",
+          },
+        },
+      },
+    },
+  });
+
+  const randomUser = randomElementFromArray(internalUsers);
+
+  const workOrder = await prismaClient.workOrder.create({
+    data: {
+      officeId,
+      dateIn: faker.date.past(),
+      inHandsDate: faker.date.future(),
+      estimateNumber: String(faker.number.int({ min: 500, max: 30000 })),
+      purchaseOrderNumber: faker.number.int().toString(),
+      pressRun: faker.word.sample(),
+      specialInstructions: faker.lorem.sentence(),
+      artwork: faker.internet.url(),
+      approved: faker.datatype.boolean(),
+      prepTime: faker.number.int({ min: 0, max: 100 }),
+      plateRan: faker.word.sample(),
+      expectedDate: faker.date.future(),
+      deposit: faker.number.int({ min: 100, max: 500 }) + 0.01,
+      costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
+      totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.03,
+      binderyTime: faker.word.sample(),
+      overUnder: faker.word.sample(),
+      version: 1,
+      description: faker.commerce.productName(),
+      status: randomElementFromArray(statuses),
+      userId: randomUser.id, // Correct field based on your schema's relation
+    },
+  });
+  console.log(`Work Order created: ${workOrder.estimateNumber}`);
+
+  return workOrder;
+}
+
+// Create work order items
+async function createWorkOrderItems(workOrderId: string, itemCount: number) {
+  // Create multiple work order items based on the itemCount
+  for (let i = 0; i < itemCount; i++) {
+    const workOrderItem = await prismaClient.workOrderItem.create({
+      data: {
+        workOrderId: workOrderId,
+        description: faker.commerce.productName(),
+        finishedQty: faker.number.int({ min: 1, max: 1000 }),
+        pressRun: faker.commerce.productMaterial(),
+        cs: randomElementFromArray(csOptions),
+        size: randomElementFromArray(sizes),
+        stockOnHand: faker.datatype.boolean(),
+        stockOrdered: faker.datatype.boolean()
+          ? faker.commerce.product()
+          : null,
+        inkColor: randomElementFromArray(inkColors),
+        amount: parseFloat(faker.commerce.price()),
+      },
+    });
+
+    console.log(`Work Order Item created: ${workOrderItem.description}`);
+  }
+}
+
+// Create work order notes
+async function createWorkOrderNotes(workOrderId: string, noteCount: number) {
+  // Fetch internal users (assuming they don't have the 'Customer' role)
+  const internalUsers = await prismaClient.user.findMany({
+    where: {
+      Roles: {
+        some: {
+          NOT: {
+            name: "Customer",
+          },
+        },
+      },
+    },
+  });
+
+  for (let i = 0; i < noteCount; i++) {
+    // Randomly select an internal user
+    const randomUser = randomElementFromArray(internalUsers);
+
+    const workOrderNote = await prismaClient.workOrderNote.create({
+      data: {
+        workOrderId,
+        note: faker.lorem.sentence(),
+        userId: randomUser.id, // Correct field based on your schema's relation
+        createdAt: faker.date.past(),
+      },
+    });
+
+    console.log(`Work Order Note created: ${workOrderNote.note}`);
+  }
+}
+
+// Create a WorkOrderStock record
+async function createWorkOrderStock(workOrderId) {
+  const stockQty = faker.number.int({ min: 1, max: 1000 });
+  const costPerM = faker.number.float({ min: 50, max: 200, precision: 2 });
+  const totalCost = stockQty * costPerM;
+
+  return await prismaClient.workOrderStock.create({
+    data: {
+      workOrderId,
+      stockQty,
+      costPerM,
+      totalCost,
+      from: faker.company.name(),
+      expectedDate: faker.date.future(),
+      orderedDate: faker.date.past(),
+      received: faker.datatype.boolean(),
+      receivedDate: faker.date.past(),
+      notes: faker.lorem.sentence(),
+      stockStatus: randomElementFromArray([
+        "InStock",
+        "OnHand",
+        "CS",
+        "Ordered",
+        "OutOfStock",
+        "LowStock",
+      ]),
+    },
+  });
+}
+
+async function createWorkOrderVersions(workOrderId) {
+  const numberOfVersions = faker.number.int({ min: 1, max: 5 });
+
+  for (let i = 0; i < numberOfVersions; i++) {
+    await prismaClient.workOrderVersion.create({
+      data: {
+        workOrderId,
+        version: i + 2, // Assuming version 1 is the initial work order
+        createdBy: faker.person.fullName(),
+        createdAt: faker.date.past(),
+      },
+    });
+  }
 }
 
 // Convert a work order to an order
@@ -733,7 +733,6 @@ async function convertWorkOrderToOrder(workOrderId, officeId) {
       totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.06,
       binderyTime: faker.word.sample(),
       overUnder: faker.word.sample(),
-      orderNumber: faker.random.alphaNumeric(18),
       description: faker.lorem.sentence(),
       version: 1,
     },

@@ -5,7 +5,7 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
-import GoogleProvider from 'next-auth/providers/google';
+import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
@@ -27,9 +27,9 @@ export const authOptions: NextAuthOptions = {
       const userWithRolesAndPermissions = await db.user.findUnique({
         where: { id: user.id },
         include: {
-          roles: {
+          Roles: {
             include: {
-              permissions: true, // Include permissions for each role
+              Permissions: true, // Include permissions for each role
             },
           },
         },
@@ -38,17 +38,19 @@ export const authOptions: NextAuthOptions = {
       if (userWithRolesAndPermissions) {
         session.user.id = user.id;
         // Map roles to their names
-        session.user.roles = userWithRolesAndPermissions.roles.map(role => role.name);
+        session.user.Roles = userWithRolesAndPermissions.Roles.map(
+          (role) => role.name,
+        );
 
         // Collect and de-duplicate permissions across all roles
         const permissionsSet = new Set();
-        userWithRolesAndPermissions.roles.forEach(role => {
-          role.permissions.forEach(permission => {
+        userWithRolesAndPermissions.Roles.forEach((role) => {
+          role.Permissions.forEach((permission) => {
             permissionsSet.add(permission.name);
           });
         });
 
-        session.user.permissions = Array.from(permissionsSet);
+        session.user.Permissions = Array.from(permissionsSet);
       }
 
       return session;
