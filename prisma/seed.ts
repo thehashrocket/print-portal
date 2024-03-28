@@ -18,6 +18,76 @@ const shippingMethods = ["UPS", "FedEx", "USPS", "DHL"];
 const statuses = ["Draft", "Proofing", "Approved", "Completed", "Cancelled"];
 const typesettingOptions = ["Negs", "Xante", "7200", "9200"];
 
+// Convert a work order to an order
+async function convertWorkOrderToOrder(workOrderId, officeId) {
+  console.log('Converting Work Order to Order');
+  // Find the work order
+  const workOrder = await prismaClient.workOrder.findUnique({
+    where: {
+      id: workOrderId,
+    }
+  });
+  const order = await prismaClient.order.create({
+    data: {
+      approved: faker.datatype.boolean(),
+      artwork: workOrder?.artwork,
+      binderyTime: workOrder?.binderyTime,
+      costPerM: workOrder?.costPerM,
+      deposit: workOrder?.deposit,
+      description: workOrder?.description,
+      expectedDate: workOrder?.expectedDate,
+      officeId,
+      overUnder: workOrder?.overUnder,
+      plateRan: workOrder?.plateRan,
+      prepTime: workOrder?.prepTime,
+      pressRun: workOrder?.pressRun,
+      proofCount: faker.number.int({ min: 1, max: 5 }),
+      proofType: faker.word.sample(),
+      shippingInfoId: workOrder.shippingInfoId,
+      specialInstructions: workOrder?.specialInstructions,
+      status: "Approved", // Assuming work orders are approved before becoming orders
+      totalCost: workOrder?.totalCost,
+      userId: workOrder.userId,
+      workOrderId,
+      version: 1,
+    },
+  });
+  console.log('Order created: ', order.id);
+  console.log('converting work order items to order items');
+  // Convert work order items to order items
+  const workOrderItems = await prismaClient.workOrderItem.findMany({
+    where: {
+      workOrderId,
+    },
+  });
+
+  workOrderItems.forEach(async (workOrderItem) => {
+    await prismaClient.orderItem.create({
+      data: {
+        amount: workOrderItem.amount,
+        cs: workOrderItem.cs,
+        cutting: workOrderItem.cutting,
+        description: workOrderItem.description,
+        drilling: workOrderItem.drilling,
+        finishedQty: workOrderItem.finishedQty,
+        folding: workOrderItem.folding,
+        inkColor: workOrderItem.inkColor,
+        other: workOrderItem.other,
+        orderId: order.id,
+        pressRun: workOrderItem.pressRun,
+        quantity: workOrderItem.quantity,
+        size: workOrderItem.size,
+        stockOnHand: workOrderItem.stockOnHand,
+        stockOrdered: workOrderItem.stockOrdered,
+      }
+    });
+    console.log('Order Item created');
+  });
+
+
+  return order;
+}
+
 // Create an address record for an office
 async function createAddress(officeId) {
   return await prismaClient.address.create({
@@ -437,10 +507,24 @@ async function createRolesAndPermissions() {
 }
 
 // Create ShippingInfo record for a work order:
-async function createShippingInfo(workOrderId, officeId) {
+// officeId is the office to which the shipping info belongs
+// workOrderId is the work order to which the shipping info belongs
+// addressId: take the addressId from the first address created for the office.
+// This function returns the ID of the created shipping info record
+async function createShippingInfo(officeId) {
+  // Find office by officeId
+  const office = await prismaClient.office.findUnique({
+    where: {
+      id: officeId,
+    },
+    include: {
+      Addresses: true,
+    },
+  });
+
+  // Create shipping info using faker for demo data
   const shippingInfo = await prismaClient.shippingInfo.create({
     data: {
-      workOrderId,
       instructions: faker.lorem.sentence(),
       shippingOther: faker.lorem.sentence(),
       shippingDate: faker.date.future(),
@@ -449,12 +533,14 @@ async function createShippingInfo(workOrderId, officeId) {
       officeId,
       shipToSameAsBillTo: faker.datatype.boolean(),
       attentionTo: faker.person.fullName(),
+      addressId: office.Addresses[0].id, // Assuming the office has at least one address
     },
   });
 
   console.log(`Shipping Info created: ${shippingInfo.id}`);
   return shippingInfo.id;
 }
+
 
 // Create Typesetting record for a work order:
 async function createTypesetting(workOrderId) {
@@ -483,11 +569,12 @@ async function createTypesettingOption(typesettingId) {
       selected: faker.datatype.boolean(),
     },
   });
+  console.log('Typesetting Option created');
 }
 
 // Create a TypesettingProof record for a typesetting record.
 async function createTypesettingProof(typesettingId, proofNumber) {
-  return await prismaClient.typesettingProof.create({
+  await prismaClient.typesettingProof.create({
     data: {
       typesettingId,
       proofNumber,
@@ -496,6 +583,7 @@ async function createTypesettingProof(typesettingId, proofNumber) {
       approved: faker.datatype.boolean(),
     },
   });
+  console.log(`Typesetting Proof created.`);
 }
 
 // Create a User record with a specific role and optionally office.
@@ -564,7 +652,7 @@ async function createUsers(officeId) {
 }
 
 // Create a work order
-async function createWorkOrder(officeId) {
+async function createWorkOrder(officeId, shippingInfoId) {
   // Fetch internal users (assuming they don't have the 'Customer' role)
   const internalUsers = await prismaClient.user.findMany({
     where: {
@@ -602,6 +690,7 @@ async function createWorkOrder(officeId) {
       version: 1,
       description: faker.commerce.productName(),
       status: randomElementFromArray(statuses),
+      shippingInfoId,
       userId: randomUser.id, // Correct field based on your schema's relation
     },
   });
@@ -617,17 +706,22 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number) {
     const workOrderItem = await prismaClient.workOrderItem.create({
       data: {
         workOrderId: workOrderId,
-        description: faker.commerce.productName(),
-        finishedQty: faker.number.int({ min: 1, max: 1000 }),
-        pressRun: faker.commerce.productMaterial(),
+        amount: parseFloat(faker.commerce.price()),
         cs: randomElementFromArray(csOptions),
+        cutting: faker.commerce.productMaterial(),
+        description: faker.commerce.productName(),
+        drilling: faker.commerce.department(),
+        finishedQty: faker.number.int({ min: 1, max: 1000 }),
+        folding: faker.commerce.productMaterial(),
+        inkColor: randomElementFromArray(inkColors),
+        other: faker.commerce.productMaterial(),
+        pressRun: faker.commerce.productMaterial(),
+        quantity: faker.number.int({ min: 1, max: 1000 }),
         size: randomElementFromArray(sizes),
         stockOnHand: faker.datatype.boolean(),
         stockOrdered: faker.datatype.boolean()
           ? faker.commerce.product()
           : null,
-        inkColor: randomElementFromArray(inkColors),
-        amount: parseFloat(faker.commerce.price()),
       },
     });
 
@@ -712,35 +806,6 @@ async function createWorkOrderVersions(workOrderId) {
   }
 }
 
-// Convert a work order to an order
-async function convertWorkOrderToOrder(workOrderId, officeId) {
-  const order = await prismaClient.order.create({
-    data: {
-      workOrderId,
-      officeId,
-      status: "Approved", // Assuming work orders are approved before becoming orders
-      pressRun: faker.word.sample(),
-      specialInstructions: faker.lorem.sentence(),
-      artwork: faker.internet.url(),
-      proofType: faker.word.sample(),
-      proofCount: faker.number.int({ min: 1, max: 5 }),
-      approved: true,
-      prepTime: faker.number.int({ min: 1, max: 10 }),
-      plateRan: faker.word.sample(),
-      expectedDate: faker.date.future(),
-      deposit: faker.number.int({ min: 100, max: 5000 }) + 0.04,
-      costPerM: faker.number.int({ min: 50, max: 200 }) + 0.05,
-      totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.06,
-      binderyTime: faker.word.sample(),
-      overUnder: faker.word.sample(),
-      description: faker.lorem.sentence(),
-      version: 1,
-    },
-  });
-
-  return order;
-}
-
 // Utility function to hash passwords
 async function hashPassword(password) {
   const salt = await bcrypt.genSalt(10);
@@ -778,7 +843,9 @@ async function seed() {
   for (const office of offices) {
     const numberOfWorkOrders = faker.number.int({ min: 1, max: 5 });
     for (let j = 0; j < numberOfWorkOrders; j++) {
-      const workOrder = await createWorkOrder(office.id);
+      // Create a shipping info record for each work order
+      const shippingInfoId = await createShippingInfo(office.id);
+      const workOrder = await createWorkOrder(office.id, shippingInfoId);
       await createWorkOrderItems(
         workOrder.id,
         faker.number.int({ min: 1, max: 5 }),
@@ -800,11 +867,10 @@ async function seed() {
         await createTypesettingProof(typeSettingID, i + 1);
       }
 
-      // Create a shipping info record for each work order
-      await createShippingInfo(workOrder.id, office.id);
 
-      // Randomly decide whether to convert a work order into an order
-      if (faker.datatype.boolean()) {
+
+      // If the order has an approved status, convert it to an order
+      if (workOrder.status == "Approved") {
         await convertWorkOrderToOrder(workOrder.id, office.id);
       }
     }

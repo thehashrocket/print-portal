@@ -187,7 +187,7 @@ model Account {
 // Belongs to Office. An office can have more than one Address.
 // The addressType is used to determine if it is a billing, shipping, mailing, or other type of address.
 model Address {
-    id              String      @id @default(uuid())
+    id              String         @id @default(uuid())
     officeId        String
     line1           String
     line2           String?
@@ -195,9 +195,10 @@ model Address {
     state           String
     zipCode         String
     country         String
-    telephoneNumber String      @default("")
-    addressType     AddressType @default(Other)
-    Office          Office      @relation(fields: [officeId], references: [id])
+    telephoneNumber String         @default("")
+    addressType     AddressType    @default(Other)
+    Office          Office         @relation(fields: [officeId], references: [id])
+    ShippingInfo    ShippingInfo[]
 }
 
 // Has many Offices.
@@ -219,7 +220,7 @@ model Office {
     id           String         @id @default(uuid())
     companyId    String
     users        User[]
-    company      Company        @relation(fields: [companyId], references: [id])
+    Company      Company        @relation(fields: [companyId], references: [id])
     ShippingInfo ShippingInfo[]
     Addresses    Address[]
     WorkOrders   WorkOrder[]
@@ -231,53 +232,59 @@ model Office {
 // It has many ProcessingOptions which are optional.
 // It has many OrderItems which at least one is required.
 model Order {
-    id                  String      @id @default(uuid())
-    workOrderId         String      @unique
-    orderNumber         Int         @default(autoincrement())
-    description         String?
-    officeId            String
-    status              OrderStatus // Draft, Proofing, Approved, Completed, etc.
-    pressRun            String
-    specialInstructions String?
+    id                  String              @id @default(uuid())
+    workOrderId         String              @unique
+    orderNumber         Int                 @default(autoincrement())
+    approved            Boolean             @default(false)
     artwork             String?
-    proofType           String?
-    proofCount          Int         @default(0)
-    approved            Boolean     @default(false)
-    prepTime            Int?
-    plateRan            String?
-    expectedDate        DateTime?
-    deposit             Decimal?    @db.Decimal(10, 2)
-    costPerM            Decimal?    @db.Decimal(10, 2)
-    totalCost           Decimal?    @db.Decimal(10, 2)
     binderyTime         String?
+    costPerM            Decimal?            @db.Decimal(10, 2)
+    createdAt           DateTime            @default(now())
+    deposit             Decimal?            @db.Decimal(10, 2)
+    description         String?
+    expectedDate        DateTime?
+    officeId            String
     overUnder           String?
-    version             Int         @default(1)
-
-    createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @default(now())
-    OrderItems        OrderItem[]
-    ShippingInfo      ShippingInfo?       @relation(name: "OrderShipping")
-    WorkOrder         WorkOrder           @relation(fields: [workOrderId], references: [id])
-    Typesetting       Typesetting[]
-    ProcessingOptions ProcessingOptions[]
-    shippingInfoId    String?
-    // belongs to Office
-    Office            Office              @relation(fields: [officeId], references: [id])
+    plateRan            String?
+    prepTime            Int?
+    pressRun            String
+    proofCount          Int                 @default(0)
+    proofType           String?
+    specialInstructions String?
+    status              OrderStatus // Draft, Proofing, Approved, Completed, etc.
+    totalCost           Decimal?            @db.Decimal(10, 2)
+    updatedAt           DateTime            @default(now())
+    userId              String
+    version             Int                 @default(1)
+    // Relations
+    OrderItems          OrderItem[]
+    User                User                @relation(fields: [userId], references: [id])
+    WorkOrder           WorkOrder           @relation(fields: [workOrderId], references: [id])
+    Typesetting         Typesetting[]
+    ProcessingOptions   ProcessingOptions[]
+    Office              Office              @relation(fields: [officeId], references: [id])
+    ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
+    shippingInfoId      String
 }
 
 // This aligns with the WorkOrderItem and is used to create an OrderItem
 model OrderItem {
-    id           String   @id @default(uuid())
-    orderId      String
-    description  String
-    finishedQty  Int
-    pressRun     String
+    amount       Decimal? @db.Decimal(10, 2)
     cs           String
+    cutting      String?
+    description  String
+    drilling     String?
+    finishedQty  Int
+    folding      String?
+    id           String   @id @default(uuid())
+    inkColor     String?
+    orderId      String
+    other        String?
+    pressRun     String
+    quantity     Int      @default(1)
     size         String?
     stockOnHand  Boolean  @default(false)
     stockOrdered String?
-    inkColor     String?
-    amount       Decimal? @db.Decimal(10, 2)
     Order        Order    @relation(fields: [orderId], references: [id])
 }
 
@@ -335,8 +342,6 @@ model Session {
 // It captures both the anticipated and actual shipping details (e.g. shipping date, shipping method, shipping cost, etc.)
 model ShippingInfo {
     id                 String         @id @default(uuid())
-    workOrderId        String         @unique // Ensures one-to-one relationship
-    orderId            String?        @unique // Ensures one-to-one relationship
     instructions       String?
     shippingOther      String? // Additional notes or custom shipping options
     shippingDate       DateTime?
@@ -345,10 +350,12 @@ model ShippingInfo {
     officeId           String // Reference to the office location for shipping address
     shipToSameAsBillTo Boolean        @default(false)
     attentionTo        String?
+    addressId          String?
 
-    Office    Office    @relation(fields: [officeId], references: [id])
-    WorkOrder WorkOrder @relation(fields: [workOrderId], references: [id])
-    Order     Order?    @relation(name: "OrderShipping", fields: [orderId], references: [id])
+    Office    Office      @relation(fields: [officeId], references: [id])
+    Address   Address?    @relation(fields: [addressId], references: [id])
+    Order     Order[]
+    WorkOrder WorkOrder[]
 }
 
 // It belongs to the WorkOrder and is used to store the options selected for the proofing process.
@@ -416,6 +423,7 @@ model User {
     officeId      String?
     WorkOrders    WorkOrder[]
     WorkOrderNote WorkOrderNote[]
+    Order         Order[]
 }
 
 model VerificationToken {
@@ -436,40 +444,36 @@ model VerificationToken {
 // It has many ProcessingOptions which are optional.
 // It has many Typesetting which are optional.
 model WorkOrder {
-    id                  String   @id @default(uuid())
-    officeId            String
-    workOrderNumber     Int      @default(autoincrement())
-    description         String?
-    dateIn              DateTime
-    inHandsDate         DateTime
-    estimateNumber      String
-    purchaseOrderNumber String
-
-    pressRun            String
-    specialInstructions String?
+    approved            Boolean     @default(false)
     artwork             String?
-    approved            Boolean @default(false)
-    prepTime            Int?
+    binderyTime         String?
+    costPerM            Decimal     @default(0) @db.Decimal(10, 2)
+    createdAt           DateTime    @default(now())
+    dateIn              DateTime
+    deposit             Decimal     @default(0) @db.Decimal(10, 2)
+    description         String?
+    estimateNumber      String
+    expectedDate        DateTime?
+    id                  String      @id @default(uuid())
+    inHandsDate         DateTime
+    officeId            String
+    overUnder           String?
     plateRan            String?
+    prepTime            Int?
+    pressRun            String
+    purchaseOrderNumber String
+    shippingInfoId      String
+    specialInstructions String?
+    status              OrderStatus // Draft, Proofing, Approved, Completed, etc.
+    totalCost           Decimal?    @db.Decimal(10, 2)
+    updatedAt           DateTime    @updatedAt
+    userId              String
+    version             Int         @default(autoincrement())
+    workOrderNumber     Int         @default(autoincrement())
 
-    expectedDate DateTime?
-    deposit      Decimal?    @db.Decimal(10, 2)
-    costPerM     Decimal?    @db.Decimal(10, 2)
-    totalCost    Decimal?    @db.Decimal(10, 2)
-    binderyTime  String?
-    overUnder    String?
-    userId       String
-    version      Int         @default(1)
-    status       OrderStatus // Draft, Proofing, Approved, Completed, etc.
-    createdAt    DateTime    @default(now())
-    updatedAt    DateTime    @updatedAt
-
-    office Office @relation(fields: [officeId], references: [id])
-
-    user User @relation(fields: [userId], references: [id])
-
-    shippingInfo ShippingInfo?
-
+    // Relations
+    Office            Office             @relation(fields: [officeId], references: [id])
+    User              User               @relation(fields: [userId], references: [id])
     WorkOrderItems    WorkOrderItem[]
     WorkOrderStock    WorkOrderStock[]
     WorkOrderVersions WorkOrderVersion[]
@@ -477,25 +481,28 @@ model WorkOrder {
     ProcessingOptions ProcessingOptions?
     Order             Order?
     WorkOrderNotes    WorkOrderNote[]
+    // Belongs to ShippingInfo
+    ShippingInfo      ShippingInfo?      @relation(fields: [shippingInfoId], references: [id])
 }
 
 // It belongs to the WorkOrder and is used to store the items for the order.
 model WorkOrderItem {
-    id           String   @id @default(uuid())
-    workOrderId  String
+    amount       Decimal? @db.Decimal(10, 2)
+    cs           String?
     cutting      String?
     description  String?
     drilling     String?
     finishedQty  Int?
     folding      String?
+    id           String   @id @default(uuid())
+    inkColor     String?
     other        String?
     pressRun     String?
-    cs           String?
+    quantity     Int      @default(1)
     size         String?
     stockOnHand  Boolean  @default(false)
     stockOrdered String?
-    inkColor     String?
-    amount       Decimal? @db.Decimal(10, 2)
+    workOrderId  String
 
     WorkOrder WorkOrder @relation(fields: [workOrderId], references: [id])
 }

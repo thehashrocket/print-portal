@@ -13,7 +13,27 @@ export const orderRouter = createTRPCRouter({
         Typesetting: true,
         ProcessingOptions: true,
         OrderItems: true,
-        office: true,
+        ShippingInfo: {
+          include: {
+            Address: {
+              select: {
+                line1: true,
+                line2: true,
+                city: true,
+                state: true,
+                zipCode: true,
+                country: true,
+                telephoneNumber: true,
+                addressType: true
+              }
+            }
+          }
+        },
+        Office: {
+          include: {
+            Company: true // Include the Company model associated with the Office
+          }
+        }
       },
     });
   }),

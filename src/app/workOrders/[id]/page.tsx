@@ -3,7 +3,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { WorkOrder } from "@prisma/client";
-
+import WorkOrderItemsTable from "./workOrderItemsTable";
 export default async function WorkOrderPage({
   params: { id },
 }: {
@@ -20,21 +20,51 @@ export default async function WorkOrderPage({
   // Fetch work order data
   const workOrder = await api.workOrders.getByID(id);
 
+  const serializedWorkOrderItems = workOrder?.WorkOrderItems.map((workOrderItem) => ({
+    ...workOrderItem,
+    amount: workOrderItem.amount.toString(),
+
+  }));
   // Render the component
   return (
     <div className="container mx-auto">
       <div className="rounded-lg bg-white p-6 shadow-md">
-        <h1 className="mb-4 text-2xl font-bold">Work Order Details</h1>
+        <h1 className="mb-4 text-2xl">Work Order Details</h1>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="mb-2 text-gray-600">Work Order Number</p>
-            <p className="text-lg font-semibold">{workOrder.workOrderNumber}</p>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Number</p>
+            <p className="text-lg font-semibold">{workOrder?.workOrderNumber}</p>
           </div>
           <div>
-            <p className="mb-2 text-gray-600">Office ID</p>
-            <p className="text-lg font-semibold">{workOrder.officeId}</p>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Office ID</p>
+            <p className="text-lg font-semibold">{workOrder?.officeId}</p>
           </div>
-          {/* Add more work order details here */}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Recipient</h2>
+            <p className="text-lg">{workOrder?.Office.Company.name}</p>
+            <p className="text-lg">
+              {workOrder?.ShippingInfo.Address?.line1}<br />
+              {workOrder?.ShippingInfo.Address?.line2}<br />
+              {workOrder?.ShippingInfo.Address?.city}, {workOrder?.ShippingInfo.Address?.state} {workOrder?.ShippingInfo.Address?.zipCode}<br />
+              {workOrder?.ShippingInfo.Address?.country}
+            </p>
+          </div>
+          <div>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Telephone Number</h2>
+            <p className="text-lg">{workOrder?.ShippingInfo.Address?.telephoneNumber}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Address Type</h2>
+            <p className="text-lg">{workOrder?.ShippingInfo.Address?.addressType}</p>
+          </div>
+          <div>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Items</h2>
+            <WorkOrderItemsTable workOrderItems={serializedWorkOrderItems} />
+          </div>
         </div>
         {/* Additional sections for more work order details */}
       </div>
