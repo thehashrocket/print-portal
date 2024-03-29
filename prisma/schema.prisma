@@ -336,17 +336,17 @@ model Permission {
 // It belongs to the WorkOrder and is used to store the information for the items in the order.
 // It also belongs to the Order if it has been approved.
 model ProcessingOptions {
-    id             String  @id @default(uuid())
-    orderId        String? @unique
-    workOrderId    String? @unique
     cutting        Boolean @default(false)
-    padding        Boolean @default(false)
     drilling       Boolean @default(false)
     folding        Boolean @default(false)
-    other          String? // Additional notes or custom processing options
-    numberingStart Int?
-    numberingEnd   Int?
+    id             String  @id @default(uuid())
     numberingColor String?
+    numberingEnd   Int?
+    numberingStart Int?
+    orderId        String? @unique
+    other          String? // Additional notes or custom processing options
+    padding        Boolean @default(false)
+    workOrderId    String? @unique
 
     WorkOrder WorkOrder? @relation(fields: [workOrderId], references: [id])
     Order     Order?     @relation(fields: [orderId], references: [id])
@@ -547,11 +547,11 @@ model WorkOrderNote {
     id          String   @id @default(uuid())
     workOrderId String
     note        String
-    user        User     @relation(fields: [userId], references: [id])
+    User        User     @relation(fields: [userId], references: [id])
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
-    workOrder WorkOrder @relation(fields: [workOrderId], references: [id])
+    WorkOrder WorkOrder @relation(fields: [workOrderId], references: [id])
     userId    String
 }
 

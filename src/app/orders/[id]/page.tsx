@@ -22,21 +22,6 @@ export default async function OrderPage({
   const order = await api.orders.getByID(id);
   console.log('console log order', order);
 
-  // loop through order.ShippingInfo and order.ShippingInfo.Address
-  // console log the values
-
-  // Check if order.ShippingInfo is an array before looping through it
-  if (Array.isArray(order?.ShippingInfo)) {
-    // loop through order.ShippingInfo and order.ShippingInfo.Address
-    order?.ShippingInfo.forEach((shippingInfo) => {
-      console.log('console log shippingInfo', shippingInfo);
-      console.log('console log shippingInfo.Address', shippingInfo?.Address);
-      // Now you can safely access shippingInfo.Address
-    });
-  }
-
-
-  // Render the component
   return (
     <div className="container mx-auto">
       <div className="rounded-lg bg-white p-6 shadow-md">
@@ -51,7 +36,17 @@ export default async function OrderPage({
             <p className="text-lg">{order?.officeId}</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Status</h2>
+            <p className="text-lg">{order?.status}</p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Total</h2>
+            <p className="text-lg">$ {order?.totalCost?.toString()}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Recipient</h2>
             <p className="text-lg">{order?.Office.Company.name}</p>
@@ -63,28 +58,40 @@ export default async function OrderPage({
               )}
               {order?.ShippingInfo.Address?.city}, {order?.ShippingInfo.Address?.state} {order?.ShippingInfo.Address?.zipCode}<br />
             </p>
-          </div>
-          <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Shipping Method</h2>
             <p className="text-lg">{order?.ShippingInfo.shippingMethod}</p>
           </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-              <ul>
-                {order?.ProcessingOptions.map((processingOption) => (
-                  <li key={processingOption.id}>{processingOption.name}</li>
-                ))}
-              </ul>
-            </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Telephone Number</h2>
+            <p className="text-lg">{order?.ShippingInfo?.Address?.telephoneNumber}</p>
           </div>
-          <div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
-              <OrderItemsTable orderItems={order?.OrderItems} />
-            </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
+            <p className="text-lg mb-2">
+              {order?.specialInstructions}<br />
+            </p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
+            <p className="text-lg">{order?.ShippingInfo?.Address?.telephoneNumber}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
+            <OrderItemsTable orderItems={order?.OrderItems} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
+            <ul>
+              {order?.ProcessingOptions.map((processingOption) => (
+                <li key={processingOption.id}>{processingOption.name}</li>
+              ))}
+            </ul>
           </div>
 
         </div>

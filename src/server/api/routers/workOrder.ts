@@ -33,7 +33,11 @@ export const workOrderRouter = createTRPCRouter({
         WorkOrderVersions: true,
         Typesetting: true,
         ProcessingOptions: true,
-        WorkOrderNotes: true,
+        WorkOrderNotes: {
+          include: {
+            User: true
+          }
+        },
         ShippingInfo: {
           include: {
             Address: {

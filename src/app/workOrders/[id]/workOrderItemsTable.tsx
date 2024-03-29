@@ -21,17 +21,23 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
         resizable: true,
         sortable: true,
     };
-    const [rowData, setRowData] = useState([]);
+    const [rowData, setRowData] = useState<{
+        quantity: number;
+        description: string;
+        cutting: string;
+        drilling: string;
+        finishedQty: string;
+        folding: string;
+    }>([]);
 
     // Define column definitions and row data here
     const columnDefs = [
-        { headerName: "Quantity", field: "quantity" },
+        { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
-        { headerName: "Cutting", field: "cutting", filter: true },
-        { headerName: "Drilling", field: "drilling", filter: true },
-        { headerName: "Quantity", field: "quantity", filter: true },
-        { headerName: "Finished Qty", field: "finishedQty", filter: true },
-        { headerName: "Folding", field: "folding", filter: true },
+        { headerName: "Cutting", field: "cutting", filter: true, width: 100 },
+        { headerName: "Drilling", field: "drilling", filter: true, width: 150 },
+        { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
+        { headerName: "Folding", field: "folding", filter: true, width: 100 },
     ];
 
     useEffect(() => {
@@ -42,7 +48,6 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
                     description: workOrderItem.description,
                     cutting: workOrderItem.cutting,
                     drilling: workOrderItem.drilling,
-                    quantity: workOrderItem.quantity,
                     finishedQty: workOrderItem.finishedQty,
                     folding: workOrderItem.folding,
                 };
