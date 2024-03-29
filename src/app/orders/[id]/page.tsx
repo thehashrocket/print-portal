@@ -57,7 +57,10 @@ export default async function OrderPage({
             <p className="text-lg">{order?.Office.Company.name}</p>
             <p className="text-lg">
               {order?.ShippingInfo.Address?.line1}<br />
-              {order?.ShippingInfo.Address?.line2}<br />
+              {/* If line2 is not null, then print line 2 */}
+              {order?.ShippingInfo.Address?.line2 && (
+                <>{order?.ShippingInfo.Address?.line2}<br /></>
+              )}
               {order?.ShippingInfo.Address?.city}, {order?.ShippingInfo.Address?.state} {order?.ShippingInfo.Address?.zipCode}<br />
             </p>
           </div>

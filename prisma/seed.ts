@@ -84,6 +84,74 @@ async function convertWorkOrderToOrder(workOrderId, officeId) {
     console.log('Order Item created');
   });
 
+  const processingOptions = await prismaClient.processingOptions.findMany({
+    where: {
+      workOrderId,
+    },
+  });
+
+  processingOptions.forEach(async (processingOption) => {
+    await prismaClient.processingOptions.create({
+      data: {
+        cutting: processingOption.cutting,
+        drilling: processingOption.drilling,
+        folding: processingOption.folding,
+        numberingColor: processingOption.numberingColor,
+        numberingEnd: processingOption.numberingEnd,
+        numberingStart: processingOption.numberingStart,
+        other: processingOption.other,
+        orderId: order.id,
+        padding: processingOption.padding,
+      }
+    });
+    console.log('Processing Option created');
+  });
+
+  const typesettings = await prismaClient.typesetting.findMany({
+    where: {
+      workOrderId,
+    },
+  });
+
+  typesettings.forEach(async (typesetting) => {
+    {
+      await prismaClient.typesetting.update({
+        data: {
+          orderId: order.id,
+        },
+        where: {
+          id: typesetting.id,
+        }
+      });
+      console.log('Typesetting created');
+    }
+  });
+
+  const workOrderStocks = await prismaClient.workOrderStock.findMany({
+    where: {
+      workOrderId,
+    },
+  });
+
+  workOrderStocks.forEach(async (workOrderStock) => {
+    await prismaClient.orderStock.create({
+      data: {
+        costPerM: workOrderStock.costPerM,
+        expectedDate: workOrderStock.expectedDate,
+        from: workOrderStock.from,
+        notes: workOrderStock.notes,
+        orderedDate: workOrderStock.orderedDate,
+        orderId: order.id,
+        received: workOrderStock.received,
+        receivedDate: workOrderStock.receivedDate,
+        stockQty: workOrderStock.stockQty,
+        stockStatus: workOrderStock.stockStatus,
+        totalCost: workOrderStock.totalCost,
+      }
+    });
+    console.log('Order Stock created');
+  });
+
 
   return order;
 }
@@ -154,6 +222,24 @@ async function createOffice(companyId) {
       // Additional data if needed
     },
   });
+}
+
+async function createProcessingOptions(workOrderId) {
+  const processingOptions = await prismaClient.processingOptions.create({
+    data: {
+      workOrderId,
+      cutting: faker.datatype.boolean(),
+      padding: faker.datatype.boolean(),
+      drilling: faker.datatype.boolean(),
+      folding: faker.datatype.boolean(),
+      other: faker.lorem.sentence(),
+      numberingStart: randomInt,
+      numberingEnd: randomInt,
+      numberingColor: randomElementFromArray(inkColors),
+    },
+  });
+  console.log('Processing Options created');
+  return processingOptions.id;
 }
 
 async function createRolesAndPermissions() {
@@ -867,7 +953,9 @@ async function seed() {
         await createTypesettingProof(typeSettingID, i + 1);
       }
 
+      await createProcessingOptions(workOrder.id);
 
+      const numberOfWorkOrderNotes = faker.number.int({ min: 1, max: 5 });
 
       // If the order has an approved status, convert it to an order
       if (workOrder.status == "Approved") {

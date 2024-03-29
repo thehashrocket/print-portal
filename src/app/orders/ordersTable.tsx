@@ -50,7 +50,6 @@ const OrdersTable: React.FC<Order[]> = (orders) => {
   ];
 
   useEffect(() => {
-    console.log("orders", orders["orders"]);
     setRowData(
       orders["orders"].map((order) => {
         return {

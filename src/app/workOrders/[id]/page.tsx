@@ -46,7 +46,10 @@ export default async function WorkOrderPage({
             <p className="text-lg">{workOrder?.Office.Company.name}</p>
             <p className="text-lg">
               {workOrder?.ShippingInfo.Address?.line1}<br />
-              {workOrder?.ShippingInfo.Address?.line2}<br />
+              {/* If line2 is not null, then print line 2 */}
+              {workOrder?.ShippingInfo.Address?.line2 && (
+                <>{workOrder?.ShippingInfo.Address?.line2}<br /></>
+              )}
               {workOrder?.ShippingInfo.Address?.city}, {workOrder?.ShippingInfo.Address?.state} {workOrder?.ShippingInfo.Address?.zipCode}<br />
               {workOrder?.ShippingInfo.Address?.country}
             </p>

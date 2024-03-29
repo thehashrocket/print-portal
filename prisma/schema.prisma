@@ -250,6 +250,7 @@ model Order {
     pressRun            String
     proofCount          Int                 @default(0)
     proofType           String?
+    shippingInfoId      String
     specialInstructions String?
     status              OrderStatus // Draft, Proofing, Approved, Completed, etc.
     totalCost           Decimal?            @db.Decimal(10, 2)
@@ -257,14 +258,15 @@ model Order {
     userId              String
     version             Int                 @default(1)
     // Relations
+    Office              Office              @relation(fields: [officeId], references: [id])
     OrderItems          OrderItem[]
+    OrderNote           OrderNote[]
+    OrderStock          OrderStock[]
+    ProcessingOptions   ProcessingOptions[]
+    ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
+    Typesetting         Typesetting[]
     User                User                @relation(fields: [userId], references: [id])
     WorkOrder           WorkOrder           @relation(fields: [workOrderId], references: [id])
-    Typesetting         Typesetting[]
-    ProcessingOptions   ProcessingOptions[]
-    Office              Office              @relation(fields: [officeId], references: [id])
-    ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
-    shippingInfoId      String
 }
 
 // This aligns with the WorkOrderItem and is used to create an OrderItem
@@ -288,6 +290,39 @@ model OrderItem {
     Order        Order    @relation(fields: [orderId], references: [id])
 }
 
+// It belongs to the Order and is used to store the notes for the order.
+model OrderNote {
+    id        String   @id @default(uuid())
+    note      String
+    orderId   String
+    userId    String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    order Order @relation(fields: [orderId], references: [id])
+    user  User  @relation(fields: [userId], references: [id])
+}
+
+// It belongs to the Order and is used to store the stock for the order.
+model OrderStock {
+    costPerM     Decimal?    @db.Decimal(10, 2)
+    createdAt    DateTime    @default(now())
+    expectedDate DateTime?
+    from         String?
+    id           String      @id @default(uuid())
+    notes        String?
+    orderedDate  DateTime?
+    orderId      String
+    received     Boolean     @default(false)
+    receivedDate DateTime?
+    stockQty     Int
+    stockStatus  StockStatus
+    totalCost    Decimal?    @db.Decimal(10, 2)
+    updatedAt    DateTime    @updatedAt
+
+    Order Order @relation(fields: [orderId], references: [id])
+}
+
 // Permission is used to define the roles and what they can do.
 model Permission {
     id          String  @id @default(uuid())
@@ -302,8 +337,8 @@ model Permission {
 // It also belongs to the Order if it has been approved.
 model ProcessingOptions {
     id             String  @id @default(uuid())
-    workOrderId    String  @unique // Ensures one-to-one relationship
     orderId        String? @unique
+    workOrderId    String? @unique
     cutting        Boolean @default(false)
     padding        Boolean @default(false)
     drilling       Boolean @default(false)
@@ -313,8 +348,8 @@ model ProcessingOptions {
     numberingEnd   Int?
     numberingColor String?
 
-    WorkOrder WorkOrder @relation(fields: [workOrderId], references: [id])
-    Order     Order?    @relation(fields: [orderId], references: [id])
+    WorkOrder WorkOrder? @relation(fields: [workOrderId], references: [id])
+    Order     Order?     @relation(fields: [orderId], references: [id])
 }
 
 // Roles are assigned to a user and define what they can do.
@@ -424,6 +459,7 @@ model User {
     WorkOrders    WorkOrder[]
     WorkOrderNote WorkOrderNote[]
     Order         Order[]
+    OrderNote     OrderNote[]
 }
 
 model VerificationToken {
@@ -473,16 +509,15 @@ model WorkOrder {
 
     // Relations
     Office            Office             @relation(fields: [officeId], references: [id])
+    Order             Order?
+    ShippingInfo      ShippingInfo?      @relation(fields: [shippingInfoId], references: [id])
+    ProcessingOptions ProcessingOptions?
+    Typesetting       Typesetting[]
     User              User               @relation(fields: [userId], references: [id])
     WorkOrderItems    WorkOrderItem[]
+    WorkOrderNotes    WorkOrderNote[]
     WorkOrderStock    WorkOrderStock[]
     WorkOrderVersions WorkOrderVersion[]
-    Typesetting       Typesetting[]
-    ProcessingOptions ProcessingOptions?
-    Order             Order?
-    WorkOrderNotes    WorkOrderNote[]
-    // Belongs to ShippingInfo
-    ShippingInfo      ShippingInfo?      @relation(fields: [shippingInfoId], references: [id])
 }
 
 // It belongs to the WorkOrder and is used to store the items for the order.
@@ -507,7 +542,7 @@ model WorkOrderItem {
     WorkOrder WorkOrder @relation(fields: [workOrderId], references: [id])
 }
 
-// It belongs to the WorkOrder and is used to store the notes for the order.
+// It belongs to the WorkOrder and is used to store the notes for the Work Order.
 model WorkOrderNote {
     id          String   @id @default(uuid())
     workOrderId String
