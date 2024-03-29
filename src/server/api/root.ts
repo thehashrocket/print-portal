@@ -1,9 +1,10 @@
-import { userRouter } from "~/server/api/routers/user";
-import { orderRouter } from "./routers/order";
-import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { workOrderRouter } from "./routers/workOrder";
-import { workOrderNoteRouter } from "./routers/workOrderNote";
+import { orderNoteRouter } from "./routers/orders/orderNotes";
+import { orderRouter } from "./routers/orders/order";
+import { postRouter } from "~/server/api/routers/post";
+import { userRouter } from "~/server/api/routers/user";
+import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
+import { workOrderRouter } from "./routers/workOrders/workOrder";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ import { workOrderNoteRouter } from "./routers/workOrderNote";
  */
 export const appRouter = createTRPCRouter({
   orders: orderRouter,
+  orderNotes: orderNoteRouter,
   post: postRouter,
   users: userRouter,
   workOrderNotes: workOrderNoteRouter,

@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../../trpc";
 import { z } from "zod";
 
 // Get an Order by ID
@@ -13,6 +13,11 @@ export const orderRouter = createTRPCRouter({
         Typesetting: true,
         ProcessingOptions: true,
         OrderItems: true,
+        OrderNotes: {
+          include: {
+            User: true
+          }
+        },
         ShippingInfo: {
           include: {
             Address: {

@@ -3,8 +3,8 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { WorkOrder } from "@prisma/client";
-import WorkOrderItemsTable from "./workOrderItemsTable";
-import WorkOrderNotes from "../workOrderNotes";
+import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
+import WorkOrderNotes from "../../_components/workOrders/workOrderNotes";
 
 export default async function WorkOrderPage({
   params: { id },

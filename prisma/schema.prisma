@@ -260,7 +260,7 @@ model Order {
     // Relations
     Office              Office              @relation(fields: [officeId], references: [id])
     OrderItems          OrderItem[]
-    OrderNote           OrderNote[]
+    OrderNotes          OrderNote[]
     OrderStock          OrderStock[]
     ProcessingOptions   ProcessingOptions[]
     ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
@@ -299,8 +299,8 @@ model OrderNote {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    order Order @relation(fields: [orderId], references: [id])
-    user  User  @relation(fields: [userId], references: [id])
+    Order Order @relation(fields: [orderId], references: [id])
+    User  User  @relation(fields: [userId], references: [id])
 }
 
 // It belongs to the Order and is used to store the stock for the order.

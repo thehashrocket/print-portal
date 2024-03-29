@@ -67,8 +67,6 @@ const WorkOrderNotes: React.FC<WorkOrderNotesProps> = ({ notes, workOrderId }) =
                     className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        console.log('workOrderId', workOrderId);
-                        console.log('note', note);
                         createNote.mutate({ note, workOrderId }) // Add the 'workOrderId' property to the argument object
 
                     }}

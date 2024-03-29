@@ -4,7 +4,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { Order } from "@prisma/client";
-import OrdersTable from "./ordersTable";
+import OrdersTable from "../_components/orders/ordersTable";
 
 export default async function OrdersPage() {
   const session = await getServerAuthSession();

@@ -3,7 +3,8 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { Order } from "@prisma/client";
-import OrderItemsTable from "./orderItemsTable";
+import OrderItemsTable from "../../_components/orders/orderItemsTable";
+import OrderNotes from "~/app/_components/orders/orderNotes";
 
 export default async function OrderPage({
   params: { id },
@@ -75,7 +76,7 @@ export default async function OrderPage({
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
-            <p className="text-lg">{order?.ShippingInfo?.Address?.telephoneNumber}</p>
+            <OrderNotes notes={order?.OrderNotes} orderId={order?.id} />
           </div>
         </div>
         <div className="grid grid-cols-1 mb-2">

@@ -4,7 +4,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { WorkOrder } from "@prisma/client";
-import WorkOrdersTable from "./workOrdersTable";
+import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
 
 export default async function WorkOrdersPage() {
   const session = await getServerAuthSession();
