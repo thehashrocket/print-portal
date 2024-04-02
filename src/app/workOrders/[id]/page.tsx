@@ -2,6 +2,7 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
+import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
 import { WorkOrder } from "@prisma/client";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
 import WorkOrderNotes from "../../_components/workOrders/workOrderNotes";
@@ -79,6 +80,10 @@ export default async function WorkOrderPage({
             <p className="text-lg mb-2">
               {workOrder?.specialInstructions}<br />
             </p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
+            <ProcessingOptionsTable processingOptions={workOrder?.ProcessingOptions} workOrderId={workOrder?.id} />
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>

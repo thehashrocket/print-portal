@@ -336,17 +336,19 @@ model Permission {
 // It belongs to the WorkOrder and is used to store the information for the items in the order.
 // It also belongs to the Order if it has been approved.
 model ProcessingOptions {
-    cutting        Boolean @default(false)
-    drilling       Boolean @default(false)
-    folding        Boolean @default(false)
-    id             String  @id @default(uuid())
+    createdAt      DateTime @default(now())
+    cutting        Boolean  @default(false)
+    drilling       Boolean  @default(false)
+    folding        Boolean  @default(false)
+    id             String   @id @default(uuid())
     numberingColor String?
     numberingEnd   Int?
     numberingStart Int?
-    orderId        String? @unique
+    orderId        String?
     other          String? // Additional notes or custom processing options
-    padding        Boolean @default(false)
-    workOrderId    String? @unique
+    padding        Boolean  @default(false)
+    updatedAt      DateTime @updatedAt
+    workOrderId    String?
 
     WorkOrder WorkOrder? @relation(fields: [workOrderId], references: [id])
     Order     Order?     @relation(fields: [orderId], references: [id])
@@ -508,12 +510,12 @@ model WorkOrder {
     workOrderNumber     Int         @default(autoincrement())
 
     // Relations
-    Office            Office             @relation(fields: [officeId], references: [id])
+    Office            Office              @relation(fields: [officeId], references: [id])
     Order             Order?
-    ShippingInfo      ShippingInfo?      @relation(fields: [shippingInfoId], references: [id])
-    ProcessingOptions ProcessingOptions?
+    ShippingInfo      ShippingInfo?       @relation(fields: [shippingInfoId], references: [id])
+    ProcessingOptions ProcessingOptions[]
     Typesetting       Typesetting[]
-    User              User               @relation(fields: [userId], references: [id])
+    User              User                @relation(fields: [userId], references: [id])
     WorkOrderItems    WorkOrderItem[]
     WorkOrderNotes    WorkOrderNote[]
     WorkOrderStock    WorkOrderStock[]

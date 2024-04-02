@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { WorkOrderNote } from '@prisma/client';
+import { WorkOrderNote } from '@prisma/client'; // use client to fetch data instead of server
 import { api } from "~/trpc/react";
 import { AgGridReact, CustomCellRendererProps } from "@ag-grid-community/react"; // React Grid Logic
 import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
@@ -96,17 +96,15 @@ const WorkOrderNotes: React.FC<WorkOrderNotesProps> = ({ notes, workOrderId }) =
                     {createNote.isPending && <span>Submitting...</span>}
                 </form>
             </div>
-            <div>
-                <div className="ag-theme-quartz" style={{ height: "300px", width: "100%" }}>
-                    <AgGridReact
-                        style={{ width: '100%', height: '100%' }}
-                        id="users_grid"
-                        ref={gridRef}
-                        columnDefs={columnDefs}
-                        defaultColDef={defaultColDef}
-                        rowData={rowData}
-                    />
-                </div>
+            <div className="ag-theme-quartz" style={{ height: "300px", width: "100%" }}>
+                <AgGridReact
+                    style={{ width: '100%', height: '100%' }}
+                    id="users_grid"
+                    ref={gridRef}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                    rowData={rowData}
+                />
             </div>
         </>
     );
