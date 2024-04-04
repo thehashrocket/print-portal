@@ -20,7 +20,7 @@ type WorkOrderNotesProps = {
     workOrderId: string;
 };
 
-const WorkOrderNotes: React.FC<WorkOrderNotesProps> = ({ notes, workOrderId }) => {
+const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ notes, workOrderId }) => {
     const gridRef = useRef();
     const router = useRouter();
     const defaultColDef = {
@@ -110,4 +110,4 @@ const WorkOrderNotes: React.FC<WorkOrderNotesProps> = ({ notes, workOrderId }) =
     );
 };
 
-export default WorkOrderNotes;
+export default WorkOrderNotesComponent;

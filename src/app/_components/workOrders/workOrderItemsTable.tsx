@@ -22,6 +22,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
         sortable: true,
     };
     const [rowData, setRowData] = useState<{
+        id: string;
         quantity: number;
         description: string;
         cutting: string;
@@ -32,6 +33,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
 
     // Define column definitions and row data here
     const columnDefs = [
+        { headerName: "ID", field: "id", hide: true },
         { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Cutting", field: "cutting", filter: true, width: 100 },

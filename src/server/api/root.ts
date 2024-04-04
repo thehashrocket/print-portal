@@ -6,6 +6,8 @@ import { userRouter } from "~/server/api/routers/user";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
+import { typesettingRouter } from "./routers/shared/typesetting/typesetting";
+import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesettingOptions";
 
 /**
  * This is the primary router for your server.
@@ -17,6 +19,8 @@ export const appRouter = createTRPCRouter({
   orderNotes: orderNoteRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
+  typesetting: typesettingRouter,
+  typesettingOptions: typesettingOptionsRouter,
   users: userRouter,
   workOrderNotes: workOrderNoteRouter,
   workOrders: workOrderRouter,

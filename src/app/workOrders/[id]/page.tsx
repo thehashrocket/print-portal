@@ -5,7 +5,8 @@ import { getServerAuthSession } from "~/server/auth";
 import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
 import { WorkOrder } from "@prisma/client";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
-import WorkOrderNotes from "../../_components/workOrders/workOrderNotes";
+import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
+import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 
 export default async function WorkOrderPage({
   params: { id },
@@ -25,14 +26,21 @@ export default async function WorkOrderPage({
 
   const serializedWorkOrderItems = workOrder?.WorkOrderItems.map((workOrderItem) => ({
     ...workOrderItem,
-    amount: workOrderItem.amount.toString(),
-
+    amount: workOrderItem?.amount?.toString(),
   }));
+
+  const serializedTypesetting = workOrder?.Typesetting.map((typesetting) => ({
+    ...typesetting,
+    cost: typesetting?.cost?.toString(),
+    prepTime: typesetting?.prepTime?.toString(),
+  }));
+
   // Render the component
   return (
     <div className="container mx-auto">
       <div className="rounded-lg bg-white p-6 shadow-md">
         <h1 className="mb-4 text-2xl">Work Order Details</h1>
+        {/* Row 1 */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Number</p>
@@ -43,6 +51,8 @@ export default async function WorkOrderPage({
             <p className="text-lg font-semibold">{workOrder?.officeId}</p>
           </div>
         </div>
+        {/* Row 2 */}
+        {/* Status and Total */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Status</h2>
@@ -53,6 +63,8 @@ export default async function WorkOrderPage({
             <p className="text-lg">$ {workOrder?.totalCost?.toString()}</p>
           </div>
         </div>
+        {/* Row 3 */}
+        {/* Shipping Address and Telephone Number */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Recipient</h2>
@@ -74,34 +86,51 @@ export default async function WorkOrderPage({
             <p className="text-lg">{workOrder?.ShippingInfo?.Address?.telephoneNumber}</p>
           </div>
         </div>
+        {/* Row 4 */}
+        {/* Work Order Notes, Special Instructions and Processing Options */}
         <div className="grid grid-cols-2 gap-4 mb-2">
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
-            <p className="text-lg mb-2">
-              {workOrder?.specialInstructions}<br />
-            </p>
+          <div>
+            <div className="rounded-lg bg-white p-6 shadow-md">
+              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
+              <WorkOrderNotesComponent notes={workOrder?.WorkOrderNotes} workOrderId={workOrder?.id} />
+            </div>
+            <div className="rounded-lg bg-white p-6 shadow-md">
+              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
+              <p className="text-lg mb-2">
+                {workOrder?.specialInstructions}<br />
+              </p>
+            </div>
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
             <ProcessingOptionsTable processingOptions={workOrder?.ProcessingOptions} workOrderId={workOrder?.id} />
           </div>
+        </div>
+        {/* Row 5 */}
+        {/* Typesetting */}
+        <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
-            <WorkOrderNotes notes={workOrder?.WorkOrderNotes} workOrderId={workOrder?.id} />
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
+            <TypesettingComponent typesetting={serializedTypesetting} workOrderId={workOrder?.id} />
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
           </div>
         </div>
+        {/* Row 6 */}
+        {/* Work Order Items */}
         <div className="grid grid-cols-1 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Items</h2>
             <WorkOrderItemsTable workOrderItems={serializedWorkOrderItems} />
           </div>
         </div>
+        {/* Row 7 */}
+        {/* Address Type */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Address Type</h2>
             <p className="text-lg">{workOrder?.ShippingInfo?.Address?.addressType}</p>
           </div>
-
         </div>
         {/* Additional sections for more work order details */}
       </div>

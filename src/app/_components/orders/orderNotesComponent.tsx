@@ -20,7 +20,7 @@ type OrderNotesProps = {
     orderId: string;
 };
 
-const OrderNotes: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
+const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
     const gridRef = useRef();
     const router = useRouter();
     const defaultColDef = {
@@ -110,4 +110,4 @@ const OrderNotes: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
     );
 };
 
-export default OrderNotes;
+export default OrderNotesComponent;

@@ -104,32 +104,14 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
 
     const createProcessingOption = api.processingOptions.create.useMutation({
         onSuccess: () => {
-            setFormData({
-                cutting: false,
-                drilling: false,
-                folding: false,
-                numberingColor: "",
-                numberingEnd: 0,
-                numberingStart: 0,
-                other: "",
-                padding: false,
-            });
+            resetForm();
             router.refresh();
         },
     });
 
     const updateProcessingOption = api.processingOptions.update.useMutation({
         onSuccess: () => {
-            setFormData({
-                cutting: false,
-                drilling: false,
-                folding: false,
-                numberingColor: "",
-                numberingEnd: 0,
-                numberingStart: 0,
-                other: "",
-                padding: false,
-            });
+            resetForm();
             router.refresh();
         },
     });
@@ -140,21 +122,20 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
         },
     });
 
-    const handleEdit = (data) => {
-        console.log('data', data)
+    const handleEdit = useCallback((data: ProcessingOptions) => {
         setFormData({
             cutting: data.cutting,
             drilling: data.drilling,
             folding: data.folding,
             padding: data.padding, // Ensure this is managed correctly as a boolean or string, based on your data model
-            numberingColor: data.numberingColor,
-            numberingEnd: data.numberingEnd,
-            numberingStart: data.numberingStart,
-            other: data.other,
+            numberingColor: data.numberingColor ?? "",
+            numberingEnd: data.numberingEnd ?? 0,
+            numberingStart: data.numberingStart ?? 0,
+            other: data.other ?? "",
         });
         setIsEditMode(true);
         setCurrentItem(data); // Assuming 'data' includes an id or some unique identifier
-    };
+    }, []);
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -169,16 +150,7 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
             });
 
             setIsEditMode(false); // Exit edit mode after submission
-            setFormData({
-                cutting: false,
-                drilling: false,
-                folding: false,
-                numberingColor: "",
-                numberingEnd: 0,
-                numberingStart: 0,
-                other: "",
-                padding: false,
-            })
+            resetForm();
         } else {
             createProcessingOption.mutate({
                 ...formData,
@@ -188,16 +160,24 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
         };
     }
 
-    const handleDelete = async (id) => {
+    const handleDelete = useCallback((id: string) => {
         // Call the delete mutation
         deleteProcessingOption.mutate(id);
-        // await api.processingOptions.delete.useMutation(id);
         // Optionally refresh the data or remove the item from local state
         setRowData(rowData.filter(item => item.id !== id));
-    };
+    }, []);
 
 
-
+    const resetForm = () => setFormData({
+        cutting: false,
+        drilling: false,
+        folding: false,
+        numberingColor: "",
+        numberingEnd: 0,
+        numberingStart: 0,
+        other: "",
+        padding: false,
+    });
 
     useEffect(() => setRowData(
         processingOptions.map((processingOption) => {
