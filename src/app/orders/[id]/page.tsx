@@ -28,7 +28,7 @@ export default async function OrderPage({
   return (
     <div className="container mx-auto">
       <div className="rounded-lg bg-white p-6 shadow-md">
-        <h1 className="mb-4 text-2xl">Order Details</h1>
+        <h1 className="mb-4 text-2xl text-gray-900">Order Details</h1>
         {/* Row 1 */}
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg bg-white p-6 shadow-md">

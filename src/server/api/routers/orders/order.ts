@@ -10,7 +10,12 @@ export const orderRouter = createTRPCRouter({
         id: input,
       },
       include: {
-        Typesetting: true,
+        Typesetting: {
+          include: {
+            TypesettingOptions: true,
+            TypesettingProofs: true
+          }
+        },
         ProcessingOptions: true,
         OrderItems: true,
         OrderNotes: {

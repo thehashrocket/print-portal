@@ -12,7 +12,6 @@ type typesettingComponentProps = {
 }
 
 const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting, workOrderId = '', orderId = '' }) => {
-    console.log('typesetting', typesetting);
     const [isEditMode, setIsEditMode] = useState(false);
     const [currentItem, setCurrentItem] = useState<Typesetting | null>(null);
 
@@ -27,7 +26,6 @@ const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting
                     onChange={(e) => {
                         const selectedId = e.target.value;
                         const selectedTypeset = typesetting.find((type) => type.id === selectedId);
-                        console.log('selectedTypeset', selectedTypeset);
                         // refresh component so display updates
                         setCurrentItem(selectedTypeset);
                     }}
@@ -40,10 +38,9 @@ const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting
                     ))}
                 </select>
             </div>
-            <div className="mb-4 gric-cols-4">
-                {/* Show the selected typeset object, refresh component so data displays */}
-                {currentItem && (
-                    <div className="grid grid-cols-4 gap-4">
+            {currentItem && (
+                <>
+                    <div className="grid grid-cols-4 gap-4 mb-4">
                         <div className="rounded-lg bg-white p-6 shadow-md">
                             <p className="mb-2 text-gray-600 text-md font-semibold">Date In</p>
                             <p className="text-sm">{currentItem.dateIn.toString()}</p>
@@ -69,8 +66,30 @@ const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting
                             <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
                         </div>
                     </div>
-                )}
-            </div>
+                    <h3 className="text-lg text-gray-600 font-semibold">Options</h3>
+                    <div className="grid grid-cols-4 gap-4 mb-4">
+                        {currentItem.TypesettingOptions.map((option) => (
+                            <div key={option.id} className="rounded-lg bg-white p-6 shadow-md m-1">
+                                <p className="mb-2 text-gray-600 text-md font-semibold">Option</p>
+                                <p className="text-sm">{option.option}</p>
+                                <p className="mb-2 text-gray-600 text-md font-semibold">Selected</p>
+                                <p className="text-sm">{option.selected ? 'Yes' : 'No'}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
+                    <div className="grid grid-cols-4 gap-4">
+                        {currentItem.TypesettingProofs.map((proof) => (
+                            <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-1">
+                                <p className="mb-2 text-gray-600 text-md font-semibold">Proof</p>
+                                <p className="text-sm">{proof.proof}</p>
+                                <p className="mb-2 text-gray-600 text-md font-semibold">Approved</p>
+                                <p className="text-sm">{proof.approved ? 'Yes' : 'No'}</p>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </>
     );
 

@@ -7,6 +7,7 @@ import { WorkOrder } from "@prisma/client";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
+import WorkOrderStockComponent from "~/app/_components/workOrders/workOrderStockComponent";
 
 export default async function WorkOrderPage({
   params: { id },
@@ -39,7 +40,7 @@ export default async function WorkOrderPage({
   return (
     <div className="container mx-auto">
       <div className="rounded-lg bg-white p-6 shadow-md">
-        <h1 className="mb-4 text-2xl">Work Order Details</h1>
+        <h1 className="mb-4 text-2xl text-gray-900">Work Order Details</h1>
         {/* Row 1 */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
@@ -114,6 +115,8 @@ export default async function WorkOrderPage({
             <TypesettingComponent typesetting={serializedTypesetting} workOrderId={workOrder?.id} />
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Stock</h2>
+            <WorkOrderStockComponent workOrderStock={workOrder?.WorkOrderStock} workOrderId={workOrder?.id} />
           </div>
         </div>
         {/* Row 6 */}

@@ -27,7 +27,7 @@ const OrdersTable: React.FC<Order[]> = (orders) => {
   const actionsCellRenderer = (props: CustomCellRendererProps) => {
     return (
       <div>
-        <Link className="btn" href={`/orders/${props.data.id}`}>
+        <Link className="btn btn-sm btn-primary" href={`/orders/${props.data.id}`}>
           View Order
         </Link>
       </div>
