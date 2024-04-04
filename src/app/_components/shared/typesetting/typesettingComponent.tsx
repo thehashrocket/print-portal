@@ -1,43 +1,57 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { api } from "~/trpc/react";
+import React, { use, useState, useEffect } from "react";
 import { Typesetting } from "@prisma/client";
-import { z } from "zod";
 
-type typesettingComponentProps = {
+type TypesettingComponentProps = {
     typesetting: Typesetting[];
     workOrderId: string;
     orderId: string;
-}
+};
 
-const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting, workOrderId = '', orderId = '' }) => {
-    const [isEditMode, setIsEditMode] = useState(false);
+const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting, workOrderId = '', orderId = '' }) => {
+    const [selectedTypeId, setSelectedTypeId] = useState<string | "">(typesetting.length > 0 ? typesetting[typesetting.length - 1].id : "");
     const [currentItem, setCurrentItem] = useState<Typesetting | null>(null);
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = e.target.value;
+        const selectedTypeset = typesetting.find((type) => type.id === selectedId) || null;
+        setCurrentItem(selectedTypeset);
+        setSelectedTypeId(selectedId);
+        console.log('currentItem', currentItem);
+    };
+
+    useEffect(() => {
+        if (selectedTypeId) {
+            const selectedTypeset = typesetting.find((type) => type.id === selectedTypeId) || null;
+            setCurrentItem(selectedTypeset);
+        }
+    }, [currentItem]);
+
 
     return (
         <>
-            <div className="mb-4 grid-cols-2">
+            <div className="mb-4 grid grid-cols-2">
                 <button className="btn btn-active btn-primary" onClick={() => setIsEditMode(true)}>
                     Add Typesetting
                 </button>
-                {/* When select changes, a new typeset object is chosen from the typesetting array */}
-                <select className="select w-full max-w-xs"
-                    onChange={(e) => {
-                        const selectedId = e.target.value;
-                        const selectedTypeset = typesetting.find((type) => type.id === selectedId);
-                        // refresh component so display updates
-                        setCurrentItem(selectedTypeset);
-                    }}
+                <select
+                    className="select w-full max-w-xs"
+                    value={selectedTypeId}
+                    onChange={handleChange}
                 >
-                    <option disabled selected>Please choose a Typesetting Version to view.</option>
+                    {/* Option to prompt user selection */}
+                    <option value="" disabled>Please choose a Typesetting Version to view.</option>
                     {typesetting.map((type) => (
                         <option key={type.id} value={type.id}>
-                            {type.dateIn.toString()} - {type.timeIn.toString()}
+                            {/* Assuming dateIn and timeIn are Date objects or ISO strings */}
+                            {new Date(type.dateIn).toString()} - {new Date(type.timeIn).toLocaleTimeString()}
                         </option>
                     ))}
                 </select>
             </div>
+            {/* Component to display selected typeset details */}
             {currentItem && (
                 <>
                     <div className="grid grid-cols-4 gap-4 mb-4">
@@ -92,7 +106,6 @@ const TypesettingComponent: React.FC<typesettingComponentProps> = ({ typesetting
             )}
         </>
     );
-
 };
 
 export default TypesettingComponent;
