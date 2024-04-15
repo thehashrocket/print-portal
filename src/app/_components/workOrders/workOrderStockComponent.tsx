@@ -21,7 +21,7 @@ const WorkOrderStockComponent: React.FC<workOrderStockComponentProps> = ({ workO
                     </div>
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <p className="mb-2 text-gray-600 text-md font-semibold">Cost Per M</p>
-                        <p className="text-sm">{stock.costPerM}</p>
+                        <p className="text-sm">{String(stock.costPerM)}</p>
                     </div>
                 </div>
             ))}

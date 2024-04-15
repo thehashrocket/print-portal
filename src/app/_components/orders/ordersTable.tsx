@@ -66,7 +66,6 @@ const OrdersTable: React.FC<Order[]> = (orders) => {
 
   return (
     <div className="ag-theme-quartz" style={{ height: "600px", width: "100%" }}>
-      <h1>Users Table</h1>
       <AgGridReact
         id="users_grid"
         ref={gridRef}
