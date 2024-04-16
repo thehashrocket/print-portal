@@ -10,9 +10,19 @@ type TypesettingComponentProps = {
 };
 
 const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting, workOrderId = '', orderId = '' }) => {
-    const [selectedTypeId, setSelectedTypeId] = useState<string | "">(typesetting.length > 0 ? typesetting[typesetting.length - 1].id : "");
+    const [selectedTypeId, setSelectedTypeId] = useState<string | "">(
+        (typesetting || []).length > 0 ? typesetting[typesetting.length - 1].id : ""
+    );
     const [currentItem, setCurrentItem] = useState<Typesetting | null>(null);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
+    const formatDate = (date: Date) => {
+        return date.toString();
+    };
+
+    const formatTime = (date: Date) => {
+        return date.toLocaleTimeString();
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedId = e.target.value;
@@ -27,7 +37,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting
             const selectedTypeset = typesetting.find((type) => type.id === selectedTypeId) || null;
             setCurrentItem(selectedTypeset);
         }
-    }, [currentItem]);
+    }, [selectedTypeId, typesetting]);
 
 
     return (
@@ -46,7 +56,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting
                     {typesetting.map((type) => (
                         <option key={type.id} value={type.id}>
                             {/* Assuming dateIn and timeIn are Date objects or ISO strings */}
-                            {new Date(type.dateIn).toString()} - {new Date(type.timeIn).toLocaleTimeString()}
+                            {formatDate(type.dateIn)} - {type.timeIn}
                         </option>
                     ))}
                 </select>
@@ -57,7 +67,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting
                     <div className="grid grid-cols-4 gap-4 mb-4">
                         <div className="rounded-lg bg-white p-6 shadow-md">
                             <p className="mb-2 text-gray-600 text-md font-semibold">Date In</p>
-                            <p className="text-sm">{currentItem.dateIn.toString()}</p>
+                            <p className="text-sm">{formatDate(currentItem.dateIn)}</p>
                         </div>
                         <div className="rounded-lg bg-white p-6 shadow-md">
                             <p className="mb-2 text-gray-600 text-md font-semibold">Time In</p>

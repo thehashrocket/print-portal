@@ -36,6 +36,12 @@ export default async function WorkOrderPage({
     prepTime: typesetting?.prepTime?.toString(),
   }));
 
+  const serializedWorkOrderStock = workOrder?.WorkOrderStock.map((workOrderStock) => ({
+    ...workOrderStock,
+    costPerM: workOrderStock?.costPerM?.toString(),
+    totalCost: workOrderStock?.totalCost?.toString(),
+  }));
+
   // Render the component
   return (
     <div className="container mx-auto">
@@ -116,7 +122,7 @@ export default async function WorkOrderPage({
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Stock</h2>
-            <WorkOrderStockComponent workOrderStock={workOrder?.WorkOrderStock} workOrderId={workOrder?.id} />
+            <WorkOrderStockComponent workOrderStock={serializedWorkOrderStock} workOrderId={workOrder?.id} />
           </div>
         </div>
         {/* Row 6 */}

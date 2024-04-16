@@ -1,41 +1,51 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { AgGridReact, CustomCellRendererProps } from "@ag-grid-community/react"; // React Grid Logic
+import React, { useState, useEffect, useRef } from "react";
+import { AgGridReact } from "@ag-grid-community/react"; // React Grid Logic
 import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-    ColDef,
     ModuleRegistry,
-    ValueFormatterParams,
+    ColDef
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { WorkOrder } from "@prisma/client";
 import Link from "next/link";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const WorkOrdersTable: React.FC<WorkOrder[]> = (workOrders) => {
-    const gridRef = useRef();
+type SerializedWorkOrder = {
+    id: string;
+    status: string;
+    dateIn: string;
+    workOrderNumber: string;
+    purchaseOrderNumber: string;
+    totalCost: string | null;
+    createdAt: string;
+    updatedAt: string;
+    costPerM: string | null;
+    approved: boolean;
+    artwork: string | null;
+    // Add other properties as needed
+};
+
+const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) => {
+    const gridRef = useRef(null);
     const defaultColDef = {
         resizable: true,
         sortable: true,
     };
-    const [rowData, setRowData] = useState([]);
+    const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
 
-    // Define cell renderers here
-    const actionsCellRenderer = (props: CustomCellRendererProps) => {
-        return (
-            <div>
-                <Link className="btn btn-sm btn-primary" href={`/workOrders/${props.data.id}`}>
-                    View Work Order
-                </Link>
-            </div>
-        );
-    };
+    const actionsCellRenderer = (props: { data: { id: any; }; }) => (
+        <div>
+            <Link className="btn btn-sm btn-primary" href={`/workOrders/${props.data.id}`}>
+                View Work Order
+            </Link>
+        </div>
+    );
 
-    // Define column definitions and row data here
-    const columnDefs = [
+    const columnDefs: ColDef[] = [
         { headerName: "id", field: "id" },
         { headerName: "Status", field: "status", filter: true },
         { headerName: "Date In", field: "dateIn", filter: true },
@@ -44,37 +54,24 @@ const WorkOrdersTable: React.FC<WorkOrder[]> = (workOrders) => {
         { headerName: "Total Cost", field: "totalCost", filter: true },
         {
             headerName: "Actions",
-            field: "workOrderId",
             cellRenderer: actionsCellRenderer,
         },
     ];
 
+
     useEffect(() => {
-        console.log("workOrders", workOrders);
-        setRowData(
-            workOrders["workOrders"].map((workOrder) => {
-                return {
-                    id: workOrder.id,
-                    status: workOrder.status,
-                    dateIn: workOrder.dateIn,
-                    workOrderNumber: workOrder.workOrderNumber,
-                    purchaseOrderNumber: workOrder.purchaseOrderNumber,
-                    totalCost: workOrder.totalCost,
-                };
-            }),
-        );
-    }, []);
+        setRowData(workOrders);
+    }, [workOrders]);
+
 
     return (
         <div className="ag-theme-quartz" style={{ height: "600px", width: "100%" }}>
             <AgGridReact
-                id="users_grid"
                 ref={gridRef}
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
                 rowData={rowData}
-                rowSelection={"single"}
-                style={{ height: "100%", width: "100%" }}
+                rowSelection="single"
             />
         </div>
     );
