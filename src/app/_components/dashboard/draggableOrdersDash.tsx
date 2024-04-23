@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { OrderStatus } from '@prisma/client';
-
+import { api } from "~/trpc/react";
 
 const DraggableOrdersDash = ({ initialOrders }) => {
     const [orders, setOrders] = useState(initialOrders);
     const allStatuses = Object.values(OrderStatus);
+
+    const updateOrderStatus = api.orders.updateStatus.useMutation();
 
     const onDragStart = (event, id) => {
         event.dataTransfer.setData("text/plain", id);
@@ -18,16 +20,26 @@ const DraggableOrdersDash = ({ initialOrders }) => {
         event.target.classList.add('bg-blue-100');
     };
 
-    const onDrop = (event, newStatus) => {
+    const onDrop = async (event, newStatus) => {
         event.preventDefault();
-        // Remove the highlight class
-        event.target.classList.remove('bg-blue-100');
         const id = event.dataTransfer.getData("text/plain");
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
-                order.id === id ? { ...order, status: newStatus } : order
-            )
-        );
+        try {
+            // Remove the highlight class
+            event.target.classList.remove('bg-blue-100');
+            const id = event.dataTransfer.getData("text/plain");
+
+            // Call the updateStatus endpoint to update the Order's status
+            await updateOrderStatus.mutateAsync({ id, status: newStatus });
+
+            console.log('id:', id);
+            setOrders(prevOrders =>
+                prevOrders.map(order =>
+                    order.id === id ? { ...order, status: newStatus } : order
+                )
+            );
+        } catch (error) {
+            console.error('Failed to update Order status: ', error);
+        }
     };
 
     const onDragLeave = (event) => {

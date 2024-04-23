@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { WorkOrderStatus } from '@prisma/client';
-
+import { api } from "~/trpc/react";
 
 const DraggableWorkOrdersDash = ({ initialWorkOrders }) => {
     const [workOrders, setWorkOrders] = useState(initialWorkOrders);
     const allStatuses = Object.values(WorkOrderStatus);
+
+    const updateWorkOrderStatus = api.workOrders.updateStatus.useMutation();
 
     const onDragStart = (event, id) => {
         event.dataTransfer.setData("text/plain", id);
@@ -18,16 +20,24 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }) => {
         event.target.classList.add('bg-blue-100');
     };
 
-    const onDrop = (event, newStatus) => {
+    const onDrop = async (event, newStatus) => {
         event.preventDefault();
         // Remove the highlight class
         event.target.classList.remove('bg-blue-100');
         const id = event.dataTransfer.getData("text/plain");
-        setWorkOrders(prevWorkOrders =>
-            prevWorkOrders.map(workOrder =>
-                workOrder.id === id ? { ...workOrder, status: newStatus } : workOrder
-            )
-        );
+        try {
+            // Call the updateStatus endpoint to update the WorkOrder's status
+            await updateWorkOrderStatus.mutateAsync({ id, status: newStatus });
+
+            console.log('id:', id);
+            setWorkOrders(prevWorkOrders =>
+                prevWorkOrders.map(workOrder =>
+                    workOrder.id === id ? { ...workOrder, status: newStatus } : workOrder
+                )
+            );
+        } catch (error) {
+            console.error('Failed to update WorkOrder status: ', error);
+        }
     };
 
     const onDragLeave = (event) => {
