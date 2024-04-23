@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { OrderStatus } from '@prisma/client';
+import { WorkOrderStatus } from '@prisma/client';
 
 
-const DraggableOrdersDash = ({ initialOrders }) => {
-    const [orders, setOrders] = useState(initialOrders);
-    const allStatuses = Object.values(OrderStatus);
+const DraggableWorkOrdersDash = ({ initialWorkOrders }) => {
+    const [workOrders, setWorkOrders] = useState(initialWorkOrders);
+    const allStatuses = Object.values(WorkOrderStatus);
 
     const onDragStart = (event, id) => {
         event.dataTransfer.setData("text/plain", id);
@@ -23,9 +23,9 @@ const DraggableOrdersDash = ({ initialOrders }) => {
         // Remove the highlight class
         event.target.classList.remove('bg-blue-100');
         const id = event.dataTransfer.getData("text/plain");
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
-                order.id === id ? { ...order, status: newStatus } : order
+        setWorkOrders(prevWorkOrders =>
+            prevWorkOrders.map(workOrder =>
+                workOrder.id === id ? { ...workOrder, status: newStatus } : workOrder
             )
         );
     };
@@ -36,10 +36,10 @@ const DraggableOrdersDash = ({ initialOrders }) => {
     };
 
 
-    // Group the orders by their status
-    const ordersByStatus = orders.reduce((acc, order) => {
-        const statusGroup = acc[order.status] || [];
-        acc[order.status] = [...statusGroup, order];
+    // Group the work orders by their status
+    const ordersByStatus = workOrders.reduce((acc, workOrder) => {
+        const statusGroup = acc[workOrder.status] || [];
+        acc[workOrder.status] = [...statusGroup, workOrder];
         return acc;
     }, {});
 
@@ -51,15 +51,15 @@ const DraggableOrdersDash = ({ initialOrders }) => {
                     onDragLeave={onDragLeave}
                     onDrop={(event) => onDrop(event, status)}
                     className="flex-1 p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700"
-                    style={{ minHeight: '50px' }}>
+                    style={{ minHeight: '200px' }}>
                     <h3 className="text-lg font-semibold mb-2">{status}</h3>
-                    {(ordersByStatus[status] || []).map(order => (
-                        <div key={order.id}
+                    {(ordersByStatus[status] || []).map(workOrder => (
+                        <div key={workOrder.id}
                             draggable
-                            onDragStart={(event) => onDragStart(event, order.id)}
+                            onDragStart={(event) => onDragStart(event, workOrder.id)}
                             className="p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500"
                             style={{ borderColor: '#2D3748' }}>
-                            {order.description}
+                            {workOrder.description}
                         </div>
                     ))}
                 </div>
@@ -68,5 +68,5 @@ const DraggableOrdersDash = ({ initialOrders }) => {
     );
 };
 
-export default DraggableOrdersDash;
+export default DraggableWorkOrdersDash;
 
