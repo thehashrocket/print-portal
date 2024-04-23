@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
-
+import { WorkOrderStatus } from "@prisma/client";
+import { OrderStatus } from "@prisma/client";
 const prismaClient = new PrismaClient();
 
 const randomElementFromArray = <T>(array: T[]): T =>
@@ -15,7 +16,8 @@ const paymentTypes = ["Credit Card", "Check", "Cash", "Wire Transfer"];
 const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
 const shippingMethods = ["UPS", "FedEx", "USPS", "DHL"];
-const statuses = ["Draft", "Proofing", "Approved", "Completed", "Cancelled"];
+const orderStatuses = ["Bindery", "Cancelled", "Completed", "Invoicing", "Pending", "PrePress", "Press", "Shipping", "PaymentReceived"]
+const workOrderStatuses = ["Approved", "Cancelled", "Draft", "Proofing"];
 const typesettingOptions = ["Negs", "Xante", "7200", "9200"];
 
 // Convert a work order to an order
@@ -45,7 +47,7 @@ async function convertWorkOrderToOrder(workOrderId, officeId) {
       proofType: faker.word.sample(),
       shippingInfoId: workOrder.shippingInfoId,
       specialInstructions: workOrder?.specialInstructions,
-      status: "Approved", // Assuming work orders are approved before becoming orders
+      status: randomElementFromArray(orderStatuses),
       totalCost: workOrder?.totalCost,
       userId: workOrder.userId,
       workOrderId,
@@ -775,7 +777,7 @@ async function createWorkOrder(officeId, shippingInfoId) {
       overUnder: faker.word.sample(),
       version: 1,
       description: faker.commerce.productName(),
-      status: randomElementFromArray(statuses),
+      status: randomElementFromArray(workOrderStatuses),
       shippingInfoId,
       userId: randomUser.id, // Correct field based on your schema's relation
     },
@@ -927,7 +929,7 @@ async function seed() {
   // Iterate over offices to create work orders
   const offices = await prismaClient.office.findMany();
   for (const office of offices) {
-    const numberOfWorkOrders = faker.number.int({ min: 1, max: 5 });
+    const numberOfWorkOrders = faker.number.int({ min: 1, max: 9 });
     for (let j = 0; j < numberOfWorkOrders; j++) {
       // Create a shipping info record for each work order
       const shippingInfoId = await createShippingInfo(office.id);
