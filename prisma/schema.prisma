@@ -60,6 +60,7 @@ model Company {
 model Office {
     id           String         @id @default(uuid())
     companyId    String
+    name         String
     Addresses    Address[]
     Company      Company        @relation(fields: [companyId], references: [id])
     Orders       Order[]

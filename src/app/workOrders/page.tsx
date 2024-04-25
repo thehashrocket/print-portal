@@ -30,8 +30,17 @@ export default async function WorkOrdersPage() {
   }));
 
   return (
-    <div>
-      <h1>Work Orders Page</h1>
+    <div className="container mx-auto">
+      <div className="navbar bg-base-100">
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">Work Orders</a>
+        </div>
+        <div className="flex-none">
+          <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>
+        </div>
+      </div>
+      {/* Link to Create a Work Order */}
+
       <WorkOrdersTable workOrders={serializedData} />
     </div>
   );

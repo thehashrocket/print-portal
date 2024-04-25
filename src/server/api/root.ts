@@ -1,4 +1,5 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { companyRouter } from "./routers/companies/company";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
 import { orderRouter } from "./routers/orders/order";
 import { postRouter } from "~/server/api/routers/post";
@@ -15,6 +16,7 @@ import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesetti
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  companies: companyRouter,
   orders: orderRouter,
   orderNotes: orderNoteRouter,
   post: postRouter,

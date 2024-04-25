@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import { WorkOrderStatus } from "@prisma/client";
 import { OrderStatus } from "@prisma/client";
 const prismaClient = new PrismaClient();
-
 const randomElementFromArray = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)];
 
@@ -16,8 +15,8 @@ const paymentTypes = ["Credit Card", "Check", "Cash", "Wire Transfer"];
 const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
 const shippingMethods = ["UPS", "FedEx", "USPS", "DHL"];
-const orderStatuses = ["Bindery", "Cancelled", "Completed", "Invoicing", "Pending", "PrePress", "Press", "Shipping", "PaymentReceived"]
-const workOrderStatuses = ["Approved", "Cancelled", "Draft", "Proofing"];
+const workOrderStatuses = Object.values(WorkOrderStatus);
+const orderStatuses = Object.values(OrderStatus);
 const typesettingOptions = ["Negs", "Xante", "7200", "9200"];
 
 // Convert a work order to an order
@@ -221,6 +220,7 @@ async function createOffice(companyId) {
   return await prismaClient.office.create({
     data: {
       companyId,
+      name: faker.company.name(),
       // Additional data if needed
     },
   });
