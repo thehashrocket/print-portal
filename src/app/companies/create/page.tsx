@@ -28,6 +28,7 @@ export default async function CompaniesPage() {
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/companies">Companies</Link></li>
+                            <li><Link href="/companies/create">Create Company</Link></li>
                         </ul>
                     </div>
                 </div>

@@ -30,6 +30,18 @@ export const companyRouter = createTRPCRouter({
     create: protectedProcedure
         .input(z.object({
             name: z.string(),
+            Offices: z.array(z.object({
+                name: z.string(),
+                Addresses: z.array(z.object({
+                    line1: z.string(),
+                    line2: z.string(),
+                    city: z.string(),
+                    state: z.string(),
+                    zipCode: z.string(),
+                    country: z.string(),
+                    telephoneNumber: z.string(),
+                })),
+            })),
         })).mutation(({ ctx, input }) => {
             return ctx.db.company.create({
                 data: {
