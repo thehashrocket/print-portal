@@ -10,6 +10,7 @@ import DashboardTabsClient from "../_components/dashboard/dashboardTabsClient";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import Link from "next/link";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,6 +53,11 @@ export default async function DashboardPage() {
             <div className="navbar bg-base-100">
                 <div className="flex-1">
                     <a className="btn btn-ghost text-xl">Dashboard</a>
+                    <div className="text-sm breadcrumbs">
+                        <ul>
+                            <li><Link href="/">Home</Link></li>
+                        </ul>
+                    </div>
                 </div>
                 <div className="flex-none">
                     <button className="btn btn-square btn-ghost">

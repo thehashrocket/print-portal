@@ -1,31 +1,23 @@
-// This page will load the companies page when the user navigates to /companies
+// Create a New Company
 "use server";
-
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { Company } from "@prisma/client";
-import CompaniesTable from "../_components/companies/companiesTable";
 import Link from "next/link";
+import { CreateCompany } from "~/app/_components/companies/createCompanyComponent";
 
 export default async function CompaniesPage() {
-
     const session = await getServerAuthSession();
 
     if (
         !session ||
         session.user.Permissions.map((permission) => permission)
             .join(", ")
-            .includes("company_read") === false
+            .includes("company_create") === false
     ) {
         return "You do not have permssion to view this page";
     }
-    const companies = await api.companies.getAll();
-
-    const serializedData = companies.map((company) => ({
-        ...company
-    }));
-
 
     return (
         <div className="container mx-auto">
@@ -35,6 +27,7 @@ export default async function CompaniesPage() {
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
+                            <li><Link href="/companies">Companies</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -42,7 +35,7 @@ export default async function CompaniesPage() {
                     <Link className="btn btn-primary" href="/companies/create">New Company</Link>
                 </div>
             </div>
-            {companies.length > 0 ? (<CompaniesTable companies={serializedData} />) : (<p>No companies found</p>)}
+            <CreateCompany />
         </div>
     );
 }

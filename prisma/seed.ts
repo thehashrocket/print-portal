@@ -19,6 +19,9 @@ const workOrderStatuses = Object.values(WorkOrderStatus);
 const orderStatuses = Object.values(OrderStatus);
 const typesettingOptions = ["Negs", "Xante", "7200", "9200"];
 
+const currentDate = new Date();
+const maxFutureDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 7 days from today
+
 // Convert a work order to an order
 async function convertWorkOrderToOrder(workOrderId, officeId) {
   console.log('Converting Work Order to Order');
@@ -769,7 +772,7 @@ async function createWorkOrder(officeId, shippingInfoId) {
       approved: faker.datatype.boolean(),
       prepTime: faker.number.int({ min: 0, max: 100 }),
       plateRan: faker.word.sample(),
-      expectedDate: faker.date.future(),
+      expectedDate: faker.date.between(currentDate, maxFutureDate),
       deposit: faker.number.int({ min: 100, max: 500 }) + 0.01,
       costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
       totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.03,

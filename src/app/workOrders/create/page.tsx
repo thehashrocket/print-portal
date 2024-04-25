@@ -10,6 +10,7 @@ import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTabl
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import WorkOrderStockComponent from "~/app/_components/workOrders/workOrderStockComponent";
+import Link from "next/link";
 
 export default async function CreateWorkOrderPage() {
     // Fetch user session for authentication
@@ -23,6 +24,20 @@ export default async function CreateWorkOrderPage() {
     // Render the component
     return (
         <div className="container mx-auto">
+            <div className="navbar bg-base-100">
+                <div className="flex-1">
+                    <a className="btn btn-ghost text-xl">Work Orders</a>
+                    <div className="text-sm breadcrumbs">
+                        <ul>
+                            <li><Link href="/">Home</Link> </li>
+                            <li><Link href="/workOrders">Work Orders</Link> </li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="flex-none">
+                    <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>
+                </div>
+            </div>
             <div className="rounded-lg bg-white p-6 shadow-md">
                 <h1 className="mb-4 text-2xl text-gray-900">Create Work Order</h1>
                 {/* Row 1 */}

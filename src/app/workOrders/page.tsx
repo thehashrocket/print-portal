@@ -4,6 +4,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
+import Link from "next/link";
 
 export default async function WorkOrdersPage() {
   const session = await getServerAuthSession();
@@ -34,6 +35,11 @@ export default async function WorkOrdersPage() {
       <div className="navbar bg-base-100">
         <div className="flex-1">
           <a className="btn btn-ghost text-xl">Work Orders</a>
+          <div className="text-sm breadcrumbs">
+            <ul>
+              <li><Link href="/">Home</Link> </li>
+            </ul>
+          </div>
         </div>
         <div className="flex-none">
           <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>

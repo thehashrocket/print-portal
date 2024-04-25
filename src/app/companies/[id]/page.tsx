@@ -27,6 +27,12 @@ export default async function CompanyPage({
             <div className="navbar bg-base-100">
                 <div className="flex-1">
                     <a className="btn btn-ghost text-xl">{company?.name}</a>
+                    <div className="text-sm breadcrumbs">
+                        <ul>
+                            <li><Link href="/">Home</Link></li>
+                            <li><Link href="/companies">Companies</Link></li>
+                        </ul>
+                    </div>
                 </div>
                 <div className="flex-none">
                     <button className="btn btn-square btn-ghost">

@@ -7,6 +7,7 @@ import { Order } from "@prisma/client";
 import OrderItemsTable from "../../_components/orders/orderItemsTable";
 import OrderNotesComponent from "~/app/_components/orders/orderNotesComponent";
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
+import Link from "next/link";
 
 export default async function OrderPage({
   params: { id },
@@ -30,6 +31,12 @@ export default async function OrderPage({
       <div className="navbar bg-base-100">
         <div className="flex-1">
           <a className="btn btn-ghost text-xl">Order Details</a>
+          <div className="text-sm breadcrumbs">
+            <ul>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/orders">Orders</Link></li>
+            </ul>
+          </div>
         </div>
         <div className="flex-none">
           <button className="btn btn-square btn-ghost">

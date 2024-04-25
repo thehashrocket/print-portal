@@ -14,53 +14,9 @@ export default async function Home() {
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           Thomson Print Portal
         </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <div className="card w-96 bg-base-100 shadow-xl">
-            <figure>
-              <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                alt="Shoes"
-              />
-            </figure>
-            <div className="card-body">
-              <Link
-                className="prose"
-                href="https://create.t3.gg/en/introduction"
-                target="_blank"
-              >
-                <h3 className="">Documentation →</h3>
-                <p className="">
-                  Learn more about Create T3 App, the libraries it uses, and how
-                  to deploy it.
-                </p>
-              </Link>
-            </div>
-          </div>
-          <div className="card w-96 bg-base-100 shadow-xl">
-            <figure>
-              <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                alt="Shoes"
-              />
-            </figure>
-            <div className="card-body">
-              <Link
-                className="prose"
-                href="https://create.t3.gg/en/usage/first-steps"
-                target="_blank"
-              >
-                <h3 className="">First Steps →</h3>
-                <p className="">
-                  Just the basics - Everything you need to know to set up your
-                  database and authentication.
-                </p>
-              </Link>
-            </div>
-          </div>
-        </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-white">
-            {hello ? hello.greeting : "Loading tRPC query..."}
+            {hello ? 'Welcome!' : "Loading tRPC query..."}
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4">
@@ -93,8 +49,6 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-
-        <CrudShowcase />
       </div>
     </main>
   );
