@@ -3,6 +3,7 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
+import Link from "next/link";
 import { Company } from "@prisma/client";
 
 export default async function CompanyPage({
@@ -49,23 +50,49 @@ export default async function CompanyPage({
                             </ul>
                             <div className="rounded-lg bg-white p-6 shadow-md mb-5">
                                 <h3 className="text-lg">Work Orders</h3>
-                                <ul>
-                                    {office.WorkOrders.map((workOrder) => (
-                                        <li key={workOrder.id}>
-                                            <p>{workOrder.workOrderNumber}: {workOrder.status}</p>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Work Order Number</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {office.WorkOrders.map((workOrder) => (
+                                            <tr key={workOrder.id} className="hover:bg-base-200">
+                                                <td>{workOrder.workOrderNumber}</td>
+                                                <td>{workOrder.status}</td>
+                                                <td>
+                                                    <Link className="btn btn-primary" href={`/workOrders/${workOrder.id}`}>View</Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                             <div className="rounded-lg bg-white p-6 shadow-md mb-5">
                                 <h3 className="text-lg">Orders</h3>
-                                <ul>
-                                    {office.Orders.map((order) => (
-                                        <li key={order.id}>
-                                            <p>{order.orderNumber}: {order.status}</p>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order Number</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {office.Orders.map((order) => (
+                                            <tr key={order.id} className="hover:bg-base-200">
+                                                <td>{order.orderNumber}</td>
+                                                <td>{order.status}</td>
+                                                <td>
+                                                    <Link className="btn btn-primary" href={`/orders/${order.id}`}>View</Link>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                             <div className="divider"></div>
                         </li>

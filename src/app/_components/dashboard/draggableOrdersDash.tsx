@@ -70,7 +70,7 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
                     onDrop={(event) => onDrop(event, status)}
                     className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto"
                     style={{ minHeight: '50px' }}>
-                    <h3 className="text-lg font-semibold mb-2">{status}</h3>
+                    <h3 className="font-semibold mb-2">{status}</h3>
                     {(ordersByStatus[status] || []).map(order => (
                         <div key={order.id}
                             draggable
