@@ -7,7 +7,8 @@ import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     ModuleRegistry,
-    ColDef
+    ColDef,
+    ValueFormatterParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { WorkOrder } from "@prisma/client";
@@ -45,19 +46,26 @@ const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) 
         </div>
     );
 
+    const formatNumberAsCurrency = (params: ValueFormatterParams) => {
+        // Add dollar sign, round to 2 decimal places, and add commas
+        if (params.value === null) {
+            return "$0.00";
+        }
+        return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+    }
+
     const columnDefs: ColDef[] = [
-        { headerName: "id", field: "id" },
+        { headerName: "id", field: "id", hide: true },
         { headerName: "Status", field: "status", filter: true },
         { headerName: "Date In", field: "dateIn", filter: true },
         { headerName: "Work Order Number", field: "workOrderNumber", filter: true },
         { headerName: "PO Number", field: "purchaseOrderNumber", filter: true },
-        { headerName: "Total Cost", field: "totalCost", filter: true },
+        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency },
         {
             headerName: "Actions",
             cellRenderer: actionsCellRenderer,
         },
     ];
-
 
     useEffect(() => {
         setRowData(workOrders);

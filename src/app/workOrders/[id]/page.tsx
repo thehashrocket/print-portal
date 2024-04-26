@@ -52,12 +52,12 @@ export default async function WorkOrderPage({
           <div className="text-sm breadcrumbs">
             <ul>
               <li><Link href="/">Home</Link> </li>
-              <li><Link href="/workOrders">Work Orders</Link> </li>
+              <li><Link href="/workOrders">Work Orders</Link></li>
             </ul>
           </div>
         </div>
         <div className="flex-none">
-          <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>
+          <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
         </div>
       </div>
       <div className="rounded-lg bg-white p-6 shadow-md">

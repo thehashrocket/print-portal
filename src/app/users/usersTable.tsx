@@ -34,7 +34,6 @@ const UsersTable: React.FC<User[]> = (users) => {
   ];
 
   useEffect(() => {
-    console.log("users", users["users"]);
     setRowData(
       users["users"].map((user) => {
         return {

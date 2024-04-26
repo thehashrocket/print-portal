@@ -18,7 +18,6 @@ export default async function WorkOrdersPage() {
     return "You do not have permssion to view this page";
   }
   const workOrders = await api.workOrders.getAll();
-  console.log("workOrders", workOrders);
   const serializedData = workOrders.map((workOrder) => ({
     ...workOrder,
     costPerM: workOrder.costPerM !== null ? workOrder.costPerM.toString() : null,
@@ -42,7 +41,7 @@ export default async function WorkOrdersPage() {
           </div>
         </div>
         <div className="flex-none">
-          <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>
+          <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Work Order</Link>
         </div>
       </div>
       {/* Link to Create a Work Order */}

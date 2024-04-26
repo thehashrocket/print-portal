@@ -14,12 +14,20 @@ export const companyRouter = createTRPCRouter({
                     Offices: {
                         include: {
                             Addresses: true, // Include the Address associated with the Office
-                            WorkOrders: true, // Include the WorkOrders associated with the Office
-                            Orders: true, // Include the Orders associated with the Office
-                        }
-                    }, // Include the Offices associated with the Company
+                            WorkOrders: {
+                                include: {
+                                    WorkOrderItems: true, // Include the WorkOrderItems associated with the WorkOrder
+                                },
+                            },
+                            Orders: {
+                                include: {
+                                    OrderItems: true, // Include the OrderItems associated with the Order
+                                }
+                            }
+                        }, // Include the Offices associated with the Company
+                    },
                 },
-            });
+            })
         }),
     // Return Companies
     getAll: protectedProcedure
@@ -73,4 +81,77 @@ export const companyRouter = createTRPCRouter({
                 },
             });
         }),
+    // Company Dashboard Data
+    companyDashboard: protectedProcedure.query(async ({ ctx }) => {
+        const companies = await ctx.db.company.findMany({
+            include: {
+                Offices: {
+                    include: {
+                        WorkOrders: {
+                            select: {
+                                totalCost: true,
+                                status: true,
+                            },
+                        },
+                        Orders: {
+                            select: {
+                                totalCost: true,
+                                status: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const companyDashboardData = companies.map((company) => {
+            const workOrderTotalPending = company.Offices.reduce((total, office) => {
+                const pendingWorkOrders = office.WorkOrders.filter(
+                    (workOrder) =>
+                        workOrder.status !== 'Approved' && workOrder.status !== 'Cancelled'
+                );
+                const pendingTotal = pendingWorkOrders.reduce(
+                    (sum, workOrder) => sum + Number(workOrder.totalCost || 0),
+                    0
+                );
+                return total + pendingTotal;
+            }, 0);
+
+            const orderTotalPending = company.Offices.reduce((total, office) => {
+                const pendingOrders = office.Orders.filter(
+                    (order) =>
+                        order.status !== 'Cancelled' &&
+                        order.status !== 'PaymentReceived' &&
+                        order.status !== 'Completed'
+                );
+                const pendingTotal = pendingOrders.reduce(
+                    (sum, order) => sum + Number(order.totalCost || 0),
+                    0
+                );
+                return total + pendingTotal;
+            }, 0);
+
+            const orderTotalCompleted = company.Offices.reduce((total, office) => {
+                const completedOrders = office.Orders.filter(
+                    (order) =>
+                        order.status === 'PaymentReceived' || order.status === 'Completed'
+                );
+                const completedTotal = completedOrders.reduce(
+                    (sum, order) => sum + Number(order.totalCost || 0),
+                    0
+                );
+                return total + completedTotal;
+            }, 0);
+
+            return {
+                id: company.id,
+                name: company.name,
+                workOrderTotalPending,
+                orderTotalPending,
+                orderTotalCompleted,
+            };
+        });
+
+        return companyDashboardData;
+    }),
 });

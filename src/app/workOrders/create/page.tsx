@@ -11,6 +11,7 @@ import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotes
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import WorkOrderStockComponent from "~/app/_components/workOrders/workOrderStockComponent";
 import Link from "next/link";
+import WorkOrderCreation from "~/app/_components/workOrders/create/workOrderCreationComponent";
 
 export default async function CreateWorkOrderPage() {
     // Fetch user session for authentication
@@ -35,25 +36,10 @@ export default async function CreateWorkOrderPage() {
                     </div>
                 </div>
                 <div className="flex-none">
-                    <a className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</a>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
                 </div>
             </div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-                <h1 className="mb-4 text-2xl text-gray-900">Create Work Order</h1>
-                {/* Row 1 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Number</p>
-                        <p className="text-lg font-semibold">Work Order Number</p>
-                    </div>
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Office ID</p>
-                        <p className="text-lg font-semibold">Office ID</p>
-                    </div>
-                </div>
-            </div>
-
+            <WorkOrderCreation />
         </div>
     )
-
 }

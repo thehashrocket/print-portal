@@ -34,14 +34,22 @@ const OrdersTable: React.FC<Order[]> = (orders) => {
     );
   };
 
+  const formatNumberAsCurrency = (params: ValueFormatterParams) => {
+    // Add dollar sign, round to 2 decimal places, and add commas
+    if (params.value === null) {
+      return "$0.00";
+    }
+    return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+  }
+
   // Define column definitions and row data here
   const columnDefs = [
-    { headerName: "id", field: "id" },
+    { headerName: "id", field: "id", hide: true },
     { headerName: "Status", field: "status", filter: true },
     { headerName: "Work Order", field: "workOrderId", filter: true },
     { headerName: "Order Number", field: "orderNumber", filter: true },
-    { headerName: "Deposit", field: "deposit", filter: true },
-    { headerName: "Total Cost", field: "totalCost", filter: true },
+    { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrency },
+    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency },
     {
       headerName: "Actions",
       field: "workOrderId",
@@ -57,6 +65,7 @@ const OrdersTable: React.FC<Order[]> = (orders) => {
           status: order.status,
           workOrderId: order.workOrderId,
           orderNumber: order.orderNumber,
+          // Add dollar sign, round to 2 decimal places, and add commas
           deposit: order.deposit,
           totalCost: order.totalCost,
         };

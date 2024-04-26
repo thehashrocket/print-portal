@@ -17,7 +17,6 @@ export default async function UsersPage() {
     return "You must be logged in to view this page";
   }
   const users = await api.users.getAll();
-  console.log("session");
   return (
     <div className="container mx-auto">
       <div className="navbar bg-base-100">

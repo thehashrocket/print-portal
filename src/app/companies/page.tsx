@@ -20,7 +20,7 @@ export default async function CompaniesPage() {
     ) {
         return "You do not have permssion to view this page";
     }
-    const companies = await api.companies.getAll();
+    const companies = await api.companies.companyDashboard();
 
     const serializedData = companies.map((company) => ({
         ...company

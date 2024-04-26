@@ -31,9 +31,17 @@ const CompaniesTable = ({ companies }: { companies: Company[] }) => {
         </div>
     );
 
+    const formatNumberAsCurrency = (params: { value: any; }) => {
+        // Add dollar sign, round to 2 decimal places, and add commas
+        return `$${params.value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+    }
+
     const columnDefs: ColDef[] = [
-        { headerName: "id", field: "id" },
+        { headerName: "id", field: "id", hide: true },
         { headerName: "Name", field: "name", filter: true },
+        { headerName: "Total Pending WorkOrders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
+        { headerName: "Total Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency },
+        { headerName: "Total Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency },
         {
             headerName: "Actions",
             cellRenderer: actionsCellRenderer,

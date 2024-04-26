@@ -29,7 +29,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({ typesetting
         const selectedTypeset = typesetting.find((type) => type.id === selectedId) || null;
         setCurrentItem(selectedTypeset);
         setSelectedTypeId(selectedId);
-        console.log('currentItem', currentItem);
     };
 
     useEffect(() => {

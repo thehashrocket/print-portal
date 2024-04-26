@@ -12,7 +12,13 @@ type SerializedOrder = {
 
 const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder[] }) => {
     const [orders, setOrders] = useState<SerializedOrder[]>(initialOrders);
-    const allStatuses = Object.values(OrderStatus);
+    const allStatuses = [OrderStatus.Pending,
+    OrderStatus.Prepress,
+    OrderStatus.Press,
+    OrderStatus.Bindery,
+    OrderStatus.Shipping,
+    OrderStatus.Invoicing,
+    OrderStatus.Completed,];
 
     const updateOrderStatus = api.orders.updateStatus.useMutation();
 
@@ -43,7 +49,6 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
             // Call the updateStatus endpoint to update the Order's status
             await updateOrderStatus.mutateAsync({ id, status: newStatus });
 
-            console.log('id:', id);
             setOrders(prevOrders =>
                 prevOrders.map(order =>
                     order.id === id ? { ...order, status: newStatus } : order
@@ -76,8 +81,7 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
                     onDrop={(event) => onDrop(event, status)}
-                    className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto"
-                    style={{ minHeight: '50px' }}>
+                    className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto min-w-[200px] min-h-[200px]">
                     <h3 className="font-semibold mb-2">{status}</h3>
                     {(ordersByStatus[status] || []).map(order => (
                         <div key={order.id}

@@ -4,7 +4,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
-import { Company } from "@prisma/client";
+import { Company, WorkOrder } from "@prisma/client";
 
 export default async function CompanyPage({
     params: { id },
@@ -22,6 +22,10 @@ export default async function CompanyPage({
     // Fetch company data
     const company = await api.companies.getByID(id);
 
+    const calculateWorkOrderTotal = (workOrder: WorkOrder) => {
+        return String(workOrder.WorkOrderItems.reduce((total, item) => total + Number(item.totalCost || 0)));
+    }
+
     return (
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
@@ -35,9 +39,7 @@ export default async function CompanyPage({
                     </div>
                 </div>
                 <div className="flex-none">
-                    <button className="btn btn-square btn-ghost">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
-                    </button>
+                    <Link href="/companies/create" className="btn btn-sm btn-primary">Create Company</Link>
                 </div>
             </div>
             <div className="rounded-lg bg-white p-6 shadow-md">
@@ -61,14 +63,18 @@ export default async function CompanyPage({
                                         <tr>
                                             <th>Work Order Number</th>
                                             <th>Status</th>
+                                            <th>Order Total</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {office.WorkOrders.map((workOrder) => (
+
                                             <tr key={workOrder.id} className="hover:bg-base-200">
                                                 <td>{workOrder.workOrderNumber}</td>
+                                                {/* Format Number as currency with commas */}
                                                 <td>{workOrder.status}</td>
+                                                <td>$ {Number(workOrder.totalCost).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}</td>
                                                 <td>
                                                     <Link className="btn btn-primary" href={`/workOrders/${workOrder.id}`}>View</Link>
                                                 </td>
@@ -84,6 +90,7 @@ export default async function CompanyPage({
                                         <tr>
                                             <th>Order Number</th>
                                             <th>Status</th>
+                                            <th>Order Total</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -92,6 +99,7 @@ export default async function CompanyPage({
                                             <tr key={order.id} className="hover:bg-base-200">
                                                 <td>{order.orderNumber}</td>
                                                 <td>{order.status}</td>
+                                                <td>${Number(order.totalCost).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}</td>
                                                 <td>
                                                     <Link className="btn btn-primary" href={`/orders/${order.id}`}>View</Link>
                                                 </td>
