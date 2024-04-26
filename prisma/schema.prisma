@@ -51,6 +51,23 @@ model Address {
     ShippingInfo    ShippingInfo[]
 }
 
+model Bindery {
+    binderyTime     String?
+    createdAt       DateTime       @default(now())
+    createdBy       User           @relation(fields: [createdById], references: [id])
+    createdById     String
+    cutting         String?
+    description     String?
+    drilling        String?
+    folding         String?
+    id              String         @id @default(uuid())
+    name            String
+    other           String?
+    WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
+    workOrderItemId String?
+    updatedAt       DateTime       @updatedAt
+}
+
 model Company {
     id      String   @id @default(uuid())
     name    String
@@ -70,60 +87,58 @@ model Office {
 }
 
 model Order {
-    approved            Boolean             @default(false)
-    artwork             String?
-    binderyTime         String?
-    costPerM            Decimal?            @db.Decimal(10, 2)
-    createdAt           DateTime            @default(now())
-    deposit             Decimal?            @db.Decimal(10, 2)
+    costPerM            Decimal?                 @db.Decimal(10, 2)
+    createdAt           DateTime                 @default(now())
+    dateInvoiced        DateTime?
+    deposit             Decimal?                 @db.Decimal(10, 2)
     description         String?
     expectedDate        DateTime?
-    id                  String              @id @default(uuid())
-    Office              Office              @relation(fields: [officeId], references: [id])
+    id                  String                   @id @default(uuid())
+    inHandsDate         DateTime?
+    invoiceNumber       Int?
+    invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+    Office              Office                   @relation(fields: [officeId], references: [id])
     officeId            String
     OrderItems          OrderItem[]
     OrderNotes          OrderNote[]
-    orderNumber         Int                 @default(autoincrement())
-    OrderStock          OrderStock[]
+    orderNumber         Int                      @default(autoincrement())
     overUnder           String?
     plateRan            String?
     prepTime            Int?
-    pressRun            String
-    ProcessingOptions   ProcessingOptions[]
-    proofCount          Int                 @default(0)
+    proofCount          Int                      @default(0)
     proofType           String?
-    ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
+    ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
     shippingInfoId      String
     specialInstructions String?
-    status              OrderStatus         @default(Pending)
-    totalCost           Decimal?            @db.Decimal(10, 2)
-    Typesetting         Typesetting[]
-    updatedAt           DateTime            @default(now())
-    User                User                @relation(fields: [userId], references: [id])
+    status              OrderStatus              @default(Pending)
+    totalCost           Decimal?                 @db.Decimal(10, 2)
+    updatedAt           DateTime                 @default(now())
+    User                User                     @relation(fields: [userId], references: [id])
     userId              String
-    version             Int                 @default(1)
-    WorkOrder           WorkOrder           @relation(fields: [workOrderId], references: [id])
-    workOrderId         String              @unique
+    version             Int                      @default(1)
+    WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+    workOrderId         String                   @unique
 }
 
 model OrderItem {
-    id           String   @id @default(uuid())
-    orderId      String
-    description  String
-    finishedQty  Int
-    pressRun     String
-    cs           String
-    size         String?
-    stockOnHand  Boolean  @default(false)
-    stockOrdered String?
-    inkColor     String?
-    amount       Decimal? @db.Decimal(10, 2)
-    quantity     Int      @default(1)
-    cutting      String?
-    drilling     String?
-    folding      String?
-    other        String?
-    Order        Order    @relation(fields: [orderId], references: [id])
+    amount              Decimal?            @db.Decimal(10, 2)
+    approved            Boolean             @default(false)
+    artwork             String?
+    cs                  String
+    finishedQty         Int
+    id                  String              @id @default(uuid())
+    inkColor            String?
+    Order               Order               @relation(fields: [orderId], references: [id])
+    OrderItemStock      OrderItemStock[]
+    orderId             String
+    pressRun            String
+    ProcessingOptions   ProcessingOptions[]
+    quantity            Int                 @default(1)
+    size                String?
+    specialInstructions String?
+    stockOnHand         Boolean             @default(false)
+    stockOrdered        String?
+    Typesetting         Typesetting[]
 }
 
 model OrderNote {
@@ -137,9 +152,8 @@ model OrderNote {
     User      User     @relation(fields: [userId], references: [id])
 }
 
-model OrderStock {
+model OrderItemStock {
     id           String      @id @default(uuid())
-    orderId      String
     stockQty     Int
     costPerM     Decimal?    @db.Decimal(10, 2)
     totalCost    Decimal?    @db.Decimal(10, 2)
@@ -152,7 +166,8 @@ model OrderStock {
     stockStatus  StockStatus
     createdAt    DateTime    @default(now())
     updatedAt    DateTime    @updatedAt
-    Order        Order       @relation(fields: [orderId], references: [id])
+    OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
+    orderItemId  String
 }
 
 model Permission {
@@ -163,21 +178,21 @@ model Permission {
 }
 
 model ProcessingOptions {
-    id             String     @id @default(uuid())
-    workOrderId    String?
-    orderId        String?
-    cutting        Boolean    @default(false)
-    padding        Boolean    @default(false)
-    drilling       Boolean    @default(false)
-    folding        Boolean    @default(false)
-    other          String?
-    numberingStart Int?
-    numberingEnd   Int?
-    numberingColor String?
-    createdAt      DateTime   @default(now())
-    updatedAt      DateTime   @updatedAt
-    Order          Order?     @relation(fields: [orderId], references: [id])
-    WorkOrder      WorkOrder? @relation(fields: [workOrderId], references: [id])
+    createdAt       DateTime       @default(now())
+    cutting         String?
+    drilling        String?
+    folding         String?
+    id              String         @id @default(uuid())
+    numberingColor  String?
+    numberingEnd    Int?
+    numberingStart  Int?
+    OrderItem       OrderItem?     @relation(fields: [orderItemId], references: [id])
+    orderItemId     String?
+    other           String?
+    padding         String?
+    updatedAt       DateTime       @updatedAt
+    WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
+    workOrderItemId String?
 }
 
 model Role {
@@ -214,19 +229,21 @@ model ShippingInfo {
 }
 
 model Typesetting {
-    id                 String              @id @default(uuid())
-    workOrderId        String
-    orderId            String?
-    dateIn             DateTime
-    timeIn             String
-    cost               Decimal?            @db.Decimal(10, 2)
     approved           Boolean             @default(false)
-    prepTime           Int?
+    cost               Decimal?            @db.Decimal(10, 2)
+    createdBy          User                @relation(fields: [createdById], references: [id])
+    createdById        String
+    dateIn             DateTime
+    id                 String              @id @default(uuid())
+    OrderItem          OrderItem?          @relation(fields: [orderItemId], references: [id])
+    orderItemId        String?
     plateRan           String?
-    Order              Order?              @relation(fields: [orderId], references: [id])
-    WorkOrder          WorkOrder           @relation(fields: [workOrderId], references: [id])
+    prepTime           Int?
+    timeIn             String
     TypesettingOptions TypesettingOption[]
     TypesettingProofs  TypesettingProof[]
+    WorkOrderItem      WorkOrderItem?      @relation(fields: [workOrderItemId], references: [id])
+    workOrderItemId    String?
 }
 
 model TypesettingOption {
@@ -267,6 +284,8 @@ model User {
     WorkOrders    WorkOrder[]
     WorkOrderNote WorkOrderNote[]
     Roles         Role[]          @relation("RoleToUser")
+    Typesetting   Typesetting[]
+    Bindery       Bindery[]
 }
 
 model VerificationToken {
@@ -278,62 +297,59 @@ model VerificationToken {
 }
 
 model WorkOrder {
-    id                  String              @id @default(uuid())
-    officeId            String
+    costPerM            Decimal                  @default(0) @db.Decimal(10, 2)
+    createdAt           DateTime                 @default(now())
     dateIn              DateTime
-    inHandsDate         DateTime
-    estimateNumber      String
-    purchaseOrderNumber String
-    pressRun            String
-    specialInstructions String?
-    artwork             String?
-    approved            Boolean             @default(false)
-    prepTime            Int?
-    plateRan            String?
-    expectedDate        DateTime?
-    deposit             Decimal             @default(0) @db.Decimal(10, 2)
-    costPerM            Decimal             @default(0) @db.Decimal(10, 2)
-    totalCost           Decimal?            @db.Decimal(10, 2)
-    binderyTime         String?
-    overUnder           String?
-    userId              String
-    version             Int                 @default(autoincrement())
-    createdAt           DateTime            @default(now())
-    updatedAt           DateTime            @updatedAt
+    deposit             Decimal                  @default(0) @db.Decimal(10, 2)
     description         String?
-    workOrderNumber     Int                 @default(autoincrement())
-    shippingInfoId      String
-    status              WorkOrderStatus     @default(Draft)
+    estimateNumber      String
+    expectedDate        DateTime?
+    id                  String                   @id @default(uuid())
+    inHandsDate         DateTime
+    invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+    Office              Office                   @relation(fields: [officeId], references: [id])
+    officeId            String
     Order               Order?
-    ProcessingOptions   ProcessingOptions[]
-    Typesetting         Typesetting[]
-    Office              Office              @relation(fields: [officeId], references: [id])
-    ShippingInfo        ShippingInfo        @relation(fields: [shippingInfoId], references: [id])
-    User                User                @relation(fields: [userId], references: [id])
+    overUnder           String?
+    plateRan            String?
+    prepTime            Int?
+    purchaseOrderNumber String
+    ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
+    shippingInfoId      String
+    specialInstructions String?
+    status              WorkOrderStatus          @default(Draft)
+    totalCost           Decimal?                 @db.Decimal(10, 2)
+    updatedAt           DateTime                 @updatedAt
+    User                User                     @relation(fields: [userId], references: [id])
+    userId              String
+    version             Int                      @default(autoincrement())
     WorkOrderItems      WorkOrderItem[]
     WorkOrderNotes      WorkOrderNote[]
-    WorkOrderStock      WorkOrderStock[]
+    workOrderNumber     Int                      @default(autoincrement())
     WorkOrderVersions   WorkOrderVersion[]
 }
 
 model WorkOrderItem {
-    id           String    @id @default(uuid())
-    workOrderId  String
-    cutting      String?
-    description  String?
-    drilling     String?
-    finishedQty  Int?
-    folding      String?
-    other        String?
-    pressRun     String?
-    cs           String?
-    size         String?
-    stockOnHand  Boolean   @default(false)
-    stockOrdered String?
-    inkColor     String?
-    amount       Decimal?  @db.Decimal(10, 2)
-    quantity     Int       @default(1)
-    WorkOrder    WorkOrder @relation(fields: [workOrderId], references: [id])
+    amount              Decimal?             @db.Decimal(10, 2)
+    approved            Boolean              @default(false)
+    artwork             String?
+    Bindery             Bindery[]
+    cs                  String?
+    finishedQty         Int?
+    id                  String               @id @default(uuid())
+    inkColor            String?
+    other               String?
+    pressRun            String?
+    ProcessingOptions   ProcessingOptions[]
+    quantity            Int                  @default(1)
+    size                String?
+    specialInstructions String?
+    stockOnHand         Boolean              @default(false)
+    stockOrdered        String?
+    Typesetting         Typesetting[]
+    WorkOrder           WorkOrder?           @relation(fields: [workOrderId], references: [id])
+    workOrderId         String?
+    WorkOrderItemStock  WorkOrderItemStock[]
 }
 
 model WorkOrderNote {
@@ -347,22 +363,22 @@ model WorkOrderNote {
     WorkOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
 }
 
-model WorkOrderStock {
-    id           String      @id @default(uuid())
-    workOrderId  String
-    stockQty     Int
-    costPerM     Decimal?    @db.Decimal(10, 2)
-    totalCost    Decimal?    @db.Decimal(10, 2)
-    from         String?
-    expectedDate DateTime?
-    orderedDate  DateTime?
-    received     Boolean     @default(false)
-    receivedDate DateTime?
-    notes        String?
-    stockStatus  StockStatus
-    createdAt    DateTime    @default(now())
-    updatedAt    DateTime    @updatedAt
-    WorkOrder    WorkOrder   @relation(fields: [workOrderId], references: [id])
+model WorkOrderItemStock {
+    id              String        @id @default(uuid())
+    stockQty        Int
+    costPerM        Decimal?      @db.Decimal(10, 2)
+    totalCost       Decimal?      @db.Decimal(10, 2)
+    from            String?
+    expectedDate    DateTime?
+    orderedDate     DateTime?
+    received        Boolean       @default(false)
+    receivedDate    DateTime?
+    notes           String?
+    stockStatus     StockStatus
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+    WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
+    workOrderItemId String
 }
 
 model WorkOrderVersion {
@@ -379,6 +395,12 @@ enum AddressType {
     Shipping
     Mailing
     Other
+}
+
+enum InvoicePrintEmailOptions {
+    Print
+    Email
+    Both
 }
 
 enum RoleName {
