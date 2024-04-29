@@ -1,543 +1,591 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Post {
-    id          Int      @id @default(autoincrement())
-    name        String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    createdById String
-    createdBy   User     @relation(fields: [createdById], references: [id])
+  id          Int      @id @default(autoincrement())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
 
-    @@index([name])
+  @@index([name])
 }
 
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?
-    access_token      String?
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Address {
-    id              String         @id @default(uuid())
-    officeId        String
-    line1           String
-    line2           String?
-    city            String
-    state           String
-    zipCode         String
-    country         String
-    telephoneNumber String         @default("")
-    addressType     AddressType    @default(Other)
-    Office          Office         @relation(fields: [officeId], references: [id])
-    ShippingInfo    ShippingInfo[]
-}
-
-model Bindery {
-    binderyTime     String?
-    createdAt       DateTime       @default(now())
-    createdBy       User           @relation(fields: [createdById], references: [id])
-    createdById     String
-    cutting         String?
-    description     String?
-    drilling        String?
-    folding         String?
-    id              String         @id @default(uuid())
-    name            String
-    other           String?
-    WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
-    workOrderItemId String?
-    updatedAt       DateTime       @updatedAt
+  id              String         @id @default(uuid())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  officeId        String
+  line1           String
+  line2           String?
+  city            String
+  state           String
+  zipCode         String
+  country         String
+  telephoneNumber String         @default("")
+  addressType     AddressType    @default(Other)
+  Office          Office         @relation(fields: [officeId], references: [id])
+  ShippingInfo    ShippingInfo[]
 }
 
 model Company {
-    id      String   @id @default(uuid())
-    name    String
-    Offices Office[]
+  id      String   @id @default(uuid())
+  name    String
+  Offices Office[]
 }
 
 model Office {
-    id           String         @id @default(uuid())
-    companyId    String
-    name         String
-    Addresses    Address[]
-    Company      Company        @relation(fields: [companyId], references: [id])
-    Orders       Order[]
-    ShippingInfo ShippingInfo[]
-    users        User[]
-    WorkOrders   WorkOrder[]
+  id           String         @id @default(uuid())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdById  String
+  companyId    String
+  name         String
+  createdBy    User           @relation(name: "CreatedBy", fields: [createdById], references: [id])
+  Addresses    Address[]
+  Company      Company        @relation(fields: [companyId], references: [id])
+  Orders       Order[]
+  ShippingInfo ShippingInfo[]
+  users        User[]
+  WorkOrders   WorkOrder[]
 }
 
 model Order {
-    costPerM            Decimal?                 @db.Decimal(10, 2)
-    createdAt           DateTime                 @default(now())
-    dateInvoiced        DateTime?
-    deposit             Decimal?                 @db.Decimal(10, 2)
-    description         String?
-    expectedDate        DateTime?
-    id                  String                   @id @default(uuid())
-    inHandsDate         DateTime?
-    invoiceNumber       Int?
-    invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
-    Office              Office                   @relation(fields: [officeId], references: [id])
-    officeId            String
-    OrderItems          OrderItem[]
-    OrderNotes          OrderNote[]
-    orderNumber         Int                      @default(autoincrement())
-    overUnder           String?
-    plateRan            String?
-    prepTime            Int?
-    proofCount          Int                      @default(0)
-    proofType           String?
-    ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
-    shippingInfoId      String
-    specialInstructions String?
-    status              OrderStatus              @default(Pending)
-    totalCost           Decimal?                 @db.Decimal(10, 2)
-    updatedAt           DateTime                 @default(now())
-    User                User                     @relation(fields: [userId], references: [id])
-    userId              String
-    version             Int                      @default(1)
-    WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
-    workOrderId         String                   @unique
+  costPerM            Decimal?                 @db.Decimal(10, 2)
+  createdAt           DateTime                 @default(now())
+  createdById         String
+  dateInvoiced        DateTime?
+  deposit             Decimal?                 @db.Decimal(10, 2)
+  description         String?
+  expectedDate        DateTime?
+  id                  String                   @id @default(uuid())
+  inHandsDate         DateTime?
+  invoiceNumber       Int?
+  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  Office              Office                   @relation(fields: [officeId], references: [id])
+  officeId            String
+  OrderItems          OrderItem[]
+  OrderNotes          OrderNote[]
+  orderNumber         Int                      @default(autoincrement())
+  overUnder           String?
+  plateRan            String?
+  prepTime            Int?
+  proofCount          Int                      @default(0)
+  proofType           String?
+  ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId      String
+  specialInstructions String?
+  status              OrderStatus              @default(Pending)
+  totalCost           Decimal?                 @db.Decimal(10, 2)
+  updatedAt           DateTime                 @updatedAt
+  createdBy           User                     @relation(fields: [createdById], references: [id])
+  version             Int                      @default(1)
+  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+  workOrderId         String                   @unique
 }
 
 model OrderItem {
-    amount              Decimal?            @db.Decimal(10, 2)
-    approved            Boolean             @default(false)
-    artwork             String?
-    cs                  String
-    finishedQty         Int
-    id                  String              @id @default(uuid())
-    inkColor            String?
-    Order               Order               @relation(fields: [orderId], references: [id])
-    OrderItemStock      OrderItemStock[]
-    orderId             String
-    pressRun            String
-    ProcessingOptions   ProcessingOptions[]
-    quantity            Int                 @default(1)
-    size                String?
-    specialInstructions String?
-    stockOnHand         Boolean             @default(false)
-    stockOrdered        String?
-    Typesetting         Typesetting[]
+  amount              Decimal?            @db.Decimal(10, 2)
+  approved            Boolean             @default(false)
+  artwork             String?
+  createdAt           DateTime            @default(now())
+  createdById         String
+  updatedAt           DateTime            @updatedAt
+  cs                  String
+  finishedQty         Int
+  id                  String              @id @default(uuid())
+  inkColor            String?
+  Order               Order               @relation(fields: [orderId], references: [id])
+  OrderItemStock      OrderItemStock[]
+  orderId             String
+  pressRun            String
+  ProcessingOptions   ProcessingOptions[]
+  quantity            Int                 @default(1)
+  size                String?
+  specialInstructions String?
+  status              OrderItemStatus     @default(Pending)
+  stockOnHand         Boolean             @default(false)
+  stockOrdered        String?
+  Typesetting         Typesetting[]
+  createdBy           User                @relation(fields: [createdById], references: [id])
 }
 
 model OrderNote {
-    id        String   @id @default(uuid())
-    note      String
-    orderId   String
-    userId    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    Order     Order    @relation(fields: [orderId], references: [id])
-    User      User     @relation(fields: [userId], references: [id])
+  id          String   @id @default(uuid())
+  note        String
+  orderId     String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Order       Order    @relation(fields: [orderId], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
 }
 
 model OrderItemStock {
-    id           String      @id @default(uuid())
-    stockQty     Int
-    costPerM     Decimal?    @db.Decimal(10, 2)
-    totalCost    Decimal?    @db.Decimal(10, 2)
-    from         String?
-    expectedDate DateTime?
-    orderedDate  DateTime?
-    received     Boolean     @default(false)
-    receivedDate DateTime?
-    notes        String?
-    stockStatus  StockStatus
-    createdAt    DateTime    @default(now())
-    updatedAt    DateTime    @updatedAt
-    OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
-    orderItemId  String
+  costPerM     Decimal?    @db.Decimal(10, 2)
+  createdAt    DateTime    @default(now())
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  createdById  String
+  expectedDate DateTime?
+  from         String?
+  id           String      @id @default(uuid())
+  notes        String?
+  orderedDate  DateTime?
+  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
+  orderItemId  String
+  received     Boolean     @default(false)
+  receivedDate DateTime?
+  stockQty     Int
+  stockStatus  StockStatus
+  totalCost    Decimal?    @db.Decimal(10, 2)
+  updatedAt    DateTime    @updatedAt
 }
 
 model Permission {
-    id          String  @id @default(uuid())
-    name        String  @unique
-    description String?
-    Roles       Role[]  @relation("PermissionToRole")
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+  Roles       Role[]  @relation("PermissionToRole")
 }
 
 model ProcessingOptions {
-    createdAt       DateTime       @default(now())
-    cutting         String?
-    drilling        String?
-    folding         String?
-    id              String         @id @default(uuid())
-    numberingColor  String?
-    numberingEnd    Int?
-    numberingStart  Int?
-    OrderItem       OrderItem?     @relation(fields: [orderItemId], references: [id])
-    orderItemId     String?
-    other           String?
-    padding         String?
-    updatedAt       DateTime       @updatedAt
-    WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
-    workOrderItemId String?
+  binderyTime     String?
+  binding         String?
+  createdAt       DateTime       @default(now())
+  createdById     String
+  cutting         String?
+  description     String?
+  drilling        String?
+  folding         String?
+  id              String         @id @default(uuid())
+  name            String
+  numberingColor  String?
+  numberingEnd    Int?
+  numberingStart  Int?
+  OrderItem       OrderItem?     @relation(fields: [orderItemId], references: [id])
+  orderItemId     String?
+  other           String?
+  padding         String?
+  stitching       String?
+  updatedAt       DateTime       @updatedAt
+  createdBy       User           @relation(fields: [createdById], references: [id])
+  WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId String?
 }
 
 model Role {
-    id          String       @id @default(uuid())
-    name        RoleName     @unique
-    description String?
-    Permissions Permission[] @relation("PermissionToRole")
-    Users       User[]       @relation("RoleToUser")
+  id          String       @id @default(uuid())
+  name        RoleName     @unique
+  description String?
+  Permissions Permission[] @relation("PermissionToRole")
+  Users       User[]       @relation("RoleToUser")
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ShippingInfo {
-    id                 String         @id @default(uuid())
-    instructions       String?
-    shippingOther      String?
-    shippingDate       DateTime?
-    shippingMethod     ShippingMethod
-    shippingCost       Decimal?       @db.Decimal(10, 2)
-    officeId           String
-    shipToSameAsBillTo Boolean        @default(false)
-    attentionTo        String?
-    addressId          String?
-    Order              Order[]
-    Address            Address?       @relation(fields: [addressId], references: [id])
-    Office             Office         @relation(fields: [officeId], references: [id])
-    WorkOrder          WorkOrder[]
+  createdById        String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  id                 String         @id @default(uuid())
+  instructions       String?
+  shippingOther      String?
+  shippingDate       DateTime?
+  shippingMethod     ShippingMethod
+  shippingCost       Decimal?       @db.Decimal(10, 2)
+  officeId           String
+  shipToSameAsBillTo Boolean        @default(false)
+  attentionTo        String?
+  addressId          String?
+  Order              Order[]
+  Address            Address?       @relation(fields: [addressId], references: [id])
+  Office             Office         @relation(fields: [officeId], references: [id])
+  WorkOrder          WorkOrder[]
+  createdBy          User           @relation(fields: [createdById], references: [id])
 }
 
 model Typesetting {
-    approved           Boolean             @default(false)
-    cost               Decimal?            @db.Decimal(10, 2)
-    createdBy          User                @relation(fields: [createdById], references: [id])
-    createdById        String
-    dateIn             DateTime
-    id                 String              @id @default(uuid())
-    OrderItem          OrderItem?          @relation(fields: [orderItemId], references: [id])
-    orderItemId        String?
-    plateRan           String?
-    prepTime           Int?
-    timeIn             String
-    TypesettingOptions TypesettingOption[]
-    TypesettingProofs  TypesettingProof[]
-    WorkOrderItem      WorkOrderItem?      @relation(fields: [workOrderItemId], references: [id])
-    workOrderItemId    String?
+  approved           Boolean             @default(false)
+  cost               Decimal?            @db.Decimal(10, 2)
+  createdBy          User                @relation(fields: [createdById], references: [id])
+  createdById        String
+  createdAt          DateTime            @default(now())
+  dateIn             DateTime
+  id                 String              @id @default(uuid())
+  OrderItem          OrderItem?          @relation(fields: [orderItemId], references: [id])
+  orderItemId        String?
+  plateRan           String?
+  prepTime           Int?
+  timeIn             String
+  TypesettingOptions TypesettingOption[]
+  TypesettingProofs  TypesettingProof[]
+  updatedAt          DateTime            @updatedAt
+  WorkOrderItem      WorkOrderItem?      @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId    String?
 }
 
 model TypesettingOption {
-    id            String      @id @default(uuid())
-    typesettingId String
-    option        String
-    selected      Boolean     @default(false)
-    typesetting   Typesetting @relation(fields: [typesettingId], references: [id])
+  id            String      @id @default(uuid())
+  typesettingId String
+  option        String
+  selected      Boolean     @default(false)
+  typesetting   Typesetting @relation(fields: [typesettingId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  createdBy     User        @relation(fields: [createdById], references: [id])
+  createdById   String
 
-    @@unique([typesettingId, option])
+  @@unique([typesettingId, option])
 }
 
 model TypesettingProof {
-    id            String      @id @default(uuid())
-    typesettingId String
-    proofNumber   Int
-    dateSubmitted DateTime?
-    notes         String?
-    approved      Boolean?
-    Typesetting   Typesetting @relation(fields: [typesettingId], references: [id])
+  createdAt     DateTime    @default(now())
+  id            String      @id @default(uuid())
+  typesettingId String
+  proofNumber   Int
+  dateSubmitted DateTime?
+  notes         String?
+  approved      Boolean?
+  Typesetting   Typesetting @relation(fields: [typesettingId], references: [id])
+  updatedAt     DateTime    @updatedAt
+  createdBy     User        @relation(fields: [createdById], references: [id])
+  createdById   String
 }
 
 model User {
-    id            String          @id @default(cuid())
-    name          String?
-    email         String?         @unique
-    emailVerified DateTime?
-    image         String?
-    createdAt     DateTime        @default(now())
-    updatedAt     DateTime        @default(now())
-    officeId      String?
-    accounts      Account[]
-    Order         Order[]
-    OrderNote     OrderNote[]
-    Posts         Post[]
-    sessions      Session[]
-    Office        Office?         @relation(fields: [officeId], references: [id])
-    WorkOrders    WorkOrder[]
-    WorkOrderNote WorkOrderNote[]
-    Roles         Role[]          @relation("RoleToUser")
-    Typesetting   Typesetting[]
-    Bindery       Bindery[]
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String?              @unique
+  emailVerified      DateTime?
+  image              String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now())
+  officeId           String?
+  accounts           Account[]
+  Order              Order[]
+  OrderNote          OrderNote[]
+  Posts              Post[]
+  sessions           Session[]
+  Office             Office?              @relation(fields: [officeId], references: [id])
+  WorkOrders         WorkOrder[]
+  WorkOrderNote      WorkOrderNote[]
+  Roles              Role[]               @relation("RoleToUser")
+  Typesetting        Typesetting[]
+  ProcessingOptions  ProcessingOptions[]
+  OrderItem          OrderItem[]
+  OrderItemStock     OrderItemStock[]
+  ShippingInfo       ShippingInfo[]
+  TypesettingOption  TypesettingOption[]
+  TypesettingProof   TypesettingProof[]
+  WorkOrderItem      WorkOrderItem[]
+  WorkOrderItemStock WorkOrderItemStock[]
+  CreatedOffices     Office[]             @relation(name: "CreatedBy")
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model WorkOrder {
-    costPerM            Decimal                  @default(0) @db.Decimal(10, 2)
-    createdAt           DateTime                 @default(now())
-    dateIn              DateTime
-    deposit             Decimal                  @default(0) @db.Decimal(10, 2)
-    description         String?
-    estimateNumber      String
-    expectedDate        DateTime?
-    id                  String                   @id @default(uuid())
-    inHandsDate         DateTime
-    invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
-    Office              Office                   @relation(fields: [officeId], references: [id])
-    officeId            String
-    Order               Order?
-    overUnder           String?
-    plateRan            String?
-    prepTime            Int?
-    purchaseOrderNumber String
-    ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
-    shippingInfoId      String
-    specialInstructions String?
-    status              WorkOrderStatus          @default(Draft)
-    totalCost           Decimal?                 @db.Decimal(10, 2)
-    updatedAt           DateTime                 @updatedAt
-    User                User                     @relation(fields: [userId], references: [id])
-    userId              String
-    version             Int                      @default(autoincrement())
-    WorkOrderItems      WorkOrderItem[]
-    WorkOrderNotes      WorkOrderNote[]
-    workOrderNumber     Int                      @default(autoincrement())
-    WorkOrderVersions   WorkOrderVersion[]
+  costPerM            Decimal                  @default(0) @db.Decimal(10, 2)
+  createdAt           DateTime                 @default(now())
+  dateIn              DateTime
+  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
+  description         String?
+  estimateNumber      String
+  expectedDate        DateTime?
+  id                  String                   @id @default(uuid())
+  inHandsDate         DateTime
+  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  Office              Office                   @relation(fields: [officeId], references: [id])
+  officeId            String
+  Order               Order?
+  overUnder           String?
+  plateRan            String?
+  prepTime            Int?
+  purchaseOrderNumber String
+  ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId      String
+  specialInstructions String?
+  status              WorkOrderStatus          @default(Draft)
+  totalCost           Decimal?                 @db.Decimal(10, 2)
+  updatedAt           DateTime                 @updatedAt
+  version             Int                      @default(autoincrement())
+  WorkOrderItems      WorkOrderItem[]
+  WorkOrderNotes      WorkOrderNote[]
+  workOrderNumber     Int                      @default(autoincrement())
+  WorkOrderVersions   WorkOrderVersion[]
+  createdBy           User                     @relation(fields: [createdById], references: [id])
+  createdById         String
 }
 
 model WorkOrderItem {
-    amount              Decimal?             @db.Decimal(10, 2)
-    approved            Boolean              @default(false)
-    artwork             String?
-    Bindery             Bindery[]
-    cs                  String?
-    finishedQty         Int?
-    id                  String               @id @default(uuid())
-    inkColor            String?
-    other               String?
-    pressRun            String?
-    ProcessingOptions   ProcessingOptions[]
-    quantity            Int                  @default(1)
-    size                String?
-    specialInstructions String?
-    stockOnHand         Boolean              @default(false)
-    stockOrdered        String?
-    Typesetting         Typesetting[]
-    WorkOrder           WorkOrder?           @relation(fields: [workOrderId], references: [id])
-    workOrderId         String?
-    WorkOrderItemStock  WorkOrderItemStock[]
+  amount              Decimal?             @db.Decimal(10, 2)
+  approved            Boolean              @default(false)
+  artwork             String?
+  createdAt           DateTime             @default(now())
+  cs                  String?
+  finishedQty         Int?
+  id                  String               @id @default(uuid())
+  inkColor            String?
+  other               String?
+  pressRun            String?
+  ProcessingOptions   ProcessingOptions[]
+  quantity            Int                  @default(1)
+  size                String?
+  status              WorkOrderItemStatus  @default(Pending)
+  specialInstructions String?
+  stockOnHand         Boolean              @default(false)
+  stockOrdered        String?
+  Typesetting         Typesetting[]
+  updatedAt           DateTime             @updatedAt
+  WorkOrder           WorkOrder?           @relation(fields: [workOrderId], references: [id])
+  workOrderId         String?
+  WorkOrderItemStock  WorkOrderItemStock[]
+  createdBy           User                 @relation(fields: [createdById], references: [id])
+  createdById         String
 }
 
 model WorkOrderNote {
-    id          String    @id @default(uuid())
-    workOrderId String
-    note        String
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    userId      String
-    User        User      @relation(fields: [userId], references: [id])
-    WorkOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  id          String    @id @default(uuid())
+  workOrderId String
+  note        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  WorkOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
 }
 
 model WorkOrderItemStock {
-    id              String        @id @default(uuid())
-    stockQty        Int
-    costPerM        Decimal?      @db.Decimal(10, 2)
-    totalCost       Decimal?      @db.Decimal(10, 2)
-    from            String?
-    expectedDate    DateTime?
-    orderedDate     DateTime?
-    received        Boolean       @default(false)
-    receivedDate    DateTime?
-    notes           String?
-    stockStatus     StockStatus
-    createdAt       DateTime      @default(now())
-    updatedAt       DateTime      @updatedAt
-    WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
-    workOrderItemId String
+  id              String        @id @default(uuid())
+  stockQty        Int
+  costPerM        Decimal?      @db.Decimal(10, 2)
+  totalCost       Decimal?      @db.Decimal(10, 2)
+  from            String?
+  expectedDate    DateTime?
+  orderedDate     DateTime?
+  received        Boolean       @default(false)
+  receivedDate    DateTime?
+  notes           String?
+  stockStatus     StockStatus
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId String
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  createdById     String
 }
 
 model WorkOrderVersion {
-    id          String    @id @default(uuid())
-    workOrderId String
-    version     Int
-    createdBy   String
-    createdAt   DateTime  @default(now())
-    WorkOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  id          String    @id @default(uuid())
+  workOrderId String
+  version     Int
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  WorkOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
 }
 
 enum AddressType {
-    Billing
-    Shipping
-    Mailing
-    Other
+  Billing
+  Shipping
+  Mailing
+  Other
 }
 
 enum InvoicePrintEmailOptions {
-    Print
-    Email
-    Both
+  Print
+  Email
+  Both
 }
 
 enum RoleName {
-    Admin
-    Bindery
-    Customer
-    Finance
-    Manager
-    Prepress
-    Production
-    Sales
-    User
+  Admin
+  Bindery
+  Customer
+  Finance
+  Manager
+  Prepress
+  Production
+  Sales
+  User
 }
 
 enum OrderStatus {
-    Bindery
-    Cancelled
-    Completed
-    Invoicing
-    PaymentReceived
-    Pending
-    Prepress
-    Press
-    Shipping
+  Cancelled
+  Completed
+  Invoicing
+  PaymentReceived
+  Pending
+  Shipping
+}
+
+enum OrderItemStatus {
+  Bindery
+  Cancelled
+  Completed
+  Pending
+  Prepress
+  Press
+  Shipping
+}
+
+enum WorkOrderItemStatus {
+  Approved
+  Cancelled
+  Draft
+  Pending
+  Proofing
 }
 
 enum WorkOrderStatus {
-    Approved
-    Cancelled
-    Draft
-    Proofing
+  Approved
+  Cancelled
+  Draft
+  Pending
 }
 
 enum PaymentMethod {
-    Cash
-    Check
-    CreditCard
-    DebitCard
-    PayPal
-    Venmo
-    Zelle
+  Cash
+  Check
+  CreditCard
+  DebitCard
+  PayPal
+  Venmo
+  Zelle
 }
 
 enum PaymentStatus {
-    Paid
-    Unpaid
-    Partial
-    Pending
-    Overdue
-    Refunded
+  Paid
+  Unpaid
+  Partial
+  Pending
+  Overdue
+  Refunded
 }
 
 enum PermissionName {
-    CreateAddress
-    CreateApiKey
-    CreateCompany
-    CreateInvitation
-    CreateOffice
-    CreateOrder
-    CreateOrderItem
-    CreatePasswordReset
-    CreateProcessingOptions
-    CreateRole
-    CreateShippingInfo
-    CreateTypesetting
-    CreateUser
-    CreateWorkOrder
-    DeleteAddress
-    DeleteApiKey
-    DeleteCompany
-    DeleteInvitation
-    DeleteOffice
-    DeleteOrder
-    DeleteOrderItem
-    DeletePasswordReset
-    DeleteProcessingOptions
-    DeleteRole
-    DeleteShippingInfo
-    DeleteTypesetting
-    DeleteUser
-    DeleteWorkOrder
-    UpdateAddress
-    UpdateApiKey
-    UpdateCompany
-    UpdateInvitation
-    UpdateOffice
-    UpdateOrder
-    UpdateOrderItem
-    UpdatePasswordReset
-    UpdateProcessingOptions
-    UpdateRole
-    UpdateShippingInfo
-    UpdateTypesetting
-    UpdateUser
-    UpdateWorkOrder
+  CreateAddress
+  CreateApiKey
+  CreateCompany
+  CreateInvitation
+  CreateOffice
+  CreateOrder
+  CreateOrderItem
+  CreatePasswordReset
+  CreateProcessingOptions
+  CreateRole
+  CreateShippingInfo
+  CreateTypesetting
+  CreateUser
+  CreateWorkOrder
+  DeleteAddress
+  DeleteApiKey
+  DeleteCompany
+  DeleteInvitation
+  DeleteOffice
+  DeleteOrder
+  DeleteOrderItem
+  DeletePasswordReset
+  DeleteProcessingOptions
+  DeleteRole
+  DeleteShippingInfo
+  DeleteTypesetting
+  DeleteUser
+  DeleteWorkOrder
+  UpdateAddress
+  UpdateApiKey
+  UpdateCompany
+  UpdateInvitation
+  UpdateOffice
+  UpdateOrder
+  UpdateOrderItem
+  UpdatePasswordReset
+  UpdateProcessingOptions
+  UpdateRole
+  UpdateShippingInfo
+  UpdateTypesetting
+  UpdateUser
+  UpdateWorkOrder
 }
 
 enum ProofType {
-    Digital
-    HardCopy
-    PDF
-    Other
+  Digital
+  HardCopy
+  PDF
+  Other
 }
 
 enum ShippingMethod {
-    Courier
-    Deliver
-    DHL
-    FedEx
-    Other
-    UPS
-    USPS
+  Courier
+  Deliver
+  DHL
+  FedEx
+  Other
+  UPS
+  USPS
 }
 
 enum ShippingType {
-    Residential
-    Commercial
-    Other
+  Residential
+  Commercial
+  Other
 }
 
 enum StaticRoles {
-    ADMIN
-    BINDERY
-    CUSTOMER
-    FINANCE
-    MANAGER
-    PREPRESS
-    PRODUCTION
-    SALES
-    USER
+  ADMIN
+  BINDERY
+  CUSTOMER
+  FINANCE
+  MANAGER
+  PREPRESS
+  PRODUCTION
+  SALES
+  USER
 }
 
 enum StockStatus {
-    InStock
-    OnHand
-    CS
-    Ordered
-    OutOfStock
-    LowStock
+  InStock
+  OnHand
+  CS
+  Ordered
+  OutOfStock
+  LowStock
 }

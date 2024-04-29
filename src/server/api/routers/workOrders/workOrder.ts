@@ -13,15 +13,21 @@ export const workOrderRouter = createTRPCRouter({
         },
         include: {
           WorkOrderItems: {
+            include: {
+              Bindery: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true
+                }
+              },
+              ProcessingOptions: true,
+            },
             select: {
               id: true,
               amount: true,
               cs: true,
-              cutting: true,
-              description: true,
-              drilling: true,
               finishedQty: true,
-              folding: true,
               inkColor: true,
               other: true,
               pressRun: true,
@@ -31,15 +37,8 @@ export const workOrderRouter = createTRPCRouter({
               stockOrdered: true,
             }
           },
-          WorkOrderStock: true,
           WorkOrderVersions: true,
-          Typesetting: {
-            include: {
-              TypesettingOptions: true,
-              TypesettingProofs: true
-            }
-          },
-          ProcessingOptions: true,
+
           WorkOrderNotes: {
             include: {
               User: true
