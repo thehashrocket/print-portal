@@ -1,17 +1,21 @@
-import { OrderItem, PrismaClient, WorkOrderItem } from "@prisma/client";
+import { OrderItem, PrismaClient, RoleName, WorkOrderItem } from "@prisma/client";
 import { faker } from "@faker-js/faker";
-import { AddressType } from "@prisma/client";
-import { WorkOrderStatus } from "@prisma/client";
-import { OrderStatus } from "@prisma/client";
-import { OrderItemStatus } from "@prisma/client";
-import { ShippingMethod } from "@prisma/client";
-import { StockStatus } from "@prisma/client";
-import { WorkOrderItemStatus } from "@prisma/client";
+import { AddressType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
 import { string } from "zod";
 import bcrypt from "bcryptjs";
 const prismaClient = new PrismaClient();
 const randomElementFromArray = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)];
+
+const MIN_ITEM_COUNT = 1;
+const MAX_ITEM_COUNT = 5;
+const MIN_NOTE_COUNT = 1;
+const MAX_NOTE_COUNT = 5;
+const MIN_QTY = 1;
+const MAX_QTY = 1000;
+const MIN_COST_PER_M = 50;
+const MAX_COST_PER_M = 200;
+
 
 const csOptions = ["C1", "C2", "C3", "C4", "C5", "C6"];
 const inkColors = ["Black", "Cyan", "Magenta", "Yellow", "White"];
@@ -607,7 +611,7 @@ async function createRolesAndPermissions() {
   for (const role of roles) {
     await prismaClient.role.create({
       data: {
-        name: role.name,
+        name: role.name as RoleName,
         Permissions: {
           connect: role.Permissions.map((perm) => ({ name: perm.name })),
         },
@@ -724,7 +728,11 @@ async function createUser(roleName: string, officeId = null) {
   // if officeId is null, the user is an internal user
   // if officeId is not null, the user is an external user
   // if officeId is null, then ignore the officeId field in the data object
-  console.log("officeId ", officeId ?? null);
+  if (officeId === null) {
+    console.log("officeId is null, this is an internal user.");
+  } else {
+    console.log("officeId ", officeId ?? null);
+  }
   const user = await prismaClient.user.create({
     data: {
       name: faker.person.fullName(),
@@ -931,89 +939,96 @@ async function hashPassword(password) {
 }
 
 async function seed() {
-  await createRolesAndPermissions();
+  try {
+    await createRolesAndPermissions();
+    await createInternalUsers();
+    await createAdminUser();
 
-  await createInternalUsers();
+    const companyCount = 10;
+    for (let companyIndex = 0; companyIndex < companyCount; companyIndex++) {
+      const company = await createCompany();
+      const numOffices = faker.number.int({ min: 1, max: 4 });
 
-  await createAdminUser();
-
-
-
-  for (let i = 0; i < 5; i++) {
-    // Create 5 companies
-    const company = await createCompany();
-    const numOffices = faker.number.int({ min: 1, max: 3 });
-
-
-
-
-    for (let j = 0; j < numOffices; j++) {
-      const internalUser = await prismaClient.user.findFirst({
-        where: {
-          Roles: {
-            some: {
-              name: "Sales",
+      for (let officeIndex = 0; officeIndex < numOffices; officeIndex++) {
+        const internalUser = await prismaClient.user.findFirst({
+          where: {
+            Roles: {
+              some: {
+                name: "Sales",
+              },
             },
           },
-        },
-      });
+        });
 
-      if (internalUser) {
-        // Create 1-3 offices per company
-        const office = await createOffice(company.id, internalUser.id);
-        const numAddresses = faker.number.int({ min: 1, max: 2 });
-        for (let k = 0; k < numAddresses; k++) {
-          // Create 1-2 addresses per office
-          await createAddress(office.id);
+        if (internalUser) {
+          const office = await createOffice(company.id, internalUser.id);
+          const numAddresses = faker.number.int({ min: 1, max: 2 });
+
+          const addressPromises = [];
+          for (let addressIndex = 0; addressIndex < numAddresses; addressIndex++) {
+            addressPromises.push(createAddress(office.id));
+          }
+          await Promise.all(addressPromises);
+
+          await createUsers(office.id);
+        } else {
+          console.warn("No internal user with the 'Sales' role found.");
         }
-
-        await createUsers(office.id); // Create users for each office
       }
     }
-  }
 
-  // Iterate over offices to create work orders
-  const offices = await prismaClient.office.findMany();
-  for (const office of offices) {
-    const numberOfWorkOrders = faker.number.int({ min: 1, max: 9 });
-    for (let j = 0; j < numberOfWorkOrders; j++) {
-      // Get Internal User with Role of Sales
-      const internalUser = await prismaClient.user.findFirst({
-        where: {
-          Roles: {
-            some: {
-              name: "Sales",
+    const offices = await prismaClient.office.findMany();
+    for (const office of offices) {
+      const numberOfWorkOrders = faker.number.int({ min: 1, max: 9 });
+      for (let workOrderIndex = 0; workOrderIndex < numberOfWorkOrders; workOrderIndex++) {
+        const internalUser = await prismaClient.user.findFirst({
+          where: {
+            Roles: {
+              some: {
+                name: "Sales",
+              },
             },
           },
-        },
-      });
+        });
 
-      if (internalUser) {
-        const shippingInfoId = await createShippingInfo(office.id, internalUser.id);
-        const workOrder = await createWorkOrder(office.id, shippingInfoId);
+        if (internalUser) {
+          const shippingInfoId = await createShippingInfo(office.id, internalUser.id);
+          const workOrder = await createWorkOrder(office.id, shippingInfoId);
 
-        await createWorkOrderItems(
-          workOrder.id,
-          faker.number.int({ min: 1, max: 5 }),
-          workOrder.createdById,
-        );
-        await createWorkOrderNotes(
-          workOrder.id,
-          faker.number.int({ min: 1, max: 5 }),
-          workOrder.createdById,
-        );
-        await createWorkOrderVersions(workOrder.id);
+          if (workOrder) {
+            await createWorkOrderItems(
+              workOrder.id,
+              faker.number.int({ min: MIN_ITEM_COUNT, max: MAX_ITEM_COUNT }),
+              workOrder.createdById,
+            );
+            await createWorkOrderNotes(
+              workOrder.id,
+              faker.number.int({ min: MIN_NOTE_COUNT, max: MAX_NOTE_COUNT }),
+              workOrder.createdById,
+            );
+            await createWorkOrderVersions(workOrder.id);
 
-        // If the order has an approved status, convert it to an order
-        if (workOrder.status == "Approved") {
-          await convertWorkOrderToOrder(workOrder.id, office.id);
+            if (workOrder.status === "Approved") {
+              await prismaClient.$transaction(async (): Promise<void> => {
+                await convertWorkOrderToOrder(workOrder.id, office.id);
+              });
+            }
+          } else {
+            console.warn("Failed to create work order.");
+          }
+        } else {
+          console.warn("No internal user with the 'Sales' role found.");
         }
       }
-
     }
-  }
 
-  console.log("Database has been seeded.");
+    console.log("Database has been seeded.");
+  } catch (error) {
+    console.error("Error seeding the database:", error);
+    process.exit(1);
+  } finally {
+    await prismaClient.$disconnect();
+  }
 }
 
 seed()
