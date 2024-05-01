@@ -14,7 +14,6 @@ export const workOrderRouter = createTRPCRouter({
         include: {
           WorkOrderItems: {
             include: {
-              Bindery: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -41,7 +40,7 @@ export const workOrderRouter = createTRPCRouter({
 
           WorkOrderNotes: {
             include: {
-              User: true
+              createdBy: true
             }
           },
           ShippingInfo: {

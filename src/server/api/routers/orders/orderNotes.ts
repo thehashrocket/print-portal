@@ -13,7 +13,7 @@ export const orderNoteRouter = createTRPCRouter({
                 id: input,
             },
             include: {
-                User: true
+                createdBy: true
             }
         });
     }),
@@ -21,7 +21,7 @@ export const orderNoteRouter = createTRPCRouter({
     getAll: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.orderNote.findMany({
             include: {
-                User: true
+                createdBy: true
             }
         });
     }),
@@ -36,7 +36,7 @@ export const orderNoteRouter = createTRPCRouter({
                 data: {
                     note: input.note,
                     orderId: input.orderId,
-                    userId: ctx.session.user.id
+                    createdById: ctx.session.user.id
                 }
             });
         }),

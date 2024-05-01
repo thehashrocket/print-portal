@@ -25,7 +25,7 @@ export const orderRouter = createTRPCRouter({
           },
           OrderNotes: {
             include: {
-              User: true
+              createdBy: true
             }
           },
           ShippingInfo: {
