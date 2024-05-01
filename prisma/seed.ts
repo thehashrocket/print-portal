@@ -25,6 +25,7 @@ const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
 const shippingMethods = Object.values(ShippingMethod);
 const workOrderStatuses = Object.values(WorkOrderStatus);
+const workOrderItemStatuses = Object.values(WorkOrderItemStatus);
 const orderItemStatuses = Object.values(OrderItemStatus)
 const orderStatuses = Object.values(OrderStatus);
 const typesettingOptions = ["Negs", "Xante", "7200", "9200"];
@@ -79,6 +80,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         artwork: workOrderItem?.artwork,
         amount: workOrderItem.amount,
         cs: workOrderItem.cs ?? "",
+        description: workOrderItem.description,
         finishedQty: workOrderItem.finishedQty ?? 0,
         inkColor: workOrderItem.inkColor,
         orderId: order.id,
@@ -89,6 +91,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         stockOnHand: workOrderItem.stockOnHand,
         stockOrdered: workOrderItem.stockOrdered,
         createdById: workOrderItem.createdById, // Add the missing createdById property
+        status: randomElementFromArray(orderItemStatuses),
       }
     });
     console.log('Order Item created');
@@ -831,6 +834,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         approved: faker.datatype.boolean(),
         artwork: faker.internet.url(),
         cs: randomElementFromArray(csOptions),
+        description: faker.commerce.productDescription(),
         finishedQty: faker.number.int({ min: 1, max: 1000 }),
         inkColor: randomElementFromArray(inkColors),
         other: faker.commerce.productMaterial(),
@@ -838,6 +842,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         quantity: faker.number.int({ min: 1, max: 1000 }),
         size: randomElementFromArray(sizes),
         specialInstructions: faker.lorem.sentence(),
+        status: randomElementFromArray(workOrderItemStatuses),
         stockOnHand: faker.datatype.boolean(),
         stockOrdered: faker.datatype.boolean()
           ? faker.commerce.product()

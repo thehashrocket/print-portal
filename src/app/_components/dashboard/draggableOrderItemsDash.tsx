@@ -1,20 +1,28 @@
-"use client";
 import React, { useState, useEffect } from 'react';
-import { WorkOrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
+import { OrderItemStatus } from '@prisma/client';
 
-type SerializedWorkOrder = {
+type SerializedOrderItem = {
     id: string;
-    status: WorkOrderStatus;
+    status: OrderItemStatus;
     description: string;
     expectedDate: string;
 };
 
-const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: SerializedWorkOrder[] }) => {
-    const [workOrders, setWorkOrders] = useState<SerializedWorkOrder[]>(initialWorkOrders);
-    const allStatuses = [WorkOrderStatus.Draft, WorkOrderStatus.Pending, WorkOrderStatus.Approved, WorkOrderStatus.Cancelled];
+const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: SerializedOrderItem[] }) => {
 
-    const updateWorkOrderStatus = api.workOrders.updateStatus.useMutation();
+    const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>(initialOrderItems);
+    const allStatuses = [OrderItemStatus.Bindery, OrderItemStatus.Cancelled, OrderItemStatus.Completed, OrderItemStatus.Pending, OrderItemStatus.Prepress, OrderItemStatus.Press, OrderItemStatus.Shipping];
+
+    const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
+
+    const isWithinAWeek = (dateString) => {
+        const targetDate = new Date(dateString);
+        const currentDate = new Date();
+        const timeDiff = targetDate.getTime() - currentDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return daysDiff <= 7;
+    };
 
     const onDragLeave = (event) => {
         // Optionally, remove the class from the event target to remove the highlight
@@ -39,33 +47,24 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
         event.currentTarget.classList.remove('bg-blue-600');
         try {
             // Call the updateStatus endpoint to update the WorkOrder's status
-            await updateWorkOrderStatus.mutateAsync({ id, status: newStatus });
+            await updateOrderItemStatus.mutateAsync({ id, status: newStatus });
 
-            setWorkOrders(prevWorkOrders =>
-                prevWorkOrders.map(workOrder =>
-                    workOrder.id === id ? { ...workOrder, status: newStatus } : workOrder
+            setOrderItems(prevOrderItems =>
+                prevOrderItems.map(orderItem =>
+                    orderItem.id === id ? { ...orderItem, status: newStatus } : orderItem
                 )
             );
-
         } catch (error) {
-            console.error('Failed to update WorkOrder status: ', error);
+            console.error(error);
         }
     };
 
-    // Group the work orders by their status
-    const ordersByStatus: { [key in WorkOrderStatus]: SerializedWorkOrder[] } = workOrders.reduce((acc, workOrder) => {
-        const statusGroup = acc[workOrder.status] || [];
-        acc[workOrder.status] = [...statusGroup, workOrder];
+    // Group the Order Items by their status
+    const orderItemsByStatus: { [key in OrderItemStatus]: SerializedOrderItem[] } = orderItems.reduce((acc, orderItem) => {
+        const statusGroup = acc[orderItem.status] || [];
+        acc[orderItem.status] = [...statusGroup, orderItem];
         return acc;
-    }, {} as { [key in WorkOrderStatus]: SerializedWorkOrder[] });
-
-    const isWithinAWeek = (dateString) => {
-        const targetDate = new Date(dateString);
-        const currentDate = new Date();
-        const timeDiff = targetDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff <= 7;
-    };
+    }, {} as { [key in OrderItemStatus]: SerializedOrderItem[] });
 
     return (
         <div className="flex p-5 bg-gray-800 text-white min-h-screen">
@@ -76,7 +75,7 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
                     onDrop={(event) => onDrop(event, status)}
                     className="flex-1 p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 min-w-[150px] min-h-[200px]">
                     <h3 className="text-lg font-semibold mb-2">{status}</h3>
-                    {(ordersByStatus[status] || []).map(workOrder => (
+                    {(orderItemsByStatus[status] || []).map(workOrder => (
                         <div key={workOrder.id}
                             draggable
                             onDragStart={(event) => onDragStart(event, workOrder.id)}
@@ -105,5 +104,4 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
     );
 };
 
-export default DraggableWorkOrdersDash;
-
+export default DraggableOrderItemsDash;

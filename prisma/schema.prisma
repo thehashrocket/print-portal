@@ -119,6 +119,7 @@ model OrderItem {
   createdById         String
   updatedAt           DateTime            @updatedAt
   cs                  String
+  description         String?
   finishedQty         Int
   id                  String              @id @default(uuid())
   inkColor            String?
@@ -362,6 +363,7 @@ model WorkOrderItem {
   artwork             String?
   createdAt           DateTime             @default(now())
   cs                  String?
+  description         String?
   finishedQty         Int?
   id                  String               @id @default(uuid())
   inkColor            String?

@@ -3,9 +3,6 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import DraggableOrdersDash from "../_components/dashboard/draggableOrdersDash";
-import { Order, WorkOrder } from "@prisma/client";
-import DraggableWorkOrdersDash from "../_components/dashboard/draggableWorkOrdersDash";
 import DashboardTabsClient from "../_components/dashboard/dashboardTabsClient";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -33,6 +30,7 @@ export default async function DashboardPage() {
     }
     const orders = await api.orders.getAll();
     const workOrders = await api.workOrders.getAll();
+    const workOrderItems = await api.workOrderItems.getAll();
 
     const serializedOrderData = orders.map((order) => ({
         status: order.status,
@@ -47,6 +45,14 @@ export default async function DashboardPage() {
         description: workOrder.description,
         expectedDate: formatDate(workOrder.expectedDate),
     }));
+
+    const serializedOrderItemsData = orders.map((order) => ({
+        status: order.status,
+        id: order.id,
+        description: order.description,
+        expectedDate: formatDate(order.expectedDate),
+    }));
+
 
     return (
         <div className="container mx-auto">
@@ -65,7 +71,7 @@ export default async function DashboardPage() {
                     </button>
                 </div>
             </div>
-            <DashboardTabsClient orders={serializedOrderData} workOrders={serializedWorkOrderData} />
+            <DashboardTabsClient orders={serializedOrderData} workOrders={serializedWorkOrderData} orderItems={serializedOrderItemsData} />
         </div>
     );
 }

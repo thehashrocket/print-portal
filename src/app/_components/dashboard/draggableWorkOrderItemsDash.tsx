@@ -1,20 +1,31 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { WorkOrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
+import { WorkOrderItemStatus } from '@prisma/client';
 
-type SerializedWorkOrder = {
+type SerializedWorkOrderItem = {
     id: string;
-    status: WorkOrderStatus;
+    status: WorkOrderItemStatus;
     description: string;
     expectedDate: string;
 };
 
-const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: SerializedWorkOrder[] }) => {
-    const [workOrders, setWorkOrders] = useState<SerializedWorkOrder[]>(initialWorkOrders);
-    const allStatuses = [WorkOrderStatus.Draft, WorkOrderStatus.Pending, WorkOrderStatus.Approved, WorkOrderStatus.Cancelled];
 
-    const updateWorkOrderStatus = api.workOrders.updateStatus.useMutation();
+
+const DraggableWorkOrderItemsDash = ({ initialWorkOrderItems }: { initialWorkOrderItems: SerializedWorkOrderItem[] }) => {
+
+    const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>(initialWorkOrderItems);
+    const allStatuses = [WorkOrderItemStatus.Draft, WorkOrderItemStatus.Pending, WorkOrderItemStatus.Approved, WorkOrderItemStatus.Cancelled];
+
+    const updateWorkOrderStatus = api.workOrderItems.updateStatus.useMutation();
+
+    const isWithinAWeek = (dateString) => {
+        const targetDate = new Date(dateString);
+        const currentDate = new Date();
+        const timeDiff = targetDate.getTime() - currentDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return daysDiff <= 7;
+    };
 
     const onDragLeave = (event) => {
         // Optionally, remove the class from the event target to remove the highlight
@@ -41,9 +52,9 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
             // Call the updateStatus endpoint to update the WorkOrder's status
             await updateWorkOrderStatus.mutateAsync({ id, status: newStatus });
 
-            setWorkOrders(prevWorkOrders =>
-                prevWorkOrders.map(workOrder =>
-                    workOrder.id === id ? { ...workOrder, status: newStatus } : workOrder
+            setWorkOrderItems(prevWorkOrderItems =>
+                prevWorkOrderItems.map(workOrdeItem =>
+                    workOrdeItem.id === id ? { ...workOrdeItem, status: newStatus } : workOrdeItem
                 )
             );
 
@@ -52,20 +63,12 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
         }
     };
 
-    // Group the work orders by their status
-    const ordersByStatus: { [key in WorkOrderStatus]: SerializedWorkOrder[] } = workOrders.reduce((acc, workOrder) => {
-        const statusGroup = acc[workOrder.status] || [];
-        acc[workOrder.status] = [...statusGroup, workOrder];
+    // Group the work order items by their status
+    const ordersByStatus: { [key in WorkOrderItemStatus]: SerializedWorkOrderItem[] } = workOrderItems.reduce((acc, workOrderItem) => {
+        const statusGroup = acc[workOrderItem.status] || [];
+        acc[workOrderItem.status] = [...statusGroup, workOrderItem];
         return acc;
-    }, {} as { [key in WorkOrderStatus]: SerializedWorkOrder[] });
-
-    const isWithinAWeek = (dateString) => {
-        const targetDate = new Date(dateString);
-        const currentDate = new Date();
-        const timeDiff = targetDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff <= 7;
-    };
+    }, {} as { [key in WorkOrderItemStatus]: SerializedWorkOrderItem[] });
 
     return (
         <div className="flex p-5 bg-gray-800 text-white min-h-screen">
@@ -102,8 +105,7 @@ const DraggableWorkOrdersDash = ({ initialWorkOrders }: { initialWorkOrders: Ser
                 </div>
             ))}
         </div>
-    );
+    )
 };
 
-export default DraggableWorkOrdersDash;
-
+export default DraggableWorkOrderItemsDash;

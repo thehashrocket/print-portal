@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import DraggableOrdersDash from "./draggableOrdersDash";
 import DraggableWorkOrdersDash from "./draggableWorkOrdersDash";
+import DraggableOrderItemsDash from "./draggableOrderItemsDash";
 
-export default function DashboardTabsClient({ orders, workOrders }) {
+export default function DashboardTabsClient({ orders, workOrders, orderItems }) {
     const [activeTab, setActiveTab] = useState("orders");
 
     return (
@@ -21,6 +22,12 @@ export default function DashboardTabsClient({ orders, workOrders }) {
                 >
                     Work Orders
                 </a>
+                <a
+                    className={`tab ${activeTab === "orderItems" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
+                    onClick={() => setActiveTab("orderItems")}
+                >
+                    Order Items
+                </a>
             </div>
             <div className="flex-grow">
                 {activeTab === "orders" && (
@@ -28,6 +35,9 @@ export default function DashboardTabsClient({ orders, workOrders }) {
                 )}
                 {activeTab === "workOrders" && (
                     <DraggableWorkOrdersDash initialWorkOrders={workOrders} />
+                )}
+                {activeTab === "orderItems" && (
+                    <DraggableOrderItemsDash initialOrderItems={orderItems} />
                 )}
             </div>
         </div>

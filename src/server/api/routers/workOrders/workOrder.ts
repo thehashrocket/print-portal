@@ -2,8 +2,8 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trp
 import { z } from "zod";
 import { WorkOrderStatus } from "@prisma/client";
 
-// Get an Order by ID
 export const workOrderRouter = createTRPCRouter({
+  // Get an Order by ID
   // Include workOrderItems, WorkOrderStock, WorkOrderVersions, Typesetting, ProcessiongOptions, and WorkOrderNote
   getByID: protectedProcedure
     .input(z.string()).query(({ ctx, input }) => {

@@ -1,5 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { companyRouter } from "./routers/companies/company";
+import { orderItemRouter } from "./routers/orderItems/orderItem";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
 import { orderRouter } from "./routers/orders/order";
 import { postRouter } from "~/server/api/routers/post";
@@ -9,7 +10,7 @@ import { workOrderRouter } from "./routers/workOrders/workOrder";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
 import { typesettingRouter } from "./routers/shared/typesetting/typesetting";
 import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesettingOptions";
-
+import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 /**
  * This is the primary router for your server.
  *
@@ -18,6 +19,7 @@ import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesetti
 export const appRouter = createTRPCRouter({
   companies: companyRouter,
   orders: orderRouter,
+  orderItems: orderItemRouter,
   orderNotes: orderNoteRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
@@ -26,6 +28,7 @@ export const appRouter = createTRPCRouter({
   users: userRouter,
   workOrderNotes: workOrderNoteRouter,
   workOrders: workOrderRouter,
+  workOrderItems: workOrderItemRouter,
 });
 
 // export type definition of API
