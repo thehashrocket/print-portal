@@ -12,13 +12,14 @@ type SerializedOrder = {
 
 const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder[] }) => {
     const [orders, setOrders] = useState<SerializedOrder[]>(initialOrders);
-    const allStatuses = [OrderStatus.Pending,
-    OrderStatus.Prepress,
-    OrderStatus.Press,
-    OrderStatus.Bindery,
-    OrderStatus.Shipping,
-    OrderStatus.Invoicing,
-    OrderStatus.Completed,];
+    const allStatuses = [
+        OrderStatus.Pending,
+        OrderStatus.Cancelled,
+        OrderStatus.PaymentReceived,
+        OrderStatus.Shipping,
+        OrderStatus.Invoicing,
+        OrderStatus.Completed
+    ];
 
     const updateOrderStatus = api.orders.updateStatus.useMutation();
 

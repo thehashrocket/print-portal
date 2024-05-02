@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     }
     const orders = await api.orders.getAll();
     const workOrders = await api.workOrders.getAll();
-    const workOrderItems = await api.workOrderItems.getAll();
+    const orderItems = await api.orderItems.getAll();
 
     const serializedOrderData = orders.map((order) => ({
         status: order.status,
@@ -46,11 +46,11 @@ export default async function DashboardPage() {
         expectedDate: formatDate(workOrder.expectedDate),
     }));
 
-    const serializedOrderItemsData = orders.map((order) => ({
-        status: order.status,
-        id: order.id,
-        description: order.description,
-        expectedDate: formatDate(order.expectedDate),
+    const serializedOrderItemsData = orderItems.map((orderItem) => ({
+        status: orderItem.status,
+        id: orderItem.id,
+        description: orderItem.description,
+        expectedDate: formatDate(orderItem.expectedDate),
     }));
 
 

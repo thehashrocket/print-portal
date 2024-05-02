@@ -10,8 +10,6 @@ type SerializedWorkOrderItem = {
     expectedDate: string;
 };
 
-
-
 const DraggableWorkOrderItemsDash = ({ initialWorkOrderItems }: { initialWorkOrderItems: SerializedWorkOrderItem[] }) => {
 
     const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>(initialWorkOrderItems);
