@@ -14,6 +14,10 @@ import { getServerAuthSession } from "~/server/auth";
 import { Order } from "@prisma/client";
 import { OrderItem } from "@prisma/client";
 import Link from "next/link";
+import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
+import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
+import { create } from "domain";
+import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 
 export default async function OrderItemPage({
     params: { id, orderItemId },
@@ -35,7 +39,36 @@ export default async function OrderItemPage({
     // Fetch order item data
     const order = await api.orders.getByID(id);
     const orderItem = await api.orderItems.getByID(orderItemId);
+    // Take orderItem.Typesetting and it's children, serialize them, and pass them to the TypesettingComponent
 
+    const serializedTypesetting = orderItem?.Typesetting.map((type) => {
+        // serialize the TypesettingOptions
+        const typesettingOptions = type.TypesettingOptions.map((option) => {
+            return {
+                ...option,
+                createdAt: option.createdAt?.toISOString(),
+                updatedAt: option.updatedAt?.toISOString(),
+
+            };
+        });
+
+        const typesettingProofs = type.TypesettingProofs.map((proof) => {
+            return {
+                ...proof,
+                dateSubmitted: proof.dateSubmitted?.toISOString(),
+                createdAt: proof.createdAt?.toISOString(),
+                updatedAt: proof.updatedAt?.toISOString(),
+            };
+        });
+
+        return {
+            ...type,
+            cost: type.cost?.toString(),
+            dateIn: type.dateIn.toISOString(),
+            TypesettingProofs: typesettingProofs,
+            TypesettingOptions: typesettingOptions,
+        };
+    });
 
     return (
         <div className="container mx-auto">
@@ -65,6 +98,18 @@ export default async function OrderItemPage({
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <p className="mb-2 text-gray-600 text-xl font-semibold">Office Name</p>
                         <p className="text-gray-800 text-lg font-semibold">{order?.Office?.name}</p>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 mb-2">
+                    <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
+                        <TypesettingComponent typesetting={serializedTypesetting} />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 mb-2">
+                    <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
+                        <ProcessingOptionsComponent processingOptions={orderItem?.ProcessingOptions} />
                     </div>
                 </div>
             </div>

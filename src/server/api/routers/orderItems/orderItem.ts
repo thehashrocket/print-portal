@@ -10,6 +10,15 @@ export const orderItemRouter = createTRPCRouter({
                 where: {
                     id: input,
                 },
+                include: {
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true
+                        }
+                    },
+                    ProcessingOptions: true,
+                }
             });
         }),
     // Get all OrderItems
