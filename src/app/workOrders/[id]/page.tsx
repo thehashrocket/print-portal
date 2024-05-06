@@ -2,12 +2,9 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
 import { WorkOrder } from "@prisma/client";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
-import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
-import WorkOrderStockComponent from "~/app/_components/workOrders/workOrderStockComponent";
 import Link from "next/link";
 
 export default async function WorkOrderPage({
@@ -28,19 +25,9 @@ export default async function WorkOrderPage({
 
   const serializedWorkOrderItems = workOrder?.WorkOrderItems.map((workOrderItem) => ({
     ...workOrderItem,
+    expectedDate: workOrderItem?.expectedDate?.toString(),
+    updatedAt: workOrderItem?.updatedAt?.toString(),
     amount: workOrderItem?.amount?.toString(),
-  }));
-
-  const serializedTypesetting = workOrder?.Typesetting.map((typesetting) => ({
-    ...typesetting,
-    cost: typesetting?.cost?.toString(),
-    prepTime: typesetting?.prepTime?.toString(),
-  }));
-
-  const serializedWorkOrderStock = workOrder?.WorkOrderStock.map((workOrderStock) => ({
-    ...workOrderStock,
-    costPerM: workOrderStock?.costPerM?.toString(),
-    totalCost: workOrderStock?.totalCost?.toString(),
   }));
 
   // Render the component
@@ -121,22 +108,6 @@ export default async function WorkOrderPage({
                 {workOrder?.specialInstructions}<br />
               </p>
             </div>
-          </div>
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-            <ProcessingOptionsTable processingOptions={workOrder?.ProcessingOptions} workOrderId={workOrder?.id} />
-          </div>
-        </div>
-        {/* Row 5 */}
-        {/* Typesetting */}
-        <div className="grid grid-cols-2 gap-4 mb-2">
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-            <TypesettingComponent typesetting={serializedTypesetting} workOrderId={workOrder?.id} />
-          </div>
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Stock</h2>
-            <WorkOrderStockComponent workOrderStock={serializedWorkOrderStock} workOrderId={workOrder?.id} />
           </div>
         </div>
         {/* Row 6 */}

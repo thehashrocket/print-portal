@@ -31,10 +31,12 @@ export default async function DashboardPage() {
     const orders = await api.orders.getAll();
     const workOrders = await api.workOrders.getAll();
     const orderItems = await api.orderItems.getAll();
+    const orderDashboard = await api.orders.dashboard();
 
-    const serializedOrderData = orders.map((order) => ({
-        status: order.status,
+    const serializedOrderData = orderDashboard.map((order) => ({
+        status: order.OrderItemStatus,
         id: order.id,
+        companyName: order.Office.name,
         description: order.description,
         expectedDate: formatDate(order.expectedDate),
     }));

@@ -462,13 +462,13 @@ enum OrderStatus {
 }
 
 enum OrderItemStatus {
-  Bindery
-  Cancelled
-  Completed
   Pending
+  Bindery
   Prepress
   Press
   Shipping
+  Completed
+  Cancelled
 }
 
 enum WorkOrderItemStatus {

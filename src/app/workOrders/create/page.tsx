@@ -2,14 +2,8 @@
 "use server";
 
 import React from "react";
-import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
 import { WorkOrder } from "@prisma/client";
-import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
-import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
-import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
-import WorkOrderStockComponent from "~/app/_components/workOrders/workOrderStockComponent";
 import Link from "next/link";
 import WorkOrderCreation from "~/app/_components/workOrders/create/workOrderCreationComponent";
 

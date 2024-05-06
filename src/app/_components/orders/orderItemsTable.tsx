@@ -16,6 +16,8 @@ import Link from "next/link";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const OrderItemsTable: React.FC<OrderItem[]> = (orderItems) => {
+    console.log('orderItems', orderItems);
+
     const gridRef = useRef();
     const defaultColDef = {
         resizable: true,
@@ -25,33 +27,47 @@ const OrderItemsTable: React.FC<OrderItem[]> = (orderItems) => {
         id: string;
         quantity: number;
         description: string;
-        cutting: string;
-        drilling: string;
         finishedQty: string;
-        folding: string;
+        orderId: string;
+        status: string;
     }[]>([]);
+
+    const actionsRenderer = ((props: CustomCellRendererProps) => {
+        console.log('props', props)
+        return (
+            <div>
+                <Link className="btn btn-sm btn-primary" href={`/orders/${props.data.orderId}/orderItem/${props.data.id}`}>
+                    View
+                </Link>
+            </div>
+        );
+    });
 
     // Define column definitions and row data here
     const columnDefs = [
         { headerName: "ID", field: "id", hide: true },
         { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
-        { headerName: "Cutting", field: "cutting", filter: true, width: 100 },
-        { headerName: "Drilling", field: "drilling", filter: true, width: 150 },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
-        { headerName: "Folding", field: "folding", filter: true, width: 100 },
+        { headerName: "Status", field: "status", filter: true, width: 150 },
+        {
+            headerName: "Actions",
+            field: "actions",
+            cellRenderer: actionsRenderer,
+            width: 150
+        },
     ];
 
     useEffect(() => {
         setRowData(
             orderItems.orderItems.map((orderItem) => {
                 return {
-                    quantity: orderItem.quantity,
                     description: orderItem.description,
-                    cutting: orderItem.cutting,
-                    drilling: orderItem.drilling,
                     finishedQty: orderItem.finishedQty,
-                    folding: orderItem.folding,
+                    id: orderItem.id,
+                    orderId: orderItem.orderId,
+                    quantity: orderItem.quantity,
+                    status: orderItem.status,
                 };
             }),
         );

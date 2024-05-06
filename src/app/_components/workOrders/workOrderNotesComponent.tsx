@@ -29,7 +29,7 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ notes, workOrd
     };
     const [rowData, setRowData] = useState<{
         note: string;
-        user: string;
+        createdBy: string;
         date: Date
     }[]>([]);
     const [note, setNote] = useState("");
@@ -37,7 +37,7 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ notes, workOrd
     // Define column definitions and row data here
     const columnDefs = [
         { headerName: "Note", field: "note", width: 400 },
-        { headerName: "User", field: "user", width: 150 },
+        { headerName: "User", field: "createdBy", width: 150 },
         { headerName: "Date", field: "date", width: 120 },
     ];
 
@@ -53,7 +53,7 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ notes, workOrd
             notes.map((note) => {
                 return {
                     note: note.note,
-                    user: note.User.name, // Assuming `userId` is the correct property to access the user ID
+                    createdBy: note.createdBy.name, // Assuming `userId` is the correct property to access the user ID
                     date: note.createdAt,
                 };
             }),

@@ -22,19 +22,6 @@ export const workOrderRouter = createTRPCRouter({
               },
               ProcessingOptions: true,
             },
-            select: {
-              id: true,
-              amount: true,
-              cs: true,
-              finishedQty: true,
-              inkColor: true,
-              other: true,
-              pressRun: true,
-              quantity: true,
-              size: true,
-              stockOnHand: true,
-              stockOrdered: true,
-            }
           },
           WorkOrderVersions: true,
 
@@ -88,4 +75,6 @@ export const workOrderRouter = createTRPCRouter({
         }
       });
     }),
+  // Work Order Dashboard
+  //
 });

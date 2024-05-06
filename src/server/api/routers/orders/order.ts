@@ -73,4 +73,32 @@ export const orderRouter = createTRPCRouter({
         }
       });
     }),
+  // Order Dashbaord
+  // Shows all orders, their status, and the company they are associated with
+  // Includes OrderItemStatus, returns the status that all OrderItems equal,
+  // otherwise, it returns the lowest status of all OrderItems
+  dashboard: protectedProcedure
+    .query(async ({ ctx }) => {
+      const orders = await ctx.db.order.findMany({
+        include: {
+          OrderItems: true,
+          Office: {
+            include: {
+              Company: true
+            }
+          }
+        }
+      });
+      return orders.map(order => {
+        const orderItemStatuses = order.OrderItems.map(orderItem => orderItem.status);
+        const orderStatus = orderItemStatuses.every(status => status === orderItemStatuses[0]) ?
+          orderItemStatuses[0] :
+          orderItemStatuses.reduce((prev, current) => prev < current ? prev : current);
+        return {
+          ...order,
+          OrderItemStatus: orderStatus
+        };
+      });
+    }),
+
 });

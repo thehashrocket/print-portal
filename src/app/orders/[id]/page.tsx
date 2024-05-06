@@ -2,11 +2,9 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import ProcessingOptionsTable from "~/app/_components/shared/processingOptionsTable";
 import { Order } from "@prisma/client";
 import OrderItemsTable from "../../_components/orders/orderItemsTable";
 import OrderNotesComponent from "~/app/_components/orders/orderNotesComponent";
-import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import Link from "next/link";
 
 export default async function OrderPage({
@@ -24,6 +22,21 @@ export default async function OrderPage({
 
   // Fetch order data
   const order = await api.orders.getByID(id);
+
+  const serializedOrderItems = order?.OrderItems.map((orderItem) => ({
+    amount: orderItem?.amount?.toString(),
+    approved: orderItem?.approved,
+    artwork: orderItem?.artwork,
+    createdAt: orderItem?.createdAt?.toString(),
+    description: orderItem?.description,
+    expectedDate: orderItem?.expectedDate?.toString(),
+    finishedQty: orderItem?.finishedQty,
+    id: orderItem?.id,
+    orderId: orderItem?.orderId,
+    quantity: orderItem?.quantity,
+    status: orderItem?.status,
+    updatedAt: orderItem?.updatedAt?.toString(),
+  }));
 
   return (
     <div className="container mx-auto">
@@ -43,14 +56,14 @@ export default async function OrderPage({
       </div>
       <div className="rounded-lg bg-white p-6 shadow-md">
         {/* Row 1 */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
             <p className="mb-2 text-gray-600 text-xl font-semibold">Order Number</p>
             <p className="text-lg">{order?.orderNumber}</p>
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
-            <p className="mb-2 text-gray-600 text-xl font-semibold">Office ID</p>
-            <p className="text-lg">{order?.officeId}</p>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Office Name</p>
+            <p className="text-lg">{order?.Office.Company.name}</p>
           </div>
         </div>
         {/* Row 2 */}
@@ -63,6 +76,16 @@ export default async function OrderPage({
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Total</h2>
             <p className="text-lg">$ {order?.totalCost?.toString()}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Created By</p>
+            <p className="text-lg">{order?.createdBy?.name}</p>
+          </div>
+          <div>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Created At</p>
+            <p className="text-lg">{order?.createdAt?.toString()}</p>
           </div>
         </div>
         {/* Row 3 */}
@@ -102,28 +125,17 @@ export default async function OrderPage({
               </p>
             </div>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-            <ProcessingOptionsTable processingOptions={order?.ProcessingOptions} workOrderId={order?.workOrderId} orderId={order?.id} />
+
+          {/* Row 6 */}
+          {/* Order Items  */}
+          <div className="grid grid-cols-1 mb-2">
+            <div className="rounded-lg bg-white p-6 shadow-md">
+              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
+              <OrderItemsTable orderItems={serializedOrderItems} />
+            </div>
           </div>
+          {/* Additional sections for more order details */}
         </div>
-        {/* Row 5 */}
-        {/* Typesetting */}
-        <div className="grid grid-cols-2 gap-4 mb-2">
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-            <TypesettingComponent typesetting={order?.Typesetting} workOrderId={order?.workOrderId} orderId={order?.id} />
-          </div>
-        </div>
-        {/* Row 6 */}
-        {/* Order Items  */}
-        <div className="grid grid-cols-1 mb-2">
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
-            <OrderItemsTable orderItems={order?.OrderItems} />
-          </div>
-        </div>
-        {/* Additional sections for more order details */}
       </div>
     </div>
   );
