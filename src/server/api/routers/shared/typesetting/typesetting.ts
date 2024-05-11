@@ -24,41 +24,54 @@ export const typesettingRouter = createTRPCRouter({
 
     create: protectedProcedure
         .input(z.object({
-            workOrderId: z.string(),
-            orderId: z.string().optional().nullable(),
-            dateIn: z.string(),
-            timeIn: z.string(),
-            cost: z.number(),
             approved: z.boolean(),
-            prepTime: z.number(),
+            cost: z.number(),
+            dateIn: z.string(),
+            orderId: z.string().optional().nullable(),
+            orderItemId: z.string().optional().nullable(),
             plateRan: z.string(),
+            prepTime: z.number(),
+            timeIn: z.string(),
+            workOrderItemId: z.string().optional().nullable(),
+            typesettingOptions: z.array(z.object({
+                option: z.string(),
+                selected: z.boolean(),
+            }).optional().nullable()),
+            typesettingProofs: z.array(z.object({
+                approved: z.boolean(),
+                dateSubmitted: z.string(),
+                notes: z.string(),
+                proofNumber: z.number(),
+            }).optional().nullable()),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.typesetting.create({
                 data: {
-                    workOrderId: input.workOrderId,
-                    ...(input.orderId ? { orderId: input.orderId } : {}),
-                    dateIn: input.dateIn,
-                    timeIn: input.timeIn,
-                    cost: input.cost,
+                    ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
+                    ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
-                    prepTime: input.prepTime,
+                    cost: input.cost,
+                    dateIn: input.dateIn,
                     plateRan: input.plateRan,
+                    prepTime: input.prepTime,
+                    timeIn: input.timeIn,
+                    createdById: ctx.session.user, // Add the createdById property
+
                 },
             });
         }),
 
     update: protectedProcedure
         .input(z.object({
-            id: z.string(),
-            workOrderId: z.string(),
-            orderId: z.string().optional().nullable(),
-            dateIn: z.string(),
-            timeIn: z.string(),
-            cost: z.number(),
             approved: z.boolean(),
-            prepTime: z.number(),
+            cost: z.number().optional().nullable(),
+            dateIn: z.string(),
+            id: z.string(),
+            orderItemId: z.string().optional().nullable(),
             plateRan: z.string(),
+            prepTime: z.number(),
+            timeIn: z.string(),
+            workOrderItemId: z.string().nullable().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.typesetting.update({
@@ -66,14 +79,14 @@ export const typesettingRouter = createTRPCRouter({
                     id: input.id,
                 },
                 data: {
-                    workOrderId: input.workOrderId,
-                    ...(input.orderId ? { orderId: input.orderId } : {}),
-                    dateIn: input.dateIn,
-                    timeIn: input.timeIn,
-                    cost: input.cost,
+                    ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
+                    ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
-                    prepTime: input.prepTime,
+                    cost: input.cost,
+                    dateIn: input.dateIn,
                     plateRan: input.plateRan,
+                    prepTime: input.prepTime,
+                    timeIn: input.timeIn,
                 },
             });
         }),

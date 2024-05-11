@@ -27,7 +27,7 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
                         return (
                             <div key={key} className="rounded-lg bg-white p-6 shadow-md mb-2">
                                 <span className="font-semibold">{key}: </span>
-                                <span>{value}</span>
+                                <span>{String(value)}</span> // Convert value to string
                             </div>
                         );
                     })}

@@ -79,8 +79,8 @@ export default async function OrderItemPage({
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/orders">Orders</Link></li>
-                            <li><Link href={`/orders/${orderItem?.Order?.id}`}>Order {orderItem?.Order?.orderNumber}</Link></li>
-                            <li>Order Item {orderItem?.id}</li>
+                            <li><Link href={`/orders/${orderItem?.orderId}`}>Order</Link></li>
+                            <li>Order Item</li>
                         </ul>
                     </div>
                 </div>

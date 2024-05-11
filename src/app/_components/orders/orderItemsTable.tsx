@@ -6,9 +6,7 @@ import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-    ColDef,
     ModuleRegistry,
-    ValueFormatterParams,
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { OrderItem } from "@prisma/client";
@@ -16,7 +14,6 @@ import Link from "next/link";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const OrderItemsTable: React.FC<OrderItem[]> = (orderItems) => {
-    console.log('orderItems', orderItems);
 
     const gridRef = useRef();
     const defaultColDef = {
