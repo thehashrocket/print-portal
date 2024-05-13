@@ -1,3 +1,5 @@
+// This class is used to generate the typesetting proofs for the typesetting process.
+
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -5,9 +7,9 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
-export const typesettingOptionsRouter = createTRPCRouter({
+export const typesettingProofsRouter = createTRPCRouter({
     getByID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-        return ctx.db.typesettingOption.findUnique({
+        return ctx.db.typesettingProof.findUnique({
             where: {
                 id: input,
             },
@@ -15,21 +17,25 @@ export const typesettingOptionsRouter = createTRPCRouter({
     }),
 
     getAll: publicProcedure.query(async ({ ctx }) => {
-        return ctx.db.typesettingOption.findMany();
+        return ctx.db.typesettingProof.findMany();
     }),
 
     create: protectedProcedure
         .input(z.object({
             typesettingId: z.string(),
-            option: z.string(),
-            selected: z.boolean(),
+            proofNumber: z.number(),
+            dateSubmitted: z.string(),
+            approved: z.boolean(),
+            notes: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.typesettingOption.create({
+            return ctx.db.typesettingProof.create({
                 data: {
                     typesettingId: input.typesettingId,
-                    option: input.option,
-                    selected: input.selected,
+                    proofNumber: input.proofNumber,
+                    dateSubmitted: input.dateSubmitted,
+                    approved: input.approved,
+                    notes: input.notes,
                     createdById: ctx.session.user.id,
                 },
             });
@@ -39,24 +45,28 @@ export const typesettingOptionsRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             typesettingId: z.string(),
-            option: z.string(),
-            selected: z.boolean(),
+            proofNumber: z.number(),
+            dateSubmitted: z.string(),
+            approved: z.boolean(),
+            notes: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.typesettingOption.update({
+            return ctx.db.typesettingProof.update({
                 where: {
                     id: input.id,
                 },
                 data: {
                     typesettingId: input.typesettingId,
-                    option: input.option,
-                    selected: input.selected,
+                    proofNumber: input.proofNumber,
+                    dateSubmitted: input.dateSubmitted,
+                    approved: input.approved,
+                    notes: input.notes,
                 },
             });
         }),
 
     delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-        return ctx.db.typesettingOption.delete({
+        return ctx.db.typesettingProof.delete({
             where: {
                 id: input,
             },

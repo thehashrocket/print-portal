@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
+import { TypesettingProof } from "@prisma/client";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -25,7 +26,7 @@ type TypesettingProofFormData = z.infer<typeof typesettingProofFormSchema>;
 
 export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     typesettingId: string;
-    onSubmit: (data: TypesettingProofFormData) => void;
+    onSubmit: (data: TypesettingProof) => void;
     onCancel: () => void;
 }) {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingProofFormData>({
@@ -36,13 +37,15 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     const [error, setError] = React.useState<string | null>(null);
     const [success, setSuccess] = React.useState<string | null>(null);
 
-    const createTypesettingProof = api.typesetting.createTypesettingProof.useMutation({
-        onSuccess: () => {
+    const createTypesettingProof = api.typesettingProofs.create.useMutation({
+        onSuccess: (createdTypesettingProof) => {
             setIsLoading(false);
             setSuccess("Typesetting proof created successfully!");
             setError(null);
             // Clear the form
             reset();
+            // Pass the created typesetting proof to the parent component
+            onSubmit(createdTypesettingProof);
         },
         onError: () => {
             setIsLoading(false);
@@ -50,15 +53,15 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             setSuccess(null);
         },
     });
-
     const onSubmitHandler = (data: TypesettingProofFormData) => {
+        // receives typesettingId from props, rest of the data from the form
+        setIsLoading(true);
         createTypesettingProof.mutate({
-            typesettingId: typesettingId,
-            proofNumber: data.proofNumber,
-            dateSubmitted: data.dateSubmitted,
-            approved: data.approved,
-            notes: data.notes || "",
+            typesettingId,
+            ...data,
+            dateSubmitted: new Date(data.dateSubmitted).toISOString(),
         });
+
     };
 
     const cancel = () => {
@@ -66,33 +69,66 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmitHandler)}>
-            <div>
-                <label>Proof Number</label>
-                <input type="number" {...register("proofNumber")} />
-                {errors.proofNumber && <span>{errors.proofNumber.message}</span>}
+        <form onSubmit={handleSubmit(onSubmitHandler)} className="max-w-md mx-auto">
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Proof Number</label>
+                <input
+                    type="number"
+                    {...register("proofNumber", { valueAsNumber: true })}
+                    className="input input-bordered w-full"
+                />
+                {errors.proofNumber && (
+                    <span className="text-red-500">{errors.proofNumber.message}</span>
+                )}
             </div>
-            <div>
-                <label>Date Submitted</label>
-                <input type="date" {...register("dateSubmitted")} />
-                {errors.dateSubmitted && <span>{errors.dateSubmitted.message}</span>}
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Date Submitted</label>
+                <input
+                    type="date"
+                    {...register("dateSubmitted")}
+                    className="input input-bordered w-full"
+                />
+                {errors.dateSubmitted && (
+                    <span className="text-red-500">{errors.dateSubmitted.message}</span>
+                )}
             </div>
-            <div>
-                <label>Approved</label>
-                <input type="checkbox" {...register("approved")} />
-                {errors.approved && <span>{errors.approved.message}</span>}
+            <div className="mb-4">
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        {...register("approved")}
+                        className="checkbox checkbox-primary"
+                    />
+                    <span className="ml-2 text-gray-700 font-bold">Approved</span>
+                </label>
+                {errors.approved && (
+                    <span className="text-red-500">{errors.approved.message}</span>
+                )}
             </div>
-            <div>
-                <label>Notes</label>
-                <textarea {...register("notes")} />
-                {errors.notes && <span>{errors.notes.message}</span>}
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Notes</label>
+                <textarea
+                    {...register("notes")}
+                    className="textarea textarea-bordered w-full"
+                />
+                {errors.notes && (
+                    <span className="text-red-500">{errors.notes.message}</span>
+                )}
             </div>
-            <div>
-                <button type="submit" disabled={isLoading}>Submit</button>
-                <button type="button" onClick={cancel}>Cancel</button>
+            <div className="flex justify-end">
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="btn btn-primary mr-2"
+                >
+                    Submit
+                </button>
+                <button type="button" onClick={cancel} className="btn btn-outline">
+                    Cancel
+                </button>
             </div>
-            {error && <div>{error}</div>}
-            {success && <div>{success}</div>}
+            {error && <div className="alert alert-error mt-4">{error}</div>}
+            {success && <div className="alert alert-success mt-4">{success}</div>}
         </form>
     );
 }

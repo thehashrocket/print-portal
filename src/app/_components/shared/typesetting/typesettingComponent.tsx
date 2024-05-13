@@ -4,6 +4,14 @@ import React, { use, useState, useEffect } from "react";
 import { Typesetting, TypesettingOption, TypesettingProof } from "@prisma/client";
 import TypesettingForm from "./typesettingForm";
 import { api } from "~/trpc/react";
+import TypesettingProofForm from "./typesettingProofForm";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 type TypesettingComponentProps = {
     typesetting: (Typesetting & {
@@ -61,7 +69,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
     }
 
     const formatDate = (date: Date) => {
-        return date.toString();
+        return dayjs.utc(date).tz(dayjs.tz.guess()).format('MMMM D, YYYY, h:mm A');
     };
 
     const formatTime = (date: Date) => {
@@ -132,7 +140,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                             };
                             // Handle form submission
                             updateTypesetting.mutate(parsedData);
-                            console.log(data);
                             setIsEditMode(false);
                         }}
                         onCancel={() => {
@@ -196,13 +203,42 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 Add Proof
                             </button>
                         </div>
+                        {/* Add/Create a Prrof */}
+                        <div className="grid grid-cols-4 gap-4">
+                            {addProofMode && (
+                                <TypesettingProofForm
+                                    typesettingId={currentItem.id}
+                                    onSubmit={(data) => {
+                                        // Receives a new TypesettingProof object from child component
+                                        // Then add it to the currentItem.TypesettingProofs array
+
+                                        setCurrentItem((prevItem) => {
+                                            if (prevItem) {
+                                                return {
+                                                    ...prevItem,
+                                                    TypesettingProofs: [...prevItem.TypesettingProofs, data],
+                                                };
+                                            }
+                                            return prevItem;
+                                        });
+                                        setAddProofMode(false);
+                                    }}
+                                    onCancel={() => {
+                                        setAddProofMode(false);
+                                    }}
+                                />
+                            )}
+                        </div>
                         <div className="grid grid-cols-4 gap-4">
                             {currentItem.TypesettingProofs.map((proof) => (
                                 <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-1">
                                     <p className="text-gray-600 text-sm font-semibold">Approved</p>
                                     <p className="mb-2 text-sm">{proof.approved ? 'Yes' : 'No'}</p>
                                     <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>
-                                    <p className="mb-2 text-sm">{proof.dateSubmitted ? proof.dateSubmitted.toString() : ''}</p>
+                                    <p className="mb-2 text-sm">{proof.dateSubmitted ? formatDate(proof.dateSubmitted) : ''}</p>
+
+                                    <p className="text-gray-600 text-sm font-semibold">Proof Number</p>
+                                    <p className="text-sm">{proof.proofNumber}</p>
                                     <p className="text-gray-600 text-sm font-semibold">Notes</p>
                                     <p className="text-sm">{proof.notes}</p>
                                 </div>
