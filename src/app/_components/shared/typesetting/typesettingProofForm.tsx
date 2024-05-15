@@ -1,19 +1,11 @@
-// A React Form component that uses the useForm hook from react-hook-form to manage form state and validation.
-// The form is used to create a new TypesettingProof.
-// The form is created using the zod library to define the shape of the form data and validate it.
-// The form data is passed to the createTypesettingProof mutation function to create a new TypesettingProof.
-// The form also displays success and error messages based on the result of the mutation.
-// The form is reset after a successful submission.
-// The form also includes a cancel button to cancel the form submission.
-// The form is used in the TypesettingComponent.
-
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
 import { TypesettingProof } from "@prisma/client";
+import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -33,9 +25,10 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
         resolver: zodResolver(typesettingProofFormSchema),
     });
 
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const [success, setSuccess] = React.useState<string | null>(null);
+    const { typesetting, setTypesetting } = useTypesettingContext();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
     const createTypesettingProof = api.typesettingProofs.create.useMutation({
         onSuccess: (createdTypesettingProof) => {
@@ -46,6 +39,14 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             reset();
             // Pass the created typesetting proof to the parent component
             onSubmit(createdTypesettingProof);
+            // Update the context state
+            setTypesetting((prevTypesetting) =>
+                prevTypesetting.map((type) =>
+                    type.id === typesettingId
+                        ? { ...type, TypesettingProofs: [...type.TypesettingProofs, createdTypesettingProof] }
+                        : type
+                )
+            );
         },
         onError: () => {
             setIsLoading(false);
@@ -53,6 +54,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             setSuccess(null);
         },
     });
+
     const onSubmitHandler = (data: TypesettingProofFormData) => {
         // receives typesettingId from props, rest of the data from the form
         setIsLoading(true);
@@ -61,7 +63,6 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             ...data,
             dateSubmitted: new Date(data.dateSubmitted).toISOString(),
         });
-
     };
 
     const cancel = () => {
@@ -132,4 +133,5 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
         </form>
     );
 }
+
 export default TypesettingProofForm;
