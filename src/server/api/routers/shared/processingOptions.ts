@@ -24,37 +24,61 @@ export const processingOptionsRouter = createTRPCRouter({
         return ctx.db.processingOptions.findMany();
     }),
 
+    getByOrderItemId: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.processingOptions.findMany({
+            where: {
+                orderItemId: input,
+            },
+        });
+    }),
+
+    getByWorkOrderItemId: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.processingOptions.findMany({
+            where: {
+                workOrderItemId: input,
+            },
+        });
+    }),
+
     create: protectedProcedure
         .input(z.object({
-            cutting: z.boolean(),
-            drilling: z.boolean(),
-            folding: z.boolean(),
-            numberingColor: z.string(),
-            numberingEnd: z.number(),
-            numberingStart: z.number(),
+            binderyTime: z.string().optional(),
+            binding: z.string().optional(),
+            cutting: z.string().optional(),
+            description: z.string().optional(),
+            drilling: z.string().optional(),
+            folding: z.string().optional(),
+            name: z.string(), // Add the 'name' property
+            numberingColor: z.string().optional(),
+            numberingEnd: z.number().optional(),
+            numberingStart: z.number().optional(),
+            orderItemId: z.string().optional().nullable(), // Allow optional and nullable
             other: z.string(),
-            padding: z.boolean(),
-            orderId: z.string().optional().nullable(), // Allow optional and nullable
-            workOrderId: z.string(),
+            padding: z.string(),
+            stitching: z.string().optional(),
+            workOrderItemId: z.string().optional().nullable(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.processingOptions.create({
                 data: {
+                    binderyTime: input.binderyTime,
+                    binding: input.binding,
                     cutting: input.cutting,
+                    description: input.description,
                     drilling: input.drilling,
                     folding: input.folding,
+                    name: input.name, // Include the 'name' property
                     numberingColor: input.numberingColor,
                     numberingEnd: input.numberingEnd,
                     numberingStart: input.numberingStart,
                     other: input.other,
                     padding: input.padding,
+                    stitching: input.stitching,
+                    createdById: ctx.session.user.id, // Include the 'createdBy' property
                     // Conditionally add Order connection if orderId is present and not empty
-                    ...(input.orderId ? { Order: { connect: { id: input.orderId } } } : {}),
-                    WorkOrder: {
-                        connect: {
-                            id: input.workOrderId,
-                        },
-                    },
+                    ...(input.orderItemId ? { OrderItem: { connect: { id: input.orderItemId } } } : {}),
+                    // Conditionally add WorkOrder connection if workOrderId is present and not empty
+                    ...(input.workOrderItemId ? { WorkOrderItem: { connect: { id: input.workOrderItemId } } } : {}),
                 },
             });
         }),
@@ -64,16 +88,21 @@ export const processingOptionsRouter = createTRPCRouter({
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            cutting: z.boolean(),
-            drilling: z.boolean(),
-            folding: z.boolean(),
-            numberingColor: z.string(),
-            numberingEnd: z.number(),
-            numberingStart: z.number(),
-            other: z.string(),
-            padding: z.boolean(),
-            orderId: z.string().optional().nullable(), // Allow optional and nullable
-            workOrderId: z.string(),
+            binderyTime: z.string().optional(),
+            binding: z.string().optional(),
+            cutting: z.string().optional(),
+            description: z.string().optional(),
+            drilling: z.string().optional(),
+            folding: z.string().optional(),
+            name: z.string(), // Add the 'name' property
+            numberingColor: z.string().optional(),
+            numberingEnd: z.number().optional(),
+            numberingStart: z.number().optional(),
+            other: z.string().optional(),
+            padding: z.string().optional(),
+            stitching: z.string().optional(),
+            orderItemId: z.string().optional().nullable(), // Allow optional and nullable
+            workOrderItemId: z.string().optional().nullable(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.processingOptions.update({
@@ -81,17 +110,23 @@ export const processingOptionsRouter = createTRPCRouter({
                     id: input.id,
                 },
                 data: {
+                    binderyTime: input.binderyTime,
+                    binding: input.binding,
                     cutting: input.cutting,
+                    description: input.description,
                     drilling: input.drilling,
                     folding: input.folding,
+                    name: input.name, // Include the 'name' property
                     numberingColor: input.numberingColor,
                     numberingEnd: input.numberingEnd,
                     numberingStart: input.numberingStart,
                     other: input.other,
                     padding: input.padding,
-                    // Conditionally add or remove orderId
-                    ...(input.orderId ? { orderId: input.orderId } : {}),
-                    workOrderId: input.workOrderId,
+                    stitching: input.stitching,
+                    // Conditionally add or remove orderItemId
+                    ...(input.orderItemId ? { orderId: input.orderItemId } : {}),
+                    // Conditionally add or remove workOrderItemId
+                    ...(input.workOrderItemId ? { workOrderId: input.workOrderItemId } : {}),
                 },
             });
         }),

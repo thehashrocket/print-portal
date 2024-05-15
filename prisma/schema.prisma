@@ -259,6 +259,7 @@ model Typesetting {
   workOrderItemId    String?
 }
 
+// I  don't think this is needed so I'm not using it in the OrderItem or WorkOrderItem models
 model TypesettingOption {
   id            String      @id @default(uuid())
   typesettingId String

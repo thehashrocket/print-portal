@@ -7,6 +7,7 @@ import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
+import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -69,7 +70,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         {orderItem && typesettingData && (
                             <TypesettingProvider>
                                 <TypesettingComponent
-                                    workOrderItemId={orderItem?.workOrderItemId}
+                                    workOrderItemId={orderItem?.workOrderItemId || ''}
                                     orderItemId={orderItem.id}
                                     initialTypesetting={typesettingData}
                                 />
@@ -80,7 +81,13 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-                        <ProcessingOptionsComponent processingOptions={orderItem?.ProcessingOptions || []} />
+                        <ProcessingOptionsProvider>
+                            <ProcessingOptionsComponent
+                                processingOptionsList={orderItem?.ProcessingOptions || []}
+                                orderItemId={orderItem?.id || ''}
+                                workOrderItemId={orderItem?.workOrderItemId || ''}
+                            />
+                        </ProcessingOptionsProvider>
                     </div>
                 </div>
             </div>

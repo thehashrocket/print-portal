@@ -5,34 +5,43 @@
 
 import React from "react";
 import { ProcessingOptions } from "@prisma/client";
+import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
+import ProcessingOptionsItem from "~/app/_components/shared/processingOptions/processingOptionsItem";
+import ProcessingOptionsForm from "./processingOptionsForm";
 
 type ProcessingOptionsComponentProps = {
-    processingOptions: ProcessingOptions[];
+    processingOptionsList: ProcessingOptions[];
+    workOrderItemId: string;
+    orderItemId: string;
 };
 
-const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({ processingOptions }) => {
+const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({ processingOptionsList, workOrderItemId = '', orderItemId = '' }) => {
+    const { processingOptions, loading, error } = useProcessingOptions();
+    const [isAdding, setIsAdding] = React.useState(false);
 
+    const toggleAdding = () => {
+        setIsAdding(!isAdding);
+    }
 
     return (
         <>
+            {isAdding ? (
+                <ProcessingOptionsForm
+                    workOrderItemId={workOrderItemId}
+                    orderItemId={orderItemId}
+                    onClose={toggleAdding}
+                    onCancel={toggleAdding}
+                    isActive={isAdding}
+                />
+            ) : (
+                <button onClick={toggleAdding} className="btn btn-primary">Add Processing Option</button>
+            )}
             {/* Loop through processingOptions and output the name of each property and it's value */}
-            {processingOptions.map((option) => (
-                <div key={option.id} className="mb-4 grid grid-cols-4 gap-4">
-                    {Object.entries(option).map(([key, value]) => {
-                        // Exclude specific properties if needed
-                        if (key === "id" || key === "createdAt" || key === "updatedAt" || key === "orderItemId" || key === "workOrderItemId" || key === "createdById") {
-                            return null;
-                        }
-
-                        return (
-                            <div key={key} className="rounded-lg bg-white p-6 shadow-md mb-2">
-                                <span className="font-semibold">{key}: </span>
-                                <span>{String(value)}</span> // Convert value to string
-                            </div>
-                        );
-                    })}
-                </div>
-            ))}
+            <div className="mb-4 grid grid-cols-4 gap-4">
+                {processingOptions.map((option) => (
+                    <ProcessingOptionsItem key={option.id} option={option} />
+                ))}
+            </div>
         </>
     );
 };

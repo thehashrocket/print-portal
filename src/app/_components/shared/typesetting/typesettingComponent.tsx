@@ -130,19 +130,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
                             </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg text-gray-600 font-semibold">Options</h3>
-                            <div className="grid grid-cols-4 gap-4 mb-4">
-                                {currentItem.TypesettingOptions?.map((option) => (
-                                    <div key={option.id} className="rounded-lg bg-white p-6 shadow-md m-1">
-                                        <p className="mb-2 text-gray-600 text-md font-semibold">Option</p>
-                                        <p className="text-sm">{option.option}</p>
-                                        <p className="mb-2 text-gray-600 text-md font-semibold">Selected</p>
-                                        <p className="text-sm">{option.selected ? 'Yes' : 'No'}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        {/* Removed Typesetting Options because I don't think it's needed. */}
                         <div>
                             <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
                             <div className="mb-4 grid grid-cols-4 gap-4">
