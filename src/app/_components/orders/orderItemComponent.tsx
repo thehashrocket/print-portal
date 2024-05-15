@@ -81,12 +81,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-                        <ProcessingOptionsProvider>
+                        <ProcessingOptionsProvider orderItemId={orderItem?.id}>
                             <ProcessingOptionsComponent
-                                processingOptionsList={orderItem?.ProcessingOptions || []}
-                                orderItemId={orderItem?.id || ''}
-                                workOrderItemId={orderItem?.workOrderItemId || ''}
-                            />
+                                orderItemId={orderItem?.id || ''} />
                         </ProcessingOptionsProvider>
                     </div>
                 </div>

@@ -26,13 +26,22 @@ const processingOptionsSchema = z.object({
 
 interface ProcessingOptionsFormProps {
     initialData?: Partial<ProcessingOptions>;
+    orderItemId?: string;
+    workOrderItemId?: string;
     isActive?: boolean;
     onClose?: () => void;
     onCancel?: () => void;
 }
 
 const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = (
-    { initialData, onClose, onCancel, isActive = false }) => {
+    {
+        initialData,
+        orderItemId,
+        workOrderItemId,
+        onClose,
+        onCancel,
+        isActive = false
+    }) => {
     const { createOption, updateOption } = useProcessingOptions();
     const {
         register,
@@ -40,12 +49,16 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = (
         formState: { errors },
     } = useForm({
         resolver: zodResolver(processingOptionsSchema),
-        defaultValues: initialData || {},
+        defaultValues: {
+            ...initialData,
+            orderItemId: initialData?.orderItemId || orderItemId,
+            workOrderItemId: initialData?.workOrderItemId || workOrderItemId
+        },
     });
 
     const onSubmit = async (data: any) => {
         try {
-            if (initialData) {
+            if (initialData && initialData.id) {
                 await updateOption.mutateAsync(data);
             } else {
                 await createOption.mutateAsync(data);
@@ -58,6 +71,9 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = (
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <input type="hidden" {...register("id")} />
+            <input type="hidden" {...register("orderItemId")} />
+            <input type="hidden" {...register("workOrderItemId")} />
             <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
                 <input
@@ -164,16 +180,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = (
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     placeholder="Stitching"
                 />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Work Order Item ID</label>
-                <input
-                    {...register("workOrderItemId")}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${errors.workOrderItemId ? 'border-red-500' : ''}`}
-                    placeholder="Work Order Item ID"
-                    required
-                />
-                {errors.workOrderItemId && <span className="text-red-500">{errors.workOrderItemId.message}</span>}
             </div>
             <button type="submit" className="btn btn-primary">{initialData ? "Update" : "Add"} Processing Option</button>
             <button type="button" onClick={onCancel} className="btn btn-secondary">Cancel</button>

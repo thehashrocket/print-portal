@@ -4,7 +4,7 @@ import { ProcessingOptions } from "@prisma/client";
 
 // Define the context type
 interface ProcessingOptionsContextType {
-    processingOptions: ProcessingOptions[];
+    processingOptions: ProcessingOption[];
     loading: boolean;
     error: string | null;
     createOption: ReturnType<typeof api.processingOptions.create.useMutation>;
@@ -25,22 +25,42 @@ export const useProcessingOptions = () => {
 };
 
 // Define the provider component
-export const ProcessingOptionsProvider = ({ children }: { children: ReactNode }) => {
-    const [processingOptions, setProcessingOptions] = useState<ProcessingOptions[]>([]);
+interface ProcessingOptionsProviderProps {
+    children: ReactNode;
+    orderItemId?: string;
+    workOrderItemId?: string;
+}
+
+export const ProcessingOptionsProvider: React.FC<ProcessingOptionsProviderProps> = ({ children, orderItemId, workOrderItemId }) => {
+    const [processingOptions, setProcessingOptions] = useState<ProcessingOption[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { data, isLoading, isError, error: queryError } = api.processingOptions.getAll.useQuery();
+    const { data: orderItemData, isLoading: isOrderItemLoading, isError: isOrderItemError, error: orderItemError } = api.processingOptions.getByOrderItemId.useQuery(orderItemId || "", {
+        enabled: !!orderItemId,
+    });
+
+    const { data: workOrderItemData, isLoading: isWorkOrderItemLoading, isError: isWorkOrderItemError, error: workOrderItemError } = api.processingOptions.getByWorkOrderItemId.useQuery(workOrderItemId || "", {
+        enabled: !!workOrderItemId,
+    });
 
     useEffect(() => {
-        setLoading(isLoading);
-        if (isError) {
-            setError(queryError?.message || "Unknown error");
+        setLoading(isOrderItemLoading || isWorkOrderItemLoading);
+        if (isOrderItemError) {
+            setError(orderItemError?.message || "Unknown error");
+        } else if (isWorkOrderItemError) {
+            setError(workOrderItemError?.message || "Unknown error");
         } else {
             setError(null);
-            setProcessingOptions(data || []);
+            if (orderItemData) {
+                setProcessingOptions(orderItemData);
+            } else if (workOrderItemData) {
+                setProcessingOptions(workOrderItemData);
+            } else {
+                setProcessingOptions([]);
+            }
         }
-    }, [data, isLoading, isError, queryError]);
+    }, [orderItemData, workOrderItemData, isOrderItemLoading, isWorkOrderItemLoading, isOrderItemError, isWorkOrderItemError, orderItemError, workOrderItemError]);
 
     const createOption = api.processingOptions.create.useMutation({
         onSuccess: (newOption) => {

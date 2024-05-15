@@ -2,7 +2,7 @@
 
 // Path: src/server/api/routers/shared/processingOptions.ts
 
-// Fields include: cutting, drilling, folding, numberingColor, numberingEnd, numberingStart, other, padding, orderId, workOrderId
+// Fields include: cutting, drilling, folding, numberingColor, numberingEnd, numberingStart, other, padding, orderItemId, workOrderItemId
 
 import { z } from "zod";
 import {
@@ -12,7 +12,7 @@ import {
 } from "~/server/api/trpc";
 
 export const processingOptionsRouter = createTRPCRouter({
-    getByID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.processingOptions.findUnique({
             where: {
                 id: input,
@@ -20,11 +20,11 @@ export const processingOptionsRouter = createTRPCRouter({
         });
     }),
 
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.processingOptions.findMany();
     }),
 
-    getByOrderItemId: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByOrderItemId: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.processingOptions.findMany({
             where: {
                 orderItemId: input,
@@ -32,7 +32,7 @@ export const processingOptionsRouter = createTRPCRouter({
         });
     }),
 
-    getByWorkOrderItemId: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByWorkOrderItemId: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.processingOptions.findMany({
             where: {
                 workOrderItemId: input,
@@ -75,16 +75,17 @@ export const processingOptionsRouter = createTRPCRouter({
                     padding: input.padding,
                     stitching: input.stitching,
                     createdById: ctx.session.user.id, // Include the 'createdBy' property
-                    // Conditionally add Order connection if orderId is present and not empty
-                    ...(input.orderItemId ? { OrderItem: { connect: { id: input.orderItemId } } } : {}),
-                    // Conditionally add WorkOrder connection if workOrderId is present and not empty
-                    ...(input.workOrderItemId ? { WorkOrderItem: { connect: { id: input.workOrderItemId } } } : {}),
+                    // Conditionally add or remove orderItemId
+                    ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
+                    // Conditionally add or remove workOrderItemId
+                    ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
+
                 },
             });
         }),
 
     // Update processing options
-    // if orderId is not provided (or is an empty string), it will be set to null
+    // if orderItemId is not provided (or is an empty string), it will be set to null
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
@@ -124,9 +125,9 @@ export const processingOptionsRouter = createTRPCRouter({
                     padding: input.padding,
                     stitching: input.stitching,
                     // Conditionally add or remove orderItemId
-                    ...(input.orderItemId ? { orderId: input.orderItemId } : {}),
+                    ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     // Conditionally add or remove workOrderItemId
-                    ...(input.workOrderItemId ? { workOrderId: input.workOrderItemId } : {}),
+                    ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                 },
             });
         }),

@@ -10,12 +10,15 @@ import ProcessingOptionsItem from "~/app/_components/shared/processingOptions/pr
 import ProcessingOptionsForm from "./processingOptionsForm";
 
 type ProcessingOptionsComponentProps = {
-    processingOptionsList: ProcessingOptions[];
-    workOrderItemId: string;
-    orderItemId: string;
+    orderItemId?: string;
+    workOrderItemId?: string;
 };
 
-const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({ processingOptionsList, workOrderItemId = '', orderItemId = '' }) => {
+const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = (
+    {
+        orderItemId = '',
+        workOrderItemId = '',
+    }) => {
     const { processingOptions, loading, error } = useProcessingOptions();
     const [isAdding, setIsAdding] = React.useState(false);
 
@@ -27,8 +30,8 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
         <>
             {isAdding ? (
                 <ProcessingOptionsForm
-                    workOrderItemId={workOrderItemId}
                     orderItemId={orderItemId}
+                    workOrderItemId={workOrderItemId}
                     onClose={toggleAdding}
                     onCancel={toggleAdding}
                     isActive={isAdding}
