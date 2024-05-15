@@ -1,3 +1,4 @@
+import { get } from "http";
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -10,6 +11,17 @@ export const typesettingRouter = createTRPCRouter({
         return ctx.db.typesetting.findUnique({
             where: {
                 id: input,
+            },
+            include: {
+                TypesettingOptions: true,
+                TypesettingProofs: true,
+            }
+        });
+    }),
+    getByOrderItemID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.typesetting.findMany({
+            where: {
+                orderItemId: input,
             },
             include: {
                 TypesettingOptions: true,
@@ -55,7 +67,7 @@ export const typesettingRouter = createTRPCRouter({
                     plateRan: input.plateRan,
                     prepTime: input.prepTime,
                     timeIn: input.timeIn,
-                    createdById: ctx.session.user, // Add the createdById property
+                    createdById: ctx.session.user.id, // Add the createdById property
 
                 },
             });
