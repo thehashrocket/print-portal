@@ -4,7 +4,7 @@ import { ProcessingOptions } from "@prisma/client";
 
 // Define the context type
 interface ProcessingOptionsContextType {
-    processingOptions: ProcessingOption[];
+    processingOptions: ProcessingOptions[];
     loading: boolean;
     error: string | null;
     createOption: ReturnType<typeof api.processingOptions.create.useMutation>;
@@ -32,7 +32,7 @@ interface ProcessingOptionsProviderProps {
 }
 
 export const ProcessingOptionsProvider: React.FC<ProcessingOptionsProviderProps> = ({ children, orderItemId, workOrderItemId }) => {
-    const [processingOptions, setProcessingOptions] = useState<ProcessingOption[]>([]);
+    const [processingOptions, setProcessingOptions] = useState<ProcessingOptions[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

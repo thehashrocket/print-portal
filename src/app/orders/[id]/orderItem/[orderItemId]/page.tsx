@@ -1,5 +1,5 @@
 // This loads a page for a specific order item
-// It shows the order number, office name, order status, and total cost
+// It shows the order number, office name, order item status, and total cost
 // It shows the order item details including: amount, approved, artwork, created at, description, expected date, finished quantity, quantity, status, and updated at
 // It also shows the breadcrumbs and a link to create a new order
 
@@ -8,7 +8,7 @@
 
 
 "use server";
-import React, { useState } from "react";
+import React from "react";
 import OrderItemComponent from "~/app/_components/orders/orderItemComponent";
 
 import { getServerAuthSession } from "~/server/auth";

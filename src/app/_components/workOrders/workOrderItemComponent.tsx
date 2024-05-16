@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { OrderItem } from "@prisma/client";
+import { WorkOrderItem } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
@@ -9,26 +9,26 @@ import TypesettingComponent from "~/app/_components/shared/typesetting/typesetti
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 
-type OrderItemPageProps = {
-    orderId: string;
-    orderItemId: string;
+type WorkOrderItemPageProps = {
+    workOrderId: string;
+    workOrderItemId: string;
 };
 
-const OrderItemComponent: React.FC<OrderItemPageProps> = ({
-    orderId = '',
-    orderItemId = '',
+const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
+    workOrderId = '',
+    workOrderItemId = '',
 }) => {
-    // Fetch order item data
-    const { data: order } = api.orders.getByID.useQuery(orderId);
-    const { data: fetchedOrderItem, isLoading } = api.orderItems.getByID.useQuery(orderItemId);
-    const [orderItem, setOrderItem] = useState<OrderItem | null>(null);
-    const { data: typesettingData } = api.typesetting.getByOrderItemID.useQuery(orderItemId); // Ensure you have an API endpoint to fetch typesetting data by order item ID
+    // Fetch work order item data
+    const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
+    const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
+    const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem | null>(null);
+    const { data: typesettingData } = api.typesetting.getByWorkOrderItemID.useQuery(workOrderItemId); // Ensure you have an API endpoint to fetch typesetting data by work order item ID
 
     useEffect(() => {
-        if (fetchedOrderItem) {
-            setOrderItem(fetchedOrderItem);
+        if (fetchedWorkOrderItem) {
+            setWorkOrderItem(fetchedWorkOrderItem);
         }
-    }, [fetchedOrderItem]);
+    }, [fetchedWorkOrderItem]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -38,64 +38,61 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Order Item Details</a>
+                    <a className="btn btn-ghost text-xl">Work Order Item Details</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
-                            <li><Link href="/orders">Orders</Link></li>
-                            <li><Link href={`/orders/${orderItem?.orderId}`}>Order</Link></li>
-                            <li>Order Item</li>
+                            <li><Link href="/workOrders">Work Orders</Link></li>
+                            <li><Link href={`/workOrders/${workOrderItem?.workOrderId}`}>Work Order</Link></li>
+                            <li>Work Order Item</li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/orders/create">Create Order</Link>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Work Order</Link>
                 </div>
             </div>
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Order Number</p>
-                        <p className="text-gray-800 text-lg font-semibold">{order?.orderNumber}</p>
+                        <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Number</p>
+                        <p className="text-gray-800 text-lg font-semibold">{workOrder?.workOrderNumber}</p>
                     </div>
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <p className="mb-2 text-gray-600 text-xl font-semibold">Office Name</p>
-                        <p className="text-gray-800 text-lg font-semibold">{order?.Office?.name}</p>
+                        <p className="text-gray-800 text-lg font-semibold">{workOrder?.Office.name}</p>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Order Item Status</p>
-                        <p className="text-gray-800 text-lg font-semibold">{orderItem?.status}</p>
+                        <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Item Status</p>
+                        <p className="text-gray-800 text-lg font-semibold">{workOrderItem?.status}</p>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-                        {orderItem && typesettingData && (
+                        {workOrderItem && typesettingData && (
                             <TypesettingProvider>
                                 <TypesettingComponent
-                                    workOrderItemId=""
-                                    orderItemId={orderItem.id}
+                                    workOrderItemId={workOrderItem?.id || ''}
+                                    orderItemId=""
                                     initialTypesetting={typesettingData}
                                 />
                             </TypesettingProvider>
                         )}
                     </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-                        <ProcessingOptionsProvider orderItemId={orderItem?.id}>
-                            <ProcessingOptionsComponent
-                                orderItemId={orderItem?.id || ''} />
+                        <ProcessingOptionsProvider workOrderItemId={workOrderItem?.id || ''}>
+                            <ProcessingOptionsComponent workOrderItemId={workOrderItem?.id || ''} />
                         </ProcessingOptionsProvider>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
+}
 
-export default OrderItemComponent;
+export default WorkOrderItemComponent;

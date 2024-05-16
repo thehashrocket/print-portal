@@ -12,6 +12,7 @@ export const orderRouter = createTRPCRouter({
           id: input,
         },
         include: {
+          createdBy: true,
           OrderItems: {
             include: {
               Typesetting: {

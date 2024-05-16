@@ -26,7 +26,20 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
         quantity: number;
         description: string;
         finishedQty: string;
-    }>([]);
+        orderId: string;
+        status: string;
+    }[]>([]);
+
+    const actionsRenderer = ((props: CustomCellRendererProps) => {
+        console.log('props', props)
+        return (
+            <div>
+                <Link className="btn btn-sm btn-primary" href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
+                    View
+                </Link>
+            </div>
+        );
+    });
 
     // Define column definitions and row data here
     const columnDefs = [
@@ -34,6 +47,13 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
         { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
+        { headerName: "Status", field: "status", filter: true, width: 150 },
+        {
+            headerName: "Actions",
+            field: "actions",
+            cellRenderer: actionsRenderer,
+            width: 150
+        },
     ];
 
     useEffect(() => {
@@ -44,6 +64,8 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
                     quantity: workOrderItem.quantity,
                     description: workOrderItem.description,
                     finishedQty: workOrderItem.finishedQty,
+                    workOrderId: workOrderItem.workOrderId,
+                    status: workOrderItem.status,
                 };
             }),
         );

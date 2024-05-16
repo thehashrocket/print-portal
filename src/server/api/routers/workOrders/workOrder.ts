@@ -12,6 +12,7 @@ export const workOrderRouter = createTRPCRouter({
           id: input,
         },
         include: {
+          createdBy: true,
           WorkOrderItems: {
             include: {
               Typesetting: {
@@ -24,7 +25,6 @@ export const workOrderRouter = createTRPCRouter({
             },
           },
           WorkOrderVersions: true,
-
           WorkOrderNotes: {
             include: {
               createdBy: true

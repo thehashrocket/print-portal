@@ -24,17 +24,10 @@ export default async function OrderPage({
   const order = await api.orders.getByID(id);
 
   const serializedOrderItems = order?.OrderItems.map((orderItem) => ({
+    ...orderItem,
     amount: orderItem?.amount?.toString(),
-    approved: orderItem?.approved,
-    artwork: orderItem?.artwork,
     createdAt: orderItem?.createdAt?.toString(),
-    description: orderItem?.description,
     expectedDate: orderItem?.expectedDate?.toString(),
-    finishedQty: orderItem?.finishedQty,
-    id: orderItem?.id,
-    orderId: orderItem?.orderId,
-    quantity: orderItem?.quantity,
-    status: orderItem?.status,
     updatedAt: orderItem?.updatedAt?.toString(),
   }));
 
@@ -79,11 +72,11 @@ export default async function OrderPage({
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mb-2">
-          <div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
             <p className="mb-2 text-gray-600 text-xl font-semibold">Created By</p>
             <p className="text-lg">{order?.createdBy?.name}</p>
           </div>
-          <div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
             <p className="mb-2 text-gray-600 text-xl font-semibold">Created At</p>
             <p className="text-lg">{order?.createdAt?.toString()}</p>
           </div>
@@ -113,29 +106,27 @@ export default async function OrderPage({
         {/* Row 4 */}
         {/* Work Order Notes, Special Instructions and Processing Options */}
         <div className="grid grid-cols-2 gap-4 mb-2">
-          <div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
-              <OrderNotesComponent notes={order?.OrderNotes} orderId={order?.id} />
-            </div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
-              <p className="text-lg mb-2">
-                {order?.specialInstructions}<br />
-              </p>
-            </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
+            <OrderNotesComponent notes={order?.OrderNotes} orderId={order?.id} />
           </div>
-
-          {/* Row 6 */}
-          {/* Order Items  */}
-          <div className="grid grid-cols-1 mb-2">
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
-              <OrderItemsTable orderItems={serializedOrderItems} />
-            </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
+            <p className="text-lg mb-2">
+              {order?.specialInstructions}<br />
+            </p>
           </div>
-          {/* Additional sections for more order details */}
         </div>
+
+        {/* Row 6 */}
+        {/* Order Items  */}
+        <div className="grid grid-cols-1 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Order Items</h2>
+            <OrderItemsTable orderItems={serializedOrderItems} />
+          </div>
+        </div>
+        {/* Additional sections for more order details */}
       </div>
     </div>
   );

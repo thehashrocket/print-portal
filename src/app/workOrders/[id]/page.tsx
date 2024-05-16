@@ -25,9 +25,10 @@ export default async function WorkOrderPage({
 
   const serializedWorkOrderItems = workOrder?.WorkOrderItems.map((workOrderItem) => ({
     ...workOrderItem,
+    amount: workOrderItem?.amount?.toString(),
+    createdAt: workOrderItem?.createdAt?.toString(),
     expectedDate: workOrderItem?.expectedDate?.toString(),
     updatedAt: workOrderItem?.updatedAt?.toString(),
-    amount: workOrderItem?.amount?.toString(),
   }));
 
   // Render the component
@@ -35,7 +36,7 @@ export default async function WorkOrderPage({
     <div className="container mx-auto">
       <div className="navbar bg-base-100">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Work Orders</a>
+          <a className="btn btn-ghost text-xl">Work Order Details</a>
           <div className="text-sm breadcrumbs">
             <ul>
               <li><Link href="/">Home</Link> </li>
@@ -55,20 +56,30 @@ export default async function WorkOrderPage({
             <p className="text-lg font-semibold">{workOrder?.workOrderNumber}</p>
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
-            <p className="mb-2 text-gray-600 text-xl font-semibold">Office ID</p>
-            <p className="text-lg font-semibold">{workOrder?.officeId}</p>
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Office Name</p>
+            <p className="text-lg font-semibold">{workOrder?.Office.Company.name}</p>
           </div>
         </div>
         {/* Row 2 */}
         {/* Status and Total */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Status</h2>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Status</h2>
             <p className="text-lg">{workOrder?.status}</p>
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Total</h2>
             <p className="text-lg">$ {workOrder?.totalCost?.toString()}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Created By</p>
+            <p className="text-lg">{workOrder?.createdBy?.name}</p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <p className="mb-2 text-gray-600 text-xl font-semibold">Created At</p>
+            <p className="text-lg">{workOrder?.createdAt?.toString()}</p>
           </div>
         </div>
         {/* Row 3 */}
@@ -86,7 +97,7 @@ export default async function WorkOrderPage({
               {workOrder?.ShippingInfo?.Address?.city}, {workOrder?.ShippingInfo?.Address?.state} {workOrder?.ShippingInfo.Address?.zipCode}<br />
               {workOrder?.ShippingInfo?.Address?.country}
             </p>
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Shipping Method:</h2>
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Shipping Method</h2>
             <p className="text-lg">{workOrder?.ShippingInfo?.shippingMethod}</p>
           </div>
           <div className="rounded-lg bg-white p-6 shadow-md">
@@ -97,17 +108,15 @@ export default async function WorkOrderPage({
         {/* Row 4 */}
         {/* Work Order Notes, Special Instructions and Processing Options */}
         <div className="grid grid-cols-2 gap-4 mb-2">
-          <div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
-              <WorkOrderNotesComponent notes={workOrder?.WorkOrderNotes} workOrderId={workOrder?.id} />
-            </div>
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
-              <p className="text-lg mb-2">
-                {workOrder?.specialInstructions}<br />
-              </p>
-            </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Notes</h2>
+            <WorkOrderNotesComponent notes={workOrder?.WorkOrderNotes} workOrderId={workOrder?.id} />
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Special Instructions</h2>
+            <p className="text-lg mb-2">
+              {workOrder?.specialInstructions}<br />
+            </p>
           </div>
         </div>
         {/* Row 6 */}
@@ -116,14 +125,6 @@ export default async function WorkOrderPage({
           <div className="rounded-lg bg-white p-6 shadow-md">
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Items</h2>
             <WorkOrderItemsTable workOrderItems={serializedWorkOrderItems} />
-          </div>
-        </div>
-        {/* Row 7 */}
-        {/* Address Type */}
-        <div className="grid grid-cols-2 gap-4 mb-2">
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Address Type</h2>
-            <p className="text-lg">{workOrder?.ShippingInfo?.Address?.addressType}</p>
           </div>
         </div>
         {/* Additional sections for more work order details */}

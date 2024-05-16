@@ -29,6 +29,17 @@ export const typesettingRouter = createTRPCRouter({
             }
         });
     }),
+    getByWorkOrderItemID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.typesetting.findMany({
+            where: {
+                workOrderItemId: input,
+            },
+            include: {
+                TypesettingOptions: true,
+                TypesettingProofs: true,
+            }
+        });
+    }),
 
     getAll: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.typesetting.findMany();
