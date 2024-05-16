@@ -54,6 +54,80 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
     }),
+  // Create a new Work Order
+  createrWorkOrder: protectedProcedure
+    .input(z.object({
+      workOrder: z.object({
+        workOrderNumber: z.number(),
+        status: z.nativeEnum(WorkOrderStatus),
+        officeId: z.string(),
+        shippingInfoId: z.string(),
+        createdBy: z.string(),
+        workOrderItems: z.array(z.object({
+          itemId: z.string(),
+          quantity: z.number(),
+          typesettingId: z.string(),
+          processingOptionsId: z.string(),
+          createdById: z.string(), // Add the createdById property
+          dateIn: z.date(), // Add the missing properties
+          estimateNumber: z.string(),
+          inHandsDate: z.date(),
+          purchaseOrderNumber: z.string()
+        }))
+      })
+    }))
+    .mutation(({ ctx, input }) => {
+      return ctx.db.workOrder.create({
+        data: {
+          workOrderNumber: input.workOrder.workOrderNumber,
+          status: input.workOrder.status,
+          Office: {
+            connect: {
+              id: input.workOrder.officeId
+            }
+          },
+          ShippingInfo: {
+            connect: {
+              id: input.workOrder.shippingInfoId
+            }
+          },
+          createdBy: {
+            connect: {
+              id: input.workOrder.createdBy
+            }
+          },
+          WorkOrderItems: {
+            createMany: {
+              data: input.workOrder.workOrderItems.map((item) => {
+                return {
+                  quantity: item.quantity,
+                  Item: {
+                    connect: {
+                      id: item.itemId
+                    }
+                  },
+                  Typesetting: {
+                    connect: {
+                      id: item.typesettingId
+                    }
+                  },
+                  ProcessingOptions: {
+                    connect: {
+                      id: item.processingOptionsId
+                    }
+                  },
+                  createdById: item.createdById, // Include the createdById property
+                  dateIn: item.dateIn, // Include the missing properties
+                  estimateNumber: item.estimateNumber,
+                  inHandsDate: item.inHandsDate,
+                  purchaseOrderNumber: item.purchaseOrderNumber
+                }
+              })
+            }
+          }
+        }
+      });
+    }),
   // Return Orders
   getAll: protectedProcedure
     .query(({ ctx }) => {

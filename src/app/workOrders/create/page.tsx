@@ -1,11 +1,12 @@
+// ~/app/workOrders/create/page.tsx
 // A page to create a new work order
 "use server";
 
 import React from "react";
 import { getServerAuthSession } from "~/server/auth";
-import { WorkOrder } from "@prisma/client";
 import Link from "next/link";
-import WorkOrderCreation from "~/app/_components/workOrders/create/workOrderCreationComponent";
+import CreateWorkOrderComponent from "~/app/_components/workOrders/create/createWorkOrderComponent";
+
 
 export default async function CreateWorkOrderPage() {
     // Fetch user session for authentication
@@ -33,7 +34,7 @@ export default async function CreateWorkOrderPage() {
                     <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
                 </div>
             </div>
-            <WorkOrderCreation />
+            <CreateWorkOrderComponent />
         </div>
     )
 }
