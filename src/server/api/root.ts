@@ -24,7 +24,7 @@ export const appRouter = createTRPCRouter({
   orderNotes: orderNoteRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
-  typesetting: typesettingRouter,
+  typesettings: typesettingRouter,
   typesettingOptions: typesettingOptionsRouter,
   typesettingProofs: typesettingProofsRouter,
   users: userRouter,

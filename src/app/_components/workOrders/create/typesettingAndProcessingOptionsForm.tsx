@@ -8,10 +8,12 @@ import { useWorkOrderContext } from '~/app/contexts/workOrderContext';
 
 const typesettingSchema = z.object({
     // Define Typesetting fields
+    typesettingDetail: z.string().min(1, 'Typesetting detail is required'),
 });
 
 const processingOptionsSchema = z.object({
     // Define ProcessingOptions fields
+    processingDetail: z.string().min(1, 'Processing detail is required'),
 });
 
 type TypesettingFormData = z.infer<typeof typesettingSchema>;
@@ -38,11 +40,19 @@ const TypesettingAndProcessingOptionsForm: React.FC = () => {
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmitTypesetting)}>
-                {/* Add form fields for Typesetting */}
+                <div>
+                    <label htmlFor="typesettingDetail">Typesetting Detail</label>
+                    <input id="typesettingDetail" {...register('typesettingDetail')} />
+                    {errors.typesettingDetail && <p>{errors.typesettingDetail.message}</p>}
+                </div>
                 <button type="submit">Add Typesetting</button>
             </form>
             <form onSubmit={handleSubmitProcessing(onSubmitProcessingOptions)}>
-                {/* Add form fields for ProcessingOptions */}
+                <div>
+                    <label htmlFor="processingDetail">Processing Detail</label>
+                    <input id="processingDetail" {...registerProcessing('processingDetail')} />
+                    {errorsProcessing.processingDetail && <p>{errorsProcessing.processingDetail.message}</p>}
+                </div>
                 <button type="submit">Add Processing Options</button>
             </form>
         </div>

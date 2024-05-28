@@ -1,22 +1,23 @@
 // ~/app/contexts/workOrderContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '~/trpc/react'; // Adjust the import path as necessary
-import { WorkOrderItem, Typesetting, ProcessingOptions, WorkOrder } from '@prisma/client'; // Adjust imports based on your schema
+import { api } from '~/trpc/react';
+import { WorkOrder, WorkOrderItem, Typesetting, ProcessingOptions } from '@prisma/client';
 
-// Define the context type
 interface WorkOrderContextType {
-    workOrderItems: WorkOrderItem[];
-    typesettings: Typesetting[];
     processingOptions: ProcessingOptions[];
+    typesettings: Typesetting[];
+    workOrders: WorkOrder[];
+    workOrderItems: WorkOrderItem[];
     loading: boolean;
     error: string | null;
-    createWorkOrder: ReturnType<typeof api.workOrders.createWorkOrder.useMutation>;
+    addProcessingOptions: (data: any) => void;
+    addTypesetting: (data: any) => void;
+    addWorkOrder: (data: any) => void;
+    addWorkOrderItem: (data: any) => void;
 }
 
-// Create the context
 const WorkOrderContext = createContext<WorkOrderContextType | undefined>(undefined);
 
-// Custom hook to use the context
 export const useWorkOrderContext = () => {
     const context = useContext(WorkOrderContext);
     if (context === undefined) {
@@ -25,19 +26,19 @@ export const useWorkOrderContext = () => {
     return context;
 };
 
-// Define the provider component
 interface WorkOrderProviderProps {
     children: ReactNode;
 }
 
 export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }) => {
     const [workOrderItems, setWorkOrderItems] = useState<WorkOrderItem[]>([]);
+    const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
     const [typesettings, setTypesettings] = useState<Typesetting[]>([]);
     const [processingOptions, setProcessingOptions] = useState<ProcessingOptions[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { data, isLoading, isError, error: fetchError } = api.workOrder.getAllWorkOrders.useQuery();
+    const { data, isLoading, isError, error: fetchError } = api.workOrders.getAll.useQuery();
 
     useEffect(() => {
         setLoading(isLoading);
@@ -46,17 +47,18 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
         } else {
             setError(null);
             if (data) {
-                // Update the state with fetched data
-                setWorkOrderItems(data);
+                setWorkOrders(data);
             } else {
-                setWorkOrderItems([]);
+                setWorkOrders([]);
             }
         }
     }, [data, isLoading, isError, fetchError]);
 
-    const createWorkOrder = api.workOrder.createWorkOrder.useMutation({
+    const workOrderMutation = api.workOrders.createWorkOrder.useMutation({
         onSuccess: (newWorkOrder) => {
-            setWorkOrderItems((prev) => [...prev, newWorkOrder]);
+            setWorkOrders(
+                (prev) => [...prev, newWorkOrder]
+            );
         },
         onError: (error) => {
             console.error(error);
@@ -64,15 +66,65 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
         },
     });
 
+    const workOrderItemMutation = api.workOrderItems.createWorkOrderItem.useMutation({
+        onSuccess: (newWorkOrderItem) => {
+            setWorkOrderItems((prev) => [...prev, newWorkOrderItem]);
+        },
+        onError: (error) => {
+            console.error(error);
+            setError(error.message);
+        },
+    });
+
+    const typesettingMutation = api.typesettings.create.useMutation({
+        onSuccess: (newTypesetting) => {
+            setTypesettings((prev) => [...prev, newTypesetting]);
+        },
+        onError: (error) => {
+            console.error(error);
+            setError(error.message);
+        },
+    });
+
+    const processingOptionsMutation = api.processingOptions.create.useMutation({
+        onSuccess: (newProcessingOptions) => {
+            setProcessingOptions((prev) => [...prev, newProcessingOptions]);
+        },
+        onError: (error) => {
+            console.error(error);
+            setError(error.message);
+        },
+    });
+
+    const addWorkOrder = (data: any) => {
+        workOrderMutation.mutate(data);
+    };
+
+    const addWorkOrderItem = (data: any) => {
+        workOrderItemMutation.mutate(data);
+    };
+
+    const addTypesetting = (data: any) => {
+        typesettingMutation.mutate(data);
+    };
+
+    const addProcessingOptions = (data: any) => {
+        processingOptionsMutation.mutate(data);
+    };
+
     return (
         <WorkOrderContext.Provider
             value={{
+                processingOptions,
+                workOrders,
                 workOrderItems,
                 typesettings,
-                processingOptions,
                 loading,
                 error,
-                createWorkOrder,
+                addProcessingOptions,
+                addTypesetting,
+                addWorkOrder,
+                addWorkOrderItem,
             }}
         >
             {children}

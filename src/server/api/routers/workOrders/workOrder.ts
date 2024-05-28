@@ -1,4 +1,5 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+// server/routers/workOrderRouter.ts
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { WorkOrderStatus } from "@prisma/client";
 
@@ -55,7 +56,7 @@ export const workOrderRouter = createTRPCRouter({
       });
     }),
   // Create a new Work Order
-  createrWorkOrder: protectedProcedure
+  createWorkOrder: protectedProcedure
     .input(z.object({
       workOrder: z.object({
         workOrderNumber: z.number(),
@@ -63,13 +64,17 @@ export const workOrderRouter = createTRPCRouter({
         officeId: z.string(),
         shippingInfoId: z.string(),
         createdBy: z.string(),
+        dateIn: z.date(), // Add the missing properties
+        estimateNumber: z.string(),
+        inHandsDate: z.date(),
+        purchaseOrderNumber: z.string(),
         workOrderItems: z.array(z.object({
           itemId: z.string(),
           quantity: z.number(),
           typesettingId: z.string(),
           processingOptionsId: z.string(),
-          createdById: z.string(), // Add the createdById property
-          dateIn: z.date(), // Add the missing properties
+          createdById: z.string(),
+          dateIn: z.date(),
           estimateNumber: z.string(),
           inHandsDate: z.date(),
           purchaseOrderNumber: z.string()
@@ -81,6 +86,10 @@ export const workOrderRouter = createTRPCRouter({
         data: {
           workOrderNumber: input.workOrder.workOrderNumber,
           status: input.workOrder.status,
+          dateIn: input.workOrder.dateIn, // Include the missing properties
+          estimateNumber: input.workOrder.estimateNumber,
+          inHandsDate: input.workOrder.inHandsDate,
+          purchaseOrderNumber: input.workOrder.purchaseOrderNumber,
           Office: {
             connect: {
               id: input.workOrder.officeId
@@ -116,8 +125,8 @@ export const workOrderRouter = createTRPCRouter({
                       id: item.processingOptionsId
                     }
                   },
-                  createdById: item.createdById, // Include the createdById property
-                  dateIn: item.dateIn, // Include the missing properties
+                  createdById: item.createdById,
+                  dateIn: item.dateIn,
                   estimateNumber: item.estimateNumber,
                   inHandsDate: item.inHandsDate,
                   purchaseOrderNumber: item.purchaseOrderNumber
@@ -128,7 +137,7 @@ export const workOrderRouter = createTRPCRouter({
         }
       });
     }),
-  // Return Orders
+  // Return WorkOrders
   getAll: protectedProcedure
     .query(({ ctx }) => {
       return ctx.db.workOrder.findMany();
