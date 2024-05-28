@@ -29,12 +29,12 @@
   dependencies:
     tslib "^2.3.0"
 
-"@ag-grid-community/csv-export@^31.2.1":
-  version "31.3.1"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-31.3.1.tgz#d671bb518ebe72ede7b14db5d60afeeec22ce475"
-  integrity sha512-ltILdmjxtzh+MiuggiwLNxGfa+9jcD8I1DN9E276e67W/3bd2NjvjcI7IL2kbeSStTjrVQuIn1570b9tMKQ4TA==
+"@ag-grid-community/csv-export@^31.3.2":
+  version "31.3.2"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-31.3.2.tgz#1dbdd1b20ab36ba0a77e77bdb89c88b850bb6bf7"
+  integrity sha512-AjQAvW84SXzGSzoSgmpSDCPrqYHZNRRDEVFi47N0iW44AxelCIVSjFRF8nkUky6On6bQ+Mv8+6JNtVmjki5p6w==
   dependencies:
-    "@ag-grid-community/core" "31.3.1"
+    "@ag-grid-community/core" "31.3.2"
     tslib "^2.3.0"
 
 "@ag-grid-community/infinite-row-model@^31.2.0":
