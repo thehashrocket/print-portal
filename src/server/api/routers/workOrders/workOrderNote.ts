@@ -1,3 +1,7 @@
+// /src/server/api/routers/workOrders/workOrderNote.ts
+// This file contains the workOrderNote router which is used to handle all work order note related requests.
+// ~/server/api/trpc.ts is a file that contains the createTRPCRouter function which is used to create a router for handling requests.
+
 import { z } from "zod";
 
 import {

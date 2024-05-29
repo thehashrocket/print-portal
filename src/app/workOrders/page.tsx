@@ -20,7 +20,6 @@ export default async function WorkOrdersPage() {
   const workOrders = await api.workOrders.getAll();
   const serializedData = workOrders.map((workOrder) => ({
     ...workOrder,
-    costPerM: workOrder.costPerM !== null ? workOrder.costPerM.toString() : null,
     createdAt: workOrder.createdAt.toISOString(),
     dateIn: workOrder.dateIn.toString(),
     deposit: workOrder.deposit.toString(),

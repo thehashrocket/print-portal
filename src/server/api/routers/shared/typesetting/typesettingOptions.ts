@@ -1,3 +1,6 @@
+// /src/server/api/routers/shared/typesetting/typesettingOptions.ts
+// This file is imported into the main API router in src/server/api/routers/index.ts.
+
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -6,7 +9,7 @@ import {
 } from "~/server/api/trpc";
 
 export const typesettingOptionsRouter = createTRPCRouter({
-    getByID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesettingOption.findUnique({
             where: {
                 id: input,
@@ -14,7 +17,7 @@ export const typesettingOptionsRouter = createTRPCRouter({
         });
     }),
 
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.typesettingOption.findMany();
     }),
 

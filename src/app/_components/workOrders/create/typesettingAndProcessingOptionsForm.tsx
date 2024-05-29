@@ -1,4 +1,4 @@
-// ~/app/_components/workOrders/create/typesettingAndProcessingOptionsForm.tsx
+// ~/app/_components/workOrders/create/TypesettingAndProcessingOptionsForm.tsx
 "use client";
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,19 +7,21 @@ import { z } from 'zod';
 import { useWorkOrderContext } from '~/app/contexts/workOrderContext';
 
 const typesettingSchema = z.object({
-    // Define Typesetting fields
     typesettingDetail: z.string().min(1, 'Typesetting detail is required'),
 });
 
 const processingOptionsSchema = z.object({
-    // Define ProcessingOptions fields
     processingDetail: z.string().min(1, 'Processing detail is required'),
 });
 
 type TypesettingFormData = z.infer<typeof typesettingSchema>;
 type ProcessingOptionsFormData = z.infer<typeof processingOptionsSchema>;
 
-const TypesettingAndProcessingOptionsForm: React.FC = () => {
+interface TypesettingAndProcessingOptionsFormProps {
+    prevStep: () => void;
+}
+
+const TypesettingAndProcessingOptionsForm: React.FC<TypesettingAndProcessingOptionsFormProps> = ({ prevStep }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingSchema),
     });
@@ -55,6 +57,7 @@ const TypesettingAndProcessingOptionsForm: React.FC = () => {
                 </div>
                 <button type="submit">Add Processing Options</button>
             </form>
+            <button type="button" onClick={prevStep}>Previous</button>
         </div>
     );
 };

@@ -1,5 +1,5 @@
 // This class is used to generate the typesetting proofs for the typesetting process.
-
+// /src/server/api/routers/shared/typesetting/typesettingProofs.ts
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -8,7 +8,7 @@ import {
 } from "~/server/api/trpc";
 
 export const typesettingProofsRouter = createTRPCRouter({
-    getByID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesettingProof.findUnique({
             where: {
                 id: input,
@@ -16,7 +16,7 @@ export const typesettingProofsRouter = createTRPCRouter({
         });
     }),
 
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.typesettingProof.findMany();
     }),
 

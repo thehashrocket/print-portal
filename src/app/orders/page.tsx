@@ -22,7 +22,6 @@ export default async function OrdersPage() {
   const serializedData = orders.map((order) => ({
     ...order,
     deposit: order.deposit.toString(),
-    costPerM: order.costPerM.toString(),
     totalCost: order.totalCost.toString(),
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),

@@ -2,8 +2,8 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trp
 import { z } from "zod";
 import { Company } from "@prisma/client"; // Import the Company model
 
-// Get a Company by ID
 export const companyRouter = createTRPCRouter({
+    // Get a Company by ID
     getByID: protectedProcedure
         .input(z.string()).query(({ ctx, input }) => {
             return ctx.db.company.findUnique({

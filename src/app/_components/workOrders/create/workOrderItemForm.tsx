@@ -1,4 +1,4 @@
-// ~/app/_components/workOrders/create/workOrderItemForm.tsx
+// ~/app/_components/workOrders/create/WorkOrderItemForm.tsx
 "use client";
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,7 +21,12 @@ const workOrderItemSchema = z.object({
 
 type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 
-const WorkOrderItemForm: React.FC = () => {
+interface WorkOrderItemFormProps {
+    nextStep: () => void;
+    prevStep: () => void;
+}
+
+const WorkOrderItemForm: React.FC<WorkOrderItemFormProps> = ({ nextStep, prevStep }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
     });
@@ -29,7 +34,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     const onSubmit = (data: WorkOrderItemFormData) => {
         addWorkOrderItem(data);
-        // Move to the next step (Typesetting and ProcessingOptions)
+        nextStep();
     };
 
     return (
@@ -84,6 +89,7 @@ const WorkOrderItemForm: React.FC = () => {
                 <input id="purchaseOrderNumber" {...register('purchaseOrderNumber')} />
                 {errors.purchaseOrderNumber && <p>{errors.purchaseOrderNumber.message}</p>}
             </div>
+            <button type="button" onClick={prevStep}>Previous</button>
             <button type="submit">Next</button>
         </form>
     );

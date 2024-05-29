@@ -1,3 +1,15 @@
+// /src/server/api/routers/shared/typesetting/typesetting.ts
+// This file contains the typesetting router which is used to handle all typesetting related requests.
+// ~/server/api/trpc.ts is a file that contains the createTRPCRouter function which is used to create a router for handling requests.
+// The typesetting router has the following procedures:
+// getById: This procedure gets a typesetting record by its ID.
+// getByOrderItemID: This procedure gets all typesetting records associated with an order item.
+// getByWorkOrderItemID: This procedure gets all typesetting records associated with a work order item.
+// getAll: This procedure gets all typesetting records.
+// create: This procedure creates a new typesetting record.
+// update: This procedure updates an existing typesetting record.
+// delete: This procedure deletes a typesetting record.
+
 import { get } from "http";
 import { z } from "zod";
 import {
@@ -7,7 +19,7 @@ import {
 } from "~/server/api/trpc";
 
 export const typesettingRouter = createTRPCRouter({
-    getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesetting.findUnique({
             where: {
                 id: input,
@@ -18,7 +30,7 @@ export const typesettingRouter = createTRPCRouter({
             }
         });
     }),
-    getByOrderItemID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByOrderItemID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesetting.findMany({
             where: {
                 orderItemId: input,
@@ -29,7 +41,7 @@ export const typesettingRouter = createTRPCRouter({
             }
         });
     }),
-    getByWorkOrderItemID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByWorkOrderItemID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesetting.findMany({
             where: {
                 workOrderItemId: input,
@@ -41,7 +53,7 @@ export const typesettingRouter = createTRPCRouter({
         });
     }),
 
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.typesetting.findMany();
     }),
 

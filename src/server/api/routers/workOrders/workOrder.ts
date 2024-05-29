@@ -1,4 +1,7 @@
-// server/routers/workOrderRouter.ts
+// /src/server/routers/workOrderRouter.ts
+// This file contains the workOrderRouter which is used to handle all work order related requests.
+// ~/server/api/trpc.ts is a file that contains the createTRPCRouter function which is used to create a router for handling requests.
+
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { WorkOrderStatus } from "@prisma/client";
@@ -63,7 +66,6 @@ export const workOrderRouter = createTRPCRouter({
         status: z.nativeEnum(WorkOrderStatus),
         officeId: z.string(),
         shippingInfoId: z.string(),
-        createdBy: z.string(),
         dateIn: z.date(), // Add the missing properties
         estimateNumber: z.string(),
         inHandsDate: z.date(),
@@ -73,11 +75,11 @@ export const workOrderRouter = createTRPCRouter({
           quantity: z.number(),
           typesettingId: z.string(),
           processingOptionsId: z.string(),
-          createdById: z.string(),
           dateIn: z.date(),
           estimateNumber: z.string(),
           inHandsDate: z.date(),
-          purchaseOrderNumber: z.string()
+          purchaseOrderNumber: z.string(),
+          createdById: z.string() // Add the createdById property
         }))
       })
     }))
@@ -100,9 +102,9 @@ export const workOrderRouter = createTRPCRouter({
               id: input.workOrder.shippingInfoId
             }
           },
-          createdBy: {
+          createdBy: { // Include the createdBy property
             connect: {
-              id: input.workOrder.createdBy
+              id: ctx.session.user.id
             }
           },
           WorkOrderItems: {
@@ -125,11 +127,16 @@ export const workOrderRouter = createTRPCRouter({
                       id: item.processingOptionsId
                     }
                   },
-                  createdById: item.createdById,
+                  createdBy: { // Include the createdBy property
+                    connect: {
+                      id: ctx.session.user.id
+                    }
+                  },
                   dateIn: item.dateIn,
                   estimateNumber: item.estimateNumber,
                   inHandsDate: item.inHandsDate,
-                  purchaseOrderNumber: item.purchaseOrderNumber
+                  purchaseOrderNumber: item.purchaseOrderNumber,
+                  createdById: ctx.session.user.id // Add the createdById property
                 }
               })
             }

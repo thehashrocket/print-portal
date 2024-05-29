@@ -22,7 +22,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
     const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem | null>(null);
-    const { data: typesettingData } = api.typesetting.getByWorkOrderItemID.useQuery(workOrderItemId); // Ensure you have an API endpoint to fetch typesetting data by work order item ID
+    const { data: typesettingData } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId); // Ensure you have an API endpoint to fetch typesetting data by work order item ID
 
     useEffect(() => {
         if (fetchedWorkOrderItem) {

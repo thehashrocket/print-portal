@@ -1,4 +1,4 @@
-import { OrderItem, PrismaClient, RoleName, WorkOrderItem } from "@prisma/client";
+import { OrderItem, PrismaClient, ProofType, RoleName, WorkOrderItem } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import { AddressType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
 import { string } from "zod";
@@ -21,6 +21,7 @@ const csOptions = ["C1", "C2", "C3", "C4", "C5", "C6"];
 const inkColors = ["Black", "Cyan", "Magenta", "Yellow", "White"];
 const paymentStatuses = ["Pending", "Paid", "Overdue", "Refunded", "Unpaid", "Partial"];
 const paymentTypes = ["Credit Card", "Check", "Cash", "Wire Transfer"];
+const proofTypes = Object.values(ProofType);
 const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
 const shippingMethods = Object.values(ShippingMethod);
@@ -45,16 +46,10 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
   const order = await prismaClient.order.create({
     data: {
 
-      costPerM: workOrder?.costPerM,
       deposit: workOrder?.deposit,
       description: workOrder?.description,
       expectedDate: workOrder?.expectedDate,
       officeId,
-      overUnder: workOrder?.overUnder,
-      plateRan: workOrder?.plateRan,
-      prepTime: workOrder?.prepTime,
-      proofCount: faker.number.int({ min: 1, max: 5 }),
-      proofType: faker.word.sample(),
       shippingInfoId: workOrder?.shippingInfoId || "", // Assign an empty string if shippingInfoId is undefined
       specialInstructions: workOrder?.specialInstructions,
       status: randomElementFromArray(orderStatuses),
@@ -79,12 +74,17 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         approved: faker.datatype.boolean(),
         artwork: workOrderItem?.artwork,
         amount: workOrderItem.amount,
+        cost: workOrderItem.cost,
+        costPerM: workOrderItem.costPerM,
         cs: workOrderItem.cs ?? "",
         description: workOrderItem.description,
         expectedDate: workOrderItem.expectedDate,
         finishedQty: workOrderItem.finishedQty ?? 0,
         inkColor: workOrderItem.inkColor,
         orderId: order.id,
+        overUnder: workOrderItem?.overUnder,
+        plateRan: workOrderItem?.plateRan,
+        prepTime: workOrderItem?.prepTime,
         pressRun: workOrderItem.pressRun ?? "",
         quantity: workOrderItem.quantity,
         size: workOrderItem.size,
@@ -669,7 +669,6 @@ async function createTypesetting(workOrderItemId: string, userId: string) {
   const typesetting = await prismaClient.typesetting.create({
     data: {
       approved: faker.datatype.boolean(),
-      cost: faker.number.float({ min: 50, max: 200, precision: 2 }),
       dateIn: faker.date.past(),
       plateRan: faker.word.sample(),
       prepTime: faker.number.int({ min: 0, max: 100 }),
@@ -702,6 +701,8 @@ async function createTypesettingProof(typesettingId: string, proofNumber: number
     data: {
       typesettingId,
       proofNumber,
+      proofCount: faker.number.int({ min: 1, max: 5 }),
+      proofType: randomElementFromArray(proofTypes),
       dateSubmitted: faker.date.past(),
       notes: faker.lorem.sentence(),
       approved: faker.datatype.boolean(),
@@ -805,13 +806,9 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       estimateNumber: String(faker.number.int({ min: 500, max: 30000 })),
       purchaseOrderNumber: faker.number.int().toString(),
       specialInstructions: faker.lorem.sentence(),
-      prepTime: faker.number.int({ min: 0, max: 100 }),
-      plateRan: faker.word.sample(),
       expectedDate: faker.date.between(currentDate, maxFutureDate),
       deposit: faker.number.int({ min: 100, max: 500 }) + 0.01,
-      costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
       totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.03,
-      overUnder: faker.word.sample(),
       version: 1,
       description: faker.commerce.productName(),
       status: randomElementFromArray(workOrderStatuses),
@@ -834,12 +831,17 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         amount: parseFloat(faker.commerce.price()),
         approved: faker.datatype.boolean(),
         artwork: faker.internet.url(),
+        cost: parseFloat(faker.commerce.price()),
+        costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
         cs: randomElementFromArray(csOptions),
         description: faker.commerce.productDescription(),
         expectedDate: faker.date.future(),
         finishedQty: faker.number.int({ min: 1, max: 1000 }),
         inkColor: randomElementFromArray(inkColors),
         other: faker.commerce.productMaterial(),
+        overUnder: faker.word.sample(),
+        plateRan: faker.word.sample(),
+        prepTime: faker.number.int({ min: 0, max: 100 }),
         pressRun: faker.commerce.productMaterial(),
         quantity: faker.number.int({ min: 1, max: 1000 }),
         size: randomElementFromArray(sizes),

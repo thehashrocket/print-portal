@@ -24,7 +24,6 @@ type SerializedWorkOrder = {
     totalCost: string | null;
     createdAt: string;
     updatedAt: string;
-    costPerM: string | null;
     approved: boolean;
     artwork: string | null;
     // Add other properties as needed

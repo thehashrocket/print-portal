@@ -1,3 +1,6 @@
+// Purpose: Router for WorkOrderItems. This file contains all the procedures for WorkOrderItems.
+// This file is imported into the main API router in src/server/api/routers/index.ts.
+
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { WorkOrderItemStatus } from "@prisma/client";
