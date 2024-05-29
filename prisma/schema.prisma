@@ -342,7 +342,7 @@ model WorkOrder {
   officeId            String
   Order               Order?
   purchaseOrderNumber String
-  ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
+  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
   shippingInfoId      String
   specialInstructions String?
   status              WorkOrderStatus          @default(Draft)

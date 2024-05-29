@@ -34,6 +34,7 @@
     "@trpc/server": "^11.0.0-rc.366",
     "bcryptjs": "2.4.3",
     "dayjs": "^1.11.11",
+    "decimal.js": "^10.4.3",
     "next": "^14.1.4",
     "next-auth": "^4.24.6",
     "react": "18.3.1",

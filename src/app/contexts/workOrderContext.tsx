@@ -1,25 +1,32 @@
 // ~/app/contexts/WorkOrderContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '~/trpc/react';
-import { WorkOrder, WorkOrderItem, Typesetting, ProcessingOptions } from '@prisma/client';
+import { WorkOrder, WorkOrderItem, Typesetting, ProcessingOptions, ShippingInfo } from '@prisma/client';
 
 // Define the input types for the API calls
 type CreateWorkOrderInput = Omit<WorkOrder, 'id' | 'createdAt' | 'updatedAt'>;
 type CreateWorkOrderItemInput = Omit<WorkOrderItem, 'id' | 'createdAt' | 'updatedAt'>;
 type CreateTypesettingInput = Omit<Typesetting, 'id' | 'createdAt' | 'updatedAt'>;
 type CreateProcessingOptionsInput = Omit<ProcessingOptions, 'id' | 'createdAt' | 'updatedAt'>;
+type CreateShippingInfoInput = Omit<ShippingInfo, 'id' | 'createdAt' | 'updatedAt'>;
 
 interface WorkOrderContextType {
     processingOptions: ProcessingOptions[];
     typesettings: Typesetting[];
     workOrders: WorkOrder[];
     workOrderItems: WorkOrderItem[];
+    shippingInfo: ShippingInfo | null;
+    workOrderId: string | null;
+    orderId: string | null;
     loading: boolean;
     error: string | null;
+    setWorkOrderId: (id: string | null) => void;
+    setOrderId: (id: string | null) => void;
     addProcessingOptions: (data: CreateProcessingOptionsInput) => void;
     addTypesetting: (data: CreateTypesettingInput) => void;
     addWorkOrder: (data: CreateWorkOrderInput) => void;
     addWorkOrderItem: (data: CreateWorkOrderItemInput) => void;
+    addShippingInfo: (data: CreateShippingInfoInput) => void;
 }
 
 const WorkOrderContext = createContext<WorkOrderContextType | undefined>(undefined);
@@ -41,6 +48,9 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
     const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
     const [typesettings, setTypesettings] = useState<Typesetting[]>([]);
     const [processingOptions, setProcessingOptions] = useState<ProcessingOptions[]>([]);
+    const [shippingInfo, setShippingInfo] = useState<ShippingInfo | null>(null);
+    const [workOrderId, setWorkOrderId] = useState<string | null>(null);
+    const [orderId, setOrderId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +74,7 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
         onMutate: () => setLoading(true),
         onSuccess: (newWorkOrder) => {
             setWorkOrders((prev) => [...prev, newWorkOrder]);
+            setWorkOrderId(newWorkOrder.id); // Set the created WorkOrderId
             setLoading(false);
         },
         onError: (error) => {
@@ -112,6 +123,19 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
         },
     });
 
+    const shippingInfoMutation = api.shippingInfo.create.useMutation({
+        onMutate: () => setLoading(true),
+        onSuccess: (newShippingInfo) => {
+            setShippingInfo(newShippingInfo);
+            setLoading(false);
+        },
+        onError: (error) => {
+            console.error(error);
+            setError(error.message);
+            setLoading(false);
+        },
+    });
+
     const addWorkOrder = (data: CreateWorkOrderInput) => {
         workOrderMutation.mutate({
             workOrder: {
@@ -122,7 +146,7 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
     };
 
     const addProcessingOptions = (data: CreateProcessingOptionsInput) => {
-        processingOptionsMutation.mutate({ processiongOptions: data });
+        processingOptionsMutation.mutate({ processingOptions: data });
     };
 
     const addTypesetting = (data: CreateTypesettingInput) => {
@@ -133,22 +157,34 @@ export const WorkOrderProvider: React.FC<WorkOrderProviderProps> = ({ children }
         workOrderItemMutation.mutate({ workOrderItem: data });
     };
 
+    const addShippingInfo = (data: CreateShippingInfoInput) => {
+        shippingInfoMutation.mutate(data);
+    };
+
     return (
         <WorkOrderContext.Provider
             value={{
                 processingOptions,
+                typesettings,
                 workOrders,
                 workOrderItems,
-                typesettings,
+                shippingInfo,
+                workOrderId,
+                orderId,
                 loading,
                 error,
+                setWorkOrderId,
+                setOrderId,
                 addProcessingOptions,
                 addTypesetting,
                 addWorkOrder,
                 addWorkOrderItem,
+                addShippingInfo,
             }}
         >
             {children}
         </WorkOrderContext.Provider>
     );
 };
+
+

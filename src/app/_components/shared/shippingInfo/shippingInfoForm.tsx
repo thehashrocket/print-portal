@@ -3,9 +3,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ShippingInfo, ShippingMethod } from '@prisma/client';
 import { z } from 'zod';
-import { api } from '~/trpc/react';
+import { useWorkOrderContext } from '~/app/contexts/workOrderContext';
 
 const shippingInfoSchema = z.object({
     addressLine1: z.string().min(1, 'Address Line 1 is required'),
@@ -27,30 +26,28 @@ type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
 
 interface ShippingInfoFormProps {
     onSubmit: () => void;
-    workOrderId: string | null;
-    officeId: string;
-    createdById: string;
 }
 
-const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, workOrderId, officeId, createdById }) => {
+const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit }) => {
     const { register, handleSubmit, formState: { errors } } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
     });
 
-    const createShippingInfoMutation = api.shippingInfo.create.useMutation({
-        onSuccess: () => {
-            onSubmit();
-        },
-    });
+    const { addShippingInfo, workOrderId, orderId } = useWorkOrderContext();
 
     const handleFormSubmit = (data: ShippingInfoFormData) => {
-        if (workOrderId) {
-            createShippingInfoMutation.mutate({
+        if (workOrderId || orderId) {
+            addShippingInfo({
                 ...data,
-                createdById,
-                officeId,
-                addressId: '', // This should be set based on the form inputs or other logic
+                workOrderId: workOrderId || undefined,
+                orderId: orderId || undefined,
+                createdById: '', // This should be set from the session
+                officeId: '', // This should be set from the context or selection
             });
+            onSubmit();
+        } else {
+            // Handle error: No workOrderId or orderId available
+            console.error('No WorkOrderId or OrderId available');
         }
     };
 
@@ -100,10 +97,13 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, workOrder
             <div>
                 <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
                 <select id="shippingMethod" {...register('shippingMethod')} className="select select-bordered w-full">
-                    {/* Loop through ShippingMethod Enum to create select options */}
-                    {Object.values(ShippingMethod).map((method) => (
-                        <option key={method} value={method}>{method}</option>
-                    ))}
+                    <option value="Courier">Courier</option>
+                    <option value="Deliver">Deliver</option>
+                    <option value="DHL">DHL</option>
+                    <option value="FedEx">FedEx</option>
+                    <option value="Other">Other</option>
+                    <option value="UPS">UPS</option>
+                    <option value="USPS">USPS</option>
                 </select>
                 {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
             </div>
@@ -125,6 +125,3 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, workOrder
 };
 
 export default ShippingInfoForm;
-
-
-
