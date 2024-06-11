@@ -15,13 +15,6 @@
     "@ag-grid-community/core" "31.3.2"
     tslib "^2.3.0"
 
-"@ag-grid-community/core@31.3.1":
-  version "31.3.1"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/core/-/core-31.3.1.tgz#083a603435d9f6151581b899d6dd898f209847a1"
-  integrity sha512-B7mzUWfU7ksojKjQyOuT4R6vlp3J2jbMjBlQ5xqLAxanM46b8tv0tVo29mES41dBhQwOEf7ElQpvvXqRsND6+g==
-  dependencies:
-    tslib "^2.3.0"
-
 "@ag-grid-community/core@31.3.2", "@ag-grid-community/core@^31.2.0":
   version "31.3.2"
   resolved "https://registry.yarnpkg.com/@ag-grid-community/core/-/core-31.3.2.tgz#0615e93821ae253b72922061b8e8862e1da20aa3"
@@ -37,12 +30,12 @@
     "@ag-grid-community/core" "31.3.2"
     tslib "^2.3.0"
 
-"@ag-grid-community/infinite-row-model@^31.2.0":
-  version "31.3.1"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/infinite-row-model/-/infinite-row-model-31.3.1.tgz#785fd50c43250ada02ca987fb711d8f374cadcae"
-  integrity sha512-BwIyQm/fcHMSC53DaJMmuwWFocv/+QxG4DdBWPiBvKv9e8HqGbCEnN1ocieY6qxyqY5i3YhGb0ROji3fN7hNnA==
+"@ag-grid-community/infinite-row-model@^31.3.2":
+  version "31.3.2"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/infinite-row-model/-/infinite-row-model-31.3.2.tgz#b1a1bd5e902b4bda5cdd836a4018c08bf6910ea4"
+  integrity sha512-b0MVmuMLDwzKXFux7REfp1wkjRi+91xR/bdzeQVKfuL4laJL2mlNCWnphdZTtYAFxMubABBhWgI2uQl3U/Jpew==
   dependencies:
-    "@ag-grid-community/core" "31.3.1"
+    "@ag-grid-community/core" "31.3.2"
     tslib "^2.3.0"
 
 "@ag-grid-community/react@^31.2.0":
