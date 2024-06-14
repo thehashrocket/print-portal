@@ -4,7 +4,7 @@
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { WorkOrderStatus } from "@prisma/client";
+import { InvoicePrintEmailOptions, WorkOrderStatus } from "@prisma/client";
 
 export const workOrderRouter = createTRPCRouter({
   // Get an Order by ID
@@ -61,56 +61,68 @@ export const workOrderRouter = createTRPCRouter({
   // Create a new Work Order
   createWorkOrder: protectedProcedure
     .input(z.object({
-      workOrder: z.object({
-        workOrderNumber: z.number(),
-        status: z.nativeEnum(WorkOrderStatus),
-        officeId: z.string(),
-        shippingInfoId: z.string(),
-        dateIn: z.date(), // Add the missing properties
+      dateIn: z.date(),
+      deposit: z.number(),
+      description: z.string().nullable(),
+      estimateNumber: z.string(),
+      expectedDate: z.date().nullable(),
+      inHandsDate: z.date(),
+      invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
+      officeId: z.string(),
+      purchaseOrderNumber: z.string(),
+      shippingInfoId: z.string().optional().nullable(),
+      specialInstructions: z.string().nullable(),
+      status: z.nativeEnum(WorkOrderStatus),
+      totalCost: z.number().nullable(),
+      workOrderNumber: z.number(),
+      workOrderItems: z.array(z.object({
+        itemId: z.string(),
+        quantity: z.number(),
+        typesettingId: z.string(),
+        processingOptionsId: z.string(),
+        dateIn: z.date(),
         estimateNumber: z.string(),
         inHandsDate: z.date(),
         purchaseOrderNumber: z.string(),
-        workOrderItems: z.array(z.object({
-          itemId: z.string(),
-          quantity: z.number(),
-          typesettingId: z.string(),
-          processingOptionsId: z.string(),
-          dateIn: z.date(),
-          estimateNumber: z.string(),
-          inHandsDate: z.date(),
-          purchaseOrderNumber: z.string(),
-          createdById: z.string() // Add the createdById property
-        }))
-      })
+        createdById: z.string()
+      })).optional().nullable()
     }))
     .mutation(({ ctx, input }) => {
       return ctx.db.workOrder.create({
         data: {
-          workOrderNumber: input.workOrder.workOrderNumber,
-          status: input.workOrder.status,
-          dateIn: input.workOrder.dateIn, // Include the missing properties
-          estimateNumber: input.workOrder.estimateNumber,
-          inHandsDate: input.workOrder.inHandsDate,
-          purchaseOrderNumber: input.workOrder.purchaseOrderNumber,
+          dateIn: input.dateIn,
+          deposit: input.deposit,
+          description: input.description,
+          estimateNumber: input.estimateNumber,
+          expectedDate: input.expectedDate,
+          inHandsDate: input.inHandsDate,
+          invoicePrintEmail: input.invoicePrintEmail,
+          purchaseOrderNumber: input.purchaseOrderNumber,
+          specialInstructions: input.specialInstructions,
+          status: input.status,
+          totalCost: input.totalCost,
+          workOrderNumber: input.workOrderNumber,
           Office: {
             connect: {
-              id: input.workOrder.officeId
+              id: input.officeId
             }
           },
-          ShippingInfo: {
-            connect: {
-              id: input.workOrder.shippingInfoId
+          ...(input.shippingInfoId && {
+            ShippingInfo: {
+              connect: {
+                id: input.shippingInfoId
+              }
             }
-          },
-          createdBy: { // Include the createdBy property
+          }),
+          createdBy: {
             connect: {
               id: ctx.session.user.id
             }
           },
-          WorkOrderItems: {
-            createMany: {
-              data: input.workOrder.workOrderItems.map((item) => {
-                return {
+          ...(input.workOrderItems && input.workOrderItems.length > 0 && {
+            WorkOrderItems: {
+              createMany: {
+                data: input.workOrderItems.map((item) => ({
                   quantity: item.quantity,
                   Item: {
                     connect: {
@@ -127,7 +139,7 @@ export const workOrderRouter = createTRPCRouter({
                       id: item.processingOptionsId
                     }
                   },
-                  createdBy: { // Include the createdBy property
+                  createdBy: {
                     connect: {
                       id: ctx.session.user.id
                     }
@@ -136,14 +148,15 @@ export const workOrderRouter = createTRPCRouter({
                   estimateNumber: item.estimateNumber,
                   inHandsDate: item.inHandsDate,
                   purchaseOrderNumber: item.purchaseOrderNumber,
-                  createdById: ctx.session.user.id // Add the createdById property
-                }
-              })
+                  createdById: ctx.session.user.id
+                }))
+              }
             }
-          }
+          })
         }
       });
     }),
+
   // Return WorkOrders
   getAll: protectedProcedure
     .query(({ ctx }) => {

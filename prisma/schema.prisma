@@ -343,7 +343,7 @@ model WorkOrder {
   Order               Order?
   purchaseOrderNumber String
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  shippingInfoId      String
+  shippingInfoId      String?
   specialInstructions String?
   status              WorkOrderStatus          @default(Draft)
   totalCost           Decimal?                 @db.Decimal(10, 2)

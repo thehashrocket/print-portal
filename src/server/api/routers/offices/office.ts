@@ -4,7 +4,7 @@
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { Office } from "@prisma/client"; // Import the Office model
+import { Address, AddressType, Office } from "@prisma/client"; // Import the Office model
 
 export const officeRouter = createTRPCRouter({
     // Get an Office by ID
@@ -102,9 +102,10 @@ export const officeRouter = createTRPCRouter({
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            name: z.string(),
+            name: z.string().optional(),
             Address: z.object({
-                id: z.string(),
+                officeId: z.string(),
+                id: z.string().optional(),
                 line1: z.string(),
                 line2: z.string().optional(),
                 city: z.string(),
@@ -112,6 +113,7 @@ export const officeRouter = createTRPCRouter({
                 zipCode: z.string(),
                 country: z.string(),
                 telephoneNumber: z.string(),
+                addressType: z.nativeEnum(AddressType),
             }),
         })).mutation(({ ctx, input }) => {
             return ctx.db.office.update({
@@ -133,6 +135,7 @@ export const officeRouter = createTRPCRouter({
                                 zipCode: input.Address.zipCode,
                                 country: input.Address.country,
                                 telephoneNumber: input.Address.telephoneNumber,
+                                addressType: input.Address.addressType,
                             },
                         },
                     },

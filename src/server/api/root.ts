@@ -14,12 +14,14 @@ import { userRouter } from "~/server/api/routers/user";
 import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
+import { addressRouter } from "./routers/shared/address";
 /**
  * This is the primary router for your server.
  *
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  address: addressRouter,
   companies: companyRouter,
   offices: officeRouter,
   orders: orderRouter,

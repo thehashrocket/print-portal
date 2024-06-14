@@ -1,81 +1,99 @@
 // ~/app/_components/workOrders/create/WorkOrderForm.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { useWorkOrderContext } from '~/app/contexts/workOrderContext';
+import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 
 const workOrderSchema = z.object({
-    description: z.string().nullable().default(null), // Make description nullable
-    workOrderNumber: z.number().default(0), // Default value to ensure it's always a number
-    status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']),
-    dateIn: z.string(), // Use string to allow date input in HTML
-    inHandsDate: z.string(), // Use string to allow date input in HTML
     costPerM: z.number().default(0),
+    dateIn: z.string(),
     deposit: z.number().default(0),
+    description: z.string().nullable().default(null),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
-    expectedDate: z.string().optional(), // Use string to allow date input in HTML
+    expectedDate: z.string().optional(),
+    inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
-    overUnder: z.string().optional().nullable().default(null), // Make optional fields nullable
-    plateRan: z.string().optional().nullable().default(null),
     prepTime: z.number().optional().nullable().default(null),
     purchaseOrderNumber: z.string().min(1, 'Purchase Order Number is required'),
     specialInstructions: z.string().optional().nullable().default(null),
+    status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']),
     totalCost: z.number().optional().nullable().default(null),
-    version: z.number().default(0), // Add version field
+    version: z.number().default(0),
+    workOrderNumber: z.number().default(0),
 });
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
 
-interface WorkOrderFormProps {
-    nextStep: () => void;
-}
-
-const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<WorkOrderFormData>({
+const WorkOrderForm: React.FC = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
     });
-    const { addWorkOrder, setWorkOrderId } = useWorkOrderContext();
+    const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
     const [companies, setCompanies] = useState<any[]>([]);
     const [offices, setOffices] = useState<any[]>([]);
     const { data: companyData } = api.companies.getAll.useQuery();
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
+    const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation();
 
     useEffect(() => {
-        if (companyData) setCompanies(companyData);
+        if (companyData) {
+            setCompanies(companyData);
+            console.log('Fetched companies:', companyData);  // Log fetched companies
+        }
     }, [companyData]);
 
     useEffect(() => {
-        if (selectedCompany) refetchOffices();
+        if (selectedCompany) {
+            console.log('Selected company:', selectedCompany);  // Log selected company
+            refetchOffices();
+        }
     }, [selectedCompany, refetchOffices]);
 
     useEffect(() => {
-        if (officeData) setOffices(officeData);
+        if (officeData) {
+            setOffices(officeData);
+            console.log('Fetched offices:', officeData);  // Log fetched offices
+        }
     }, [officeData]);
 
-    const onSubmit = (data: WorkOrderFormData) => {
-        addWorkOrder({
+    const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
+        console.log('Form data:', data);  // Log form data
+
+        const newWorkOrder = {
             ...data,
-            officeId: selectedOffice!,
-            shippingInfoId: 'some-shipping-info-id', // This will be set later
-            createdById: '', // This should be set from the session
-            deposit: new Decimal(data.deposit),
-            totalCost: data.totalCost ? new Decimal(data.totalCost) : null,
-            dateIn: new Date(data.dateIn), // Convert string to Date
-            inHandsDate: new Date(data.inHandsDate), // Convert string to Date
-            expectedDate: data.expectedDate ? new Date(data.expectedDate) : null, // Convert string to Date
+            officeId: selectedOffice ? selectedOffice : '',
+            shippingInfoId: null,
+            createdById: '',
+            deposit: data.deposit,
+            totalCost: data.totalCost ? data.totalCost : null,
+            dateIn: data.dateIn ? new Date(data.dateIn) : '',
+            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : '',
+            expectedDate: data.expectedDate ? new Date(data.expectedDate) : '',
+        };
+
+        console.log('Prepared new work order data:', newWorkOrder);  // Log prepared work order data
+
+        createWorkOrderMutation.mutate(newWorkOrder, {
+            onSuccess: (createdWorkOrder) => {
+                console.log('Created work order:', createdWorkOrder);  // Log created work order
+                setWorkOrder(createdWorkOrder);
+                setCurrentStep(prev => prev + 1);
+            },
+            onError: (error) => {
+                console.error('Error creating work order:', error);  // Log error
+            },
         });
-        nextStep();
-    };
+    });
 
     return (
         <div className="space-y-6">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* Form fields */}
                 <div>
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
                     <input id="description" {...register('description')} className="input input-bordered w-full" />
@@ -83,14 +101,7 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
                 </div>
                 <div>
                     <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Work Order Number</label>
-                    <input
-                        id="workOrderNumber"
-                        type="number"
-                        {...register('workOrderNumber', {
-                            valueAsNumber: true // Ensure value is treated as a number
-                        })}
-                        className="input input-bordered w-full"
-                    />
+                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
                 <div>
@@ -123,6 +134,7 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
                         </select>
                     </div>
                 )}
+                {/* Additional form fields */}
                 <div>
                     <label htmlFor="dateIn" className="block text-sm font-medium text-gray-700">Date In</label>
                     <input id="dateIn" type="date" {...register('dateIn')} className="input input-bordered w-full" />
@@ -134,16 +146,14 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
                     {errors.inHandsDate && <p className="text-red-500">{errors.inHandsDate.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">Deposit</label>
-                    <input id="deposit" type="number" step="0.01" {...register('deposit', {
-                        valueAsNumber: true // Ensure value is treated as a number
-                    })} className="input input-bordered w-full" />
-                    {errors.deposit && <p className="text-red-500">{errors.deposit.message}</p>}
-                </div>
-                <div>
                     <label htmlFor="expectedDate" className="block text-sm font-medium text-gray-700">Expected Date</label>
                     <input id="expectedDate" type="date" {...register('expectedDate')} className="input input-bordered w-full" />
                     {errors.expectedDate && <p className="text-red-500">{errors.expectedDate.message}</p>}
+                </div>
+                <div>
+                    <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">Deposit</label>
+                    <input id="deposit" type="number" step="0.01" {...register('deposit', { valueAsNumber: true })} className="input input-bordered w-full" />
+                    {errors.deposit && <p className="text-red-500">{errors.deposit.message}</p>}
                 </div>
                 <div>
                     <label htmlFor="invoicePrintEmail" className="block text-sm font-medium text-gray-700">Invoice Print/Email</label>
@@ -155,21 +165,14 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
                     {errors.invoicePrintEmail && <p className="text-red-500">{errors.invoicePrintEmail.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor="overUnder" className="block text-sm font-medium text-gray-700">Over/Under</label>
-                    <input id="overUnder" {...register('overUnder')} className="input input-bordered w-full" />
-                    {errors.overUnder && <p className="text-red-500">{errors.overUnder.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="plateRan" className="block text-sm font-medium text-gray-700">Plate Ran</label>
-                    <input id="plateRan" {...register('plateRan')} className="input input-bordered w-full" />
-                    {errors.plateRan && <p className="text-red-500">{errors.plateRan.message}</p>}
-                </div>
-                <div>
                     <label htmlFor="prepTime" className="block text-sm font-medium text-gray-700">Prep Time</label>
-                    <input id="prepTime" type="number" {...register('prepTime', {
-                        valueAsNumber: true // Ensure value is treated as a number
-                    })} className="input input-bordered w-full" />
+                    <input id="prepTime" type="number" {...register('prepTime', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.prepTime && <p className="text-red-500">{errors.prepTime.message}</p>}
+                </div>
+                <div>
+                    <label htmlFor="estimateNumber" className="block text-sm font-medium text-gray-700">Estimate Number</label>
+                    <input id="estimateNumber" {...register('estimateNumber')} className="input input-bordered w-full" />
+                    {errors.estimateNumber && <p className="text-red-500">{errors.estimateNumber.message}</p>}
                 </div>
                 <div>
                     <label htmlFor="purchaseOrderNumber" className="block text-sm font-medium text-gray-700">Purchase Order Number</label>
@@ -182,16 +185,13 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ nextStep }) => {
                 </div>
                 <div>
                     <label htmlFor="totalCost" className="block text-sm font-medium text-gray-700">Total Cost</label>
-                    <input id="totalCost" type="number" step="0.01" {...register('totalCost', {
-                        valueAsNumber: true // Ensure value is treated as a number
-                    })} className="input input-bordered w-full" />
+                    <input id="totalCost" type="number" step="0.01" {...register('totalCost', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.totalCost && <p className="text-red-500">{errors.totalCost.message}</p>}
                 </div>
-                <button type="submit" className="btn btn-primary">Next</button>
+                <button type="submit" className="btn btn-primary">Submit and Next Step</button>
             </form>
         </div>
     );
 };
 
 export default WorkOrderForm;
-

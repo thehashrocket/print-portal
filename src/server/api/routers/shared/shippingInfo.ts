@@ -12,6 +12,7 @@
 
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
+import { ShippingInfo, ShippingMethod } from '@prisma/client';
 
 export const shippingInfoRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -21,19 +22,25 @@ export const shippingInfoRouter = createTRPCRouter({
             },
         });
     }),
+    getByOfficeId: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.shippingInfo.findMany({
+            where: {
+                officeId: input,
+            },
+        });
+    }),
     getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.shippingInfo.findMany();
     }),
 
     create: protectedProcedure
         .input(z.object({
-            addressId: z.string().optional(),
-            createdById: z.string(),
+            addressId: z.string(),
             instructions: z.string().optional().default(''),
             officeId: z.string(),
-            shippingCost: z.number().optional(),
+            shippingCost: z.number(),
             shippingDate: z.date().optional().default(new Date()),
-            shippingMethod: z.enum(['Courier', 'Deliver', 'DHL', 'FedEx', 'Other', 'UPS', 'USPS']),
+            shippingMethod: z.nativeEnum(ShippingMethod),
             shippingOther: z.string().optional().default(''),
             shipToSameAsBillTo: z.boolean().optional().default(false),
         }))

@@ -1,4 +1,4 @@
-// ~/app/_components/shared/shippingInfo/shippingInfoForm.tsx
+// ~/app/_components/shared/shippingInfo/ShippingInfoForm.tsx
 "use client";
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -15,17 +15,17 @@ const shippingInfoSchema = z.object({
     country: z.string().min(1, 'Country is required'),
     instructions: z.string().optional(),
     shippingOther: z.string().optional(),
-    shippingDate: z.date().optional().default(new Date()),
+    shippingDate: z.string(),
     shippingMethod: z.enum(['Courier', 'Deliver', 'DHL', 'FedEx', 'Other', 'UPS', 'USPS']),
     shippingCost: z.number().optional(),
-    shipToSameAsBillTo: z.boolean().optional().default(false),
+    shipToSameAsBillTo: z.boolean().optional(),
     attentionTo: z.string().optional(),
 });
 
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
 
 interface ShippingInfoFormProps {
-    onSubmit: () => void;
+    onSubmit: (data: ShippingInfoFormData) => void;
 }
 
 const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit }) => {
@@ -33,26 +33,13 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit }) => {
         resolver: zodResolver(shippingInfoSchema),
     });
 
-    const { addShippingInfo, workOrderId, orderId } = useWorkOrderContext();
-
     const handleFormSubmit = (data: ShippingInfoFormData) => {
-        if (workOrderId || orderId) {
-            addShippingInfo({
-                ...data,
-                workOrderId: workOrderId || undefined,
-                orderId: orderId || undefined,
-                createdById: '', // This should be set from the session
-                officeId: '', // This should be set from the context or selection
-            });
-            onSubmit();
-        } else {
-            // Handle error: No workOrderId or orderId available
-            console.error('No WorkOrderId or OrderId available');
-        }
+        onSubmit(data);
     };
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+            {/* Form fields */}
             <div>
                 <label htmlFor="addressLine1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
                 <input id="addressLine1" {...register('addressLine1')} className="input input-bordered w-full" />
@@ -87,12 +74,13 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit }) => {
                 <textarea id="instructions" {...register('instructions')} className="textarea textarea-bordered w-full"></textarea>
             </div>
             <div>
-                <label htmlFor="shippingOther" className="block text-sm font-medium text-gray-700">Shipping Other</label>
-                <input id="shippingOther" {...register('shippingOther')} className="input input-bordered w-full" />
+                <label htmlFor="shippingOther" className="block text-sm font-medium text-gray-700">Other Shipping Details</label>
+                <textarea id="shippingOther" {...register('shippingOther')} className="textarea textarea-bordered w-full"></textarea>
             </div>
             <div>
                 <label htmlFor="shippingDate" className="block text-sm font-medium text-gray-700">Shipping Date</label>
                 <input id="shippingDate" type="date" {...register('shippingDate')} className="input input-bordered w-full" />
+                {errors.shippingDate && <p className="text-red-500">{errors.shippingDate.message}</p>}
             </div>
             <div>
                 <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
@@ -109,17 +97,18 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit }) => {
             </div>
             <div>
                 <label htmlFor="shippingCost" className="block text-sm font-medium text-gray-700">Shipping Cost</label>
-                <input id="shippingCost" type="number" step="0.01" {...register('shippingCost')} className="input input-bordered w-full" />
+                <input id="shippingCost" type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
+                {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
             </div>
             <div>
-                <label htmlFor="shipToSameAsBillTo" className="block text-sm font-medium text-gray-700">Ship to Same as Bill to</label>
-                <input id="shipToSameAsBillTo" type="checkbox" {...register('shipToSameAsBillTo')} className="checkbox checkbox-bordered" />
+                <label htmlFor="shipToSameAsBillTo" className="block text-sm font-medium text-gray-700">Ship To Same As Bill To</label>
+                <input id="shipToSameAsBillTo" type="checkbox" {...register('shipToSameAsBillTo')} className="checkbox" />
             </div>
             <div>
                 <label htmlFor="attentionTo" className="block text-sm font-medium text-gray-700">Attention To</label>
                 <input id="attentionTo" {...register('attentionTo')} className="input input-bordered w-full" />
+                {errors.attentionTo && <p className="text-red-500">{errors.attentionTo.message}</p>}
             </div>
-            <button type="submit" className="btn btn-primary">Create Shipping Info</button>
         </form>
     );
 };

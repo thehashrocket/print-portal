@@ -62,7 +62,7 @@ export function TypesettingForm({ typesetting, workOrderItemId, orderItemId, onS
         );
     };
 
-    const updateTypesetting = api.typesetting.update.useMutation({
+    const updateTypesetting = api.typesettings.update.useMutation({
         onSuccess: (updatedTypesetting) => {
             updateTypesettingContext(updatedTypesetting);
             setSuccess("Typesetting updated successfully");
