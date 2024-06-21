@@ -26,12 +26,26 @@ export default async function CreateWorkOrderPage() {
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link> </li>
-                            <li><Link href="/workOrders">Work Orders</Link> </li>
+                            <li><Link href="/workOrders">Work Orders</Link></li>
+                            <li><Link href="/workOrders/create">Create Work Order</Link></li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
                     <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
+                </div>
+            </div>
+            <div className="flex justify-center">
+                <div className="steps">
+                    <div className={`step`}>
+                        Basic Information
+                    </div>
+                    <div className={`step`}>
+                        Shipping Information
+                    </div>
+                    <div className={`step`}>
+                        Work Order Items
+                    </div>
                 </div>
             </div>
             <CreateWorkOrderComponent />

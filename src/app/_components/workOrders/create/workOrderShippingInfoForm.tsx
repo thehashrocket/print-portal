@@ -37,8 +37,10 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
     const [addresses, setAddresses] = useState<any[]>([]);
     const createShippingInfoMutation = api.shippingInfo.create.useMutation();
+    const addShippingInfoToWorkOrderMutation = api.workOrders.addShippingInfo.useMutation();
     const createAddressMutation = api.address.create.useMutation();
-    const { data: officeData } = api.offices.getById.useQuery(workOrder.officeId);
+    const { data: officeData } = api.offices.getById.useQuery(workOrder.officeId, { enabled: !!workOrder.officeId });
+    const [newAddress, setNewAddress] = useState(null);
 
     const {
         register: registerAddress,
@@ -51,20 +53,30 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
     useEffect(() => {
         if (officeData && officeData.Addresses) setAddresses(officeData.Addresses);
-    }, [officeData]);
+    }, [officeData, setAddresses]);
 
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
         console.log('Submitting shipping info:', data);
         try {
             const newShippingInfo = await createShippingInfoMutation.mutateAsync({
                 ...data,
+                addressId: ((newAddress !== null) ? newAddress.id : data.addressId),
                 officeId: workOrder.officeId,
             });
+            const { id, ...shippingInfo } = newShippingInfo;
+
             console.log('Created shipping info:', newShippingInfo);
+            const result = await addShippingInfoToWorkOrderMutation.mutateAsync({
+                id: workOrder.id,
+                shippingInfoId: newShippingInfo.id,
+            });
+            console.log('Added shipping info to work order:', result);
+
             setWorkOrder({
                 ...workOrder,
                 shippingInfoId: newShippingInfo.id,
             });
+
             setCurrentStep(prev => prev + 1);
         } catch (error) {
             console.error("Error creating shipping info:", error);
@@ -73,13 +85,14 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
     const handleAddressSubmit = async (data: AddressFormData) => {
         try {
-            const newAddress = await createAddressMutation.mutateAsync({
+            const returnedAddress = await createAddressMutation.mutateAsync({
                 ...data,
                 officeId: workOrder.officeId,
             });
-            console.log('Created new address:', newAddress);
-            setAddresses(prev => [...prev, newAddress]);
-            setSelectedAddress(newAddress.id);
+            console.log('Created new address:', returnedAddress);
+            setAddresses(prev => [...prev, returnedAddress]);
+            setNewAddress(returnedAddress);
+            setSelectedAddress(returnedAddress.id);
             resetAddressForm();
         } catch (error) {
             console.error("Error creating new address:", error);

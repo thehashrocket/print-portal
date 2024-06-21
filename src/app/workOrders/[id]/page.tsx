@@ -2,7 +2,6 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import { WorkOrder } from "@prisma/client";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import Link from "next/link";

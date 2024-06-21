@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
+import { useRouter } from 'next/navigation'
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
@@ -39,6 +40,7 @@ const WorkOrderForm: React.FC = () => {
     const { data: companyData } = api.companies.getAll.useQuery();
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
     const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation();
+    const router = useRouter()
 
     useEffect(() => {
         if (companyData) {
@@ -82,7 +84,9 @@ const WorkOrderForm: React.FC = () => {
             onSuccess: (createdWorkOrder) => {
                 console.log('Created work order:', createdWorkOrder);  // Log created work order
                 setWorkOrder(createdWorkOrder);
-                setCurrentStep(prev => prev + 1);
+                // setCurrentStep(prev => prev + 1);
+                // Navigate to /workOrders/create/[id]/page
+                router.push(`/workOrders/create/${createdWorkOrder.id}`) // Navigate to the new post page
             },
             onError: (error) => {
                 console.error('Error creating work order:', error);  // Log error

@@ -4,12 +4,15 @@
 "use client";
 import React from 'react';
 import { WorkOrderProvider } from '~/app/contexts/workOrderContext';
-import WorkOrderWizard from './workOrderWizard';
+import WorkOrderForm from './workOrderForm';
 
 const CreateWorkOrderComponent: React.FC = () => {
     return (
         <WorkOrderProvider>
-            <WorkOrderWizard />
+            <>
+                <h3 className='mb-2 text-gray-600 text-l font-semibold'>Work Order Information</h3>
+                <WorkOrderForm />
+            </>
         </WorkOrderProvider>
     );
 };

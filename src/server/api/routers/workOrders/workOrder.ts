@@ -178,6 +178,26 @@ export const workOrderRouter = createTRPCRouter({
         }
       });
     }),
+  // add shippingInfoId to a work order
+  addShippingInfo: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      shippingInfoId: z.string(),
+    }))
+    .mutation(({ ctx, input }) => {
+      return ctx.db.workOrder.update({
+        where: {
+          id: input.id
+        },
+        data: {
+          ShippingInfo: {
+            connect: {
+              id: input.shippingInfoId
+            }
+          }
+        }
+      });
+    }),
   // Work Order Dashboard
   //
 });

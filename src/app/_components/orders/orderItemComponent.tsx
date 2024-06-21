@@ -22,7 +22,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order } = api.orders.getByID.useQuery(orderId);
     const { data: fetchedOrderItem, isLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const [orderItem, setOrderItem] = useState<OrderItem | null>(null);
-    const { data: typesettingData } = api.typesetting.getByOrderItemID.useQuery(orderItemId); // Ensure you have an API endpoint to fetch typesetting data by order item ID
+    const { data: typesettingData } = api.typesettings.getByOrderItemID.useQuery(orderItemId); // Ensure you have an API endpoint to fetch typesetting data by order item ID
 
     useEffect(() => {
         if (fetchedOrderItem) {
