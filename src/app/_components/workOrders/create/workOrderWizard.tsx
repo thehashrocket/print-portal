@@ -3,7 +3,6 @@
 import React, { useEffect, useContext } from 'react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import WorkOrderItemForm from './workOrderItemForm';
-import TypesettingAndProcessingOptionsForm from './typesettingAndProcessingOptionsForm';
 import WorkOrderShippingInfoForm from './workOrderShippingInfoForm';
 import { api } from '~/trpc/react';
 import Link from "next/link";
@@ -68,12 +67,6 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                 </div>
             </div>
             {steps[currentStep]}
-            {currentStep > 0 && (
-                <button className='btn btn-primary mr-2 mt-2' onClick={() => setCurrentStep((prev) => prev - 1)}>Previous</button>
-            )}
-            {currentStep < steps.length - 1 && (
-                <button className='btn btn-primary m-2' onClick={() => setCurrentStep((prev) => prev + 1)}>Next</button>
-            )}
         </div>
     );
 };

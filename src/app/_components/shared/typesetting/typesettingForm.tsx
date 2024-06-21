@@ -74,7 +74,7 @@ export function TypesettingForm({ typesetting, workOrderItemId, orderItemId, onS
         },
     });
 
-    const createTypesetting = api.typesetting.create.useMutation({
+    const createTypesetting = api.typesettings.create.useMutation({
         onSuccess: (newTypesetting) => {
             setTypesetting((prevTypesetting) => [...prevTypesetting, newTypesetting]);
             setSuccess("Typesetting created successfully");

@@ -6,8 +6,11 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { WorkOrderItem, WorkOrderItemStatus } from '@prisma/client'
-import TypesettingForm from '../../shared/typesetting/typesettingForm';
 import ProcessingOptionsForm from '../../shared/processingOptions/processingOptionsForm';
+import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
+import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
+import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
+import Link from 'next/link';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -17,7 +20,7 @@ const workOrderItemSchema = z.object({
     costPerM: z.number().min(1, 'Cost Per M is required'),
     cs: z.string().optional(),
     description: z.string().optional(),
-    expectedDate: z.date().optional(),
+    expectedDate: z.string().optional(),
     finishedQty: z.number().optional(),
     inkColor: z.string().optional(),
     other: z.string().optional(),
@@ -50,6 +53,7 @@ const WorkOrderItemForm: React.FC = () => {
                 ...data,
                 cs: data.cs || '',
                 description: data.description || '',
+                expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
                 finishedQty: data.finishedQty || 0,
                 inkColor: data.inkColor || '',
                 other: data.other || '',
@@ -71,7 +75,11 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <h2 className="text-2xl font-semibold">Work Order Details</h2>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-4 w-full"
+            >
                 <div>
                     <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount</label>
                     <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
@@ -79,10 +87,7 @@ const WorkOrderItemForm: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor='approved' className='block text-sm font-medium text-gray-700'>Approved</label>
-                    <select id='approved' {...register('approved')} className='input input-bordered w-full'>
-                        <option value='true'>Yes</option>
-                        <option value='false'>No</option>
-                    </select>
+                    <input type="checkbox" className="checkbox" {...register("approved")} />
                     {errors.approved && <p className='text-red-500'>{errors.approved.message}</p>}
                 </div>
                 <div>
@@ -176,35 +181,49 @@ const WorkOrderItemForm: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="stockOnHand" className="block text-sm font-medium text-gray-700">Stock On Hand</label>
-                    <select id="stockOnHand" {...register('stockOnHand')} className="input input-bordered w-full">
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                    </select>
+                    <input type="checkbox" className="checkbox" {...register("stockOnHand")} />
                     {errors.stockOnHand && <p className="text-red-500">{errors.stockOnHand.message}</p>}
                 </div>
                 <div>
                     <label htmlFor="stockOrdered" className="block text-sm font-medium text-gray-700">Stock Ordered</label>
+
                     <input id="stockOrdered" {...register('stockOrdered')} className="input input-bordered w-full" />
                     {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                 </div>
 
 
-                <div className="flex justify-between mt-4">
-                    <button type="submit" className="btn btn-primary">Next</button>
-                </div>
+                {/* If no workOrderItemId then show the submit button */}
+                {!workOrderItemId && (
+                    <button type="submit" className="btn btn-primary">Save Work Order Item</button>
+                )}
 
             </form>
             {showAdditonalForms && workOrderItemId && (
-                <>
-                    <TypesettingForm
-                        workOrderItemId={workOrderItemId}
-                        orderItemId={''} onSubmit={function (): void {
-                            console.log('Function not implemented.')
-                        }} onCancel={function (): void {
-                            console.log('Function not implemented.')
-                        }} />
-                    <ProcessingOptionsForm workOrderItemId={workOrderItemId} />
-                </>
+                <div className='flex flex-col gap-4 w-full'>
+                    <h2 className="text-2xl font-semibold mt-8">Typesetting Options</h2>
+                    <TypesettingProvider>
+                        <TypesettingComponent
+                            workOrderItemId={workOrderItemId}
+                            orderItemId=''
+                            initialTypesetting={[]}
+                        />
+                    </TypesettingProvider>
+                    <h2 className="text-2xl font-semibold mt-8">Processing Options</h2>
+                    <ProcessingOptionsProvider>
+                        <ProcessingOptionsForm workOrderItemId={workOrderItemId} />
+                    </ProcessingOptionsProvider>
+                </div>
+            )}
+            {workOrderItemId && (
+                <div className='flex flex-row gap-4'>
+                    <Link href={`/workOrders/${workOrder.id}`} className="btn btn-primary mt-8">
+                        View Work Order
+                    </Link>
+                    <Link href="/workOrders/create" className="btn btn-primary mt-8">
+                        Create Another Work Order Item
+                    </Link>
+                </div>
+
             )}
         </>
     );

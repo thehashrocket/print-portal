@@ -37,7 +37,7 @@ export default async function CreateWorkOrderPage() {
             </div>
             <div className="flex justify-center">
                 <div className="steps">
-                    <div className={`step`}>
+                    <div className={`step step-primary`}>
                         Basic Information
                     </div>
                     <div className={`step`}>
