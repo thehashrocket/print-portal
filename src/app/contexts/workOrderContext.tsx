@@ -32,11 +32,9 @@ export const WorkOrderProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     const saveWorkOrder = (workOrder: any) => {
         // Implement save logic here
-        console.log('Saving workOrder', workOrder);
     };
 
     const getWorkOrder = async (id: string) => {
-        console.log('Getting work order', id);
         const workOrder = await api.workOrders.getByID.useQuery(id);
         setWorkOrder(workOrder);
     }

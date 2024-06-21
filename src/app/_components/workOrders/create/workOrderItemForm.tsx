@@ -191,8 +191,6 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                 </div>
 
-
-                {/* If no workOrderItemId then show the submit button */}
                 {!workOrderItemId && (
                     <button type="submit" className="btn btn-primary">Save Work Order Item</button>
                 )}

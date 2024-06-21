@@ -56,7 +56,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     }, [officeData, setAddresses]);
 
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
-        console.log('Submitting shipping info:', data);
         try {
             const newShippingInfo = await createShippingInfoMutation.mutateAsync({
                 ...data,
@@ -65,12 +64,10 @@ const WorkOrderShippingInfoForm: React.FC = () => {
             });
             const { id, ...shippingInfo } = newShippingInfo;
 
-            console.log('Created shipping info:', newShippingInfo);
             const result = await addShippingInfoToWorkOrderMutation.mutateAsync({
                 id: workOrder.id,
                 shippingInfoId: newShippingInfo.id,
             });
-            console.log('Added shipping info to work order:', result);
 
             setWorkOrder({
                 ...workOrder,

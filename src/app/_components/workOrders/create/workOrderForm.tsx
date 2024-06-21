@@ -45,13 +45,11 @@ const WorkOrderForm: React.FC = () => {
     useEffect(() => {
         if (companyData) {
             setCompanies(companyData);
-            console.log('Fetched companies:', companyData);  // Log fetched companies
         }
     }, [companyData]);
 
     useEffect(() => {
         if (selectedCompany) {
-            console.log('Selected company:', selectedCompany);  // Log selected company
             refetchOffices();
         }
     }, [selectedCompany, refetchOffices]);
@@ -59,12 +57,10 @@ const WorkOrderForm: React.FC = () => {
     useEffect(() => {
         if (officeData) {
             setOffices(officeData);
-            console.log('Fetched offices:', officeData);  // Log fetched offices
         }
     }, [officeData]);
 
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
-        console.log('Form data:', data);  // Log form data
 
         const newWorkOrder = {
             ...data,
@@ -78,11 +74,8 @@ const WorkOrderForm: React.FC = () => {
             expectedDate: data.expectedDate ? new Date(data.expectedDate) : '',
         };
 
-        console.log('Prepared new work order data:', newWorkOrder);  // Log prepared work order data
-
         createWorkOrderMutation.mutate(newWorkOrder, {
             onSuccess: (createdWorkOrder) => {
-                console.log('Created work order:', createdWorkOrder);  // Log created work order
                 setWorkOrder(createdWorkOrder);
                 // setCurrentStep(prev => prev + 1);
                 // Navigate to /workOrders/create/[id]/page

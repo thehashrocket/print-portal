@@ -31,7 +31,6 @@ const WorkOrderItemsTable: React.FC<WorkOrderItem[]> = (workOrderItems) => {
     }[]>([]);
 
     const actionsRenderer = ((props: CustomCellRendererProps) => {
-        console.log('props', props)
         return (
             <div>
                 <Link className="btn btn-sm btn-primary" href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
