@@ -157,11 +157,21 @@ export const workOrderRouter = createTRPCRouter({
         }
       });
     }),
-
   // Return WorkOrders
+  // Include Order Id if the Work Order is converted to an Order
   getAll: protectedProcedure
     .query(({ ctx }) => {
-      return ctx.db.workOrder.findMany();
+      return ctx.db.workOrder.findMany(
+        {
+          include: {
+            Order: {
+              select: {
+                id: true
+              }
+            }
+          }
+        }
+      );
     }),
   // update status of a work order
   updateStatus: protectedProcedure
