@@ -94,8 +94,8 @@ model Order {
   OrderItems          OrderItem[]
   OrderNotes          OrderNote[]
   orderNumber         Int                      @default(autoincrement())
-  ShippingInfo        ShippingInfo             @relation(fields: [shippingInfoId], references: [id])
-  shippingInfoId      String
+  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId      String?
   specialInstructions String?
   status              OrderStatus              @default(Pending)
   totalCost           Decimal?                 @db.Decimal(10, 2)

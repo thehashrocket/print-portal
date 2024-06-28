@@ -12,6 +12,19 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
 }) => {
     const { currentStep, setCurrentStep, workOrder, setWorkOrder } = useContext(WorkOrderContext);
 
+    const { data: returnedWorkOrder, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
+        enabled: !!workOrderId,
+    });
+
+    useEffect(() => {
+        if (returnedWorkOrder) {
+            setWorkOrder(returnedWorkOrder);
+            if (returnedWorkOrder.shippingInfoId) {
+                setCurrentStep(1);
+            }
+        }
+    }, [returnedWorkOrder, setWorkOrder, setCurrentStep]);
+
     const steps = [
         <>
             <h3 className='mb-2 text-gray-600 text-l font-semibold'>Shipping Information</h3>
@@ -23,18 +36,21 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
         </>,
     ];
 
-    const { data: returnedWorkOrder } = api.workOrders.getByID.useQuery(workOrderId, {
-        enabled: !!workOrderId,
-    });
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
 
-    useEffect(() => {
-        if (returnedWorkOrder) {
-            setWorkOrder(returnedWorkOrder);
-            if (returnedWorkOrder.shippingInfoId) {
-                setCurrentStep(1);
-            }
-        }
-    }, [returnedWorkOrder, setWorkOrder]);
+    if (isError) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-red-500 text-xl">Error loading work order. Please try again.</div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto">
@@ -53,7 +69,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                     <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
                 </div>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-8">
                 <div className="steps">
                     <div className={`step step-primary`}>
                         Basic Information
@@ -66,7 +82,9 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                     </div>
                 </div>
             </div>
-            {steps[currentStep]}
+            {workOrder ? steps[currentStep] : (
+                <div className="text-center text-gray-500">No work order data available.</div>
+            )}
         </div>
     );
 };

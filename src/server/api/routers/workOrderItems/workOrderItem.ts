@@ -77,4 +77,25 @@ export const workOrderItemRouter = createTRPCRouter({
                 },
             });
         }),
+    // Get by WorkOrder ID
+    getByWorkOrderId: protectedProcedure
+        .input(z.object({
+            workOrderId: z.string(),
+        }))
+        .query(({ ctx, input }) => {
+            return ctx.db.workOrderItem.findMany({
+                where: {
+                    workOrderId: input.workOrderId,
+                },
+                select: {
+                    id: true,
+                    description: true,
+                    quantity: true,
+                    status: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            });
+        }),
 });

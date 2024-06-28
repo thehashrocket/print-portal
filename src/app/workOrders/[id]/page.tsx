@@ -5,7 +5,7 @@ import { getServerAuthSession } from "~/server/auth";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import Link from "next/link";
-
+import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 export default async function WorkOrderPage({
   params: { id },
 }: {
@@ -32,6 +32,10 @@ export default async function WorkOrderPage({
     updatedAt: workOrderItem?.updatedAt?.toString(),
   }));
 
+
+
+
+
   // Render the component
   return (
     <div className="container mx-auto">
@@ -50,6 +54,13 @@ export default async function WorkOrderPage({
         </div>
       </div>
       <div className="rounded-lg bg-white p-6 shadow-md">
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div className="rounded-lg bg-white p-6 shadow-md">
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <ConvertWorkOrderButton workOrderId={id} officeId={workOrder?.Office.id} />
+          </div>
+        </div>
         {/* Row 1 */}
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">

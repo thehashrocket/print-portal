@@ -1,11 +1,11 @@
 "use client";
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
-import { WorkOrderItem, WorkOrderItemStatus } from '@prisma/client'
+import { WorkOrderItemStatus } from '@prisma/client'
 import ProcessingOptionsForm from '../../shared/processingOptions/processingOptionsForm';
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
@@ -39,13 +39,18 @@ const workOrderItemSchema = z.object({
 type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 
 const WorkOrderItemForm: React.FC = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm<WorkOrderItemFormData>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
     });
-    const { workOrder, setCurrentStep } = useContext(WorkOrderContext);
+    const { workOrder } = useContext(WorkOrderContext);
     const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
-    const [showAdditonalForms, setShowAdditionalForms] = useState(false);
+    const [showAdditionalForms, setShowAdditionalForms] = useState(false);
     const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
+    const [existingWorkOrderItems, setExistingWorkOrderItems] = useState<any[]>([]);
+    const { data: workOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
+        { workOrderId: workOrder.id },
+        { enabled: !!workOrder.id }
+    );
 
     const onSubmit = async (data: WorkOrderItemFormData) => {
         try {
@@ -63,23 +68,40 @@ const WorkOrderItemForm: React.FC = () => {
                 stockOrdered: data.stockOrdered || '',
                 workOrderId: workOrder.id,
             });
-            setWorkOrderItemId(
-                newWorkOrderItem.id
-            );
+            setWorkOrderItemId(newWorkOrderItem.id);
             setShowAdditionalForms(true);
-            // setCurrentStep(prev => prev + 1);
         } catch (error) {
             console.error('Error saving work order item', error);
         }
     };
 
+    const handleCreateAnotherWorkOrderItem = () => {
+        setWorkOrderItemId(null);
+        setShowAdditionalForms(false);
+        reset(); // This will reset all form fields to their default values
+    }
+
+    useEffect(() => {
+        if (workOrderItems) {
+            setExistingWorkOrderItems(workOrderItems);
+        }
+    }, [workOrderItems]);
+
     return (
         <>
-            <h2 className="text-2xl font-semibold">Work Order Details</h2>
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="flex flex-col gap-4 w-full"
-            >
+            <h2 className="text-2xl font-semibold">Work Order Item Details</h2>
+            {existingWorkOrderItems.length > 0 ? (
+                <div className='bg-gray-100 p-4 rounded-lg'>
+                    <h3 className='text-lg font-semibold'>Existing Work Order Items</h3>
+                    <ul className='list-disc list-inside'>
+                        {existingWorkOrderItems.map((workOrderItem) => (
+                            <li key={workOrderItem.id}>{workOrderItem.description}</li>
+                        ))}
+                    </ul>
+                </div>
+            ) : <p className="mb-8">No work order items created yet.</p>
+            }
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <div>
                     <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount</label>
                     <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
@@ -186,17 +208,16 @@ const WorkOrderItemForm: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="stockOrdered" className="block text-sm font-medium text-gray-700">Stock Ordered</label>
-
                     <input id="stockOrdered" {...register('stockOrdered')} className="input input-bordered w-full" />
                     {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                 </div>
 
-                {!workOrderItemId && (
-                    <button type="submit" className="btn btn-primary">Save Work Order Item</button>
-                )}
-
+                <button type="submit" className="btn btn-primary">
+                    {workOrderItemId ? "Create Another Work Order Item" : "Save Work Order Item"}
+                </button>
             </form>
-            {showAdditonalForms && workOrderItemId && (
+
+            {showAdditionalForms && workOrderItemId && (
                 <div className='flex flex-col gap-4 w-full'>
                     <h2 className="text-2xl font-semibold mt-8">Typesetting Options</h2>
                     <TypesettingProvider>
@@ -212,16 +233,13 @@ const WorkOrderItemForm: React.FC = () => {
                     </ProcessingOptionsProvider>
                 </div>
             )}
+
             {workOrderItemId && (
-                <div className='flex flex-row gap-4'>
-                    <Link href={`/workOrders/${workOrder.id}`} className="btn btn-primary mt-8">
+                <div className='flex flex-row gap-4 mt-8'>
+                    <Link href={`/workOrders/${workOrder.id}`} className="btn btn-primary">
                         View Work Order
                     </Link>
-                    <Link href="/workOrders/create" className="btn btn-primary mt-8">
-                        Create Another Work Order Item
-                    </Link>
                 </div>
-
             )}
         </>
     );

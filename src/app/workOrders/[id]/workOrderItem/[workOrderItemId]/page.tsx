@@ -23,6 +23,8 @@ export default async function WorkOrderItemPage({
     }
 
     return (
-        <WorkOrderItemComponent workOrderId={id} workOrderItemId={workOrderItemId} />
+        <>
+            <WorkOrderItemComponent workOrderId={id} workOrderItemId={workOrderItemId} />
+        </>
     );
 }

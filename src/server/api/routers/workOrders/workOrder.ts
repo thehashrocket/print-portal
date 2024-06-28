@@ -2,9 +2,10 @@
 // This file contains the workOrderRouter which is used to handle all work order related requests.
 // ~/server/api/trpc.ts is a file that contains the createTRPCRouter function which is used to create a router for handling requests.
 
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { InvoicePrintEmailOptions, WorkOrderStatus } from "@prisma/client";
+import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 
 export const workOrderRouter = createTRPCRouter({
   // Get an Order by ID
@@ -198,6 +199,13 @@ export const workOrderRouter = createTRPCRouter({
         }
       });
     }),
-  // Work Order Dashboard
-  //
+  // convert a work order to an order
+  convertWorkOrderToOrder: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      officeId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return convertWorkOrderToOrder(input.id, input.officeId);
+    }),
 });
