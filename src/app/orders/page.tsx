@@ -1,3 +1,5 @@
+// ~/app/orders/page.tsx
+
 "use server";
 
 import React from "react";
@@ -7,42 +9,57 @@ import { Order } from "@prisma/client";
 import OrdersTable from "../_components/orders/ordersTable";
 import Link from "next/link";
 
+type SerializedOrder = Omit<Order, 'deposit' | 'totalCost' | 'createdAt' | 'updatedAt'> & {
+  deposit: string;
+  totalCost: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const serializeOrder = (order: Order): SerializedOrder => ({
+  ...order,
+  deposit: order.deposit.toString(),
+  totalCost: order.totalCost.toString(),
+  createdAt: order.createdAt.toISOString(),
+  updatedAt: order.updatedAt.toISOString(),
+});
+
 export default async function OrdersPage() {
   const session = await getServerAuthSession();
 
-  if (
-    !session ||
-    session.user.Permissions.map((permission) => permission)
-      .join(", ")
-      .includes("order_read") === false
-  ) {
-    return "You do not have permssion to view this page";
+  if (!session || !session.user.Permissions.includes("order_read")) {
+    throw new Error("You do not have permission to view this page");
   }
+
   const orders = await api.orders.getAll();
-  const serializedData = orders.map((order) => ({
-    ...order,
-    deposit: order.deposit.toString(),
-    totalCost: order.totalCost.toString(),
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt.toISOString(),
-  }));
+  const serializedData = orders.map(serializeOrder);
 
   return (
-    <div className="container mx-auto">
-      <div className="navbar bg-base-100">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Orders</a>
-          <div className="text-sm breadcrumbs">
-            <ul>
-              <li><Link href="/">Home</Link></li>
-            </ul>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <header className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold">Orders</h1>
+          <Link
+            className="btn btn-primary"
+            href="/orders/create"
+          >
+            Create Order
+          </Link>
         </div>
-        <div className="flex-none">
-          <Link className="btn btn-sm btn-primary" href="/orders/create">Create Order</Link>
-        </div>
-      </div>
-      {orders && <OrdersTable orders={serializedData} />}
+        <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
+          <ul>
+            <li><Link href="/">Home</Link></li>
+            <li>Orders</li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Orders List</h2>
+          <OrdersTable orders={serializedData} />
+        </section>
+      </main>
     </div>
   );
 }
