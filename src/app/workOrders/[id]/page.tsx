@@ -1,3 +1,5 @@
+// ~/app/workOrders/[id]/page.tsx
+
 "use server";
 import React from "react";
 import { api } from "~/trpc/server";
@@ -6,6 +8,7 @@ import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTabl
 import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import Link from "next/link";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
+
 export default async function WorkOrderPage({
   params: { id },
 }: {
@@ -31,10 +34,6 @@ export default async function WorkOrderPage({
     expectedDate: workOrderItem?.expectedDate?.toString(),
     updatedAt: workOrderItem?.updatedAt?.toString(),
   }));
-
-
-
-
 
   // Render the component
   return (
@@ -106,7 +105,7 @@ export default async function WorkOrderPage({
               {workOrder?.ShippingInfo?.Address?.line2 && (
                 <>{workOrder?.ShippingInfo.Address?.line2}<br /></>
               )}
-              {workOrder?.ShippingInfo?.Address?.city}, {workOrder?.ShippingInfo?.Address?.state} {workOrder?.ShippingInfo.Address?.zipCode}<br />
+              {workOrder?.ShippingInfo?.Address?.city}, {workOrder?.ShippingInfo?.Address?.state} {workOrder?.ShippingInfo?.Address?.zipCode}<br />
               {workOrder?.ShippingInfo?.Address?.country}
             </p>
             <h2 className="mb-2 text-gray-600 text-xl font-semibold">Shipping Method</h2>
@@ -135,11 +134,15 @@ export default async function WorkOrderPage({
         {/* Work Order Items */}
         <div className="grid grid-cols-1 mb-2">
           <div className="rounded-lg bg-white p-6 shadow-md">
-            <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Items</h2>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <h2 className="mb-2 text-gray-600 text-xl font-semibold">Work Order Items</h2>
+              <Link className="btn btn-primary" href={`/workOrders/create/${workOrder?.id}`}>
+                Add Work Order Item
+              </Link>
+            </div>
             <WorkOrderItemsTable workOrderItems={serializedWorkOrderItems} />
           </div>
         </div>
-        {/* Additional sections for more work order details */}
       </div>
     </div>
   );

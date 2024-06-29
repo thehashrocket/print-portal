@@ -3,10 +3,13 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import OrderItemsTable from "../../_components/orders/orderItemsTable";
+import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
 import OrderNotesComponent from "~/app/_components/orders/orderNotesComponent";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Prisma } from "@prisma/client";
+
+type Decimal = Prisma.Decimal;
 
 const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
   <div className="rounded-lg bg-white p-4 shadow-md">
@@ -34,9 +37,16 @@ export default async function OrderPage({
 
   const serializedOrderItems = order.OrderItems.map((item) => ({
     ...item,
-    amount: item.amount?.toString(),
+    amount: item.amount?.toString() ?? null,
+    cost: item.cost?.toString() ?? null,
     createdAt: item.createdAt?.toISOString(),
+    description: item.description,
     expectedDate: item.expectedDate?.toISOString(),
+    finishedQty: item.finishedQty,
+    id: item.id,
+    orderId: item.orderId,
+    quantity: item.quantity,
+    status: item.status,
     updatedAt: item.updatedAt?.toISOString(),
   }));
 
@@ -44,8 +54,10 @@ export default async function OrderPage({
     year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
   });
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  const formatCurrency = (amount: Decimal | null) => {
+    if (amount === null) return 'N/A';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount.toNumber());
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -85,15 +97,15 @@ export default async function OrderPage({
           <InfoCard title="Recipient" content={
             <>
               <p>{order.Office.Company.name}</p>
-              <p>{order.ShippingInfo.Address?.line1}</p>
-              {order.ShippingInfo.Address?.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
-              <p>{order.ShippingInfo.Address?.city}, {order.ShippingInfo.Address?.state} {order.ShippingInfo.Address?.zipCode}</p>
+              <p>{order.ShippingInfo?.Address?.line1}</p>
+              {order.ShippingInfo?.Address?.line2 && <p>{order.ShippingInfo?.Address.line2}</p>}
+              <p>{order.ShippingInfo?.Address?.city}, {order.ShippingInfo?.Address?.state} {order.ShippingInfo?.Address?.zipCode}</p>
             </>
           } />
           <InfoCard title="Shipping Details" content={
             <>
-              <p><strong>Method:</strong> {order.ShippingInfo.shippingMethod}</p>
-              <p><strong>Phone:</strong> {order.ShippingInfo.Address?.telephoneNumber}</p>
+              <p><strong>Method:</strong> {order.ShippingInfo?.shippingMethod}</p>
+              <p><strong>Phone:</strong> {order.ShippingInfo?.Address?.telephoneNumber}</p>
             </>
           } />
         </div>

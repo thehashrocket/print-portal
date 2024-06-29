@@ -34,7 +34,7 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
             ) : (
                 <button onClick={toggleAdding} className="btn btn-primary">Add Processing Option</button>
             )}
-            <div className="mb-4 grid grid-cols-4 gap-4">
+            <div className="mb-4 mt-4 grid grid-cols-2 gap-4">
                 {processingOptions.map((option) => (
                     <ProcessingOptionsItem key={option.id} option={option} />
                 ))}

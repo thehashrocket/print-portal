@@ -9,7 +9,7 @@
 
 "use server";
 import React from "react";
-import OrderItemComponent from "~/app/_components/orders/orderItemComponent";
+import OrderItemComponent from "~/app/_components/orders/orderItem/orderItemComponent";
 
 import { getServerAuthSession } from "~/server/auth";
 
