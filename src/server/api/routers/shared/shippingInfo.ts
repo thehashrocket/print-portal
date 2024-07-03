@@ -41,6 +41,7 @@ export const shippingInfoRouter = createTRPCRouter({
             shippingCost: z.number(),
             shippingDate: z.date().optional().default(new Date()),
             shippingMethod: z.nativeEnum(ShippingMethod),
+            shippingNotes: z.string().optional().default(''),
             shippingOther: z.string().optional().default(''),
             shipToSameAsBillTo: z.boolean().optional().default(false),
         }))
@@ -54,6 +55,7 @@ export const shippingInfoRouter = createTRPCRouter({
                     shippingCost: input.shippingCost,
                     shippingDate: input.shippingDate,
                     shippingMethod: input.shippingMethod,
+                    shippingNotes: input.shippingNotes,
                     shippingOther: input.shippingOther,
                     shipToSameAsBillTo: input.shipToSameAsBillTo,
                 },

@@ -1,6 +1,6 @@
-import { OrderItem, PrismaClient, PaymentMethod, PaymentStatus, ProofMethod, TypesettingStatus, RoleName, WorkOrderItem } from "@prisma/client";
+import { OrderItem, PrismaClient, ProofMethod, TypesettingStatus, RoleName, WorkOrderItem } from "@prisma/client";
 import { faker } from "@faker-js/faker";
-import { AddressType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
+import { AddressType, BindingType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
 import { string } from "zod";
 import bcrypt from "bcryptjs";
 const prismaClient = new PrismaClient();
@@ -19,8 +19,6 @@ const MAX_COST_PER_M = 200;
 
 const csOptions = ["C1", "C2", "C3", "C4", "C5", "C6"];
 const inkColors = ["Black", "Cyan", "Magenta", "Yellow", "White"];
-const paymentStatuses = Object.values(PaymentStatus);
-const paymentTypes = Object.values(PaymentMethod);
 const proofTypes = Object.values(ProofMethod);
 const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
@@ -257,7 +255,8 @@ async function createOffice(companyId: string, userId: string) {
 async function createProcessingOptions(workOrderItemId: string, userId: string) {
   const processingOptions = await prismaClient.processingOptions.create({
     data: {
-      binderyTime: String(faker.number.int({ min: 0, max: 100 })),
+      binding: randomElementFromArray(Object.values(BindingType)),
+      binderyTime: faker.number.int({ min: 0, max: 100 }),
       createdById: userId,
       cutting: faker.lorem.sentence(),
       description: faker.lorem.sentence(),
@@ -646,12 +645,14 @@ async function createShippingInfo(officeId: string, userId: string) {
   // Create shipping info using faker for demo data
   const shippingInfo = await prismaClient.shippingInfo.create({
     data: {
+      numberOfPackages: faker.datatype.number({ min: 1, max: 10 }),
       instructions: faker.lorem.sentence(),
       shippingOther: faker.lorem.sentence(),
       shippingDate: faker.date.future(),
       shippingMethod: randomElementFromArray(shippingMethods),
       shippingCost: faker.number.float({ min: 10, max: 100, precision: 2 }),
       officeId,
+      shippingNotes: faker.lorem.sentence(),
       shipToSameAsBillTo: faker.datatype.boolean(),
       attentionTo: faker.person.fullName(),
       addressId: office?.Addresses[0]?.id, // Assuming the office has at least one address

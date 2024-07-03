@@ -9,6 +9,7 @@ import {
     createTRPCRouter,
     protectedProcedure
 } from "~/server/api/trpc";
+import { BindingType } from "@prisma/client";
 
 export const processingOptionsRouter = createTRPCRouter({
     getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -41,8 +42,8 @@ export const processingOptionsRouter = createTRPCRouter({
 
     create: protectedProcedure
         .input(z.object({
-            binderyTime: z.string().optional(),
-            binding: z.string().optional(),
+            binderyTime: z.number().optional(),
+            binding: z.nativeEnum(BindingType).optional(),
             cutting: z.string().optional(),
             description: z.string().optional(),
             drilling: z.string().optional(),

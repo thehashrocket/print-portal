@@ -177,8 +177,8 @@ model Permission {
 }
 
 model ProcessingOptions {
-  binderyTime     String?
-  binding         String?
+  binderyTime     Int?
+  binding         BindingType?
   createdAt       DateTime       @default(now())
   createdById     String
   cutting         String?
@@ -218,24 +218,28 @@ model Session {
 }
 
 model ShippingInfo {
-  createdById        String
+  Address            Address?       @relation(fields: [addressId], references: [id])
+  addressId          String?
+  attentionTo        String?
   createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdBy          User           @relation(fields: [createdById], references: [id])
+  createdById        String
+  estimatedDelivery  DateTime?
   id                 String         @id @default(uuid())
   instructions       String?
-  shippingOther      String?
+  numberOfPackages   Int?           @default(1)
+  Office             Office         @relation(fields: [officeId], references: [id])
+  officeId           String
+  Order              Order[]
+  shippingCost       Decimal?       @db.Decimal(10, 2)
   shippingDate       DateTime?
   shippingMethod     ShippingMethod
-  shippingCost       Decimal?       @db.Decimal(10, 2)
-  officeId           String
+  shippingNotes      String?
+  shippingOther      String?
   shipToSameAsBillTo Boolean        @default(false)
-  attentionTo        String?
-  addressId          String?
-  Order              Order[]
-  Address            Address?       @relation(fields: [addressId], references: [id])
-  Office             Office         @relation(fields: [officeId], references: [id])
+  trackingNumber     String?
+  updatedAt          DateTime       @updatedAt
   WorkOrder          WorkOrder[]
-  createdBy          User           @relation(fields: [createdById], references: [id])
 }
 
 model Typesetting {
@@ -404,23 +408,24 @@ model WorkOrderNote {
 }
 
 model WorkOrderItemStock {
-  id              String        @id @default(uuid())
-  stockQty        Int
   costPerM        Decimal?      @db.Decimal(10, 2)
-  totalCost       Decimal?      @db.Decimal(10, 2)
-  from            String?
+  createdAt       DateTime      @default(now())
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  createdById     String
   expectedDate    DateTime?
+  from            String?
+  id              String        @id @default(uuid())
+  notes           String?
   orderedDate     DateTime?
   received        Boolean       @default(false)
   receivedDate    DateTime?
-  notes           String?
+  stockQty        Int
   stockStatus     StockStatus
-  createdAt       DateTime      @default(now())
+  supplier        String?
+  totalCost       Decimal?      @db.Decimal(10, 2)
   updatedAt       DateTime      @updatedAt
   WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
   workOrderItemId String
-  createdBy       User          @relation(fields: [createdById], references: [id])
-  createdById     String
 }
 
 model WorkOrderVersion {
@@ -439,22 +444,18 @@ enum AddressType {
   Other
 }
 
+enum BindingType {
+  PerfectBound
+  SaddleStitched
+  CoilBound
+  WireO
+  Other
+}
+
 enum InvoicePrintEmailOptions {
   Print
   Email
   Both
-}
-
-enum RoleName {
-  Admin
-  Bindery
-  Customer
-  Finance
-  Manager
-  Prepress
-  Production
-  Sales
-  User
 }
 
 enum OrderStatus {
@@ -474,27 +475,6 @@ enum OrderItemStatus {
   Shipping
   Completed
   Cancelled
-}
-
-enum TypesettingStatus {
-  InProgress
-  WaitingApproval
-  Completed
-}
-
-enum WorkOrderItemStatus {
-  Approved
-  Cancelled
-  Draft
-  Pending
-  Proofing
-}
-
-enum WorkOrderStatus {
-  Approved
-  Cancelled
-  Draft
-  Pending
 }
 
 enum PaymentMethod {
@@ -568,6 +548,18 @@ enum ProofMethod {
   Other
 }
 
+enum RoleName {
+  Admin
+  Bindery
+  Customer
+  Finance
+  Manager
+  Prepress
+  Production
+  Sales
+  User
+}
+
 enum ShippingMethod {
   Courier
   Deliver
@@ -603,4 +595,25 @@ enum StockStatus {
   Ordered
   OutOfStock
   LowStock
+}
+
+enum TypesettingStatus {
+  InProgress
+  WaitingApproval
+  Completed
+}
+
+enum WorkOrderItemStatus {
+  Approved
+  Cancelled
+  Draft
+  Pending
+  Proofing
+}
+
+enum WorkOrderStatus {
+  Approved
+  Cancelled
+  Draft
+  Pending
 }

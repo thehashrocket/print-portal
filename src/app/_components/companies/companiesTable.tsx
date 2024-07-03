@@ -1,66 +1,93 @@
+// ~/app/_components/companies/companiesTable.tsx
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { AgGridReact } from "@ag-grid-community/react"; // React Grid Logic
-import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
-import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import { AgGridReact } from "@ag-grid-community/react";
+import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     ModuleRegistry,
-    ColDef
+    ColDef,
+    GridReadyEvent,
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { Company } from "@prisma/client";
 import Link from "next/link";
+
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const CompaniesTable = ({ companies }: { companies: Company[] }) => {
+type SerializedCompany = {
+    id: string;
+    name: string;
+    workOrderTotalPending: number;
+    orderTotalPending: number;
+    orderTotalCompleted: number;
+};
 
+interface CompaniesTableProps {
+    companies: SerializedCompany[];
+}
+
+const CompaniesTable = ({ companies }) => {
     const gridRef = useRef(null);
+    const [rowData, setRowData] = useState<SerializedCompany[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const defaultColDef = {
         resizable: true,
         sortable: true,
+        filter: true,
     };
-    const [rowData, setRowData] = useState<Company[]>(companies);
 
-    const actionsCellRenderer = (props: { data: { id: any; }; }) => (
-        <div>
-            <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
-                View Company
-            </Link>
-        </div>
+    const actionsCellRenderer = (props) => (
+        <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
+            View Company
+        </Link>
     );
 
-    const formatNumberAsCurrency = (params: { value: any; }) => {
-        // Add dollar sign, round to 2 decimal places, and add commas
-        return `$${params.value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    }
+    const formatNumberAsCurrency = (params) => {
+        return `$${parseFloat(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+    };
 
     const columnDefs: ColDef[] = [
-        { headerName: "id", field: "id", hide: true },
-        { headerName: "Name", field: "name", filter: true },
-        { headerName: "Total Pending WorkOrders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
-        { headerName: "Total Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency },
-        { headerName: "Total Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency },
-        {
-            headerName: "Actions",
-            cellRenderer: actionsCellRenderer,
-        },
+        { headerName: "Name", field: "name", flex: 1 },
+        { headerName: "Pending Work Orders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency, flex: 1 },
+        { headerName: "Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency, flex: 1 },
+        { headerName: "Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency, flex: 1 },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 150, sortable: false, filter: false },
     ];
 
+    const onGridReady = (params: GridReadyEvent) => {
+        params.api.sizeColumnsToFit();
+    };
+
+    useEffect(() => {
+        setRowData(companies);
+        setLoading(false);
+    }, [companies]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
     return (
-        <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+        <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
             <AgGridReact
                 ref={gridRef}
-                defaultColDef={defaultColDef}
                 columnDefs={columnDefs}
+                defaultColDef={defaultColDef}
                 rowData={rowData}
-                rowSelection="single"
+                onGridReady={onGridReady}
                 animateRows={true}
+                pagination={true}
+                paginationPageSize={20}
             />
         </div>
     );
-
 };
 
 export default CompaniesTable;
