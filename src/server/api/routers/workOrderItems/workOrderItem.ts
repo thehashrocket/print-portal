@@ -39,7 +39,7 @@ export const workOrderItemRouter = createTRPCRouter({
         .input(z.object({
             amount: z.number(),
             approved: z.boolean(),
-            cs: z.string(),
+            customerSuppliedStock: z.string(),
             description: z.string(),
             expectedDate: z.date(),
             finishedQty: z.number(),
@@ -60,7 +60,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     amount: input.amount,
                     approved: input.approved,
                     createdById: ctx.session.user.id,
-                    cs: input.cs,
+                    customerSuppliedStock: input.customerSuppliedStock,
                     description: input.description,
                     expectedDate: input.expectedDate,
                     finishedQty: input.finishedQty,

@@ -1,4 +1,4 @@
-import { OrderItem, PrismaClient, ProofType, RoleName, WorkOrderItem } from "@prisma/client";
+import { OrderItem, PrismaClient, PaymentMethod, PaymentStatus, ProofMethod, TypesettingStatus, RoleName, WorkOrderItem } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import { AddressType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
 import { string } from "zod";
@@ -19,9 +19,9 @@ const MAX_COST_PER_M = 200;
 
 const csOptions = ["C1", "C2", "C3", "C4", "C5", "C6"];
 const inkColors = ["Black", "Cyan", "Magenta", "Yellow", "White"];
-const paymentStatuses = ["Pending", "Paid", "Overdue", "Refunded", "Unpaid", "Partial"];
-const paymentTypes = ["Credit Card", "Check", "Cash", "Wire Transfer"];
-const proofTypes = Object.values(ProofType);
+const paymentStatuses = Object.values(PaymentStatus);
+const paymentTypes = Object.values(PaymentMethod);
+const proofTypes = Object.values(ProofMethod);
 const randomInt = faker.number.int({ min: 0, max: 100 });
 const sizes = ["Small", "Medium", "Large"];
 const shippingMethods = Object.values(ShippingMethod);
@@ -76,7 +76,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         amount: workOrderItem.amount,
         cost: workOrderItem.cost,
         costPerM: workOrderItem.costPerM,
-        cs: workOrderItem.cs ?? "",
+        customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
         description: workOrderItem.description,
         expectedDate: workOrderItem.expectedDate,
         finishedQty: workOrderItem.finishedQty ?? 0,
@@ -669,9 +669,12 @@ async function createTypesetting(workOrderItemId: string, userId: string) {
   const typesetting = await prismaClient.typesetting.create({
     data: {
       approved: faker.datatype.boolean(),
+      cost: faker.number.float({ min: 50, max: 200, precision: 2 }),
       dateIn: faker.date.past(),
+      followUpNotes: faker.lorem.sentence(),
       plateRan: faker.word.sample(),
       prepTime: faker.number.int({ min: 0, max: 100 }),
+      status: randomElementFromArray(Object.values(TypesettingStatus)),
       timeIn: faker.date.recent().toLocaleTimeString(),
       workOrderItemId,
       createdById: userId, // Add the createdById property
@@ -702,7 +705,7 @@ async function createTypesettingProof(typesettingId: string, proofNumber: number
       typesettingId,
       proofNumber,
       proofCount: faker.number.int({ min: 1, max: 5 }),
-      proofType: randomElementFromArray(proofTypes),
+      proofMethod: randomElementFromArray(proofTypes),
       dateSubmitted: faker.date.past(),
       notes: faker.lorem.sentence(),
       approved: faker.datatype.boolean(),
@@ -833,7 +836,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         artwork: faker.internet.url(),
         cost: parseFloat(faker.commerce.price()),
         costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
-        cs: randomElementFromArray(csOptions),
+        customerSuppliedStock: randomElementFromArray(csOptions),
         description: faker.commerce.productDescription(),
         expectedDate: faker.date.future(),
         finishedQty: faker.number.int({ min: 1, max: 1000 }),

@@ -17,6 +17,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
+import { TypesettingStatus } from "@prisma/client";
 
 export const typesettingRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -62,10 +63,12 @@ export const typesettingRouter = createTRPCRouter({
             approved: z.boolean(),
             cost: z.number(),
             dateIn: z.string(),
+            followUpNotes: z.string().optional().nullable(),
             orderId: z.string().optional().nullable(),
             orderItemId: z.string().optional().nullable(),
             plateRan: z.string(),
             prepTime: z.number(),
+            status: z.nativeEnum(TypesettingStatus),
             timeIn: z.string(),
             workOrderItemId: z.string().optional().nullable(),
             typesettingOptions: z.array(z.object({
@@ -85,9 +88,12 @@ export const typesettingRouter = createTRPCRouter({
                     ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
+                    cost: input.cost,
                     dateIn: input.dateIn,
+                    followUpNotes: input.followUpNotes,
                     plateRan: input.plateRan,
                     prepTime: input.prepTime,
+                    status: input.status,
                     timeIn: input.timeIn,
                     createdById: ctx.session.user.id, // Add the createdById property
 

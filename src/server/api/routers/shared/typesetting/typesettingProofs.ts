@@ -1,5 +1,6 @@
 // This class is used to generate the typesetting proofs for the typesetting process.
 // /src/server/api/routers/shared/typesetting/typesettingProofs.ts
+import { ProofMethod } from "@prisma/client";
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -22,21 +23,25 @@ export const typesettingProofsRouter = createTRPCRouter({
 
     create: protectedProcedure
         .input(z.object({
-            typesettingId: z.string(),
-            proofNumber: z.number(),
-            dateSubmitted: z.string(),
             approved: z.boolean(),
+            dateSubmitted: z.string(),
             notes: z.string().optional(),
+            proofCount: z.number(),
+            proofMethod: z.nativeEnum(ProofMethod),
+            proofNumber: z.number(),
+            typesettingId: z.string(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.typesettingProof.create({
                 data: {
-                    typesettingId: input.typesettingId,
-                    proofNumber: input.proofNumber,
-                    dateSubmitted: input.dateSubmitted,
                     approved: input.approved,
-                    notes: input.notes,
                     createdById: ctx.session.user.id,
+                    dateSubmitted: input.dateSubmitted,
+                    notes: input.notes,
+                    proofCount: input.proofCount,
+                    proofMethod: input.proofMethod,
+                    proofNumber: input.proofNumber,
+                    typesettingId: input.typesettingId,
                 },
             });
         }),
