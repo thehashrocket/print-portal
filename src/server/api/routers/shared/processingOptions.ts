@@ -89,8 +89,8 @@ export const processingOptionsRouter = createTRPCRouter({
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            binderyTime: z.string().optional(),
-            binding: z.string().optional(),
+            binderyTime: z.number().optional(),
+            binding: z.nativeEnum(BindingType).optional(),
             cutting: z.string().optional(),
             description: z.string().optional(),
             drilling: z.string().optional(),

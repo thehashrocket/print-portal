@@ -6,6 +6,7 @@ import * as z from "zod";
 import { TypesettingWithRelations } from "~/app/contexts/TypesettingContext"; // Import TypesettingWithRelations from context
 import { api } from "~/trpc/react";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
+import { TypesettingStatus } from "@prisma/client";
 
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
@@ -19,6 +20,7 @@ const typesettingFormSchema = z.object({
     cost: z.string().optional(),
     typesettingOptions: z.array(z.any()).default([]),
     typesettingProofs: z.array(z.any()).default([]),
+    status: z.nativeEnum(TypesettingStatus).optional(),
 });
 
 type TypesettingFormData = z.infer<typeof typesettingFormSchema>;
@@ -37,17 +39,18 @@ export function TypesettingForm({ typesetting, workOrderItemId, orderItemId, onS
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
-            id: typesetting.id,
+            approved: typesetting.approved || false,
+            cost: typesetting.cost ? typesetting.cost.toString() : "",
             dateIn: typesetting.dateIn ? new Date(typesetting.dateIn).toISOString().slice(0, 10) : "",
+            id: typesetting.id,
+            orderItemId: orderItemId,
             plateRan: typesetting.plateRan || "",
             prepTime: typesetting.prepTime || 0,
-            approved: typesetting.approved || false,
+            status: typesetting.status,
             timeIn: typesetting.timeIn || "",
-            orderItemId: orderItemId,
-            workOrderItemId: workOrderItemId,
-            cost: typesetting.cost ? typesetting.cost.toString() : "",
             typesettingOptions: typesetting.TypesettingOptions || [],
             typesettingProofs: typesetting.TypesettingProofs || [],
+            workOrderItemId: workOrderItemId,
         } : {
             typesettingOptions: [],
             typesettingProofs: [],
@@ -98,17 +101,18 @@ export function TypesettingForm({ typesetting, workOrderItemId, orderItemId, onS
 
     const submit = handleSubmit((data) => {
         const formattedData = {
-            id: data.id,
+            approved: data.approved,
+            cost: data.cost ? parseFloat(data.cost) : undefined,
             dateIn: data.dateIn ? new Date(data.dateIn).toISOString() : new Date().toISOString(),
+            id: data.id,
+            orderItemId: orderItemId,
             plateRan: data.plateRan,
             prepTime: data.prepTime,
-            approved: data.approved,
+            status: data.status,
             timeIn: data.timeIn,
-            orderItemId: orderItemId,
-            workOrderItemId: workOrderItemId,
-            cost: data.cost ? parseFloat(data.cost) : undefined,
             typesettingOptions: data.typesettingOptions,
             typesettingProofs: data.typesettingProofs,
+            workOrderItemId: workOrderItemId,
         };
         if (isAddMode) {
             createTypesetting.mutate(formattedData);
@@ -158,6 +162,17 @@ export function TypesettingForm({ typesetting, workOrderItemId, orderItemId, onS
                     </label>
                     <input type="number" className="input input-bordered" {...register("prepTime", { valueAsNumber: true })} />
                     {errors.prepTime && <span className="text-error">{errors.prepTime.message}</span>}
+                </div>
+                <div className="form-control">
+                    <label className="label">
+                        <span className="label-text">Status</span>
+                    </label>
+                    <select className="select select-bordered" {...register("status")}>
+                        {Object.values(TypesettingStatus).map((status) => (
+                            <option key={status} value={status}>{status}</option>
+                        ))}
+                    </select>
+                    {errors.status && <span className="text-error">{errors.status.message}</span>}
                 </div>
                 <div className="form-control">
                     <label className="label">

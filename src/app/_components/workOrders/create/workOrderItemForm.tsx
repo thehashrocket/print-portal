@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,11 +5,11 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { WorkOrderItemStatus } from '@prisma/client'
-import ProcessingOptionsForm from '../../shared/processingOptions/processingOptionsForm';
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
 import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
 import Link from 'next/link';
+import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -18,7 +17,7 @@ const workOrderItemSchema = z.object({
     artwork: z.string().optional(),
     cost: z.number().optional(),
     costPerM: z.number().min(1, 'Cost Per M is required'),
-    cs: z.string().optional(),
+    customerSuppliedStock: z.string().optional(),
     description: z.string().optional(),
     expectedDate: z.string().optional(),
     finishedQty: z.number().optional(),
@@ -47,6 +46,7 @@ const WorkOrderItemForm: React.FC = () => {
     const [showAdditionalForms, setShowAdditionalForms] = useState(false);
     const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
     const [existingWorkOrderItems, setExistingWorkOrderItems] = useState<any[]>([]);
+    const [isCreatingNewItem, setIsCreatingNewItem] = useState(true);
     const { data: workOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
         { workOrderId: workOrder.id },
         { enabled: !!workOrder.id }
@@ -56,7 +56,7 @@ const WorkOrderItemForm: React.FC = () => {
         try {
             const newWorkOrderItem = await createWorkOrderItem.mutateAsync({
                 ...data,
-                cs: data.cs || '',
+                customerSuppliedStock: data.customerSuppliedStock || '',
                 description: data.description || '',
                 expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
                 finishedQty: data.finishedQty || 0,
@@ -70,6 +70,8 @@ const WorkOrderItemForm: React.FC = () => {
             });
             setWorkOrderItemId(newWorkOrderItem.id);
             setShowAdditionalForms(true);
+            setIsCreatingNewItem(false);
+            await refetchWorkOrderItems();
         } catch (error) {
             console.error('Error saving work order item', error);
         }
@@ -78,6 +80,7 @@ const WorkOrderItemForm: React.FC = () => {
     const handleCreateAnotherWorkOrderItem = () => {
         setWorkOrderItemId(null);
         setShowAdditionalForms(false);
+        setIsCreatingNewItem(true);
         reset(); // This will reset all form fields to their default values
     }
 
@@ -90,8 +93,8 @@ const WorkOrderItemForm: React.FC = () => {
     return (
         <>
             <h2 className="text-2xl font-semibold">Work Order Item Details</h2>
-            {existingWorkOrderItems.length > 0 ? (
-                <div className='bg-gray-100 p-4 rounded-lg'>
+            {existingWorkOrderItems.length > 0 && (
+                <div className='bg-gray-100 p-4 rounded-lg mb-4'>
                     <h3 className='text-lg font-semibold'>Existing Work Order Items</h3>
                     <ul className='list-disc list-inside'>
                         {existingWorkOrderItems.map((workOrderItem) => (
@@ -99,8 +102,7 @@ const WorkOrderItemForm: React.FC = () => {
                         ))}
                     </ul>
                 </div>
-            ) : <p className="mb-8">No work order items created yet.</p>
-            }
+            )}
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <div>
                     <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount</label>
@@ -128,9 +130,9 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor='cs' className='block text-sm font-medium text-gray-700'>CS</label>
-                    <input id='cs' {...register('cs')} className='input input-bordered w-full' />
-                    {errors.cs && <p className='text-red-500'>{errors.cs.message}</p>}
+                    <label htmlFor='customerSuppliedStock' className='block text-sm font-medium text-gray-700'>Customer Supplied Stock</label>
+                    <input id='customerSuppliedStock' {...register('customerSuppliedStock')} className='input input-bordered w-full' />
+                    {errors.customerSuppliedStock && <p className='text-red-500'>{errors.customerSuppliedStock.message}</p>}
                 </div>
                 <div>
                     <label htmlFor='description' className='block text-sm font-medium text-gray-700'>Description</label>
@@ -211,10 +213,11 @@ const WorkOrderItemForm: React.FC = () => {
                     <input id="stockOrdered" {...register('stockOrdered')} className="input input-bordered w-full" />
                     {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                 </div>
-
-                <button type="submit" className="btn btn-primary">
-                    {workOrderItemId ? "Create Another Work Order Item" : "Save Work Order Item"}
-                </button>
+                {isCreatingNewItem && (
+                    <button type="submit" className="btn btn-primary">
+                        Save Work Order Item
+                    </button>
+                )}
             </form>
 
             {showAdditionalForms && workOrderItemId && (
@@ -229,7 +232,7 @@ const WorkOrderItemForm: React.FC = () => {
                     </TypesettingProvider>
                     <h2 className="text-2xl font-semibold mt-8">Processing Options</h2>
                     <ProcessingOptionsProvider>
-                        <ProcessingOptionsForm workOrderItemId={workOrderItemId} />
+                        <ProcessingOptionsComponent workOrderItemId={workOrderItemId} />
                     </ProcessingOptionsProvider>
                 </div>
             )}
@@ -239,6 +242,9 @@ const WorkOrderItemForm: React.FC = () => {
                     <Link href={`/workOrders/${workOrder.id}`} className="btn btn-primary">
                         View Work Order
                     </Link>
+                    <button onClick={handleCreateAnotherWorkOrderItem} className="btn btn-secondary">
+                        Create Another Work Order Item
+                    </button>
                 </div>
             )}
         </>

@@ -1,3 +1,4 @@
+// ~/app/companies/[id]/page.tsx
 "use server";
 
 import React from "react";

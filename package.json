@@ -33,6 +33,7 @@
     "@trpc/next": "^11.0.0-rc.366",
     "@trpc/react-query": "^11.0.0-rc.366",
     "@trpc/server": "^11.0.0-rc.366",
+    "ag-charts-react": "^10.0.0",
     "bcryptjs": "2.4.3",
     "dayjs": "^1.11.11",
     "decimal.js": "^10.4.3",

@@ -6,6 +6,7 @@ import { AgGridReact, CustomCellRendererProps } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { useRouter } from "next/navigation";
+import { BindingType } from "@prisma/client";
 
 import {
     ColDef,
@@ -25,14 +26,19 @@ type ProcessingOptionsProps = {
 const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOptions, orderId = '', workOrderId = '' }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [currentItem, setCurrentItem] = useState({
-        cutting: false,
-        drilling: false,
-        folding: false,
+        binderyTime: 0,
+        binding: "",
+        cutting: '',
+        description: "",
+        drilling: '',
+        folding: '',
+        name: "",
         numberingColor: "",
         numberingEnd: 0,
         numberingStart: 0,
         other: "",
-        padding: false,
+        padding: '',
+        stitching: "",
         id: "",
     });
     const gridRef = useRef();
@@ -43,26 +49,36 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
     };
 
     const [formData, setFormData] = useState({
-        cutting: false,
-        drilling: false,
-        folding: false,
+        binderyTime: 0,
+        binding: "",
+        cutting: '',
+        description: "", // Added description property
+        drilling: '',
+        folding: '',
+        name: "",
         numberingColor: "",
         numberingEnd: 0,
         numberingStart: 0,
         other: "",
-        padding: false,
+        padding: '',
+        stitching: "",
     });
 
     const [rowData, setRowData] = useState<{
-        cutting: boolean;
+        binderyTime: number;
+        binding: string;
+        cutting: string;
+        description: string;
         drilling: boolean;
         folding: boolean;
+        id: string;
+        name: string;
         numberingColor: string;
         numberingEnd: number;
         numberingStart: number;
         other: string;
         padding: boolean;
-        id: string;
+        stitching: string;
     }[]>([]);
 
 
@@ -124,14 +140,19 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
 
     const handleEdit = useCallback((data: ProcessingOptions) => {
         setFormData({
-            cutting: data.cutting,
-            drilling: data.drilling,
-            folding: data.folding,
-            padding: data.padding, // Ensure this is managed correctly as a boolean or string, based on your data model
+            binderyTime: data.binderyTime ?? 0,
+            binding: data.binding ?? "",
+            cutting: data.cutting ?? '',
+            description: data.description ?? "",
+            drilling: data.drilling ?? '',
+            folding: data.folding ?? '',
+            name: data.name ?? "",
             numberingColor: data.numberingColor ?? "",
             numberingEnd: data.numberingEnd ?? 0,
             numberingStart: data.numberingStart ?? 0,
             other: data.other ?? "",
+            padding: data.padding ?? '', // Ensure this is managed correctly as a boolean or string, based on your data model
+            stitching: data.stitching ?? "",
         });
         setIsEditMode(true);
         setCurrentItem(data); // Assuming 'data' includes an id or some unique identifier
@@ -169,28 +190,38 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
 
 
     const resetForm = () => setFormData({
-        cutting: false,
-        drilling: false,
-        folding: false,
+        binderyTime: 0,
+        binding: "",
+        cutting: '',
+        description: "",
+        drilling: '',
+        folding: '',
+        name: "",
         numberingColor: "",
         numberingEnd: 0,
         numberingStart: 0,
         other: "",
-        padding: false,
+        padding: '',
+        stitching: "",
     });
 
     useEffect(() => setRowData(
         processingOptions.map((processingOption) => {
             return {
+                binderyTime: processingOption.binderyTime ?? 0,
+                binding: processingOption.binding ?? '',
                 cutting: processingOption.cutting ?? false,
-                drilling: processingOption.drilling ?? false,
-                folding: processingOption.folding ?? false,
+                description: processingOption.description ?? "",
+                drilling: processingOption.drilling ?? '',
+                folding: processingOption.folding ?? '',
+                id: processingOption.id,
+                name: processingOption.name ?? "",
                 numberingColor: processingOption.numberingColor ?? "",
                 numberingEnd: Number(processingOption.numberingEnd) ?? 0, // Convert to number
                 numberingStart: Number(processingOption.numberingStart) ?? 0, // Convert to number
                 other: processingOption.other ?? "",
-                padding: processingOption.padding ?? false,
-                id: processingOption.id,
+                padding: processingOption.padding ?? '',
+                stitching: processingOption.stitching ?? '',
             };
         })
     ), [processingOptions]);
