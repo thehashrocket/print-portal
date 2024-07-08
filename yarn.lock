@@ -33,12 +33,12 @@
     "@ag-grid-community/core" "32.0.0"
     tslib "^2.3.0"
 
-"@ag-grid-community/infinite-row-model@^31.3.2":
-  version "31.3.2"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/infinite-row-model/-/infinite-row-model-31.3.2.tgz#b1a1bd5e902b4bda5cdd836a4018c08bf6910ea4"
-  integrity sha512-b0MVmuMLDwzKXFux7REfp1wkjRi+91xR/bdzeQVKfuL4laJL2mlNCWnphdZTtYAFxMubABBhWgI2uQl3U/Jpew==
+"@ag-grid-community/infinite-row-model@^32.0.0":
+  version "32.0.0"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/infinite-row-model/-/infinite-row-model-32.0.0.tgz#b4858eb8309b544bb017eefeb47ebd4c60dcaeba"
+  integrity sha512-hHFMeAHRftB1ePOo/5VziK2DCzU7AylMpl741ZLsCsQuwnI+3+arOrnQO2vWOVT7/L5mIdYsPlwI/d+4zLqiUA==
   dependencies:
-    "@ag-grid-community/core" "31.3.2"
+    "@ag-grid-community/core" "32.0.0"
     tslib "^2.3.0"
 
 "@ag-grid-community/react@^31.2.0":
