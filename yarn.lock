@@ -17,12 +17,20 @@
   dependencies:
     tslib "^2.3.0"
 
-"@ag-grid-community/csv-export@^31.3.2":
-  version "31.3.2"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-31.3.2.tgz#1dbdd1b20ab36ba0a77e77bdb89c88b850bb6bf7"
-  integrity sha512-AjQAvW84SXzGSzoSgmpSDCPrqYHZNRRDEVFi47N0iW44AxelCIVSjFRF8nkUky6On6bQ+Mv8+6JNtVmjki5p6w==
+"@ag-grid-community/core@32.0.0":
+  version "32.0.0"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/core/-/core-32.0.0.tgz#7a94224abcb72cd934362bef8b925cd00437a41d"
+  integrity sha512-xBsDlua2CehOmVIYzaAJtoKjLtbv6o/w2lMwdlllfpZAiqnbJQiLJEARWCOGRn769HUnIWFNtrbzJlbuFj4Usw==
   dependencies:
-    "@ag-grid-community/core" "31.3.2"
+    ag-charts-types "10.0.0"
+    tslib "^2.3.0"
+
+"@ag-grid-community/csv-export@^32.0.0":
+  version "32.0.0"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-32.0.0.tgz#9b6dc336ef412138911ca53a772aff90589a1555"
+  integrity sha512-5R6tcn4x7c1/9w7yGr/ytpYMwmYK+7N8XbSDRS3cvKWD1n2lrFk4T4Y4wT1Aassot4ANJZpKH5kKtR35Pr92Dw==
+  dependencies:
+    "@ag-grid-community/core" "32.0.0"
     tslib "^2.3.0"
 
 "@ag-grid-community/infinite-row-model@^31.3.2":
@@ -741,6 +749,11 @@ ag-charts-react@^10.0.0:
   version "10.0.0"
   resolved "https://registry.yarnpkg.com/ag-charts-react/-/ag-charts-react-10.0.0.tgz#ed265bceb543b932afd5caf62c8b089416acd2f0"
   integrity sha512-K3xBh//xhiXcPzRM9wYxZDke2tjwAC9fYTa0q4dsddFMwNNZiTuM5rClVDY1d9rKknYd1oiIcjthfUCVzg6W/A==
+
+ag-charts-types@10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/ag-charts-types/-/ag-charts-types-10.0.0.tgz#241f148560815cd4a9f090a6462d4d761480d3d8"
+  integrity sha512-jjiwrzydERou4yp9WHiJeVK237B7BUP3/4j6tdycyHag266YVWa/BMNtTOThWJKGku+m+TC2qfaujLYixgcbrQ==
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -3050,7 +3063,16 @@ streamsearch@^1.1.0:
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-1.1.0.tgz#404dd1e2247ca94af554e841a8ef0eaa238da764"
   integrity sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.1.0:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -3122,7 +3144,14 @@ string.prototype.trimstart@^1.0.8:
     define-properties "^1.2.1"
     es-object-atoms "^1.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
