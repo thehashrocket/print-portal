@@ -24,7 +24,6 @@ const workOrderItemSchema = z.object({
     inkColor: z.string().optional(),
     other: z.string().optional(),
     overUnder: z.number().optional(),
-    plateRan: z.string().optional(),
     prepTime: z.number().optional(),
     pressRun: z.string().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
@@ -163,11 +162,6 @@ const WorkOrderItemForm: React.FC = () => {
                     <label htmlFor='overUnder' className='block text-sm font-medium text-gray-700'>Over Under</label>
                     <input id='overUnder' type='number' {...register('overUnder', { valueAsNumber: true })} className='input input-bordered w-full' />
                     {errors.overUnder && <p className='text-red-500'>{errors.overUnder.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor='plateRan' className='block text-sm font-medium text-gray-700'>Plate Ran</label>
-                    <input id='plateRan' {...register('plateRan')} className='input input-bordered w-full' />
-                    {errors.plateRan && <p className='text-red-500'>{errors.plateRan.message}</p>}
                 </div>
                 <div>
                     <label htmlFor='prepTime' className='block text-sm font-medium text-gray-700'>Prep Time</label>

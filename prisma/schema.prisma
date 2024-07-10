@@ -124,7 +124,6 @@ model OrderItem {
   orderId               String
   OrderItemStock        OrderItemStock[]
   overUnder             String?
-  plateRan              String?
   prepTime              Int?
   pressRun              String
   ProcessingOptions     ProcessingOptions[]
@@ -379,7 +378,6 @@ model WorkOrderItem {
   inkColor              String?
   other                 String?
   overUnder             String?
-  plateRan              String?
   prepTime              Int?
   pressRun              String?
   ProcessingOptions     ProcessingOptions[]
