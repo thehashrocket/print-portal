@@ -8,6 +8,7 @@ import { getServerAuthSession } from "~/server/auth";
 import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
 import Link from "next/link";
 import { WorkOrder } from "@prisma/client";
+import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
 
 type SerializedWorkOrder = Omit<WorkOrder, 'createdAt' | 'dateIn' | 'deposit' | 'totalCost' | 'updatedAt' | 'workOrderNumber'> & {
   createdAt: string;
@@ -57,7 +58,7 @@ export default async function WorkOrdersPage() {
           </ul>
         </nav>
       </header>
-
+      <WorkOrderCharts workOrders={serializedData} />
       <main>
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Work Orders List</h2>

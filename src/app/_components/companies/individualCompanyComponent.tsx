@@ -7,6 +7,7 @@ import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Company, Office, Address, WorkOrder, Order } from "@prisma/client";
+import CompanyCharts from './CompanyCharts';
 
 function convertToSnakeCase(str: string): string {
     return str.toLowerCase().replace(/\s+/g, '_');
@@ -87,6 +88,7 @@ const IndividualCompanyPage: React.FC<IndividualCompanyPageProps> = ({ company }
 
     return (
         <div className="container mx-auto p-4">
+            <CompanyCharts company={company} />
             <main>
                 {company?.Offices.map((office) => (
                     <OfficeCard key={office.id} office={office} />

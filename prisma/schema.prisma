@@ -61,6 +61,54 @@ model Company {
   Offices Office[]
 }
 
+model Invoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique
+  dateIssued    DateTime
+  dateDue       DateTime
+  subtotal      Decimal       @db.Decimal(10, 2)
+  taxRate       Decimal       @db.Decimal(5, 2)
+  taxAmount     Decimal       @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  status        InvoiceStatus @default(Draft)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  InvoiceItems    InvoiceItem[]
+  InvoicePayments InvoicePayment[]
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  description String
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  orderItemId String?
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
+}
+
+model InvoicePayment {
+  id            String        @id @default(uuid())
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentDate   DateTime
+  paymentMethod PaymentMethod
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+}
+
 model Office {
   id           String         @id @default(uuid())
   createdAt    DateTime       @default(now())
@@ -87,7 +135,7 @@ model Order {
   expectedDate        DateTime?
   id                  String                   @id @default(uuid())
   inHandsDate         DateTime?
-  invoiceNumber       Int?
+  Invoice             Invoice?
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
   Office              Office                   @relation(fields: [officeId], references: [id])
   officeId            String
@@ -120,6 +168,7 @@ model OrderItem {
   finishedQty           Int
   id                    String              @id @default(uuid())
   inkColor              String?
+  InvoiceItems          InvoiceItem[]
   Order                 Order               @relation(fields: [orderId], references: [id])
   orderId               String
   OrderItemStock        OrderItemStock[]
@@ -322,6 +371,7 @@ model User {
   WorkOrderItem      WorkOrderItem[]
   WorkOrderItemStock WorkOrderItemStock[]
   CreatedOffices     Office[]             @relation(name: "CreatedBy")
+  Invoice            Invoice[]
 }
 
 model VerificationToken {
@@ -454,6 +504,14 @@ enum InvoicePrintEmailOptions {
   Print
   Email
   Both
+}
+
+enum InvoiceStatus {
+  Draft
+  Sent
+  Paid
+  Overdue
+  Cancelled
 }
 
 enum OrderStatus {

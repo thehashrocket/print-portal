@@ -8,6 +8,7 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import CompaniesTable from "../_components/companies/companiesTable";
 import Link from "next/link";
+import CompaniesChart from "../_components/companies/CompaniesChart";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();
@@ -54,6 +55,12 @@ export default async function CompaniesPage() {
                 <Link className="btn btn-primary" href="/companies/create">
                     New Company
                 </Link>
+            </div>
+
+            <div className="bg-base-100 shadow-xl rounded-lg p-6 mb-8">
+                <Suspense fallback={<div>Loading chart...</div>}>
+                    <CompaniesChart companies={serializedData} />
+                </Suspense>
             </div>
 
             <div className="bg-base-100 shadow-xl rounded-lg p-6">

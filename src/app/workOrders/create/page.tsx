@@ -19,7 +19,7 @@ export default async function CreateWorkOrderPage() {
 
     // Render the component
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto px-4 py-8">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
                     <a className="btn btn-ghost text-xl">Work Orders</a>

@@ -20,7 +20,7 @@ export default async function Page({
 
     // Render the component
     return (
-        <div>
+        <div className="container mx-auto px-4 py-8">
             <WorkOrderProvider>
                 <WorkOrderWizard workOrderId={id} />
             </WorkOrderProvider>

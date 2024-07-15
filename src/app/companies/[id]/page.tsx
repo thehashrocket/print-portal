@@ -44,7 +44,7 @@ export default async function CompanyPage(
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto px-4 py-8">
             <Header companyName={company?.name || "Company"} />
             <Breadcrumbs />
             <IndividualCompanyPage company={company} />
