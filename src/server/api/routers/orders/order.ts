@@ -56,7 +56,15 @@ export const orderRouter = createTRPCRouter({
   // Return Orders
   getAll: protectedProcedure
     .query(({ ctx }) => {
-      return ctx.db.order.findMany();
+      return ctx.db.order.findMany({
+        include: {
+          Office: {
+            include: {
+              Company: true
+            }
+          }
+        }
+      });
     }),
   // update status of an order
   updateStatus: protectedProcedure

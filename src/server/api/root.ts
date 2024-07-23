@@ -1,5 +1,6 @@
 import { companyRouter } from "./routers/companies/company";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { invoiceRouter } from "./routers/invoices/invoice";
 import { officeRouter } from "./routers/offices/office";
 import { orderItemRouter } from "./routers/orderItems/orderItem";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
@@ -23,6 +24,7 @@ import { addressRouter } from "./routers/shared/address";
 export const appRouter = createTRPCRouter({
   address: addressRouter,
   companies: companyRouter,
+  invoices: invoiceRouter,
   offices: officeRouter,
   orders: orderRouter,
   orderItems: orderItemRouter,

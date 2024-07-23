@@ -581,6 +581,9 @@ enum PermissionName {
   DeleteTypesetting
   DeleteUser
   DeleteWorkOrder
+  InvoiceCreate
+  InvoiceDelete
+  InvoiceRead
   UpdateAddress
   UpdateApiKey
   UpdateCompany

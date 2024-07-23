@@ -5,7 +5,8 @@ import { OrderItemStatus } from "@prisma/client";
 export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
     getByID: protectedProcedure
-        .input(z.string()).query(({ ctx, input }) => {
+        .input(z.string())
+        .query(({ ctx, input }) => {
             return ctx.db.orderItem.findUnique({
                 where: {
                     id: input,
@@ -20,6 +21,24 @@ export const orderItemRouter = createTRPCRouter({
                     ProcessingOptions: true,
                 }
             });
+        }),
+    getByOrderId: protectedProcedure
+        .input(z.string())
+        .query(({ ctx, input }) => {
+            return ctx.db.orderItem.findMany({
+                where: {
+                    orderId: input,  // Changed from id to orderId
+                },
+                include: {
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true
+                        }
+                    },
+                    ProcessingOptions: true
+                }
+            })
         }),
     // Get all OrderItems
     getAll: protectedProcedure.query(({ ctx }) => {
