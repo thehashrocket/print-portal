@@ -19,6 +19,20 @@ export default async function InvoicesPage() {
         dateDue: invoice.dateDue.toISOString(),
         createdAt: invoice.createdAt.toISOString(),
         updatedAt: invoice.updatedAt.toISOString(),
+        subtotal: invoice.subtotal.toString(),
+        taxRate: invoice.taxRate.toString(),
+        taxAmount: invoice.taxAmount.toString(),
+        total: invoice.total.toString(),
+        order: invoice.order ? {
+            ...invoice.order,
+            deposit: invoice.order.deposit?.toString(),
+            totalCost: invoice.order.totalCost?.toString(),
+        } : null,
+        InvoiceItems: invoice.InvoiceItems.map(item => ({
+            ...item,
+            unitPrice: item.unitPrice.toString(),
+            total: item.total.toString(),
+        })),
     }));
 
     return (

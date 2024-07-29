@@ -66,16 +66,6 @@ const InvoiceForm: React.FC = () => {
         selectedOrderId ?? '',
         {
             enabled: !!selectedOrderId,
-            onSuccess: (items) => {
-                // Populate invoice items based on order items
-                setValue('items', items.map(item => ({
-                    description: item.description || '',
-                    quantity: item.quantity,
-                    unitPrice: Number(item.amount) || 0,
-                    total: (Number(item.amount) || 0) * item.quantity,
-                    orderItemId: item.id,
-                })));
-            }
         }
     );
 
@@ -105,6 +95,18 @@ const InvoiceForm: React.FC = () => {
     useEffect(() => {
         calculateTotals();
     }, [watch('items'), watch('taxRate')]);
+
+    useEffect(() => {
+        if (orderItems.length > 0) {
+            setValue('items', orderItems.map(item => ({
+                description: item.description || '',
+                quantity: item.quantity,
+                unitPrice: Number(item.amount) || 0,
+                total: (Number(item.amount) || 0) * item.quantity,
+                orderItemId: item.id,
+            })));
+        }
+    }, [orderItems, setValue]);
 
     const handleOrderSelect = async (orderId: string) => {
         setValue('orderId', orderId);

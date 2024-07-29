@@ -5,7 +5,7 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { InvoiceStatus, PaymentMethod } from "@prisma/client";
+import { InvoiceStatus, OrderStatus, PaymentMethod } from "@prisma/client";
 
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
@@ -85,7 +85,7 @@ export const invoiceRouter = createTRPCRouter({
             // Update order status to Invoiced
             await ctx.db.order.update({
                 where: { id: input.orderId },
-                data: { status: 'Invoiced' },
+                data: { status: OrderStatus.Invoicing },
             });
 
             return invoice;

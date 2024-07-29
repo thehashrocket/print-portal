@@ -18,11 +18,15 @@ import { Invoice, InvoiceStatus } from "@prisma/client";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-type SerializedInvoice = Omit<Invoice, 'dateIssued' | 'dateDue' | 'createdAt' | 'updatedAt'> & {
+type SerializedInvoice = Omit<Invoice, 'dateIssued' | 'dateDue' | 'createdAt' | 'updatedAt' | 'subtotal' | 'taxRate' | 'taxAmount' | 'total'> & {
     dateIssued: string;
     dateDue: string;
     createdAt: string;
     updatedAt: string;
+    subtotal: string;
+    taxRate: string;
+    taxAmount: string;
+    total: string;
 };
 
 interface InvoicesTableProps {
@@ -41,7 +45,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices }) => {
     };
 
     const formatCurrency = (params: ValueFormatterParams) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(params.value);
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(params.value));
     };
 
     const statusCellRenderer = (params: ICellRendererParams) => {
