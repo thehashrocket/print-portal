@@ -6,6 +6,9 @@ import {
     protectedProcedure,
 } from "~/server/api/trpc";
 import { InvoiceStatus, OrderStatus, PaymentMethod } from "@prisma/client";
+import { sendInvoiceEmail } from "~/utils/sengrid"
+import { generateInvoicePDF } from "~/utils/pdfGenerator"
+import { TRPCError } from "@trpc/server";
 
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
@@ -154,6 +157,63 @@ export const invoiceRouter = createTRPCRouter({
             }
 
             return payment;
+        }),
+    sendInvoiceEmail: protectedProcedure
+        .input(z.object({
+            invoiceId: z.string(),
+            recipientEmail: z.string().email(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const invoice = await ctx.db.invoice.findUnique({
+                where: { id: input.invoiceId },
+                include: {
+                    order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
+                        },
+                    },
+                    InvoiceItems: true,
+                },
+            });
+
+            if (!invoice) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Invoice not found',
+                });
+            }
+
+            const pdfContent = await generateInvoicePDF(invoice);
+            const emailHtml = `
+        <h1>Invoice ${invoice.invoiceNumber}</h1>
+        <p>Please find attached the invoice for your recent order.</p>
+        <p>Total Amount Due: $${invoice.total}</p>
+        <p>Due Date: ${invoice.dateDue.toDateString()}</p>
+      `;
+
+            const emailSent = await sendInvoiceEmail(
+                input.recipientEmail,
+                `Invoice ${invoice.invoiceNumber} from ${invoice.order.Office.Company.name}`,
+                emailHtml,
+                pdfContent
+            );
+
+            if (emailSent) {
+                await ctx.db.invoice.update({
+                    where: { id: input.invoiceId },
+                    data: { status: InvoiceStatus.Sent },
+                });
+                return { success: true, message: 'Invoice sent successfully' };
+            } else {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to send invoice email',
+                });
+            }
         }),
 });
 

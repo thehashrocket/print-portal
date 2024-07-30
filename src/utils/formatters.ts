@@ -9,10 +9,27 @@ export const formatCurrency = (amount: number | string): string => {
 };
 
 export const formatDate = (date: Date | string): string => {
-    const dateObject = date instanceof Date ? date : new Date(date);
+    let dateObject: Date;
+
+    if (date instanceof Date) {
+        dateObject = date;
+    } else if (typeof date === 'string') {
+        // Check if the date string is in the format you're receiving
+        if (date.includes('GMT')) {
+            // If it is, we can directly create a Date object from it
+            dateObject = new Date(date);
+        } else {
+            // If not, try parsing as ISO string (fallback)
+            dateObject = new Date(date);
+        }
+    } else {
+        return 'Invalid Date';
+    }
+
     if (isNaN(dateObject.getTime())) {
         return 'Invalid Date';
     }
+
     return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
         month: 'long',

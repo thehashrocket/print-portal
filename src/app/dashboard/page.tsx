@@ -53,6 +53,7 @@ export default async function DashboardPage() {
         id: orderItem.id,
         description: orderItem.description,
         expectedDate: formatDate(orderItem.expectedDate),
+        orderId: orderItem.orderId,
     }));
 
 

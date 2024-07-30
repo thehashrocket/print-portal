@@ -51,6 +51,9 @@ interface InvoiceDetailClientProps {
 const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice }) => {
     const [invoice, setInvoice] = useState<Invoice>(initialInvoice);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
+
 
     const { data: invoiceData, refetch } = api.invoices.getById.useQuery(initialInvoice.id, {
         initialData: initialInvoice,
@@ -81,6 +84,23 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         }, 100);
     };
 
+    const handleSendInvoice = async () => {
+        setIsSending(true);
+        try {
+            await sendInvoiceMutation.mutateAsync({
+                invoiceId: invoice.id,
+                recipientEmail: invoice.order.Office.Company.email, // Assuming you have the company's email
+            });
+            alert('Invoice sent successfully');
+            refetch(); // Refetch to update the invoice status
+        } catch (error) {
+            console.error('Failed to send invoice:', error);
+            alert('Failed to send invoice. Please try again.');
+        } finally {
+            setIsSending(false);
+        }
+    };
+
     if (isPrinting) {
         return <PrintableInvoice invoice={invoice} />;
     }
@@ -96,8 +116,15 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                     <Link href={`/invoices/${invoice.id}/edit`} className="btn btn-primary mr-2">
                         Edit Invoice
                     </Link>
-                    <button onClick={handlePrint} className="btn btn-primary">
+                    <button onClick={handlePrint} className="btn btn-primary mr-2">
                         Print Invoice
+                    </button>
+                    <button
+                        onClick={handleSendInvoice}
+                        className="btn btn-primary"
+                        disabled={isSending || invoice.status === 'Sent'}
+                    >
+                        {isSending ? 'Sending...' : 'Send Invoice'}
                     </button>
                 </div>
             </div>

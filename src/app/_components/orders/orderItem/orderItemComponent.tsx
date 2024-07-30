@@ -15,20 +15,34 @@ type OrderItemPageProps = {
     orderItemId: string;
 };
 
-const StatusBadge: React.FC<{ status: OrderItemStatus }> = ({ status }) => {
+const StatusBadge: React.FC<{ id: string, status: OrderItemStatus }> = ({ id, status }) => {
+    const [currentStatus, setCurrentStatus] = React.useState(status);
+    const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation();
     const getStatusColor = () => {
-        switch (status) {
+        switch (currentStatus) {
             case "Completed": return "bg-green-100 text-green-800";
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
             default: return "bg-gray-100 text-gray-800";
         }
     };
+    const handleStatusChange = async (newStatus: OrderItemStatus) => {
+        await updateStatus({ id, status: newStatus });
+        setCurrentStatus(newStatus);
+
+    }
 
     return (
-        <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor()}`}>
-            {status}
-        </span>
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor()}`}>
+                {currentStatus}
+            </span>
+            <select value={status} onChange={(e) => handleStatusChange(e.target.value)} className="px-2 py-1 rounded-md border border-gray-300">
+                {Object.values(OrderItemStatus).map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                ))}
+            </select>
+        </div>
     );
 };
 
@@ -71,7 +85,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
             <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <InfoCard title="Order Number" content={order.orderNumber} />
                 <InfoCard title="Company" content={order.Office?.Company.name} />
-                <InfoCard title="Status" content={<StatusBadge status={orderItem.status} />} />
+                <InfoCard title="Status" content={
+                    <StatusBadge id={orderItem.id} status={orderItem.status} />
+                } />
                 <InfoCard title="Quantity" content={orderItem.quantity} />
             </div>
 
