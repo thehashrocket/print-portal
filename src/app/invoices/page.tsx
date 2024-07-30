@@ -33,6 +33,11 @@ export default async function InvoicesPage() {
             unitPrice: item.unitPrice.toString(),
             total: item.total.toString(),
         })),
+        InvoicePayments: invoice.InvoicePayments.map(payment => ({
+            ...payment,
+            amount: payment.amount.toNumber(),
+            paymentDate: payment.paymentDate.toISOString()
+        }))
     }));
 
     return (

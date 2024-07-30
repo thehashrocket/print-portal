@@ -26,7 +26,15 @@ export const invoiceRouter = createTRPCRouter({
             return ctx.db.invoice.findUnique({
                 where: { id: input },
                 include: {
-                    order: true,
+                    order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
+                        }
+                    },
                     createdBy: true,
                     InvoiceItems: true,
                     InvoicePayments: true,

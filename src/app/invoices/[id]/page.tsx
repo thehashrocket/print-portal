@@ -43,20 +43,6 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
     const serializedInvoice = serializeDecimal(invoice);
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Invoice {invoice.invoiceNumber}</h1>
-                <div>
-                    <Link href="/invoices" className="btn btn-secondary mr-2">
-                        Back to Invoices
-                    </Link>
-                    <Link href={`/invoices/${invoice.id}/edit`} className="btn btn-primary">
-                        Edit Invoice
-                    </Link>
-                </div>
-            </div>
-
-            <InvoiceDetailClient initialInvoice={serializedInvoice} />
-        </div>
+        <InvoiceDetailClient initialInvoice={serializedInvoice} />
     );
 }

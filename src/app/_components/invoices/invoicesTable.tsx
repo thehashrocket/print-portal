@@ -14,7 +14,7 @@ import {
     ValueFormatterParams,
 } from "@ag-grid-community/core";
 import Link from "next/link";
-import { Invoice, InvoiceStatus } from "@prisma/client";
+import { Invoice, InvoicePayment, InvoiceStatus } from "@prisma/client";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -27,6 +27,10 @@ type SerializedInvoice = Omit<Invoice, 'dateIssued' | 'dateDue' | 'createdAt' | 
     taxRate: string;
     taxAmount: string;
     total: string;
+    InvoicePayments: Array<Omit<InvoicePayment, 'amount' | 'paymentDate'> & {
+        amount: number;
+        paymentDate: string;
+    }>;
 };
 
 interface InvoicesTableProps {
