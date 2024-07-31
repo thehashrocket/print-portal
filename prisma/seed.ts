@@ -8,7 +8,7 @@ const randomElementFromArray = <T>(array: T[]): T => {
   if (array.length === 0) {
     throw new Error("Cannot select a random element from an empty array");
   }
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(Math.random() * array.length)]!;
 };
 const MIN_ITEM_COUNT = 1;
 const MAX_ITEM_COUNT = 5;
@@ -972,34 +972,39 @@ async function seed() {
 
     const companyCount = 10;
     for (let companyIndex = 0; companyIndex < companyCount; companyIndex++) {
+      console.log(`Creating company ${companyIndex + 1} of ${companyCount}`);
       const company = await createCompany();
-      const numOffices = faker.number.int({ min: 1, max: 4 });
+      try {
+        const numOffices = faker.number.int({ min: 1, max: 4 });
 
-      for (let officeIndex = 0; officeIndex < numOffices; officeIndex++) {
-        const internalUser = await prismaClient.user.findFirst({
-          where: {
-            Roles: {
-              some: {
-                name: "Sales",
+        for (let officeIndex = 0; officeIndex < numOffices; officeIndex++) {
+          const internalUser = await prismaClient.user.findFirst({
+            where: {
+              Roles: {
+                some: {
+                  name: "Sales",
+                },
               },
             },
-          },
-        });
+          });
 
-        if (internalUser) {
-          const office = await createOffice(company.id, internalUser.id);
-          const numAddresses = faker.number.int({ min: 1, max: 2 });
+          if (internalUser) {
+            const office = await createOffice(company.id, internalUser.id);
+            const numAddresses = faker.number.int({ min: 1, max: 2 });
 
-          const addressPromises = [];
-          for (let addressIndex = 0; addressIndex < numAddresses; addressIndex++) {
-            addressPromises.push(createAddress(office.id));
+            const addressPromises = [];
+            for (let addressIndex = 0; addressIndex < numAddresses; addressIndex++) {
+              addressPromises.push(createAddress(office.id));
+            }
+            await Promise.all(addressPromises);
+
+            await createUsers(office.id);
+          } else {
+            console.warn("No internal user with the 'Sales' role found.");
           }
-          await Promise.all(addressPromises);
-
-          await createUsers(office.id);
-        } else {
-          console.warn("No internal user with the 'Sales' role found.");
         }
+      } catch (error) {
+        console.error(`Error creating offices for company ${companyIndex}:`, error);
       }
     }
 
