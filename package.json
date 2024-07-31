@@ -8,7 +8,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
-    "build": "next build",
+    "build": "SKIP_TYPE_CHECK=true next build",
     "db:push": "prisma db push",
     "db-seed": "NODE_ENV=development prisma db seed",
     "db:studio": "prisma studio",

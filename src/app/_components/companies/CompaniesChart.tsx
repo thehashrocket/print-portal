@@ -2,12 +2,17 @@
 
 import React from 'react';
 import { AgCharts } from 'ag-charts-react';
+import { Company } from '@prisma/client';
 
-const CompaniesChart = ({ companies }) => {
+interface CompaniesChartProps {
+    companies: Company[];
+}
+
+const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
     const chartData = companies.map(company => ({
         name: company.name,
         pendingWorkOrders: parseFloat(company.workOrderTotalPending),
-        pendingOrders: parseFloat(company.orderTotalPending)
+        pendingOrders: parseFloat(company.orderTotalPending),
     }));
 
     const chartOptions = {
