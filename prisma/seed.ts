@@ -8,7 +8,7 @@ const randomElementFromArray = <T>(array: T[]): T => {
   if (array.length === 0) {
     throw new Error("Cannot select a random element from an empty array");
   }
-  return array[Math.floor(Math.random() * array.length)] as T;
+  return array[Math.floor(Math.random() * array.length)];
 };
 const MIN_ITEM_COUNT = 1;
 const MAX_ITEM_COUNT = 5;
@@ -226,7 +226,7 @@ async function createCompany() {
 // Create an Internal User, not addociated with a company.
 async function createInternalUsers() {
   // Creating internal users with different roles
-  const internalRoles = [
+  const internalRoles: RoleName[] = [
     "Admin",
     "Bindery",
     "Finance",
@@ -235,12 +235,11 @@ async function createInternalUsers() {
     "Production",
     "Sales",
   ];
-  // loop through the internal roles and create a user for each role
-  for (let i = 0; i < internalRoles.length; i++) {
-    const roleName = internalRoles[i];
-    await createUser(roleName || "", null);
+  try {
+    await Promise.all(internalRoles.map(roleName => createUser(roleName, null)));
+  } catch (error) {
+    console.error(error);
   }
-  console.log("Internal users created");
 }
 
 // Create an office for a company
@@ -731,7 +730,7 @@ async function createTypesettingProof(typesettingId: string, proofNumber: number
 }
 
 // Create a User record with a specific role and optionally office.
-async function createUser(roleName: string, officeId = null) {
+async function createUser(roleName: RoleName, officeId: string | null = null) {
   const hashedPassword = await hashPassword("your-password");
 
   // First, find the role by its name
@@ -776,7 +775,7 @@ async function createUser(roleName: string, officeId = null) {
 async function createUsers(officeId: string) {
   // Creating internal users with different roles
   // officeID is the office to which the user belongs and is required..
-  const internalRoles = [
+  const internalRoles: RoleName[] = [
     "Admin",
     "Bindery",
     "Finance",
@@ -784,18 +783,12 @@ async function createUsers(officeId: string) {
     "Prepress",
     "Production",
     "Sales",
-  ];
-  for (let i = 0; i < 15; i++) {
-    const roleName =
-      i < internalRoles.length
-        ? internalRoles[i % internalRoles.length]
-        : "User";
-    await createUser(roleName, officeId);
-  }
+  ] as RoleName[];
 
-  // Creating external users
-  for (let i = 0; i < 5; i++) {
-    await createUser("User", officeId);
+  try {
+    await Promise.all(internalRoles.map(roleName => createUser(roleName, officeId)));
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -815,6 +808,9 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
   });
 
   const randomUser = randomElementFromArray(internalUsers);
+  if (!randomUser) {
+    throw new Error("No internal users found to create work order");
+  }
 
   const workOrder = await prismaClient.workOrder.create({
     data: {
@@ -904,6 +900,10 @@ async function createWorkOrderNotes(workOrderId: string, noteCount: number, user
   for (let i = 0; i < noteCount; i++) {
     // Randomly select an internal user
     const randomUser = randomElementFromArray(internalUsers);
+    if (!randomUser) {
+      console.warn("No internal users found to create work order note");
+      continue; // Skip this iteration
+    }
 
     const workOrderNote = await prismaClient.workOrderNote.create({
       data: {
@@ -959,7 +959,7 @@ async function createWorkOrderVersions(workOrderId: string) {
 }
 
 // Utility function to hash passwords
-async function hashPassword(password) {
+async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 }
