@@ -4,9 +4,10 @@ import { AddressType, BindingType, WorkOrderStatus, OrderStatus, OrderItemStatus
 import { string } from "zod";
 import bcrypt from "bcryptjs";
 const prismaClient = new PrismaClient();
-const randomElementFromArray = <T>(array: T[]): T =>
-  array[Math.floor(Math.random() * array.length)];
-
+const randomElementFromArray = <T>(array: T[]): T | undefined => {
+  if (array.length === 0) return undefined;
+  return array[Math.floor(Math.random() * array.length)];
+};
 const MIN_ITEM_COUNT = 1;
 const MAX_ITEM_COUNT = 5;
 const MIN_NOTE_COUNT = 1;
