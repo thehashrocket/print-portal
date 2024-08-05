@@ -38,7 +38,7 @@
     "ag-charts-community": "^10.0.2",
     "ag-charts-react": "^10.0.0",
     "bcryptjs": "2.4.3",
-    "dayjs": "^1.11.11",
+    "dayjs": "^1.11.12",
     "decimal.js": "^10.4.3",
     "iconv-lite": "^0.6.3",
     "next": "^14.2.5",
