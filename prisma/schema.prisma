@@ -402,7 +402,7 @@ model WorkOrder {
   shippingInfoId      String?
   specialInstructions String?
   status              WorkOrderStatus          @default(Draft)
-  totalCost           Decimal?                 @db.Decimal(10, 2)
+  totalCost           Decimal?                 @default(0) @db.Decimal(10, 2)
   updatedAt           DateTime                 @updatedAt
   version             Int                      @default(autoincrement())
   WorkOrderItems      WorkOrderItem[]
@@ -422,7 +422,7 @@ model WorkOrderItem {
   createdById           String
   customerSuppliedStock String?
   description           String               @default("")
-  expectedDate          DateTime?
+  expectedDate          DateTime?            @default(now())
   finishedQty           Int?
   id                    String               @id @default(uuid())
   inkColor              String?
