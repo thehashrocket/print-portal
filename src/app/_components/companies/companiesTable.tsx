@@ -28,7 +28,7 @@ interface CompaniesTableProps {
     companies: SerializedCompany[];
 }
 
-const CompaniesTable = ({ companies }) => {
+const CompaniesTable = ({ companies }: CompaniesTableProps) => {
     const gridRef = useRef(null);
     const [rowData, setRowData] = useState<SerializedCompany[]>([]);
     const [loading, setLoading] = useState(true);
@@ -39,14 +39,14 @@ const CompaniesTable = ({ companies }) => {
         filter: true,
     };
 
-    const actionsCellRenderer = (props) => (
+    const actionsCellRenderer = (props: { data: SerializedCompany }) => (
         <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
             View Company
         </Link>
     );
 
-    const formatNumberAsCurrency = (params) => {
-        return `$${parseFloat(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+    const formatNumberAsCurrency = (params: { value: number }) => {
+        return `$${parseFloat(params.value.toString()).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
     };
 
     const columnDefs: ColDef[] = [

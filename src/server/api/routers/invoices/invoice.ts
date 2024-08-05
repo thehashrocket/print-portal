@@ -5,7 +5,7 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { InvoiceStatus, OrderStatus, PaymentMethod } from "@prisma/client";
+import { InvoiceStatus, OrderStatus, PaymentMethod, Order, Invoice } from "@prisma/client";
 import { sendInvoiceEmail } from "~/utils/sengrid"
 import { generateInvoicePDF } from "~/utils/pdfGenerator"
 import { TRPCError } from "@trpc/server";
@@ -15,7 +15,7 @@ export const invoiceRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             return ctx.db.invoice.findMany({
                 include: {
-                    order: true,
+                    Order: true,
                     createdBy: true,
                     InvoiceItems: true,
                     InvoicePayments: true,
@@ -29,10 +29,11 @@ export const invoiceRouter = createTRPCRouter({
             return ctx.db.invoice.findUnique({
                 where: { id: input },
                 include: {
-                    order: {
+                    Order: {
                         include: {
                             Office: {
                                 include: {
+                                    createdBy: true,
                                     Company: true,
                                 },
                             },
@@ -76,7 +77,7 @@ export const invoiceRouter = createTRPCRouter({
                     total: input.total,
                     status: input.status,
                     notes: input.notes,
-                    order: { connect: { id: input.orderId } },
+                    Order: { connect: { id: input.orderId } },
                     createdBy: { connect: { id: ctx.session.user.id } },
                     InvoiceItems: {
                         create: input.items.map(item => ({
@@ -167,7 +168,7 @@ export const invoiceRouter = createTRPCRouter({
             const invoice = await ctx.db.invoice.findUnique({
                 where: { id: input.invoiceId },
                 include: {
-                    order: {
+                    Order: {
                         include: {
                             Office: {
                                 include: {
@@ -197,7 +198,7 @@ export const invoiceRouter = createTRPCRouter({
 
             const emailSent = await sendInvoiceEmail(
                 input.recipientEmail,
-                `Invoice ${invoice.invoiceNumber} from ${invoice.order.Office.Company.name}`,
+                `Invoice ${invoice.invoiceNumber} from ${invoice.Order.Office.Company.name}`,
                 emailHtml,
                 pdfContent
             );

@@ -1,5 +1,7 @@
+// ~/src/app/_components/dashboard/draggableWorkOrderItemsDash.tsx
+
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { WorkOrderItemStatus } from '@prisma/client';
 
@@ -10,14 +12,14 @@ type SerializedWorkOrderItem = {
     expectedDate: string;
 };
 
-const DraggableWorkOrderItemsDash = ({ initialWorkOrderItems }: { initialWorkOrderItems: SerializedWorkOrderItem[] }) => {
+const DraggableWorkOrderItemsDash: React.FC<{ initialWorkOrderItems: SerializedWorkOrderItem[] }> = ({ initialWorkOrderItems }) => {
 
     const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>(initialWorkOrderItems);
     const allStatuses = [WorkOrderItemStatus.Draft, WorkOrderItemStatus.Pending, WorkOrderItemStatus.Approved, WorkOrderItemStatus.Cancelled];
 
     const updateWorkOrderStatus = api.workOrderItems.updateStatus.useMutation();
 
-    const isWithinAWeek = (dateString) => {
+    const isWithinAWeek = (dateString: string): boolean => {
         const targetDate = new Date(dateString);
         const currentDate = new Date();
         const timeDiff = targetDate.getTime() - currentDate.getTime();
@@ -25,34 +27,29 @@ const DraggableWorkOrderItemsDash = ({ initialWorkOrderItems }: { initialWorkOrd
         return daysDiff <= 7;
     };
 
-    const onDragLeave = (event) => {
-        // Optionally, remove the class from the event target to remove the highlight
+    const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
     }
 
-    const onDragStart = (event, id) => {
+    const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
         event.dataTransfer.setData("text/plain", id);
-        // Add additional styling or class changes if needed when drag starts
     };
 
-    const onDragOver = (event) => {
+    const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        // Optionally, add a class to the event target to highlight the drop area
         event.currentTarget.classList.add('bg-blue-600');
     };
 
-    const onDrop = async (event, newStatus) => {
+    const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: WorkOrderItemStatus) => {
         event.preventDefault();
-        // Remove the highlight class
         const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-blue-600');
         try {
-            // Call the updateStatus endpoint to update the WorkOrder's status
             await updateWorkOrderStatus.mutateAsync({ id, status: newStatus });
 
             setWorkOrderItems(prevWorkOrderItems =>
-                prevWorkOrderItems.map(workOrdeItem =>
-                    workOrdeItem.id === id ? { ...workOrdeItem, status: newStatus } : workOrdeItem
+                prevWorkOrderItems.map(workOrderItem =>
+                    workOrderItem.id === id ? { ...workOrderItem, status: newStatus } : workOrderItem
                 )
             );
 
@@ -61,7 +58,6 @@ const DraggableWorkOrderItemsDash = ({ initialWorkOrderItems }: { initialWorkOrd
         }
     };
 
-    // Group the work order items by their status
     const ordersByStatus: { [key in WorkOrderItemStatus]: SerializedWorkOrderItem[] } = workOrderItems.reduce((acc, workOrderItem) => {
         const statusGroup = acc[workOrderItem.status] || [];
         acc[workOrderItem.status] = [...statusGroup, workOrderItem];

@@ -1,12 +1,13 @@
+// ~/src/app/_components/workOrders/WorkOrderCharts.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "~/trpc/react";
-import { WorkOrderStock } from "@prisma/client";
+import { WorkOrderItemStock } from "@prisma/client";
 import { z } from "zod";
 
 type workOrderStockComponentProps = {
-    workOrderStock: WorkOrderStock[];
+    workOrderStock: WorkOrderItemStock[];
     workOrderId: string;
 }
 

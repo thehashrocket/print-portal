@@ -1,11 +1,18 @@
+// ~/src/app/_components/companies/CompaniesChart.tsx
 "use client";
 
 import React from 'react';
 import { AgCharts } from 'ag-charts-react';
 import { Company } from '@prisma/client';
+import { AgChartOptions, AgBarSeriesOptions } from 'ag-charts-community';
+
+interface ExtendedCompany extends Company {
+    workOrderTotalPending: string;
+    orderTotalPending: string;
+}
 
 interface CompaniesChartProps {
-    companies: Company[];
+    companies: ExtendedCompany[];
 }
 
 const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
@@ -15,7 +22,7 @@ const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
         pendingOrders: parseFloat(company.orderTotalPending),
     }));
 
-    const chartOptions = {
+    const chartOptions: AgChartOptions = {
         title: {
             text: 'Pending Work Orders and Orders by Company'
         },
@@ -25,12 +32,12 @@ const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
             xKey: 'name',
             yKey: 'pendingWorkOrders',
             yName: 'Pending Work Orders'
-        }, {
+        } as AgBarSeriesOptions, {
             type: 'bar',
             xKey: 'name',
             yKey: 'pendingOrders',
             yName: 'Pending Orders'
-        }],
+        } as AgBarSeriesOptions],
         legend: {
             position: 'bottom'
         },
@@ -41,7 +48,7 @@ const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
             type: 'number',
             position: 'left',
             label: {
-                formatter: (params) => {
+                formatter: (params: { value: number }) => {
                     return '$' + params.value.toLocaleString();
                 }
             }

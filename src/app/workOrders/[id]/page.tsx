@@ -126,7 +126,7 @@ export default async function WorkOrderPage({
         <div className="grid md:grid-cols-2 gap-6">
           <InfoSection
             title="Notes"
-            content={<WorkOrderNotesComponent notes={workOrder.WorkOrderNotes} workOrderId={workOrder.id} />}
+            content={<WorkOrderNotesComponent workOrder={workOrder} />}
           />
           <InfoSection
             title="Special Instructions"

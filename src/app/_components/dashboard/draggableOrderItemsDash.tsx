@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// ~/app/src/_components/dashboard/DraggableOrderItemsDash.tsx
+
+"use client";
+import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from '@prisma/client';
 
@@ -10,8 +13,7 @@ type SerializedOrderItem = {
     orderId: string;
 };
 
-const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: SerializedOrderItem[] }) => {
-
+const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>(initialOrderItems);
     const allStatuses = [
         OrderItemStatus.Prepress,
@@ -23,7 +25,7 @@ const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: Ser
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 
-    const isWithinAWeek = (dateString) => {
+    const isWithinAWeek = (dateString: string): boolean => {
         const targetDate = new Date(dateString);
         const currentDate = new Date();
         const timeDiff = targetDate.getTime() - currentDate.getTime();
@@ -31,31 +33,25 @@ const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: Ser
         return daysDiff <= 7;
     };
 
-    const onDragLeave = (event) => {
-        // Optionally, remove the class from the event target to remove the highlight
+    const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
     }
 
-    const onDragStart = (event, id) => {
+    const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
         event.dataTransfer.setData("text/plain", id);
-        // Add additional styling or class changes if needed when drag starts
     };
 
-    const onDragOver = (event) => {
+    const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        // Optionally, add a class to the event target to highlight the drop area
         event.currentTarget.classList.add('bg-blue-600');
     };
 
-    const onDrop = async (event, newStatus) => {
+    const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderItemStatus) => {
         event.preventDefault();
-        // Remove the highlight class
         const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-blue-600');
         try {
-            // Call the updateStatus endpoint to update the WorkOrder's status
             await updateOrderItemStatus.mutateAsync({ id, status: newStatus });
-
             setOrderItems(prevOrderItems =>
                 prevOrderItems.map(orderItem =>
                     orderItem.id === id ? { ...orderItem, status: newStatus } : orderItem
@@ -66,12 +62,11 @@ const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: Ser
         }
     };
 
-    // Group the Order Items by their status
-    const orderItemsByStatus: { [key in OrderItemStatus]: SerializedOrderItem[] } = orderItems.reduce((acc, orderItem) => {
+    const orderItemsByStatus: { [key in OrderItemStatus]?: SerializedOrderItem[] } = orderItems.reduce((acc, orderItem) => {
         const statusGroup = acc[orderItem.status] || [];
         acc[orderItem.status] = [...statusGroup, orderItem];
         return acc;
-    }, {} as { [key in OrderItemStatus]: SerializedOrderItem[] });
+    }, {} as { [key in OrderItemStatus]?: SerializedOrderItem[] });
 
     return (
         <div className="flex p-5 bg-gray-800 text-white min-h-screen">
@@ -101,9 +96,9 @@ const DraggableOrderItemsDash = ({ initialOrderItems }: { initialOrderItems: Ser
                             </div>
                             <div className="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 m-2">
-                                    <path stroke-linecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                                 </svg>
-                                <a href={`/order/${orderItem.orderId}//orderItems/${orderItem.id}`} className="text-blue-400 hover:underline">View Job</a>
+                                <a href={`/order/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline">View Job</a>
                             </div>
                         </div>
                     ))}
