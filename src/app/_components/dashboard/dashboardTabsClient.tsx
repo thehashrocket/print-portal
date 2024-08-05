@@ -1,10 +1,19 @@
+// ~src/app/_components/dashboard/dashboardTabsClient.tsx
 "use client";
 import React, { useState } from "react";
 import DraggableOrdersDash from "./draggableOrdersDash";
 import DraggableWorkOrdersDash from "./draggableWorkOrdersDash";
 import DraggableOrderItemsDash from "./draggableOrderItemsDash";
+import { SerializedOrder, SerializedWorkOrder, SerializedOrderItem } from "~/types/seralizedTypes";
 
-export default function DashboardTabsClient({ orders, workOrders, orderItems }) {
+// Update the component props to match the actual data being passed
+interface DashboardTabsClientProps {
+    orders: SerializedOrder[];
+    workOrders: SerializedWorkOrder[];
+    orderItems: SerializedOrderItem[];
+}
+
+export default function DashboardTabsClient({ orders, workOrders, orderItems }: DashboardTabsClientProps) {
     const [activeTab, setActiveTab] = useState("orders");
 
     return (

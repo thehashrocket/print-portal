@@ -8,13 +8,15 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
+import { SerializedOrder, SerializedWorkOrder, SerializedOrderItem } from "~/types/seralizedTypes";
+import { OrderStatus } from "@prisma/client";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default async function DashboardPage() {
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string | Date) => {
         return dayjs(dateString).tz(dayjs.tz.guess()).format('MMMM D, YYYY h:mm A');
     };
 
@@ -22,33 +24,33 @@ export default async function DashboardPage() {
 
     if (
         !session ||
-        session.user.Permissions.map((permission) => permission)
+        session.user.Permissions.map((permission: any) => permission)
             .join(", ")
             .includes("order_read") === false
     ) {
         return "You do not have permssion to view this page";
     }
-    const orders = await api.orders.getAll();
+    // const orders = await api.orders.getAll();
     const workOrders = await api.workOrders.getAll();
     const orderItems = await api.orderItems.getAll();
     const orderDashboard = await api.orders.dashboard();
 
-    const serializedOrderData = orderDashboard.map((order) => ({
-        status: order.OrderItemStatus,
+    const serializedOrderData: SerializedOrder[] = orderDashboard.map((order) => ({
+        status: order.OrderItemStatus as OrderStatus,
         id: order.id,
         companyName: order.Office.name,
         description: order.description,
         expectedDate: formatDate(order.expectedDate),
     }));
 
-    const serializedWorkOrderData = workOrders.map((workOrder) => ({
+    const serializedWorkOrderData: SerializedWorkOrder[] = workOrders.map((workOrder) => ({
         status: workOrder.status,
         id: workOrder.id,
         description: workOrder.description,
         expectedDate: formatDate(workOrder.expectedDate),
     }));
 
-    const serializedOrderItemsData = orderItems.map((orderItem) => ({
+    const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
         status: orderItem.status,
         id: orderItem.id,
         description: orderItem.description,

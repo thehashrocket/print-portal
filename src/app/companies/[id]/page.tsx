@@ -5,8 +5,9 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
-import { Company } from "@prisma/client";
-import IndividualCompanyPage from "~/app/_components/companies/individualCompanyComponent";
+import { Company, Office, Address, WorkOrder, Order } from "@prisma/client";
+import IndividualCompanyPage, { SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const Header: React.FC<{ companyName: string }> = ({ companyName }) => (
     <div className="navbar bg-base-100 shadow-lg rounded-box mb-4">
@@ -28,7 +29,45 @@ const Breadcrumbs: React.FC = () => (
     </div>
 );
 
-
+function serializeCompany(company: Company & {
+    Offices: (Office & {
+        Addresses: Address[],
+        WorkOrders: WorkOrder[],
+        Orders: Order[]
+    })[]
+}): SerializedCompany {
+    return {
+        id: company.id,
+        name: company.name,
+        Offices: company.Offices.map(office => ({
+            id: office.id,
+            createdAt: office.createdAt.toISOString(),
+            updatedAt: office.updatedAt.toISOString(),
+            createdById: office.createdById,
+            companyId: office.companyId,
+            name: office.name,
+            Addresses: office.Addresses.map(address => ({
+                ...address,
+                createdAt: address.createdAt.toISOString(),
+                updatedAt: address.updatedAt.toISOString(),
+            })),
+            WorkOrders: office.WorkOrders.map(workOrder => ({
+                ...workOrder,
+                createdAt: workOrder.createdAt.toISOString(),
+                updatedAt: workOrder.updatedAt.toISOString(),
+                totalCost: workOrder.totalCost?.toString() ?? null,
+                deposit: workOrder.deposit.toString(),
+            })),
+            Orders: office.Orders.map(order => ({
+                ...order,
+                createdAt: order.createdAt.toISOString(),
+                updatedAt: order.updatedAt.toISOString(),
+                totalCost: order.totalCost?.toString() ?? null,
+                deposit: order.deposit?.toString() ?? null,
+            })),
+        })),
+    };
+}
 
 export default async function CompanyPage(
     { params: { id } }: { params: { id: string } }) {
@@ -43,11 +82,13 @@ export default async function CompanyPage(
         return <div className="alert alert-danger">Company not found</div>;
     }
 
+    const serializedCompany = serializeCompany(company);
+
     return (
         <div className="container mx-auto px-4 py-8">
-            <Header companyName={company?.name || "Company"} />
+            <Header companyName={serializedCompany.name || "Company"} />
             <Breadcrumbs />
-            <IndividualCompanyPage company={company} />
+            <IndividualCompanyPage company={serializedCompany} />
         </div>
     );
 }

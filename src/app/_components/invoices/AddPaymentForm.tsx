@@ -74,8 +74,8 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = ({ invoiceId, onPaymentAdd
                 {errors.paymentMethod && <span className="text-red-500">{errors.paymentMethod.message}</span>}
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={addPayment.isLoading}>
-                {addPayment.isLoading ? 'Adding Payment...' : 'Add Payment'}
+            <button type="submit" className="btn btn-primary w-full">
+                Add Payment
             </button>
         </form>
     );

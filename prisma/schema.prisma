@@ -87,7 +87,7 @@ model Invoice {
 
 model InvoiceItem {
   id          String  @id @default(uuid())
-  description String
+  description String  @default("")
   quantity    Int
   unitPrice   Decimal @db.Decimal(10, 2)
   total       Decimal @db.Decimal(10, 2)
@@ -131,8 +131,8 @@ model Order {
   createdById         String
   dateInvoiced        DateTime?
   deposit             Decimal?                 @db.Decimal(10, 2)
-  description         String?
-  expectedDate        DateTime?
+  description         String                   @default("")
+  expectedDate        DateTime                 @default(now())
   id                  String                   @id @default(uuid())
   inHandsDate         DateTime?
   Invoice             Invoice?
@@ -163,8 +163,8 @@ model OrderItem {
   createdBy             User                @relation(fields: [createdById], references: [id])
   createdById           String
   customerSuppliedStock String              @default("")
-  description           String?
-  expectedDate          DateTime?
+  description           String              @default("")
+  expectedDate          DateTime            @default(now())
   finishedQty           Int
   id                    String              @id @default(uuid())
   inkColor              String?
@@ -218,10 +218,10 @@ model OrderItemStock {
 }
 
 model Permission {
-  id          String  @id @default(uuid())
-  name        String  @unique
-  description String?
-  Roles       Role[]  @relation("PermissionToRole")
+  id          String @id @default(uuid())
+  name        String @unique
+  description String @default("")
+  Roles       Role[] @relation("PermissionToRole")
 }
 
 model ProcessingOptions {
@@ -230,7 +230,7 @@ model ProcessingOptions {
   createdAt       DateTime       @default(now())
   createdById     String
   cutting         String?
-  description     String?
+  description     String         @default("")
   drilling        String?
   folding         String?
   id              String         @id @default(uuid())
@@ -252,7 +252,7 @@ model ProcessingOptions {
 model Role {
   id          String       @id @default(uuid())
   name        RoleName     @unique
-  description String?
+  description String       @default("")
   Permissions Permission[] @relation("PermissionToRole")
   Users       User[]       @relation("RoleToUser")
 }
@@ -388,9 +388,9 @@ model WorkOrder {
   createdById         String
   dateIn              DateTime
   deposit             Decimal                  @default(0) @db.Decimal(10, 2)
-  description         String?
+  description         String                   @default("")
   estimateNumber      String
-  expectedDate        DateTime?
+  expectedDate        DateTime                 @default(now())
   id                  String                   @id @default(uuid())
   inHandsDate         DateTime
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
@@ -421,7 +421,7 @@ model WorkOrderItem {
   createdBy             User                 @relation(fields: [createdById], references: [id])
   createdById           String
   customerSuppliedStock String?
-  description           String?
+  description           String               @default("")
   expectedDate          DateTime?
   finishedQty           Int?
   id                    String               @id @default(uuid())
