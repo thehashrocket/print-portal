@@ -1,63 +1,59 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { AgGridReact, CustomCellRendererProps } from "@ag-grid-community/react"; // React Grid Logic
-import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
-import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import React, { useState, useEffect, useRef } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
   ColDef,
   ModuleRegistry,
-  ValueFormatterParams,
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { User } from "@prisma/client";
+import { UserWithRoles } from "~/types/user";
+
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const UsersTable: React.FC<User[]> = (users) => {
-  const gridRef = useRef();
+interface UsersTableProps {
+  users: UserWithRoles[];
+}
+
+const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
+  const gridRef = useRef<AgGridReact>(null);
+  const [rowData, setRowData] = useState<any[]>([]);
+
   const defaultColDef = {
     resizable: true,
     sortable: true,
+    filter: true,
   };
-  const [rowData, setRowData] = useState([]);
-  // Define column definitions and row data here
-  const columnDefs = [
-    { headerName: "Name", field: "name", sortable: true, filter: true },
-    { headerName: "Email", field: "email", sortable: true, filter: true },
-    { headerName: "Roles", field: "roles", sortable: true, filter: true },
-    {
-      headerName: "Permissions",
-      field: "permissions",
-      sortable: true,
-      filter: true,
-    },
+
+  const columnDefs: ColDef[] = [
+    { headerName: "Name", field: "name" },
+    { headerName: "Email", field: "email" },
+    { headerName: "Roles", field: "roles" },
+    { headerName: "Permissions", field: "permissions" },
   ];
 
   useEffect(() => {
     setRowData(
-      users["users"].map((user) => {
-        return {
-          name: user.name,
-          email: user.email,
-          roles: user.Roles.map((role) => role.name).join(", "),
-          permissions: user.Roles.map((role) =>
-            role.Permissions.map((permission) => permission.name).join(", "),
-          ).join(", "),
-        };
-      }),
+      users.map((user) => ({
+        name: user.name,
+        email: user.email,
+        roles: user.Roles.map((role) => role.name).join(", "),
+        permissions: Array.from(new Set(
+          user.Roles.flatMap((role) => role.Permissions.map((permission) => permission.name))
+        )).join(", ")
+      }))
     );
-  }, []);
+  }, [users]);
 
   return (
-    <div className="ag-theme-quartz" style={{ height: "600px", width: "100%" }}>
+    <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
       <AgGridReact
-        id="users_grid"
         ref={gridRef}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
         rowData={rowData}
-        rowSelection={"single"}
-        style={{ height: "100%", width: "100%" }}
+        rowSelection="single"
       />
     </div>
   );

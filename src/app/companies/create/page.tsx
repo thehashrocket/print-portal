@@ -12,11 +12,11 @@ export default async function CompaniesPage() {
 
     if (
         !session ||
-        session.user.Permissions.map((permission) => permission)
+        session.user.Permissions.map((permission: string) => permission)
             .join(", ")
             .includes("company_create") === false
     ) {
-        return "You do not have permssion to view this page";
+        return "You do not have permission to view this page";
     }
 
     return (

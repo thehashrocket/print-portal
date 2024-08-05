@@ -7,8 +7,8 @@ import { Company } from '@prisma/client';
 import { AgChartOptions, AgBarSeriesOptions } from 'ag-charts-community';
 
 interface ExtendedCompany extends Company {
-    workOrderTotalPending: string;
-    orderTotalPending: string;
+    workOrderTotalPending: number;
+    orderTotalPending: number;
 }
 
 interface CompaniesChartProps {
@@ -18,8 +18,8 @@ interface CompaniesChartProps {
 const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
     const chartData = companies.map(company => ({
         name: company.name,
-        pendingWorkOrders: parseFloat(company.workOrderTotalPending),
-        pendingOrders: parseFloat(company.orderTotalPending),
+        pendingWorkOrders: company.workOrderTotalPending,
+        pendingOrders: company.orderTotalPending,
     }));
 
     const chartOptions: AgChartOptions = {
