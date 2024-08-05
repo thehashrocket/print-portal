@@ -12,7 +12,7 @@ import {
   ValueFormatterParams,
   GridReadyEvent,
   FilterChangedEvent,
-  RowStyle
+  RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { OrderStatus } from "@prisma/client";
@@ -68,12 +68,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
     return new Date(params.value).toLocaleDateString();
   };
 
-  const getRowStyle = (params: { data: SerializedOrder }): RowStyle => {
+  const getRowStyle = (params: RowClassParams<SerializedOrder>): { backgroundColor: string } | undefined => {
+    if (!params.data) return undefined;
+
     switch (params.data.status) {
       case "Pending": return { backgroundColor: "#E3F2FD" };
       case "Completed": return { backgroundColor: "#E8F5E9" };
       case "Cancelled": return { backgroundColor: "#FFEBEE" };
-      default: return {};
+      default: return undefined;
     }
   };
 

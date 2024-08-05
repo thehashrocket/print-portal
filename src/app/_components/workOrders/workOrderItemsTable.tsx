@@ -12,7 +12,7 @@ import {
     ValueFormatterParams,
     GridReadyEvent,
     FilterChangedEvent,
-    RowStyle
+    RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { WorkOrderItemStatus } from "@prisma/client";
@@ -57,12 +57,14 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
     };
 
-    const getRowStyle = (params: { data: SerializedWorkOrderItem }): RowStyle => {
+    const getRowStyle = (params: RowClassParams<SerializedWorkOrderItem>): { backgroundColor: string } | undefined => {
+        if (!params.data) return undefined;
+
         switch (params.data.status) {
             case "Pending": return { backgroundColor: "#E3F2FD" };
             case "Approved": return { backgroundColor: "#E8F5E9" };
             case "Cancelled": return { backgroundColor: "#FFEBEE" };
-            default: return {};
+            default: return undefined;
         }
     };
 

@@ -1,3 +1,4 @@
+// ~/src/app/_components/companies/createCompanyComponent.tsx
 // Create a company component
 "use client";
 import React from "react";

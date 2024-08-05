@@ -1,5 +1,7 @@
+// ~/src/app/_components/dashboard/DraggableOrderItemsDash.tsx
+
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { OrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
 
@@ -11,7 +13,7 @@ type SerializedOrder = {
     expectedDate: string;
 };
 
-const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder[] }) => {
+const DraggableOrdersDash: React.FC<{ initialOrders: SerializedOrder[] }> = ({ initialOrders }) => {
     const [orders, setOrders] = useState<SerializedOrder[]>(initialOrders);
     const allStatuses = [
         OrderStatus.Pending,
@@ -24,31 +26,24 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
 
     const updateOrderStatus = api.orders.updateStatus.useMutation();
 
-    const onDragLeave = (event) => {
-        // Optionally, remove the class from the event target to remove the highlight
+    const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
     }
 
-    const onDragStart = (event, id) => {
+    const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
         event.dataTransfer.setData("text/plain", id);
-        // Add additional styling or class changes if needed when drag starts
     };
 
-    const onDragOver = (event) => {
+    const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        // Optionally, add a class to the event target to highlight the drop area
         event.currentTarget.classList.add('bg-blue-600');
     };
 
-    const onDrop = async (event, newStatus) => {
+    const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderStatus) => {
         event.preventDefault();
         const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-blue-600');
         try {
-            // Remove the highlight class
-            const id = event.dataTransfer.getData("text/plain");
-
-            // Call the updateStatus endpoint to update the Order's status
             await updateOrderStatus.mutateAsync({ id, status: newStatus });
 
             setOrders(prevOrders =>
@@ -68,7 +63,7 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
         return acc;
     }, {} as { [key in OrderStatus]: SerializedOrder[] });
 
-    const isWithinAWeek = (dateString) => {
+    const isWithinAWeek = (dateString: string): boolean => {
         const targetDate = new Date(dateString);
         const currentDate = new Date();
         const timeDiff = targetDate.getTime() - currentDate.getTime();
@@ -110,6 +105,12 @@ const DraggableOrdersDash = ({ initialOrders }: { initialOrders: SerializedOrder
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
                                 </svg>
                                 <div className="text-sm">{order.expectedDate}</div>
+                            </div>
+                            <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 m-2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                                </svg>
+                                <a href={`/orders/${order.id}`} className="text-blue-400 hover:underline">View Order</a>
                             </div>
                         </div>
                     ))}

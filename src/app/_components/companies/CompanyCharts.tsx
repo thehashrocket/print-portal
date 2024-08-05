@@ -1,18 +1,49 @@
-// ~/app/_components/companies/CompanyCharts.tsx
+// ~/src/app/_components/companies/CompanyCharts.tsx
 "use client";
-
 import React from 'react';
 import {
     PieChart, Pie, Cell,
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    LineChart, Line,
     ResponsiveContainer
 } from 'recharts';
+import { Company, Office, WorkOrder, Order, WorkOrderStatus, OrderStatus } from '@prisma/client';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-const CompanyCharts = ({ company }) => {
-    // Prepare data for charts
+type CompanyWithOffices = Company & {
+    Offices: (Office & {
+        WorkOrders: WorkOrder[];
+        Orders: Order[];
+    })[];
+};
+
+interface ChartDataItem {
+    name: string;
+    value: number;
+}
+
+interface CostByStatusDataItem {
+    name: string;
+    workOrders: number;
+    orders: number;
+}
+
+interface OfficePerformanceDataItem {
+    name: string;
+    workOrders: number;
+    orders: number;
+}
+
+interface AverageOrderValueDataItem {
+    name: string;
+    averageValue: number;
+}
+
+interface CompanyChartsProps {
+    company: CompanyWithOffices;
+}
+
+const CompanyCharts: React.FC<CompanyChartsProps> = ({ company }) => {
     const workOrderStatusData = prepareWorkOrderStatusData(company);
     const orderStatusData = prepareOrderStatusData(company);
     const costByStatusData = prepareCostByStatusData(company);
@@ -107,9 +138,8 @@ const CompanyCharts = ({ company }) => {
     );
 };
 
-// Helper functions to prepare data for charts
-function prepareWorkOrderStatusData(company) {
-    const statusCounts = {
+function prepareWorkOrderStatusData(company: CompanyWithOffices): ChartDataItem[] {
+    const statusCounts: Record<WorkOrderStatus, number> = {
         Draft: 0,
         Pending: 0,
         Approved: 0,
@@ -125,8 +155,8 @@ function prepareWorkOrderStatusData(company) {
     return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
 }
 
-function prepareOrderStatusData(company) {
-    const statusCounts = {
+function prepareOrderStatusData(company: CompanyWithOffices): ChartDataItem[] {
+    const statusCounts: Record<OrderStatus, number> = {
         Pending: 0,
         Shipping: 0,
         Completed: 0,
@@ -144,8 +174,11 @@ function prepareOrderStatusData(company) {
     return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
 }
 
-function prepareCostByStatusData(company) {
-    const costByStatus = {
+function prepareCostByStatusData(company: CompanyWithOffices): CostByStatusDataItem[] {
+    const costByStatus: {
+        WorkOrders: Record<WorkOrderStatus, number>,
+        Orders: Record<OrderStatus, number>
+    } = {
         WorkOrders: {
             Draft: 0,
             Pending: 0,
@@ -173,12 +206,12 @@ function prepareCostByStatusData(company) {
 
     return Object.keys(costByStatus.WorkOrders).map(status => ({
         name: status,
-        workOrders: costByStatus.WorkOrders[status],
-        orders: costByStatus.Orders[status] || 0
+        workOrders: costByStatus.WorkOrders[status as WorkOrderStatus],
+        orders: costByStatus.Orders[status as OrderStatus] || 0
     }));
 }
 
-function prepareOfficePerformanceData(company) {
+function prepareOfficePerformanceData(company: CompanyWithOffices): OfficePerformanceDataItem[] {
     return company.Offices.map(office => {
         const workOrdersTotal = office.WorkOrders.reduce((sum, workOrder) => sum + Number(workOrder.totalCost) || 0, 0);
         const ordersTotal = office.Orders.reduce((sum, order) => sum + Number(order.totalCost) || 0, 0);
@@ -190,7 +223,7 @@ function prepareOfficePerformanceData(company) {
     });
 }
 
-function prepareAverageOrderValueData(company) {
+function prepareAverageOrderValueData(company: CompanyWithOffices): AverageOrderValueDataItem[] {
     return company.Offices.map(office => {
         const totalOrderValue = office.Orders.reduce((sum, order) => sum + Number(order.totalCost) || 0, 0);
         const averageValue = office.Orders.length > 0 ? totalOrderValue / office.Orders.length : 0;

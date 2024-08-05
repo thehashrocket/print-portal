@@ -76,7 +76,7 @@ model Invoice {
   updatedAt     DateTime      @updatedAt
 
   orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id])
+  Order   Order  @relation(fields: [orderId], references: [id])
 
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
@@ -121,7 +121,7 @@ model Office {
   Company      Company        @relation(fields: [companyId], references: [id])
   Orders       Order[]
   ShippingInfo ShippingInfo[]
-  users        User[]
+  Users        User[]
   WorkOrders   WorkOrder[]
 }
 

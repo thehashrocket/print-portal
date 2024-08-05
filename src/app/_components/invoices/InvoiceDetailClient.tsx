@@ -1,4 +1,5 @@
 // ~/src/app/_components/invoices/InvoiceDetailClient.tsx
+// ~/src/app/_components/invoices/InvoiceDetailClient.tsx
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -7,53 +8,37 @@ import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
 import PrintableInvoice from './PrintableInvoice';
+import { Invoice, InvoiceStatus, Order, OrderStatus, InvoicePayment, InvoiceItem, PaymentMethod, User } from '@prisma/client';
 
-type Decimal = string | number;
-
-interface InvoicePayment {
-    id: string;
-    amount: Decimal;
-    paymentDate: Date;
-    paymentMethod: string;
-}
-
-interface InvoiceItem {
-    id: string;
-    description: string;
-    quantity: number;
-    unitPrice: Decimal;
-    total: Decimal;
-}
-
-interface Invoice {
-    id: string;
-    invoiceNumber: string;
-    status: string;
-    dateIssued: Date | string;
-    dateDue: Date | string;
-    subtotal: Decimal;
-    taxRate: Decimal;
-    taxAmount: Decimal;
-    total: Decimal;
-    InvoicePayments: InvoicePayment[];
-    InvoiceItems: InvoiceItem[];
-    order: {
-        id: string;
-        orderNumber: number;
-        status: string;
+type ExtendedInvoice = Invoice & {
+    Order: Order & {
+        Office: {
+            Company: {
+                name: string;
+                id: string;
+            };
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            createdById: string;
+            companyId: string;
+        };
     };
-}
+    createdBy: User;
+    InvoiceItems: InvoiceItem[];
+    InvoicePayments: InvoicePayment[];
+};
 
 interface InvoiceDetailClientProps {
-    initialInvoice: Invoice;
+    initialInvoice: ExtendedInvoice;
 }
 
 const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice }) => {
-    const [invoice, setInvoice] = useState<Invoice>(initialInvoice);
+    const [invoice, setInvoice] = useState<ExtendedInvoice>(initialInvoice);
     const [isPrinting, setIsPrinting] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
-
 
     const { data: invoiceData, refetch } = api.invoices.getById.useQuery(initialInvoice.id, {
         initialData: initialInvoice,
@@ -61,14 +46,13 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         refetchOnWindowFocus: false,
     });
 
-    const formatTaxRate = (taxRate: Decimal) => {
-        const rate = typeof taxRate === 'string' ? parseFloat(taxRate) : taxRate;
-        return rate.toFixed(2);
+    const formatTaxRate = (taxRate: number) => {
+        return taxRate.toFixed(2);
     };
 
     useEffect(() => {
         if (invoiceData) {
-            setInvoice(invoiceData);
+            setInvoice(invoiceData as ExtendedInvoice);
         }
     }, [invoiceData]);
 
@@ -89,10 +73,10 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         try {
             await sendInvoiceMutation.mutateAsync({
                 invoiceId: invoice.id,
-                recipientEmail: invoice.order.Office.Company.email, // Assuming you have the company's email
+                recipientEmail: invoice.Order.createdBy.email || '', // Assuming email might be optional
             });
             alert('Invoice sent successfully');
-            refetch(); // Refetch to update the invoice status
+            refetch();
         } catch (error) {
             console.error('Failed to send invoice:', error);
             alert('Failed to send invoice. Please try again.');
@@ -122,7 +106,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                     <button
                         onClick={handleSendInvoice}
                         className="btn btn-primary"
-                        disabled={isSending || invoice.status === 'Sent'}
+                        disabled={isSending || invoice.status === InvoiceStatus.Sent}
                     >
                         {isSending ? 'Sending...' : 'Send Invoice'}
                     </button>
@@ -136,22 +120,21 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                             <p><strong>Status:</strong> {invoice.status}</p>
                             <p><strong>Date Issued:</strong> {formatDate(invoice.dateIssued)}</p>
                             <p><strong>Due Date:</strong> {formatDate(invoice.dateDue)}</p>
-                            <p><strong>Subtotal:</strong> {formatCurrency(invoice.subtotal)}</p>
-                            <p><strong>Tax Rate:</strong> {formatTaxRate(invoice.taxRate)}%</p>
-                            <p><strong>Tax Amount:</strong> {formatCurrency(invoice.taxAmount)}</p>
-                            <p><strong>Total:</strong> {formatCurrency(invoice.total)}</p>
+                            <p><strong>Subtotal:</strong> {formatCurrency(invoice.subtotal.toNumber())}</p>
+                            <p><strong>Tax Rate:</strong> {formatTaxRate(invoice.taxRate.toNumber())}%</p>
+                            <p><strong>Tax Amount:</strong> {formatCurrency(invoice.taxAmount.toNumber())}</p>
+                            <p><strong>Total:</strong> {formatCurrency(invoice.total.toNumber())}</p>
                         </div>
                     </div>
 
                     <div className="card bg-base-100 shadow-xl">
                         <div className="card-body">
                             <h2 className="card-title">Order Information</h2>
-                            <p><strong>Order Number:</strong> {invoice.order.orderNumber}</p>
-                            <p><strong>Order Status:</strong> {invoice.order.status}</p>
-                            <Link href={`/orders/${invoice.order.id}`} className="btn btn-sm btn-outline mt-2">
+                            <p><strong>Order Number:</strong> {invoice.Order.orderNumber}</p>
+                            <p><strong>Order Status:</strong> {invoice.Order.status}</p>
+                            <Link href={`/orders/${invoice.Order.id}`} className="btn btn-sm btn-outline mt-2">
                                 View Order
                             </Link>
-
                         </div>
                     </div>
                 </div>
@@ -173,8 +156,8 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                     <tr key={item.id}>
                                         <td>{item.description}</td>
                                         <td>{item.quantity}</td>
-                                        <td>{formatCurrency(item.unitPrice)}</td>
-                                        <td>{formatCurrency(item.total)}</td>
+                                        <td>{formatCurrency(item.unitPrice.toNumber())}</td>
+                                        <td>{formatCurrency(item.total.toNumber())}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -198,7 +181,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                     {invoice.InvoicePayments.map((payment) => (
                                         <tr key={payment.id}>
                                             <td>{formatDate(payment.paymentDate)}</td>
-                                            <td>{formatCurrency(payment.amount)}</td>
+                                            <td>{formatCurrency(payment.amount.toNumber())}</td>
                                             <td>{payment.paymentMethod}</td>
                                         </tr>
                                     ))}

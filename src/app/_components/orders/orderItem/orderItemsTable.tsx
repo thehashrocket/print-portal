@@ -11,7 +11,8 @@ import {
     ValueFormatterParams,
     GridReadyEvent,
     FilterChangedEvent,
-    RowStyle
+    ICellRendererParams,
+    RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { OrderItemStatus } from "@prisma/client";
@@ -39,29 +40,31 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     const [rowData, setRowData] = useState<SerializedOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const defaultColDef = useMemo(() => ({
+    const defaultColDef = useMemo<ColDef>(() => ({
         resizable: true,
         sortable: true,
         filter: true,
     }), []);
 
-    const actionsRenderer = (props: { data: SerializedOrderItem }) => (
+    const actionsRenderer = (props: ICellRendererParams) => (
         <Link className="btn btn-xs btn-primary" href={`/orders/${props.data.orderId}/orderItem/${props.data.id}`}>
             View
         </Link>
     );
 
-    const formatNumberAsCurrency = (params: ValueFormatterParams) => {
+    const formatNumberAsCurrency = (params: ValueFormatterParams): string => {
         if (params.value === null) return "$0.00";
         return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
     };
 
-    const getRowStyle = (params: { data: SerializedOrderItem }): RowStyle => {
+    const getRowStyle = (params: RowClassParams<SerializedOrderItem>): { backgroundColor: string } | undefined => {
+        if (!params.data) return undefined;
+
         switch (params.data.status) {
             case "Pending": return { backgroundColor: "#E3F2FD" };
             case "Completed": return { backgroundColor: "#E8F5E9" };
             case "Cancelled": return { backgroundColor: "#FFEBEE" };
-            default: return {};
+            default: return undefined;
         }
     };
 
