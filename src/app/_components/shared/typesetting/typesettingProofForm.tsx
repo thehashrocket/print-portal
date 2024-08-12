@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { TypesettingProof } from "@prisma/client";
+import { TypesettingProof, ProofMethod } from "@prisma/client";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
 
 const typesettingProofFormSchema = z.object({
@@ -12,6 +12,8 @@ const typesettingProofFormSchema = z.object({
     dateSubmitted: z.string(),
     approved: z.boolean(),
     notes: z.string().optional(),
+    proofCount: z.number().default(0),
+    proofMethod: z.nativeEnum(ProofMethod).default("Digital"),
 });
 
 type TypesettingProofFormData = z.infer<typeof typesettingProofFormSchema>;
@@ -35,18 +37,16 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             setIsLoading(false);
             setSuccess("Typesetting proof created successfully!");
             setError(null);
-            // Clear the form
             reset();
-            // Pass the created typesetting proof to the parent component
             onSubmit(createdTypesettingProof);
-            // Update the context state
-            setTypesetting((prevTypesetting) =>
-                prevTypesetting.map((type) =>
-                    type.id === typesettingId
-                        ? { ...type, TypesettingProofs: [...type.TypesettingProofs, createdTypesettingProof] }
-                        : type
-                )
+
+            // Update the context state directly with a new array
+            const updatedTypesetting = typesetting.map((type) =>
+                type.id === typesettingId
+                    ? { ...type, TypesettingProofs: [...type.TypesettingProofs, createdTypesettingProof] }
+                    : type
             );
+            setTypesetting(updatedTypesetting);
         },
         onError: () => {
             setIsLoading(false);
@@ -56,12 +56,13 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     });
 
     const onSubmitHandler = (data: TypesettingProofFormData) => {
-        // receives typesettingId from props, rest of the data from the form
         setIsLoading(true);
         createTypesettingProof.mutate({
             typesettingId,
             ...data,
             dateSubmitted: new Date(data.dateSubmitted).toISOString(),
+            proofCount: data.proofCount, // Replace 0 with the appropriate value
+            proofMethod: data.proofMethod, // Replace "Digital" with the appropriate value
         });
     };
 

@@ -13,7 +13,7 @@ import {
     ValueFormatterParams,
     GridReadyEvent,
     FilterChangedEvent,
-    RowStyle
+    RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
@@ -68,13 +68,15 @@ const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) 
         return new Date(params.value).toLocaleDateString();
     }
 
-    const getRowStyle = (params: { data: SerializedWorkOrder }): RowStyle => {
+    const getRowStyle = (params: RowClassParams<SerializedWorkOrder>): { backgroundColor: string } | undefined => {
+        if (!params.data) return undefined;
+
         switch (params.data.status) {
             case "Draft": return { backgroundColor: "#FFF3E0" };
             case "Pending": return { backgroundColor: "#E3F2FD" };
             case "Approved": return { backgroundColor: "#E8F5E9" };
             case "Cancelled": return { backgroundColor: "#FFEBEE" };
-            default: return {};
+            default: return undefined;
         }
     };
 

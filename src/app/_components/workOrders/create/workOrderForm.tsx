@@ -12,9 +12,9 @@ const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.date(),
     deposit: z.number().default(0),
-    description: z.string().nullable().default(null),
+    description: z.string().default(''),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
-    expectedDate: z.string().optional(),
+    expectedDate: z.string(),
     inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
     prepTime: z.number().optional().nullable().default(null),
@@ -68,10 +68,10 @@ const WorkOrderForm: React.FC = () => {
             shippingInfoId: null,
             createdById: '',
             deposit: data.deposit,
-            totalCost: data.totalCost ? data.totalCost : null,
+            totalCost: data.totalCost ? data.totalCost : 0,
             dateIn: data.dateIn ? new Date(data.dateIn) : new Date(),
-            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : '',
-            expectedDate: data.expectedDate ? new Date(data.expectedDate) : '',
+            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : new Date(),
+            expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
         };
 
         createWorkOrderMutation.mutate(newWorkOrder, {

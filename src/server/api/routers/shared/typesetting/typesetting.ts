@@ -18,6 +18,8 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 import { Prisma, TypesettingStatus } from "@prisma/client";
+import { create } from "domain";
+import { types } from "util";
 
 export const typesettingRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -61,26 +63,15 @@ export const typesettingRouter = createTRPCRouter({
     create: protectedProcedure
         .input(z.object({
             approved: z.boolean(),
-            cost: z.string().optional().nullable(),
+            cost: z.number().optional().default(0),
             dateIn: z.date(),
-            followUpNotes: z.string().optional().nullable(),
-            orderId: z.string().optional().nullable(),
+            followUpNotes: z.string().optional().default(""),
             orderItemId: z.string().optional().nullable(),
             plateRan: z.string().optional().nullable(),
             prepTime: z.number().optional().nullable(),
             status: z.nativeEnum(TypesettingStatus),
             timeIn: z.string(),
             workOrderItemId: z.string().optional().nullable(),
-            typesettingOptions: z.array(z.object({
-                option: z.string(),
-                selected: z.boolean(),
-            }).optional().nullable()),
-            typesettingProofs: z.array(z.object({
-                approved: z.boolean(),
-                dateSubmitted: z.string(),
-                notes: z.string(),
-                proofNumber: z.number(),
-            }).optional().nullable()),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.typesetting.create({
@@ -88,44 +79,61 @@ export const typesettingRouter = createTRPCRouter({
                     ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
-                    cost: input.cost ? new Prisma.Decimal(input.cost) : null, // Convert string to Decimal
+                    cost: input.cost ? new Prisma.Decimal(input.cost) : null, // Ensure correct type for cost
                     dateIn: input.dateIn,
                     followUpNotes: input.followUpNotes,
                     plateRan: input.plateRan,
                     prepTime: input.prepTime,
                     status: input.status,
                     timeIn: input.timeIn,
-                    createdById: ctx.session.user.id, // Add the createdById property
-
+                    createdById: ctx.session.user.id, // Ensure createdById is always a string
                 },
             });
         }),
 
     update: protectedProcedure
         .input(z.object({
-            approved: z.boolean(),
-            cost: z.string().optional().nullable(),
-            dateIn: z.date(),
             id: z.string(),
+            approved: z.boolean(),
+            cost: z.number().optional().nullable(),
+            dateIn: z.date(),
+            followUpNotes: z.string().optional().nullable(),
             orderItemId: z.string().optional().nullable(),
             plateRan: z.string().optional().nullable(),
             prepTime: z.number().optional().nullable(),
+            status: z.nativeEnum(TypesettingStatus),
             timeIn: z.string(),
-            workOrderItemId: z.string().nullable().optional(),
+            workOrderItemId: z.string().optional().nullable(),
+            TypesettingOptions: z.array(z.object({
+                option: z.string(),
+                selected: z.boolean(),
+                createdAt: z.date().default(() => new Date()),
+                updatedAt: z.date().default(() => new Date()),
+            })).optional().nullable(),
+            TypesettingProofs: z.array(z.object({
+                approved: z.boolean().default(false),
+                dateSubmitted: z.string(),
+                notes: z.string(),
+                proofCount: z.number(),
+                proofNumber: z.number(),
+                typesettingId: z.string(),
+                createdAt: z.date().default(() => new Date()),
+                updatedAt: z.date().default(() => new Date()),
+            })).optional().nullable(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.typesetting.update({
-                where: {
-                    id: input.id,
-                },
+                where: { id: input.id },
                 data: {
                     ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
-                    cost: input.cost ? new Prisma.Decimal(input.cost) : null, // Convert string to Decimal
+                    cost: input.cost ? new Prisma.Decimal(input.cost) : 0, // Ensure correct type for cost
                     dateIn: input.dateIn,
+                    followUpNotes: input.followUpNotes,
                     plateRan: input.plateRan,
                     prepTime: input.prepTime,
+                    status: input.status,
                     timeIn: input.timeIn,
                 },
             });

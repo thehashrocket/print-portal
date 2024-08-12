@@ -64,9 +64,9 @@ export const workOrderRouter = createTRPCRouter({
     .input(z.object({
       dateIn: z.date(),
       deposit: z.number(),
-      description: z.string().nullable(),
+      description: z.string(),
       estimateNumber: z.string(),
-      expectedDate: z.date().nullable(),
+      expectedDate: z.date(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
@@ -74,7 +74,7 @@ export const workOrderRouter = createTRPCRouter({
       shippingInfoId: z.string().optional().nullable(),
       specialInstructions: z.string().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
-      totalCost: z.number().nullable(),
+      totalCost: z.number(),
       workOrderNumber: z.number(),
       workOrderItems: z.array(z.object({
         itemId: z.string(),

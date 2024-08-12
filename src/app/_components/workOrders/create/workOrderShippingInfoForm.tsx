@@ -9,10 +9,15 @@ import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { AddressType, ShippingMethod } from '@prisma/client';
 
 const shippingInfoSchema = z.object({
+    addressId: z.string(),
+    instructions: z.string().optional().default(''),
+    officeId: z.string(),
+    shippingCost: z.number(),
+    shippingDate: z.date().optional().default(new Date()),
     shippingMethod: z.nativeEnum(ShippingMethod),
-    instructions: z.string().optional().nullable().default(null),
-    shippingCost: z.number().optional().nullable().default(null),
-    addressId: z.string().optional(),
+    shippingNotes: z.string().optional().default(''),
+    shippingOther: z.string().optional().default(''),
+    shipToSameAsBillTo: z.boolean().optional().default(false),
 });
 
 const addressSchema = z.object({
@@ -40,7 +45,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     const addShippingInfoToWorkOrderMutation = api.workOrders.addShippingInfo.useMutation();
     const createAddressMutation = api.address.create.useMutation();
     const { data: officeData } = api.offices.getById.useQuery(workOrder.officeId, { enabled: !!workOrder.officeId });
-    const [newAddress, setNewAddress] = useState(null);
+    const [newAddress, setNewAddress] = useState<{ id: string } | null>(null);
 
     const {
         register: registerAddress,

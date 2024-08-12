@@ -1,11 +1,10 @@
-"use client"
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { api } from "~/trpc/react";
-import { TypesettingOption } from "@prisma/client";
-import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { api } from '~/trpc/react';
+import { TypesettingOption } from '@prisma/client';
+import { useTypesettingContext } from '~/app/contexts/TypesettingContext';
 
 const typesettingOptionsSchema = z.object({
     option: z.string(),
@@ -33,18 +32,16 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
             setIsLoading(false);
             setSuccess("Typesetting option created successfully!");
             setError(null);
-            // Clear the form
             reset();
-            // Pass the created typesetting option to the parent component
             onSubmit(createdTypesettingOption);
-            // Update the context state
-            setTypesetting((prevTypesetting) =>
-                prevTypesetting.map((type) =>
-                    type.id === typesettingId
-                        ? { ...type, TypesettingOptions: [...type.TypesettingOptions, createdTypesettingOption] }
-                        : type
-                )
+
+            // Directly update the typesetting state
+            const updatedTypesetting = typesetting.map((type) =>
+                type.id === typesettingId
+                    ? { ...type, TypesettingOptions: [...type.TypesettingOptions, createdTypesettingOption] }
+                    : type
             );
+            setTypesetting(updatedTypesetting);
         },
 
         onError: () => {
@@ -55,9 +52,8 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
     });
 
     const onSubmitHandler = (data: TypesettingOptionsFormData) => {
-        // receives typesettingId from props, rest of the data from the form
         setIsLoading(true);
-        createTypesettingOption.mutate({ ...data, typesettingId });
+        createTypesettingOption.mutate({ ...data, typesettingId, selected: false });
     };
 
     return (
@@ -95,7 +91,3 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
         </form>
     );
 }
-
-// Path: src/app/_components/shared/typesetting/typesettingOptionsComponent.tsx
-// Compare this snippet from src/app/_components/shared/typesetting/typesettingProofForm.tsx:
-export default TypesettingOptionsComponent;

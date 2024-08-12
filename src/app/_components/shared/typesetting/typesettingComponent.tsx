@@ -1,3 +1,4 @@
+// ~/app/_components/shared/typesetting/typesettingComponent.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import TypesettingProofForm from "./typesettingProofForm";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { Decimal } from 'decimal.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,9 +32,9 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
 
     const formatNumberAsCurrency = (value: number) => {
         return `$${(value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    }
+    };
 
-    const formatDate = (date: Date) => {
+    const formatDate = (date: Date | string) => {
         return dayjs.utc(date).tz(dayjs.tz.guess()).format('MMMM D, YYYY, h:mm A');
     };
 
@@ -41,23 +43,37 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
         setSelectedTypeId(selectedId);
     };
 
-    const mostRecentTypesetting = typesetting.reduce((prev, current) =>
-        (prev.dateIn > current.dateIn) ? prev : current,
-        typesetting[0]
-    );
-
     useEffect(() => {
         if (initialTypesetting && initialTypesetting.length > 0) {
             setTypesetting(initialTypesetting);
             const mostRecent = initialTypesetting.reduce((prev, current) =>
-                (prev.dateIn > current.dateIn) ? prev : current,
+                (prev && prev.dateIn > current.dateIn) ? prev : current,
                 initialTypesetting[0]
             );
-            setSelectedTypeId(mostRecent.id);
+            if (mostRecent) {
+                setSelectedTypeId(mostRecent.id);
+            }
         }
     }, [initialTypesetting, setTypesetting]);
 
-    const currentItem = typesetting.find((type) => type.id === selectedTypeId) || { TypesettingOptions: [], TypesettingProofs: [] };
+    const currentItem = typesetting.find((type): type is TypesettingWithRelations => type.id === selectedTypeId) || {
+        id: '', // Default ID
+        dateIn: new Date(), // Default date
+        timeIn: '',
+        cost: new Decimal(0), // Default cost
+        prepTime: 0,
+        plateRan: '',
+        approved: false,
+        status: 'WaitingApproval',
+        createdById: '', // Default createdById
+        createdAt: new Date(), // Default createdAt
+        updatedAt: new Date(), // Default updatedAt
+        followUpNotes: '',
+        orderItemId: null,
+        workOrderItemId: null,
+        TypesettingOptions: [],
+        TypesettingProofs: [],
+    };
 
     return (
         <>
@@ -115,7 +131,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                             </div>
                             <div className="rounded-lg bg-white p-6 shadow-md">
                                 <p className="mb-2 text-gray-600 text-md font-semibold">Cost</p>
-                                <p className="text-sm">{formatNumberAsCurrency((Number(currentItem.cost)))}</p>
+                                <p className="text-sm">{formatNumberAsCurrency(Number(currentItem.cost))}</p>
                             </div>
                             <div className="rounded-lg bg-white p-6 shadow-md">
                                 <p className="mb-2 text-gray-600 text-md font-semibold">Prep Time</p>
@@ -130,7 +146,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
                             </div>
                         </div>
-                        {/* Removed Typesetting Options because I don't think it's needed. */}
                         <div>
                             <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
                             <div className="mb-4 grid grid-cols-4 gap-4">
@@ -142,7 +157,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 {addProofMode && (
                                     <TypesettingProofForm
                                         typesettingId={currentItem.id}
-                                        onSubmit={(data) => {
+                                        onSubmit={() => {
                                             setAddProofMode(false);
                                         }}
                                         onCancel={() => {
@@ -168,8 +183,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                         </div>
                     </>
                 ))
-            )
-            }
+            )}
         </>
     );
 };
