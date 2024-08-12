@@ -17,7 +17,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
-import { TypesettingStatus } from "@prisma/client";
+import { Prisma, TypesettingStatus } from "@prisma/client";
 
 export const typesettingRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -61,13 +61,13 @@ export const typesettingRouter = createTRPCRouter({
     create: protectedProcedure
         .input(z.object({
             approved: z.boolean(),
-            cost: z.number(),
-            dateIn: z.string(),
+            cost: z.string().optional().nullable(),
+            dateIn: z.date(),
             followUpNotes: z.string().optional().nullable(),
             orderId: z.string().optional().nullable(),
             orderItemId: z.string().optional().nullable(),
-            plateRan: z.string(),
-            prepTime: z.number(),
+            plateRan: z.string().optional().nullable(),
+            prepTime: z.number().optional().nullable(),
             status: z.nativeEnum(TypesettingStatus),
             timeIn: z.string(),
             workOrderItemId: z.string().optional().nullable(),
@@ -88,7 +88,7 @@ export const typesettingRouter = createTRPCRouter({
                     ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
-                    cost: input.cost,
+                    cost: input.cost ? new Prisma.Decimal(input.cost) : null, // Convert string to Decimal
                     dateIn: input.dateIn,
                     followUpNotes: input.followUpNotes,
                     plateRan: input.plateRan,
@@ -104,12 +104,12 @@ export const typesettingRouter = createTRPCRouter({
     update: protectedProcedure
         .input(z.object({
             approved: z.boolean(),
-            cost: z.number().optional().nullable(),
-            dateIn: z.string(),
+            cost: z.string().optional().nullable(),
+            dateIn: z.date(),
             id: z.string(),
             orderItemId: z.string().optional().nullable(),
-            plateRan: z.string(),
-            prepTime: z.number(),
+            plateRan: z.string().optional().nullable(),
+            prepTime: z.number().optional().nullable(),
             timeIn: z.string(),
             workOrderItemId: z.string().nullable().optional(),
         }))
@@ -122,6 +122,7 @@ export const typesettingRouter = createTRPCRouter({
                     ...(input.orderItemId ? { orderItemId: input.orderItemId } : {}),
                     ...(input.workOrderItemId ? { workOrderItemId: input.workOrderItemId } : {}),
                     approved: input.approved,
+                    cost: input.cost ? new Prisma.Decimal(input.cost) : null, // Convert string to Decimal
                     dateIn: input.dateIn,
                     plateRan: input.plateRan,
                     prepTime: input.prepTime,

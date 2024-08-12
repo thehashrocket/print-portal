@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
-    dateIn: z.string(),
+    dateIn: z.date(),
     deposit: z.number().default(0),
     description: z.string().nullable().default(null),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
@@ -69,7 +69,7 @@ const WorkOrderForm: React.FC = () => {
             createdById: '',
             deposit: data.deposit,
             totalCost: data.totalCost ? data.totalCost : null,
-            dateIn: data.dateIn ? new Date(data.dateIn) : '',
+            dateIn: data.dateIn ? new Date(data.dateIn) : new Date(),
             inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : '',
             expectedDate: data.expectedDate ? new Date(data.expectedDate) : '',
         };

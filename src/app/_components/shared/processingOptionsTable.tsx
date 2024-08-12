@@ -1,108 +1,84 @@
-"use client";
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { api } from "~/trpc/react"; // use client to fetch data instead of server
-import { AgGridReact, CustomCellRendererProps } from "@ag-grid-community/react"; // React Grid Logic
-import "@ag-grid-community/styles/ag-grid.css"; // Core CSS
-import "@ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import { api } from "~/trpc/react";
+import { AgGridReact } from "@ag-grid-community/react";
+import "@ag-grid-community/styles/ag-grid.css";
+import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
-import { BindingType } from "@prisma/client";
-
-import {
-    ColDef,
-    ModuleRegistry,
-    ValueFormatterParams,
-} from "@ag-grid-community/core";
-
-import { ProcessingOptions } from "@prisma/client"; // Import the 'ProcessingOption' type
-import { number } from "zod";
+import { BindingType, ProcessingOptions } from "@prisma/client";
+import { ColDef } from "@ag-grid-community/core";
 
 type ProcessingOptionsProps = {
     processingOptions: ProcessingOptions[];
-    orderId: string;
-    workOrderId: string;
+    orderItemId: string;
+    workOrderItemId: string;
 };
 
-const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOptions, orderId = '', workOrderId = '' }) => {
+type FormDataType = {
+    binderyTime: number | null;
+    binding: BindingType | null;
+    cutting: string | null;
+    description: string;
+    drilling: string | null;
+    folding: string | null;
+    name: string;
+    numberingColor: string | null;
+    numberingEnd: number | null;
+    numberingStart: number | null;
+    other: string;
+    padding: string;
+    stitching: string | null;
+    orderItemId: string | null;
+    workOrderItemId: string | null;
+};
+
+const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
+    processingOptions,
+    orderItemId = '',
+    workOrderItemId = '',
+}) => {
     const [isEditMode, setIsEditMode] = useState(false);
-    const [currentItem, setCurrentItem] = useState({
-        binderyTime: 0,
-        binding: "",
-        cutting: '',
-        description: "",
-        drilling: '',
-        folding: '',
-        name: "",
-        numberingColor: "",
-        numberingEnd: 0,
-        numberingStart: 0,
-        other: "",
-        padding: '',
-        stitching: "",
-        id: "",
-    });
-    const gridRef = useRef();
+    const [currentItem, setCurrentItem] = useState<ProcessingOptions | null>(null);
+    const gridRef = useRef<AgGridReact>(null);
     const router = useRouter();
-    const defaultColDef = {
-        resizable: true,
-        sortable: true,
-    };
 
-    const [formData, setFormData] = useState({
-        binderyTime: 0,
-        binding: "",
-        cutting: '',
-        description: "", // Added description property
-        drilling: '',
-        folding: '',
-        name: "",
-        numberingColor: "",
-        numberingEnd: 0,
-        numberingStart: 0,
-        other: "",
+    const [formData, setFormData] = useState<FormDataType>({
+        binderyTime: null,
+        binding: null,
+        cutting: null,
+        description: '',
+        drilling: null,
+        folding: null,
+        name: '',
+        numberingColor: null,
+        numberingEnd: null,
+        numberingStart: null,
+        other: '',
         padding: '',
-        stitching: "",
+        stitching: null,
+        orderItemId: null,
+        workOrderItemId: null,
     });
 
-    const [rowData, setRowData] = useState<{
-        binderyTime: number;
-        binding: string;
-        cutting: string;
-        description: string;
-        drilling: boolean;
-        folding: boolean;
-        id: string;
-        name: string;
-        numberingColor: string;
-        numberingEnd: number;
-        numberingStart: number;
-        other: string;
-        padding: boolean;
-        stitching: string;
-    }[]>([]);
+    const [rowData, setRowData] = useState<ProcessingOptions[]>([]);
 
+    const actionsCellRenderer = (props: { data: ProcessingOptions }) => (
+        <div className="grid grid-cols-2 gap-4">
+            <button
+                className="btn btn-active btn-primary btn-xs sm:btn-sm"
+                onClick={() => handleEdit(props.data)}
+            >
+                Edit
+            </button>
+            <button
+                className="btn btn-active btn-secondary btn-xs sm:btn-sm"
+                onClick={() => handleDelete(props.data.id)}
+            >
+                Delete
+            </button>
+        </div>
+    );
 
-    // Define cell renderers here
-    const actionsCellRenderer = (props: CustomCellRendererProps) => {
-        return (
-            <div className="grid grid-cols-2 gap-4">
-                <button
-                    className="btn btn-active btn-primary btn-xs sm:btn-sm"
-                    onClick={() => handleEdit(props.data)}
-                >Edit</button>
-                <button
-                    className="btn btn-active btn-secondary btn-xs sm:btn-sm "
-                    onClick={() => handleDelete(props.data.id)}
-                >
-                    Delete
-                </button>
-
-            </div>
-        );
-    };
-
-    // Define column definitions and row data here
-    const columnDefs = [
+    const columnDefs: ColDef[] = [
         { headerName: "Cutting", field: "cutting", width: 100 },
         { headerName: "Drilling", field: "drilling", width: 100 },
         { headerName: "Folding", field: "folding", width: 100 },
@@ -113,9 +89,9 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
         { headerName: "Other", field: "other" },
         {
             headerName: "Actions",
-            field: "id",
             cellRenderer: actionsCellRenderer,
-        }
+            width: 200,
+        },
     ];
 
     const createProcessingOption = api.processingOptions.create.useMutation({
@@ -140,144 +116,110 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
 
     const handleEdit = useCallback((data: ProcessingOptions) => {
         setFormData({
-            binderyTime: data.binderyTime ?? 0,
-            binding: data.binding ?? "",
-            cutting: data.cutting ?? '',
-            description: data.description ?? "",
-            drilling: data.drilling ?? '',
-            folding: data.folding ?? '',
-            name: data.name ?? "",
-            numberingColor: data.numberingColor ?? "",
-            numberingEnd: data.numberingEnd ?? 0,
-            numberingStart: data.numberingStart ?? 0,
-            other: data.other ?? "",
-            padding: data.padding ?? '', // Ensure this is managed correctly as a boolean or string, based on your data model
-            stitching: data.stitching ?? "",
+            binderyTime: data.binderyTime,
+            binding: data.binding,
+            cutting: data.cutting,
+            description: data.description,
+            drilling: data.drilling,
+            folding: data.folding,
+            name: data.name,
+            numberingColor: data.numberingColor,
+            numberingEnd: data.numberingEnd,
+            numberingStart: data.numberingStart,
+            other: data.other || '',
+            padding: data.padding || '',
+            stitching: data.stitching,
+            orderItemId: data.orderItemId,
+            workOrderItemId: data.workOrderItemId,
         });
         setIsEditMode(true);
-        setCurrentItem(data); // Assuming 'data' includes an id or some unique identifier
+        setCurrentItem(data);
     }, []);
-
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (isEditMode) {
-            // don't submit orderId to updateProcessingOption if it's not needed
-            updateProcessingOption.mutate({
-                ...formData,
-                id: currentItem.id,
-                orderId,
-                workOrderId,
-            });
-
-            setIsEditMode(false); // Exit edit mode after submission
-            resetForm();
-        } else {
-            createProcessingOption.mutate({
-                ...formData,
-                orderId,
-                workOrderId,
-            });
+        const commonData = {
+            binderyTime: formData.binderyTime ?? undefined,
+            binding: formData.binding ?? undefined,
+            cutting: formData.cutting ?? undefined,
+            description: formData.description,
+            drilling: formData.drilling ?? undefined,
+            folding: formData.folding ?? undefined,
+            name: formData.name,
+            numberingColor: formData.numberingColor ?? undefined,
+            numberingEnd: formData.numberingEnd ?? undefined,
+            numberingStart: formData.numberingStart ?? undefined,
+            other: formData.other ?? undefined,
+            padding: formData.padding ?? undefined,
+            stitching: formData.stitching ?? undefined,
+            orderItemId: orderItemId || undefined,
+            workOrderItemId: workOrderItemId || undefined,
         };
-    }
+
+        if (isEditMode && currentItem) {
+            updateProcessingOption.mutate({
+                id: currentItem.id,
+                ...commonData,
+            });
+            setIsEditMode(false);
+        } else {
+            createProcessingOption.mutate(commonData);
+        }
+        resetForm();
+    };
 
     const handleDelete = useCallback((id: string) => {
-        // Call the delete mutation
         deleteProcessingOption.mutate(id);
-        // Optionally refresh the data or remove the item from local state
-        setRowData(rowData.filter(item => item.id !== id));
-    }, []);
+        setRowData((prevData) => prevData.filter((item) => item.id !== id));
+    }, [deleteProcessingOption]);
 
+    const resetForm = () => {
+        setFormData({
+            binderyTime: null,
+            binding: null,
+            cutting: '',
+            description: '',
+            drilling: '',
+            folding: '',
+            name: '',
+            numberingColor: '',
+            numberingEnd: null,
+            numberingStart: null,
+            other: '',
+            padding: '',
+            stitching: '',
+            orderItemId: null,
+            workOrderItemId: null,
+        });
+        setIsEditMode(false);
+        setCurrentItem(null);
+    };
 
-    const resetForm = () => setFormData({
-        binderyTime: 0,
-        binding: "",
-        cutting: '',
-        description: "",
-        drilling: '',
-        folding: '',
-        name: "",
-        numberingColor: "",
-        numberingEnd: 0,
-        numberingStart: 0,
-        other: "",
-        padding: '',
-        stitching: "",
-    });
-
-    useEffect(() => setRowData(
-        processingOptions.map((processingOption) => {
-            return {
-                binderyTime: processingOption.binderyTime ?? 0,
-                binding: processingOption.binding ?? '',
-                cutting: processingOption.cutting ?? false,
-                description: processingOption.description ?? "",
-                drilling: processingOption.drilling ?? '',
-                folding: processingOption.folding ?? '',
-                id: processingOption.id,
-                name: processingOption.name ?? "",
-                numberingColor: processingOption.numberingColor ?? "",
-                numberingEnd: Number(processingOption.numberingEnd) ?? 0, // Convert to number
-                numberingStart: Number(processingOption.numberingStart) ?? 0, // Convert to number
-                other: processingOption.other ?? "",
-                padding: processingOption.padding ?? '',
-                stitching: processingOption.stitching ?? '',
-            };
-        })
-    ), [processingOptions]);
+    useEffect(() => {
+        setRowData(processingOptions);
+    }, [processingOptions]);
 
     return (
         <>
             <div className="mb-4">
                 <form
-                    className="br-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+                    className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
                     onSubmit={handleSubmit}
                 >
+                    {/* Form fields */}
                     <div className="grid grid-cols-4 gap-4">
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2">
                                 Cutting
                             </label>
                             <input
-                                type="checkbox"
-                                checked={formData.cutting}
-                                onChange={(e) => setFormData({ ...formData, cutting: e.target.checked })}
+                                type="text"
+                                value={formData.cutting || ''}
+                                onChange={(e) => setFormData({ ...formData, cutting: e.target.value })}
                                 className="w-full rounded-full px-4 py-2 text-black"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Drilling
-                            </label>
-                            <input
-                                type="checkbox"
-                                checked={formData.drilling}
-                                onChange={(e) => setFormData({ ...formData, drilling: e.target.checked })}
-                                className="w-full rounded-full px-4 py-2 text-black"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Folding
-                            </label>
-                            <input
-                                type="checkbox"
-                                checked={formData.folding}
-                                onChange={(e) => setFormData({ ...formData, folding: e.target.checked })}
-                                className="w-full rounded-full px-4 py-2 text-black"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Padding
-                            </label>
-                            <input
-                                type="checkbox"
-                                checked={formData.padding}
-                                onChange={(e) => setFormData({ ...formData, padding: e.target.checked })}
-                                className="w-full rounded-full px-4 py-2 text-black"
-                            />
-                        </div>
+                        {/* Add similar fields for drilling, folding, padding */}
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <div className="mb-4">
@@ -286,7 +228,7 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
                             </label>
                             <input
                                 type="text"
-                                value={formData.numberingColor}
+                                value={formData.numberingColor || ''}
                                 onChange={(e) => setFormData({ ...formData, numberingColor: e.target.value })}
                                 className="w-full rounded-full px-4 py-2 text-black"
                             />
@@ -297,8 +239,8 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
                             </label>
                             <input
                                 type="number"
-                                value={formData.numberingStart}
-                                onChange={(e) => setFormData({ ...formData, numberingStart: parseInt(e.target.value) })}
+                                value={formData.numberingStart || 0}
+                                onChange={(e) => setFormData({ ...formData, numberingStart: parseInt(e.target.value) || 0 })}
                                 className="w-full rounded-full px-4 py-2 text-black"
                             />
                         </div>
@@ -308,44 +250,43 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({ processingOp
                             </label>
                             <input
                                 type="number"
-                                value={formData.numberingEnd}
-                                onChange={(e) => setFormData({ ...formData, numberingEnd: parseInt(e.target.value) })}
+                                value={formData.numberingEnd || 0}
+                                onChange={(e) => setFormData({ ...formData, numberingEnd: parseInt(e.target.value) || 0 })}
                                 className="w-full rounded-full px-4 py-2 text-black"
                             />
                         </div>
                     </div>
-
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                             Other
                         </label>
                         <input
                             type="text"
-                            value={formData.other}
+                            value={formData.other || ''}
                             onChange={(e) => setFormData({ ...formData, other: e.target.value })}
                             className="w-full rounded-full px-4 py-2 text-black"
                         />
                     </div>
-
                     <button
                         type="submit"
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        disabled={createProcessingOption.isPending}
+                        disabled={createProcessingOption.isPending || updateProcessingOption.isPending}
                     >
-                        {createProcessingOption.isPending ? "Submitting..." : "Submit"}
+                        {(createProcessingOption.isPending || updateProcessingOption.isPending)
+                            ? "Submitting..."
+                            : isEditMode ? "Update" : "Submit"}
                     </button>
                 </form>
-
             </div>
             <div className="ag-theme-quartz" style={{ height: 300, width: "100%" }}>
                 <AgGridReact
                     ref={gridRef}
-                    defaultColDef={defaultColDef}
                     columnDefs={columnDefs}
                     rowData={rowData}
                 />
             </div>
         </>
     );
-}
+};
+
 export default ProcessingOptionsTable;
