@@ -6,9 +6,11 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
+import EmailProvider from "next-auth/providers/email";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
+import nodemailer from "nodemailer";
 
 // We're augmenting the Session type to include user roles and permissions in the session object.
 // We're defining the user object to have an id, roles, and permissions.
@@ -62,6 +64,48 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
+    }),
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: parseInt(process.env.EMAIL_SERVER_PORT ?? "465"),
+        auth: {
+          user: process.env.EMAIL_SERVER_USERNAME,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+      sendVerificationRequest: async ({
+        identifier: email,
+        url,
+        token,
+        provider,
+      }) => {
+        const transporter = nodemailer.createTransport({
+          host: process.env.EMAIL_SERVER_HOST,
+          port: parseInt(process.env.EMAIL_SERVER_PORT ?? "465"),
+          secure: true, // use SSL
+          auth: {
+            user: process.env.EMAIL_SERVER_USERNAME,
+            pass: process.env.EMAIL_SERVER_PASSWORD,
+          },
+        });
+
+        const mailOptions = {
+          from: process.env.EMAIL_FROM,
+          to: email,
+          subject: "Verification email",
+          text: `[Your Subject]`,
+          html: `
+          <div style="text-align: center; padding: 50px 0;">
+            <p style="font-weight: bold;"> Sign In to [Your Website]</p>
+            <a style="display: inline-block; background: #FCA311; padding: 12px 16px; border-radius: 8px; color: black; text-decoration: none; font-weight: bold;" href='${url}'>Sign In</a>
+          </div>
+          `,
+        };
+
+        await transporter.sendMail(mailOptions);
+      },
     }),
     /**
      * ...add more providers here.
