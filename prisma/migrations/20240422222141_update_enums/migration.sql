@@ -15,21 +15,22 @@ ALTER TABLE "Order" ALTER COLUMN "status" TYPE "OrderStatus_new" USING ("status"
 ALTER TABLE "Order" ALTER COLUMN "status" SET DEFAULT 'Pending';
 ALTER TYPE "OrderStatus" RENAME TO "OrderStatus_old";
 ALTER TYPE "OrderStatus_new" RENAME TO "OrderStatus";
-DROP TYPE "OrderStatus_old" CASCADE; -- Adding CASCADE here
+DROP TYPE "OrderStatus_old" CASCADE;
 COMMIT;
-
 
 -- AlterTable
 DO $$
 BEGIN
-    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'WorkOrder' AND column_name = 'status') THEN
-        ALTER TABLE "WorkOrder" DROP COLUMN "status";
+    -- Ensure column exists before trying to drop it
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'WorkOrder' AND column_name = 'status') THEN
+        EXECUTE 'ALTER TABLE "WorkOrder" DROP COLUMN "status"';
     END IF;
 END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'WorkOrder' AND column_name = 'status') THEN
-    ALTER TABLE "WorkOrder" ADD COLUMN "status" "WorkOrderStatus" NOT NULL DEFAULT 'Draft';
-  END IF;
+    -- Ensure column does not exist before trying to add it
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'WorkOrder' AND column_name = 'status') THEN
+        EXECUTE 'ALTER TABLE "WorkOrder" ADD COLUMN "status" "WorkOrderStatus" NOT NULL DEFAULT ''Draft''';
+    END IF;
 END $$;
