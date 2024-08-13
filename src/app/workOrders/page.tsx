@@ -9,21 +9,22 @@ import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
 import Link from "next/link";
 import { WorkOrder } from "@prisma/client";
 import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
+import { SerializedWorkOrder } from "~/types/workOrder";
 
-type SerializedWorkOrder = Omit<WorkOrder, 'createdAt' | 'dateIn' | 'deposit' | 'totalCost' | 'updatedAt' | 'workOrderNumber'> & {
-  createdAt: string;
-  dateIn: string;
-  deposit: string;
-  totalCost: string | null;
-  updatedAt: string;
-  workOrderNumber: string;
+type WorkOrderWithRelations = WorkOrder & {
+  Order?: {
+    id: string;
+  } | null;
 };
 
-const serializeWorkOrder = (workOrder: WorkOrder): SerializedWorkOrder => ({
-  ...workOrder,
+const serializeWorkOrder = (workOrder: WorkOrderWithRelations): SerializedWorkOrder => ({
   createdAt: workOrder.createdAt.toISOString(),
   dateIn: workOrder.dateIn.toISOString(),
   deposit: workOrder.deposit.toString(),
+  id: workOrder.id,
+  Order: workOrder.Order ? { id: workOrder.Order.id } : null, // Ensure the relation is handled correctly
+  purchaseOrderNumber: workOrder.purchaseOrderNumber,
+  status: workOrder.status,
   totalCost: workOrder.totalCost?.toString() ?? null,
   updatedAt: workOrder.updatedAt.toISOString(),
   workOrderNumber: workOrder.workOrderNumber.toString(),

@@ -2,15 +2,16 @@
 "use client"
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { WorkOrder } from '@prisma/client'; // Assuming you're using Prisma
+import { SerializedWorkOrder } from '~/types/workOrder';
 
-// Use dynamic import for the client component
+
+
 const WorkOrderChartsClient = dynamic(() => import('./WorkOrderChartsClient'), {
-    ssr: false, // This component will only be rendered on the client side
+    ssr: false,
 });
 
 interface WorkOrderChartsProps {
-    workOrders: WorkOrder[]; // Adjust this type if your workOrders have a different structure
+    workOrders: SerializedWorkOrder[];
 }
 
 const WorkOrderCharts: React.FC<WorkOrderChartsProps> = ({ workOrders }) => {

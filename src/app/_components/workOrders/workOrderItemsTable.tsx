@@ -21,14 +21,14 @@ import Link from "next/link";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedWorkOrderItem = {
+    amount: string | undefined;
+    cost: string | undefined;
+    description: string;
+    finishedQty: number | undefined;
     id: string;
-    quantity: number;
-    description: string | null;
-    finishedQty: number | null;
-    workOrderId: string;
+    quantity: string;
     status: WorkOrderItemStatus;
-    cost: string | null;
-    amount: string | null;
+    workOrderId: string | null;
 };
 
 interface WorkOrderItemsTableProps {

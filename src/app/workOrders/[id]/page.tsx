@@ -52,13 +52,14 @@ export default async function WorkOrderPage({
   }
 
   const serializedWorkOrderItems = workOrder.WorkOrderItems.map((item) => ({
-    ...item,
     amount: item.amount?.toString(),
     cost: item.cost?.toString(),
-    costPerM: item.costPerM?.toString(),
-    createdAt: item.createdAt.toISOString(),
-    expectedDate: item.expectedDate?.toISOString(),
-    updatedAt: item.updatedAt.toISOString(),
+    description: item.description,
+    finishedQty: (item.finishedQty || 0),
+    id: item.id,
+    quantity: item.quantity.toString(),
+    status: item.status,
+    workOrderId: item.workOrderId,
   }));
 
   return (

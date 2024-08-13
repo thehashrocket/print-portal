@@ -1,6 +1,4 @@
 // ~/src/app/_components/workOrders/workOrdersTable.tsx
-// This component is a table that displays all work orders in the database. It uses the ag-grid-react library to display the data in a table format. The table has columns for the work order's status, date in, work order number, purchase order number, total cost, and actions. The actions column contains a button that links to the work order's details page. The table is populated with data from the workOrders prop, which is an array of SerializedWorkOrder objects. The table is wrapped in a div with a class of ag-theme-quartz to apply the ag-grid theme. The table has a height of 600px and a width of 100% to make it scrollable and responsive. The column definitions and default column definitions are defined in the component. The formatNumberAsCurrency function is used to format the total cost column as a currency value. The actionsCellRenderer function is used to render the actions column with a link to the work order's details page. The component uses the useState and useEffect hooks to manage the state of the row data and update it when the workOrders prop changes.
-
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
@@ -17,23 +15,9 @@ import {
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
-import { WorkOrderStatus } from "@prisma/client";
+import { SerializedWorkOrder } from "~/types/workOrder";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-
-type SerializedWorkOrder = {
-    id: string;
-    status: WorkOrderStatus;
-    dateIn: string;
-    workOrderNumber: string;
-    purchaseOrderNumber: string;
-    totalCost: string | null;
-    createdAt: string;
-    updatedAt: string;
-    approved: boolean;
-    artwork: string | null;
-    Order: { id: string } | null;
-};
 
 const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) => {
     const gridRef = useRef<AgGridReact>(null);
@@ -101,7 +85,6 @@ const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
         console.log(`Rows after filter: ${filteredRowCount}`);
-        // You can update a state here to show the filtered row count if desired
     };
 
     if (loading) {
