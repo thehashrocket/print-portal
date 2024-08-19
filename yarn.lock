@@ -903,10 +903,10 @@ ag-charts-locale@10.1.0:
   resolved "https://registry.yarnpkg.com/ag-charts-locale/-/ag-charts-locale-10.1.0.tgz#ec8d0fd803fec9ed96f3fe181348a7032322f959"
   integrity sha512-cClD9SeWtwnpwlPqrjR3weBuoF/wkL3K0bOndseDbv8SIDNL02PeMQoEEo8r3S5gTGBHfjYo2SghiiRNhRPFsg==
 
-ag-charts-react@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/ag-charts-react/-/ag-charts-react-10.0.0.tgz#ed265bceb543b932afd5caf62c8b089416acd2f0"
-  integrity sha512-K3xBh//xhiXcPzRM9wYxZDke2tjwAC9fYTa0q4dsddFMwNNZiTuM5rClVDY1d9rKknYd1oiIcjthfUCVzg6W/A==
+ag-charts-react@^10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/ag-charts-react/-/ag-charts-react-10.1.0.tgz#78a209b3ba52b2ed4eb72a7ab8f4a2f7beeb5f6d"
+  integrity sha512-+TCONJCM0zeU7KudP/sjwx7uwtJKFlpvtmrA/5HhtH9KOTfq/M6yeoH5f5UNt2+RncowVXWyAIgzt12WQ6uFtA==
 
 ag-charts-types@10.1.0:
   version "10.1.0"
