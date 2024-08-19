@@ -11,6 +11,7 @@ import EmailProvider from "next-auth/providers/email";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import nodemailer from "nodemailer";
+import { getVerificationEmailTemplate } from "~/utils/emailTemplates";
 
 // We're augmenting the Session type to include user roles and permissions in the session object.
 // We're defining the user object to have an id, roles, and permissions.
@@ -67,11 +68,11 @@ export const authOptions: NextAuthOptions = {
     }),
     EmailProvider({
       server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: parseInt(process.env.EMAIL_SERVER_PORT ?? "465"),
+        host: process.env.SENDGRID_SMTP_HOST,
+        port: parseInt(process.env.SENDGRID_SMTP_PORT ?? "465"),
         auth: {
-          user: process.env.EMAIL_SERVER_USERNAME,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
+          user: process.env.SENDGRID_SMTP_USER,
+          pass: process.env.SENDGRID_SMTP_PASSWORD,
         },
       },
       from: process.env.EMAIL_FROM,
@@ -82,12 +83,12 @@ export const authOptions: NextAuthOptions = {
         provider,
       }) => {
         const transporter = nodemailer.createTransport({
-          host: process.env.EMAIL_SERVER_HOST,
-          port: parseInt(process.env.EMAIL_SERVER_PORT ?? "465"),
+          host: process.env.SENDGRID_SMTP_HOST,
+          port: parseInt(process.env.SENDGRID_SMTP_PORT ?? "465"),
           secure: true, // use SSL
           auth: {
-            user: process.env.EMAIL_SERVER_USERNAME,
-            pass: process.env.EMAIL_SERVER_PASSWORD,
+            user: process.env.SENDGRID_SMTP_USER,
+            pass: process.env.SENDGRID_SMTP_PASSWORD,
           },
         });
 
@@ -96,12 +97,7 @@ export const authOptions: NextAuthOptions = {
           to: email,
           subject: "Verification email",
           text: `[Your Subject]`,
-          html: `
-          <div style="text-align: center; padding: 50px 0;">
-            <p style="font-weight: bold;"> Sign In to [Your Website]</p>
-            <a style="display: inline-block; background: #FCA311; padding: 12px 16px; border-radius: 8px; color: black; text-decoration: none; font-weight: bold;" href='${url}'>Sign In</a>
-          </div>
-          `,
+          html: getVerificationEmailTemplate(url),
         };
 
         await transporter.sendMail(mailOptions);

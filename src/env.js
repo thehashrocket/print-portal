@@ -37,8 +37,11 @@ export const env = createEnv({
     ),
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
-    SENDGRID_API_KEY: z.string(),
-    SENDGRID_FROM_EMAIL: z.string().email(),
+    SENDGRID_SMTP_USER: z.string(),
+    SENDGRID_SMTP_PASSWORD: z.string(),
+    SENDGRID_SMTP_HOST: z.string(),
+    SENDGRID_SMTP_PORT: z.string(),
+    SENDGRID_EMAIL_FROM: z.string().email(),
   },
 
   /**
@@ -62,8 +65,11 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-    SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL
+    SENDGRID_SMTP_USER: process.env.SENDGRID_SMTP_USER,
+    SENDGRID_SMTP_PASSWORD: process.env.SENDGRID_SMTP_PASSWORD,
+    SENDGRID_SMTP_HOST: process.env.SENDGRID_SMTP_HOST,
+    SENDGRID_SMTP_PORT: process.env.SENDGRID_SMTP_PORT,
+    SENDGRID_EMAIL_FROM: process.env.SENDGRID_EMAIL_FROM,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

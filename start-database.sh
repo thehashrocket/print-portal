@@ -41,5 +41,7 @@ if [ "$DB_PASSWORD" = "password" ]; then
 fi
 
 docker run --name $DB_CONTAINER_NAME -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_DB=thomson-print-portal -d -p 5432:5432 docker.io/postgres
-
+echo "DB_PASSWORD=$DB_PASSWORD"
+echo "DB_CONTAINER_NAME=$DB_CONTAINER_NAME"
+echo "DB_User=postgres"
 echo "Database container was successfully created"
