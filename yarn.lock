@@ -25,12 +25,20 @@
     ag-charts-types "10.0.0"
     tslib "^2.3.0"
 
-"@ag-grid-community/csv-export@^32.0.0":
-  version "32.0.0"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-32.0.0.tgz#9b6dc336ef412138911ca53a772aff90589a1555"
-  integrity sha512-5R6tcn4x7c1/9w7yGr/ytpYMwmYK+7N8XbSDRS3cvKWD1n2lrFk4T4Y4wT1Aassot4ANJZpKH5kKtR35Pr92Dw==
+"@ag-grid-community/core@32.1.0":
+  version "32.1.0"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/core/-/core-32.1.0.tgz#cbc50f00a63a3edc539d046fb712132c15092214"
+  integrity sha512-fHpgSZa/aBjg2DdOzooDxILFZqxmxP8vsjRfeZVtqby19mTKwNAclE7Z6rWzOA0GYjgN9s8JwLFcNA5pvfswMg==
   dependencies:
-    "@ag-grid-community/core" "32.0.0"
+    ag-charts-types "10.1.0"
+    tslib "^2.3.0"
+
+"@ag-grid-community/csv-export@^32.1.0":
+  version "32.1.0"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/csv-export/-/csv-export-32.1.0.tgz#fab827a8f16ad6924705573bbd2340ed9281508b"
+  integrity sha512-rtHY+MvfmzlRq3dH8prvoNPOmNrvSxZNDmxSYEGC/y12d6ucoAH+Q1cTksMx5d/LKrUXGCrd/jKoPEi9FSdkNA==
+  dependencies:
+    "@ag-grid-community/core" "32.1.0"
     tslib "^2.3.0"
 
 "@ag-grid-community/infinite-row-model@^32.0.0":
@@ -917,6 +925,11 @@ ag-charts-types@10.0.2:
   version "10.0.2"
   resolved "https://registry.yarnpkg.com/ag-charts-types/-/ag-charts-types-10.0.2.tgz#fe4d7aa3cdc4ba6f354d7b4bbf65818e242f2fd6"
   integrity sha512-Nxo5slHOXlaeg0gRIsVnovAosQzzlYfWJtdDy0Aq/VvpJru/PJ+5i2c9aCyEhgRxhBjImsoegwkgRj7gNOWV6Q==
+
+ag-charts-types@10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/ag-charts-types/-/ag-charts-types-10.1.0.tgz#f265665f6b92742bb0bc2dcfab319b21e6d78749"
+  integrity sha512-pk9ft8hbgTXJ/thI/SEUR1BoauNplYExpcHh7tMOqVikoDsta1O15TB1ZL4XWnl4TPIzROBmONKsz7d8a2HBuQ==
 
 ajv@^6.12.4:
   version "6.12.6"
