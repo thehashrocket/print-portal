@@ -8,12 +8,15 @@ import CompaniesTable from "../_components/companies/companiesTable";
 import Link from "next/link";
 import CompaniesChart from "../_components/companies/CompaniesChart";
 import { CompanyDashboardData } from "~/types/company";
+import NoPermission from "../_components/noPermission/noPremission";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();
 
     if (!session || !session.user.Permissions.includes("company_read")) {
-        return "You do not have permission to view this page";
+        return (
+            <NoPermission />
+        )
     }
 
     const companies: CompanyDashboardData[] = await api.companies.companyDashboard();

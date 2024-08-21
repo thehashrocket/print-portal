@@ -10,6 +10,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
 import { SerializedOrder, SerializedWorkOrder, SerializedOrderItem } from "~/types/seralizedTypes";
 import { OrderStatus } from "@prisma/client";
+import NoPermission from "../_components/noPermission/noPremission";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -28,7 +29,9 @@ export default async function DashboardPage() {
             .join(", ")
             .includes("order_read") === false
     ) {
-        return "You do not have permssion to view this page";
+        return (
+            <NoPermission />
+        )
     }
     // const orders = await api.orders.getAll();
     const workOrders = await api.workOrders.getAll();

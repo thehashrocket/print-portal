@@ -2,12 +2,15 @@ import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import UserManagementTable from "~/app/_components/users/userManagementTable";
+import NoPermission from "../_components/noPermission/noPremission";
 
 export default async function UsersPage() {
   const session = await getServerAuthSession();
 
   if (!session || !session.user) {
-    return <div className="alert alert-error">You must be logged in to view this page</div>;
+    return (
+      <NoPermission />
+    )
   }
 
   if (!session || !session.user.Permissions.includes("user_create")) {

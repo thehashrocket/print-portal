@@ -10,6 +10,7 @@ import Link from "next/link";
 import { WorkOrder } from "@prisma/client";
 import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
 import { SerializedWorkOrder } from "~/types/workOrder";
+import NoPermission from "~/app/_components/noPermission/noPremission";
 
 type WorkOrderWithRelations = WorkOrder & {
   Order?: {
@@ -34,7 +35,9 @@ export default async function WorkOrdersPage() {
   const session = await getServerAuthSession();
 
   if (!session || !session.user.Permissions.includes("work_order_read")) {
-    throw new Error("You do not have permission to view this page");
+    return (
+      <NoPermission />
+    )
   }
 
   const workOrders = await api.workOrders.getAll();

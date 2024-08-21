@@ -8,6 +8,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { Order } from "@prisma/client";
 import OrdersTable from "../_components/orders/ordersTable";
 import Link from "next/link";
+import NoPermission from "../_components/noPermission/noPremission";
 
 type SerializedOrder = Omit<Order, 'deposit' | 'totalCost' | 'createdAt' | 'updatedAt'> & {
   deposit: string;
@@ -28,7 +29,9 @@ export default async function OrdersPage() {
   const session = await getServerAuthSession();
 
   if (!session || !session.user.Permissions.includes("order_read")) {
-    throw new Error("You do not have permission to view this page");
+    return (
+      <NoPermission />
+    )
   }
 
   const orders = await api.orders.getAll();
