@@ -1,7 +1,7 @@
 import sgMail from '@sendgrid/mail';
 
 // Initialize SendGrid with your API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+sgMail.setApiKey(process.env.SENDGRID_SMTP_PASSWORD as string);
 
 export async function sendInvoiceEmail(to: string, subject: string, html: string, attachmentContent: string) {
     const msg = {
