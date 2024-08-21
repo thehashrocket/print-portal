@@ -1,8 +1,7 @@
 import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import UsersTable from "./usersTable";
-import { UserWithRoles } from "~/types/user";
+import UserManagementTable from "~/app/_components/users/userManagementTable";
 
 export default async function UsersPage() {
   const session = await getServerAuthSession();
@@ -15,7 +14,7 @@ export default async function UsersPage() {
     throw new Error("You do not have permission to view this page");
   }
 
-  const users: UserWithRoles[] = await api.users.getAll();
+  const users = await api.userManagement.getAllUsers();
 
   return (
     <div className="container mx-auto">
@@ -29,7 +28,7 @@ export default async function UsersPage() {
           </button>
         </div>
       </div>
-      {users && <UsersTable users={users} />}
+      <UserManagementTable initialUsers={users} />
     </div>
   );
 }
