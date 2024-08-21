@@ -11,6 +11,7 @@ import { shippingInfoRouter } from "./routers/shared/shippingInfo";
 import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesettingOptions";
 import { typesettingProofsRouter } from "./routers/shared/typesetting/typesettingProofs";
 import { typesettingRouter } from "./routers/shared/typesetting/typesetting";
+import { userManagementRouter } from "./routers/userManagement/userManagement";
 import { userRouter } from "~/server/api/routers/user";
 import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
@@ -35,6 +36,7 @@ export const appRouter = createTRPCRouter({
   typesettings: typesettingRouter,
   typesettingOptions: typesettingOptionsRouter,
   typesettingProofs: typesettingProofsRouter,
+  userManagement: userManagementRouter,
   users: userRouter,
   workOrderNotes: workOrderNoteRouter,
   workOrders: workOrderRouter,
