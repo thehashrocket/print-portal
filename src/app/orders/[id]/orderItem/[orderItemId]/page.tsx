@@ -9,6 +9,7 @@
 
 "use server";
 import React from "react";
+import NoPermission from "~/app/_components/noPermission/noPremission";
 import OrderItemComponent from "~/app/_components/orders/orderItem/orderItemComponent";
 
 import { getServerAuthSession } from "~/server/auth";
@@ -26,7 +27,9 @@ export default async function OrderItemPage({
 
     // Check if user has permission to view the page
     if (!session || !session.user.Permissions.includes("order_read")) {
-        return "You do not have permission to view this page";
+        return (
+            <NoPermission />
+        )
     }
 
     return (

@@ -10,6 +10,7 @@ import OrderNotesComponent from "~/app/_components/orders/orderNotesComponent";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Prisma, OrderStatus } from "@prisma/client";
+import NoPermission from "~/app/_components/noPermission/noPremission";
 
 type Decimal = Prisma.Decimal;
 
@@ -44,7 +45,9 @@ export default async function OrderPage({
   const session = await getServerAuthSession();
 
   if (!session?.user.Permissions.includes("work_order_read")) {
-    throw new Error("You do not have permission to view this page");
+    return (
+      <NoPermission />
+    )
   }
 
   const order = await api.orders.getByID(id);

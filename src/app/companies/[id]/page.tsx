@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Company, Office, Address, WorkOrder, Order } from "@prisma/client";
 import IndividualCompanyPage, { SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
 import { Decimal } from "@prisma/client/runtime/library";
+import NoPermission from "~/app/_components/noPermission/noPremission";
 
 const Header: React.FC<{ companyName: string }> = ({ companyName }) => (
     <div className="navbar bg-base-100 shadow-lg rounded-box mb-4">
@@ -75,7 +76,9 @@ export default async function CompanyPage(
     const company = await api.companies.getByID(id);
 
     if (!session || !session.user.Permissions.includes("company_read")) {
-        return <div className="alert alert-warning">You do not have permission to view this page</div>;
+        return (
+            <NoPermission />
+        )
     }
 
     if (!company) {

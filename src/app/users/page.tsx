@@ -14,7 +14,7 @@ export default async function UsersPage() {
   }
 
   if (!session || !session.user.Permissions.includes("user_create")) {
-    throw new Error("You do not have permission to view this page");
+    <NoPermission />
   }
 
   const users = await api.userManagement.getAllUsers();

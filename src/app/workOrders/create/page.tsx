@@ -6,6 +6,7 @@ import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
 import CreateWorkOrderComponent from "~/app/_components/workOrders/create/createWorkOrderComponent";
+import NoPermission from "~/app/_components/noPermission/noPremission";
 
 
 export default async function CreateWorkOrderPage() {
@@ -14,7 +15,9 @@ export default async function CreateWorkOrderPage() {
 
     // Check if user has permission to view the page
     if (!session || !session.user.Permissions.includes("work_order_create")) {
-        return "You do not have permission to view this page";
+        return (
+            <NoPermission />
+        )
     }
 
     // Render the component
