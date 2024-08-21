@@ -1,10 +1,24 @@
 // ~/src/app/_components/users/userManagementTable.tsx
 "use client";
 
-import React, { useState } from 'react';
-import { api } from "~/trpc/react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import "@ag-grid-community/styles/ag-grid.css";
+import "@ag-grid-community/styles/ag-theme-alpine.css";
+import {
+    ColDef,
+    ModuleRegistry,
+    GridReadyEvent,
+    FilterChangedEvent,
+    ICellRendererParams
+} from "@ag-grid-community/core";
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { User, Role } from "@prisma/client";
+import { api } from "~/trpc/react";
 import EditUserRolesModal from './editUserRolesModal';
+import Link from "next/link";
+
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface UserWithRoles extends User {
     Roles: Role[];
@@ -15,7 +29,9 @@ interface UserManagementTableProps {
 }
 
 const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers }) => {
-    const [users, setUsers] = useState<UserWithRoles[]>(initialUsers);
+    const gridRef = useRef<AgGridReact>(null);
+    const [rowData, setRowData] = useState<UserWithRoles[]>(initialUsers);
+    const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,6 +40,60 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         refetchOnMount: false,
         refetchOnWindowFocus: false,
     });
+
+    const defaultColDef = useMemo(() => ({
+        resizable: true,
+        sortable: true,
+        filter: true,
+    }), []);
+
+    const actionsCellRenderer = (props: ICellRendererParams) => (
+        <div className="grid grid-cols-3 gap-1">
+            <button
+                onClick={() => handleEditRoles(props.data)}
+                className="btn btn-xs btn-primary m-1"
+            >
+                Edit Roles
+            </button>
+            <Link href={`/users/${props.data.id}`} className="btn btn-xs btn-secondary m-1">
+                <span >View User</span>
+            </Link>
+            <button
+                onClick={() => console.log("Delete user")}
+                className="btn btn-xs btn-danger m-1"
+            >
+                Delete User
+            </button>
+        </div>
+
+    );
+
+    const rolesCellRenderer = (props: ICellRendererParams) => (
+        <span>{props.data.Roles.map((role: Role) => role.name).join(', ')}</span>
+    );
+
+    const columnDefs: ColDef[] = [
+        { headerName: "Name", field: "name", filter: true },
+        { headerName: "Email", field: "email", filter: true },
+        { headerName: "Roles", field: "Roles", cellRenderer: rolesCellRenderer, filter: true },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false },
+    ];
+
+    useEffect(() => {
+        if (updatedUsers) {
+            setRowData(updatedUsers);
+            setLoading(false);
+        }
+    }, [updatedUsers]);
+
+    const onGridReady = (params: GridReadyEvent) => {
+        params.api.sizeColumnsToFit();
+    };
+
+    const onFilterChanged = (event: FilterChangedEvent) => {
+        const filteredRowCount = event.api.getDisplayedRowCount();
+        console.log(`Rows after filter: ${filteredRowCount}`);
+    };
 
     const handleEditRoles = (user: UserWithRoles) => {
         setSelectedUser(user);
@@ -37,39 +107,36 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
 
     const handleUpdateRoles = () => {
         // Refresh the user list after role update
-        setUsers(updatedUsers);
+        if (updatedUsers) {
+            setRowData(updatedUsers);
+        }
         handleCloseModal();
     };
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
     return (
         <div>
-            <table className="table w-full">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Roles</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td>{user.name}</td>
-                            <td>{user.email}</td>
-                            <td>{user.Roles.map(role => role.name).join(', ')}</td>
-                            <td>
-                                <button
-                                    onClick={() => handleEditRoles(user)}
-                                    className="btn btn-sm btn-primary"
-                                >
-                                    Edit Roles
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+                <AgGridReact
+                    ref={gridRef}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                    rowData={rowData}
+                    rowSelection="single"
+                    onGridReady={onGridReady}
+                    onFilterChanged={onFilterChanged}
+                    animateRows={true}
+                    pagination={true}
+                    paginationPageSize={20}
+                />
+            </div>
 
             {selectedUser && (
                 <EditUserRolesModal

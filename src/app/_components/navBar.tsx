@@ -1,12 +1,16 @@
 "use server";
+
 import React from "react";
 import Link from "next/link";
+import { getServerAuthSession } from "~/server/auth";
 
-const NavBar = () => {
+const NavBar = async () => {
+  const session = await getServerAuthSession();
+
   return (
     <nav className="bg-gray-800 p-4">
       <div className="mx-auto max-w-7xl">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <div className="flex space-x-4">
             <Link href="/">
               <span className="text-white">Home</span>
@@ -27,7 +31,14 @@ const NavBar = () => {
               <span className="text-white">Users</span>
             </Link>
           </div>
-          {/* Add additional elements like user profile, logout button, etc. */}
+          <div className="flex items-center space-x-4">
+            {session?.user && (
+              <Link href={`/users/${session.user.id}`}>
+                <span className="text-white hover:text-gray-300">Profile</span>
+              </Link>
+            )}
+            {/* Add additional elements like logout button, etc. */}
+          </div>
         </div>
       </div>
     </nav>

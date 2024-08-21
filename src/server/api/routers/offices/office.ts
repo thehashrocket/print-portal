@@ -5,6 +5,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { Address, AddressType, Office } from "@prisma/client"; // Import the Office model
+import { TRPCError } from "@trpc/server";
 
 export const officeRouter = createTRPCRouter({
     // Get an Office by ID
@@ -31,30 +32,36 @@ export const officeRouter = createTRPCRouter({
         }),
     // Get Offices by Company ID
     getByCompanyId: protectedProcedure
-        .input(z.string()).query(({ ctx, input }) => {
+        .input(z.string())
+        .query(async ({ ctx, input }) => {
             return ctx.db.office.findMany({
                 where: {
                     companyId: input,
                 },
                 include: {
-                    Addresses: true, // Include the Address associated with the Office
-                    WorkOrders: {
-                        include: {
-                            WorkOrderItems: true, // Include the WorkOrderItems associated with the WorkOrder
-                        },
-                    },
-                    Orders: {
-                        include: {
-                            OrderItems: true, // Include the OrderItems associated with the Order
-                        },
-                    },
+                    Company: true,
                 },
             });
         }),
     // Return Offices
     getAll: protectedProcedure
-        .query(({ ctx }) => {
-            return ctx.db.office.findMany();
+        .query(async ({ ctx }) => {
+            // Check if the user has permission to view all offices
+            const canViewOffices = ctx.session.user.Roles.includes("Admin") ||
+                ctx.session.user.Permissions.includes("office_read");
+
+            if (!canViewOffices) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You don't have permission to view all offices",
+                });
+            }
+
+            return ctx.db.office.findMany({
+                include: {
+                    Company: true,
+                },
+            });
         }),
     // Create an Office
     create: protectedProcedure

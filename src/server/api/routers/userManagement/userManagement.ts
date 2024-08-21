@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { RoleName } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 export const userManagementRouter = createTRPCRouter({
     getAllUsers: protectedProcedure
@@ -11,6 +12,84 @@ export const userManagementRouter = createTRPCRouter({
                     Roles: true,
                 },
             });
+        }),
+
+    getUserById: protectedProcedure
+        .input(z.string())
+        .query(async ({ ctx, input }) => {
+            const user = await ctx.db.user.findUnique({
+                where: { id: input },
+                include: {
+                    Roles: true,
+                    Office: {
+                        include: {
+                            Company: true,
+                        },
+                    },
+                },
+            });
+
+            if (!user) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found",
+                });
+            }
+
+            return user;
+        }),
+
+    updateUser: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            name: z.string(),
+            email: z.string().email(),
+            officeId: z.string().optional(),
+            roleIds: z.array(z.string()),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { id, roleIds, ...updateData } = input;
+
+            // Check if the user has permission to update
+            const isOwnProfile = ctx.session.user.id === id;
+            const isAdmin = ctx.session.user.Roles.includes("Admin");
+            const hasEditPermission = isAdmin || ctx.session.user.Permissions.some((p: string) =>
+                ["user_create", "user_update", "user_edit"].includes(p)
+            );
+
+            if (!isOwnProfile && !hasEditPermission) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You don't have permission to update this user",
+                });
+            }
+
+            // If not an admin or doesn't have edit permission, remove office and role updates
+            if (!hasEditPermission) {
+                delete updateData.officeId;
+            }
+
+            const updatedUser = await ctx.db.user.update({
+                where: { id },
+                data: {
+                    ...updateData,
+                    ...(hasEditPermission && {
+                        Roles: {
+                            set: roleIds.map(id => ({ id })),
+                        },
+                    }),
+                },
+                include: {
+                    Roles: true,
+                    Office: {
+                        include: {
+                            Company: true,
+                        },
+                    },
+                },
+            });
+
+            return updatedUser;
         }),
 
     updateUserRoles: protectedProcedure

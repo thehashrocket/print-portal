@@ -1,3 +1,4 @@
+import { addressRouter } from "./routers/shared/address";
 import { companyRouter } from "./routers/companies/company";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { invoiceRouter } from "./routers/invoices/invoice";
@@ -6,6 +7,7 @@ import { orderItemRouter } from "./routers/orderItems/orderItem";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
 import { orderRouter } from "./routers/orders/order";
 import { postRouter } from "~/server/api/routers/post";
+import { rolesRouter } from "./routers/roles/roles";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
 import { shippingInfoRouter } from "./routers/shared/shippingInfo";
 import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesettingOptions";
@@ -16,7 +18,6 @@ import { userRouter } from "~/server/api/routers/user";
 import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
-import { addressRouter } from "./routers/shared/address";
 /**
  * This is the primary router for your server.
  *
@@ -32,6 +33,7 @@ export const appRouter = createTRPCRouter({
   orderNotes: orderNoteRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
+  roles: rolesRouter,
   shippingInfo: shippingInfoRouter,
   typesettings: typesettingRouter,
   typesettingOptions: typesettingOptionsRouter,

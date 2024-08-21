@@ -10,7 +10,7 @@ export default async function UsersPage() {
     return <div className="alert alert-error">You must be logged in to view this page</div>;
   }
 
-  if (!session || !session.user.Permissions.includes("order_read")) {
+  if (!session || !session.user.Permissions.includes("user_create")) {
     throw new Error("You do not have permission to view this page");
   }
 
