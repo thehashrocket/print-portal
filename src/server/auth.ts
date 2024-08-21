@@ -1,3 +1,5 @@
+// src/server/auth.ts
+
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
   getServerSession,
@@ -75,7 +77,7 @@ export const authOptions: NextAuthOptions = {
           pass: process.env.SENDGRID_SMTP_PASSWORD,
         },
       },
-      from: process.env.EMAIL_FROM,
+      from: process.env.SENDGRID_EMAIL_FROM,
       sendVerificationRequest: async ({
         identifier: email,
         url,
@@ -93,13 +95,17 @@ export const authOptions: NextAuthOptions = {
         });
 
         const mailOptions = {
-          from: process.env.EMAIL_FROM,
+          from: process.env.SENDGRID_EMAIL_FROM,
           to: email,
           subject: "Verification email",
           text: `[Your Subject]`,
-          html: getVerificationEmailTemplate(url),
+          html: `
+          <div style="text-align: center; padding: 50px 0;">
+            <p style="font-weight: bold;"> Sign In to [Your Website]</p>
+            <a style="display: inline-block; background: #FCA311; padding: 12px 16px; border-radius: 8px; color: black; text-decoration: none; font-weight: bold;" href='${url}'>Sign In</a>
+          </div>
+          `,
         };
-
         await transporter.sendMail(mailOptions);
       },
     }),

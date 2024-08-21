@@ -3,13 +3,23 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function SignIn() {
     const [email, setEmail] = useState("");
+    const [message, setMessage] = useState("");
+    const searchParams = useSearchParams();
+    const error = searchParams.get("error");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await signIn("email", { email, callbackUrl: "/dashboard" });
+        setMessage("Sending magic link...");
+        const result = await signIn("email", { email, callbackUrl: "/dashboard", redirect: false });
+        if (result?.error) {
+            setMessage("Error: " + result.error);
+        } else {
+            setMessage("Check your email for the magic link!");
+        }
     };
 
     return (
@@ -19,6 +29,16 @@ export default function SignIn() {
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         Sign in to your account
                     </h2>
+                    {error && (
+                        <p className="mt-2 text-center text-sm text-red-600">
+                            {error === "EmailSignin" ? "Check your email for the magic link!" : error}
+                        </p>
+                    )}
+                    {message && (
+                        <p className="mt-2 text-center text-sm text-blue-600">
+                            {message}
+                        </p>
+                    )}
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <input type="hidden" name="remember" defaultValue="true" />
