@@ -6,16 +6,16 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { InvoicePrintEmailOptions, WorkOrderStatus } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
+import { Prisma } from "@prisma/client";
 
 export const workOrderRouter = createTRPCRouter({
   // Get an Order by ID
   // Include workOrderItems, WorkOrderStock, WorkOrderVersions, Typesetting, ProcessiongOptions, and WorkOrderNote
   getByID: protectedProcedure
-    .input(z.string()).query(({ ctx, input }) => {
-      return ctx.db.workOrder.findUnique({
-        where: {
-          id: input,
-        },
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const workOrder = await ctx.db.workOrder.findUnique({
+        where: { id: input },
         include: {
           createdBy: true,
           WorkOrderItems: {
@@ -53,28 +53,35 @@ export const workOrderRouter = createTRPCRouter({
           },
           Office: {
             include: {
-              Company: true // Include the Company model associated with the Office
+              Company: true
             }
           }
         },
       });
+
+      if (!workOrder) return null;
+
+      const totalCost = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input },
+        _sum: { amount: true }
+      });
+
+      return {
+        ...workOrder,
+        totalCost: totalCost._sum.amount || new Prisma.Decimal(0)
+      };
     }),
   // Create a new Work Order
   createWorkOrder: protectedProcedure
     .input(z.object({
       dateIn: z.date(),
-      deposit: z.number(),
-      description: z.string(),
       estimateNumber: z.string(),
-      expectedDate: z.date(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
       purchaseOrderNumber: z.string(),
       shippingInfoId: z.string().optional().nullable(),
-      specialInstructions: z.string().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
-      totalCost: z.number(),
       workOrderNumber: z.number(),
       workOrderItems: z.array(z.object({
         itemId: z.string(),
@@ -92,16 +99,11 @@ export const workOrderRouter = createTRPCRouter({
       return ctx.db.workOrder.create({
         data: {
           dateIn: input.dateIn,
-          deposit: input.deposit,
-          description: input.description,
           estimateNumber: input.estimateNumber,
-          expectedDate: input.expectedDate,
           inHandsDate: input.inHandsDate,
           invoicePrintEmail: input.invoicePrintEmail,
           purchaseOrderNumber: input.purchaseOrderNumber,
-          specialInstructions: input.specialInstructions,
           status: input.status,
-          totalCost: input.totalCost,
           workOrderNumber: input.workOrderNumber,
           Office: {
             connect: {
@@ -160,18 +162,31 @@ export const workOrderRouter = createTRPCRouter({
   // Return WorkOrders
   // Include Order Id if the Work Order is converted to an Order
   getAll: protectedProcedure
-    .query(({ ctx }) => {
-      return ctx.db.workOrder.findMany(
-        {
-          include: {
-            Order: {
-              select: {
-                id: true
-              }
+    .query(async ({ ctx }) => {
+      const workOrders = await ctx.db.workOrder.findMany({
+        include: {
+          Order: {
+            select: {
+              id: true
             }
-          }
+          },
+          WorkOrderItems: true
         }
-      );
+      });
+
+      const workOrdersWithTotalCost = await Promise.all(workOrders.map(async (workOrder) => {
+        const totalCost = await ctx.db.workOrderItem.aggregate({
+          where: { workOrderId: workOrder.id },
+          _sum: { amount: true }
+        });
+
+        return {
+          ...workOrder,
+          totalCost: totalCost._sum.amount || new Prisma.Decimal(0)
+        };
+      }));
+
+      return workOrdersWithTotalCost;
     }),
   // update status of a work order
   updateStatus: protectedProcedure

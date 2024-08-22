@@ -11,17 +11,11 @@ import { useRouter } from 'next/navigation'
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.date(),
-    deposit: z.number().default(0),
-    description: z.string().default(''),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
-    expectedDate: z.string(),
     inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
-    prepTime: z.number().optional().nullable().default(null),
     purchaseOrderNumber: z.string().min(1, 'Purchase Order Number is required'),
-    specialInstructions: z.string().optional().nullable().default(null),
-    status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']),
-    totalCost: z.number().optional().nullable().default(null),
+    status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
     workOrderNumber: z.number().default(0),
 });
@@ -67,11 +61,8 @@ const WorkOrderForm: React.FC = () => {
             officeId: selectedOffice ? selectedOffice : '',
             shippingInfoId: null,
             createdById: '',
-            deposit: data.deposit,
-            totalCost: data.totalCost ? data.totalCost : 0,
             dateIn: data.dateIn ? new Date(data.dateIn) : new Date(),
             inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : new Date(),
-            expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
         };
 
         createWorkOrderMutation.mutate(newWorkOrder, {
@@ -92,26 +83,6 @@ const WorkOrderForm: React.FC = () => {
             <form onSubmit={handleFormSubmit} className="space-y-4">
                 {/* Form fields */}
                 <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                    <input id="description" {...register('description')} className="input input-bordered w-full" />
-                    {errors.description && <p className="text-red-500">{errors.description.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Work Order Number</label>
-                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', { valueAsNumber: true })} className="input input-bordered w-full" />
-                    {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="status" {...register('status')} className="select select-bordered w-full">
-                        <option value="Approved">Approved</option>
-                        <option value="Cancelled">Cancelled</option>
-                        <option value="Draft">Draft</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                    {errors.status && <p className="text-red-500">{errors.status.message}</p>}
-                </div>
-                <div>
                     <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
                     <select id="company" onChange={(e) => setSelectedCompany(e.target.value)} className="select select-bordered w-full">
                         <option value="">Select a Company</option>
@@ -131,7 +102,6 @@ const WorkOrderForm: React.FC = () => {
                         </select>
                     </div>
                 )}
-                {/* Additional form fields */}
                 <div>
                     <label htmlFor="dateIn" className="block text-sm font-medium text-gray-700">Date In</label>
                     <input id="dateIn" type="date" {...register('dateIn')} className="input input-bordered w-full" />
@@ -141,30 +111,6 @@ const WorkOrderForm: React.FC = () => {
                     <label htmlFor="inHandsDate" className="block text-sm font-medium text-gray-700">In Hands Date</label>
                     <input id="inHandsDate" type="date" {...register('inHandsDate')} className="input input-bordered w-full" />
                     {errors.inHandsDate && <p className="text-red-500">{errors.inHandsDate.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="expectedDate" className="block text-sm font-medium text-gray-700">Expected Date</label>
-                    <input id="expectedDate" type="date" {...register('expectedDate')} className="input input-bordered w-full" />
-                    {errors.expectedDate && <p className="text-red-500">{errors.expectedDate.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">Deposit</label>
-                    <input id="deposit" type="number" step="0.01" {...register('deposit', { valueAsNumber: true })} className="input input-bordered w-full" />
-                    {errors.deposit && <p className="text-red-500">{errors.deposit.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="invoicePrintEmail" className="block text-sm font-medium text-gray-700">Invoice Print/Email</label>
-                    <select id="invoicePrintEmail" {...register('invoicePrintEmail')} className="select select-bordered w-full">
-                        <option value="Print">Print</option>
-                        <option value="Email">Email</option>
-                        <option value="Both">Both</option>
-                    </select>
-                    {errors.invoicePrintEmail && <p className="text-red-500">{errors.invoicePrintEmail.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor="prepTime" className="block text-sm font-medium text-gray-700">Prep Time</label>
-                    <input id="prepTime" type="number" {...register('prepTime', { valueAsNumber: true })} className="input input-bordered w-full" />
-                    {errors.prepTime && <p className="text-red-500">{errors.prepTime.message}</p>}
                 </div>
                 <div>
                     <label htmlFor="estimateNumber" className="block text-sm font-medium text-gray-700">Estimate Number</label>
@@ -177,14 +123,31 @@ const WorkOrderForm: React.FC = () => {
                     {errors.purchaseOrderNumber && <p className="text-red-500">{errors.purchaseOrderNumber.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor="specialInstructions" className="block text-sm font-medium text-gray-700">Special Instructions</label>
-                    <textarea id="specialInstructions" {...register('specialInstructions')} className="textarea textarea-bordered w-full"></textarea>
+                    <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
+                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', { valueAsNumber: true })} className="input input-bordered w-full" />
+                    {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor="totalCost" className="block text-sm font-medium text-gray-700">Total Cost</label>
-                    <input id="totalCost" type="number" step="0.01" {...register('totalCost', { valueAsNumber: true })} className="input input-bordered w-full" />
-                    {errors.totalCost && <p className="text-red-500">{errors.totalCost.message}</p>}
+                    <label htmlFor="invoicePrintEmail" className="block text-sm font-medium text-gray-700">Invoice Type</label>
+                    <select id="invoicePrintEmail" {...register('invoicePrintEmail')} className="select select-bordered w-full">
+                        <option value="Print">Print</option>
+                        <option value="Email">Email</option>
+                        <option value="Both">Both</option>
+                    </select>
+                    {errors.invoicePrintEmail && <p className="text-red-500">{errors.invoicePrintEmail.message}</p>}
                 </div>
+                <div>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" {...register('status')} className="select select-bordered w-full">
+                        <option value="Approved">Approved</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                    {errors.status && <p className="text-red-500">{errors.status.message}</p>}
+                </div>
+
+                {/* Additional form fields */}
                 <button type="submit" className="btn btn-primary">Submit and Next Step</button>
             </form>
         </div>

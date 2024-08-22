@@ -120,31 +120,27 @@ model Office {
 }
 
 model Order {
-  id                  String                   @id @default(uuid())
-  workOrderId         String                   @unique
-  officeId            String
-  status              OrderStatus              @default(Pending)
-  specialInstructions String?
-  expectedDate        DateTime                 @default(now())
-  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
-  totalCost           Decimal                  @default(0) @db.Decimal(10, 2)
-  version             Int                      @default(1)
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
-  description         String                   @default("")
-  orderNumber         Int                      @default(autoincrement())
-  shippingInfoId      String?
-  dateInvoiced        DateTime?
-  inHandsDate         DateTime?
-  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
-  createdById         String
-  Invoice             Invoice?
-  createdBy           User                     @relation(fields: [createdById], references: [id])
-  Office              Office                   @relation(fields: [officeId], references: [id])
-  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
-  OrderItems          OrderItem[]
-  OrderNotes          OrderNote[]
+  id                String                   @id @default(uuid())
+  workOrderId       String                   @unique
+  officeId          String
+  status            OrderStatus              @default(Pending)
+  deposit           Decimal                  @default(0) @db.Decimal(10, 2)
+  version           Int                      @default(1)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  orderNumber       Int                      @default(autoincrement())
+  shippingInfoId    String?
+  dateInvoiced      DateTime?
+  inHandsDate       DateTime?
+  invoicePrintEmail InvoicePrintEmailOptions @default(Both)
+  createdById       String
+  Invoice           Invoice?
+  createdBy         User                     @relation(fields: [createdById], references: [id])
+  Office            Office                   @relation(fields: [officeId], references: [id])
+  ShippingInfo      ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
+  OrderItems        OrderItem[]
+  OrderNotes        OrderNote[]
 }
 
 model OrderItem {
@@ -382,14 +378,9 @@ model WorkOrder {
   inHandsDate         DateTime
   estimateNumber      String
   purchaseOrderNumber String
-  specialInstructions String?
-  expectedDate        DateTime                 @default(now())
-  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
-  totalCost           Decimal                  @default(0) @db.Decimal(10, 2)
   version             Int                      @default(autoincrement())
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
-  description         String                   @default("")
   workOrderNumber     Int                      @default(autoincrement())
   shippingInfoId      String?
   status              WorkOrderStatus          @default(Draft)

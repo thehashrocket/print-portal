@@ -36,7 +36,6 @@ export interface SerializedWorkOrder {
     workOrderNumber: number;
     status: WorkOrderStatus;
     totalCost: string | null;
-    deposit: string;
     // Add other necessary fields
 }
 
@@ -47,7 +46,6 @@ export interface SerializedOrder {
     orderNumber: number;
     status: OrderStatus;
     totalCost: string | null;
-    deposit: string | null;
     // Add other necessary fields
 }
 

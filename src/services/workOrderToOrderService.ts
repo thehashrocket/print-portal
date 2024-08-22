@@ -67,14 +67,9 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
 async function createOrder(tx: Prisma.TransactionClient, workOrder: WorkOrderWithRelations, officeId: string) {
     const order = await tx.order.create({
         data: {
-            deposit: workOrder.deposit,
-            description: workOrder.description,
-            expectedDate: workOrder.expectedDate,
             officeId,
             shippingInfoId: workOrder.shippingInfoId ?? undefined,
-            specialInstructions: workOrder.specialInstructions,
             status: "Pending",
-            totalCost: workOrder.totalCost,
             createdById: workOrder.createdById,
             workOrderId: workOrder.id,
             version: 1,

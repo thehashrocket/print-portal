@@ -5,7 +5,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
-import { Company, Office, Address, WorkOrder, Order } from "@prisma/client";
+import { Company, Office, Address, WorkOrder, WorkOrderItem, Order, OrderItem, OrderStatus, AddressType } from "@prisma/client";
 import IndividualCompanyPage, { SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
 import { Decimal } from "@prisma/client/runtime/library";
 import NoPermission from "~/app/_components/noPermission/noPremission";
@@ -30,11 +30,27 @@ const Breadcrumbs: React.FC = () => (
     </div>
 );
 
+type ExtendedOrder = Order & {
+    OrderItems: OrderItem[];
+    totalCost: Decimal | null;
+};
+
+type ExtendedWorkOrder = WorkOrder & {
+    WorkOrderItems: WorkOrderItem[];
+    totalCost: Decimal | null;
+};
+
 function serializeCompany(company: Company & {
     Offices: (Office & {
         Addresses: Address[],
-        WorkOrders: WorkOrder[],
-        Orders: Order[]
+        WorkOrders: (WorkOrder & {
+            WorkOrderItems: WorkOrderItem[],
+            totalCost?: Decimal | null
+        })[],
+        Orders: (Order & {
+            OrderItems: OrderItem[],
+            totalCost?: Decimal | null
+        })[]
     })[]
 }): SerializedCompany {
     return {
@@ -51,20 +67,40 @@ function serializeCompany(company: Company & {
                 ...address,
                 createdAt: address.createdAt.toISOString(),
                 updatedAt: address.updatedAt.toISOString(),
+                addressType: address.addressType as AddressType,
             })),
             WorkOrders: office.WorkOrders.map(workOrder => ({
                 ...workOrder,
                 createdAt: workOrder.createdAt.toISOString(),
                 updatedAt: workOrder.updatedAt.toISOString(),
+                dateIn: workOrder.dateIn.toISOString(),
+                inHandsDate: workOrder.inHandsDate.toISOString(),
                 totalCost: workOrder.totalCost?.toString() ?? null,
-                deposit: workOrder.deposit.toString(),
+                WorkOrderItems: workOrder.WorkOrderItems.map(item => ({
+                    ...item,
+                    createdAt: item.createdAt.toISOString(),
+                    updatedAt: item.updatedAt.toISOString(),
+                    expectedDate: item.expectedDate?.toISOString() ?? null,
+                    amount: item.amount?.toString() ?? null,
+                    cost: item.cost?.toString() ?? null,
+                    costPerM: item.costPerM.toString(),
+                })),
             })),
             Orders: office.Orders.map(order => ({
                 ...order,
                 createdAt: order.createdAt.toISOString(),
                 updatedAt: order.updatedAt.toISOString(),
                 totalCost: order.totalCost?.toString() ?? null,
-                deposit: order.deposit?.toString() ?? null,
+                deposit: order.deposit.toString(),
+                status: order.status as OrderStatus,
+                OrderItems: order.OrderItems.map(item => ({
+                    ...item,
+                    createdAt: item.createdAt.toISOString(),
+                    updatedAt: item.updatedAt.toISOString(),
+                    amount: item.amount?.toString() ?? null,
+                    cost: item.cost?.toString() ?? null,
+                    costPerM: item.costPerM?.toString() ?? null,
+                })),
             })),
         })),
     };

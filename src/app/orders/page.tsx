@@ -5,19 +5,21 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import { Order } from "@prisma/client";
+import { Order, Prisma } from "@prisma/client";
 import OrdersTable from "../_components/orders/ordersTable";
 import Link from "next/link";
 import NoPermission from "../_components/noPermission/noPremission";
 
-type SerializedOrder = Omit<Order, 'deposit' | 'totalCost' | 'createdAt' | 'updatedAt'> & {
+type OrderWithTotalCost = Order & { totalCost: Prisma.Decimal };
+
+type SerializedOrder = Omit<Order, 'deposit' | 'createdAt' | 'updatedAt'> & {
   deposit: string;
   totalCost: string;
   createdAt: string;
   updatedAt: string;
 };
 
-const serializeOrder = (order: Order): SerializedOrder => ({
+const serializeOrder = (order: OrderWithTotalCost): SerializedOrder => ({
   ...order,
   deposit: order.deposit.toString(),
   totalCost: order.totalCost.toString(),
@@ -29,9 +31,7 @@ export default async function OrdersPage() {
   const session = await getServerAuthSession();
 
   if (!session || !session.user.Permissions.includes("order_read")) {
-    return (
-      <NoPermission />
-    )
+    return <NoPermission />;
   }
 
   const orders = await api.orders.getAll();
@@ -42,10 +42,7 @@ export default async function OrdersPage() {
       <header className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Orders</h1>
-          <Link
-            className="btn btn-primary"
-            href="/orders/create"
-          >
+          <Link className="btn btn-primary" href="/orders/create">
             Create Order
           </Link>
         </div>

@@ -143,21 +143,6 @@ export default async function OrderPage({
             />
           </div>
         </section>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Notes & Instructions</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <InfoSection
-              title="Order Notes"
-              content={<OrderNotesComponent notes={order.OrderNotes} orderId={order.id} />}
-            />
-            <InfoSection
-              title="Special Instructions"
-              content={order.specialInstructions || 'No special instructions'}
-            />
-          </div>
-        </section>
-
         <section>
           <h2 className="text-2xl font-semibold mb-4">Order Items</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">

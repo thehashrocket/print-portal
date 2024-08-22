@@ -1,16 +1,13 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus } from "@prisma/client"; // Import the OrderStatus enum
+import { OrderStatus, Prisma } from "@prisma/client";
 
-// Get an Order by ID
-// Include Typesetting, ProcessionOptions, and OrderItems
 export const orderRouter = createTRPCRouter({
   getByID: protectedProcedure
-    .input(z.string()).query(({ ctx, input }) => {
-      return ctx.db.order.findUnique({
-        where: {
-          id: input,
-        },
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const order = await ctx.db.order.findUnique({
+        where: { id: input },
         include: {
           createdBy: true,
           OrderItems: {
@@ -47,25 +44,53 @@ export const orderRouter = createTRPCRouter({
           },
           Office: {
             include: {
-              Company: true // Include the Company model associated with the Office
+              Company: true
             }
           }
         },
       });
+
+      if (!order) return null;
+
+      const totalCost = await ctx.db.orderItem.aggregate({
+        where: { orderId: input },
+        _sum: { cost: true }
+      });
+
+      return {
+        ...order,
+        totalCost: totalCost._sum.cost || new Prisma.Decimal(0)
+      };
     }),
-  // Return Orders
+
   getAll: protectedProcedure
-    .query(({ ctx }) => {
-      return ctx.db.order.findMany({
+    .query(async ({ ctx }) => {
+      const orders = await ctx.db.order.findMany({
         include: {
           Office: {
             include: {
               Company: true
             }
-          }
+          },
+          OrderItems: true
         }
       });
+
+      const ordersWithTotalCost = await Promise.all(orders.map(async (order) => {
+        const totalCost = await ctx.db.orderItem.aggregate({
+          where: { orderId: order.id },
+          _sum: { cost: true }
+        });
+
+        return {
+          ...order,
+          totalCost: totalCost._sum.cost || new Prisma.Decimal(0)
+        };
+      }));
+
+      return ordersWithTotalCost;
     }),
+
   // update status of an order
   updateStatus: protectedProcedure
     .input(z.object({
@@ -109,5 +134,4 @@ export const orderRouter = createTRPCRouter({
         };
       });
     }),
-
 });

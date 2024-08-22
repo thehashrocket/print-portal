@@ -42,15 +42,11 @@ export default async function DashboardPage() {
         status: order.OrderItemStatus as OrderStatus,
         id: order.id,
         companyName: order.Office.name,
-        description: order.description,
-        expectedDate: formatDate(order.expectedDate),
     }));
 
     const serializedWorkOrderData: SerializedWorkOrder[] = workOrders.map((workOrder) => ({
         status: workOrder.status,
         id: workOrder.id,
-        description: workOrder.description,
-        expectedDate: formatDate(workOrder.expectedDate),
     }));
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({

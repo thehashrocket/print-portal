@@ -11,19 +11,20 @@ import { WorkOrder } from "@prisma/client";
 import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
 import { SerializedWorkOrder } from "~/types/workOrder";
 import NoPermission from "~/app/_components/noPermission/noPremission";
+import { Decimal } from "@prisma/client/runtime/library";
 
 type WorkOrderWithRelations = WorkOrder & {
   Order?: {
     id: string;
   } | null;
+  totalCost?: Decimal | null; // Add this line to include totalCost
 };
 
 const serializeWorkOrder = (workOrder: WorkOrderWithRelations): SerializedWorkOrder => ({
   createdAt: workOrder.createdAt.toISOString(),
   dateIn: workOrder.dateIn.toISOString(),
-  deposit: workOrder.deposit.toString(),
   id: workOrder.id,
-  Order: workOrder.Order ? { id: workOrder.Order.id } : null, // Ensure the relation is handled correctly
+  Order: workOrder.Order ? { id: workOrder.Order.id } : null,
   purchaseOrderNumber: workOrder.purchaseOrderNumber,
   status: workOrder.status,
   totalCost: workOrder.totalCost?.toString() ?? null,

@@ -20,12 +20,11 @@ export default async function CompaniesPage() {
     }
 
     const companies: CompanyDashboardData[] = await api.companies.companyDashboard();
-
     const serializedData = companies;
-
     const totalCompanies = companies.length;
     const totalPendingWorkOrders = companies.reduce((sum, company) => sum + company.workOrderTotalPending, 0);
     const totalPendingOrders = companies.reduce((sum, company) => sum + company.orderTotalPending, 0);
+
 
     return (
         <div className="container mx-auto px-4 py-8">

@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { Company } from "@prisma/client"; // Import the Company model
+import { Company, Prisma } from "@prisma/client"; // Import the Company model
 
 export const companyRouter = createTRPCRouter({
     // Get a Company by ID
@@ -89,13 +89,13 @@ export const companyRouter = createTRPCRouter({
                     include: {
                         WorkOrders: {
                             select: {
-                                totalCost: true,
+                                id: true,
                                 status: true,
                             },
                         },
                         Orders: {
                             select: {
-                                totalCost: true,
+                                id: true,
                                 status: true,
                             },
                         },
@@ -104,53 +104,45 @@ export const companyRouter = createTRPCRouter({
             },
         });
 
-        const companyDashboardData = companies.map((company) => {
-            const workOrderTotalPending = company.Offices.reduce((total, office) => {
-                const pendingWorkOrders = office.WorkOrders.filter(
-                    (workOrder) =>
-                        workOrder.status !== 'Approved' && workOrder.status !== 'Cancelled'
-                );
-                const pendingTotal = pendingWorkOrders.reduce(
-                    (sum, workOrder) => sum + Number(workOrder.totalCost || 0),
-                    0
-                );
-                return total + pendingTotal;
-            }, 0);
+        const companyDashboardData = await Promise.all(companies.map(async (company) => {
+            const workOrderTotalPending = await ctx.db.workOrderItem.aggregate({
+                where: {
+                    WorkOrder: {
+                        officeId: { in: company.Offices.map(office => office.id) },
+                        status: { notIn: ['Approved', 'Cancelled'] },
+                    },
+                },
+                _sum: { amount: true },
+            });
 
-            const orderTotalPending = company.Offices.reduce((total, office) => {
-                const pendingOrders = office.Orders.filter(
-                    (order) =>
-                        order.status !== 'Cancelled' &&
-                        order.status !== 'PaymentReceived' &&
-                        order.status !== 'Completed'
-                );
-                const pendingTotal = pendingOrders.reduce(
-                    (sum, order) => sum + Number(order.totalCost || 0),
-                    0
-                );
-                return total + pendingTotal;
-            }, 0);
+            const orderTotalPending = await ctx.db.orderItem.aggregate({
+                where: {
+                    Order: {
+                        officeId: { in: company.Offices.map(office => office.id) },
+                        status: { notIn: ['Cancelled', 'PaymentReceived', 'Completed'] },
+                    },
+                },
+                _sum: { amount: true },
+            });
 
-            const orderTotalCompleted = company.Offices.reduce((total, office) => {
-                const completedOrders = office.Orders.filter(
-                    (order) =>
-                        order.status === 'PaymentReceived' || order.status === 'Completed'
-                );
-                const completedTotal = completedOrders.reduce(
-                    (sum, order) => sum + Number(order.totalCost || 0),
-                    0
-                );
-                return total + completedTotal;
-            }, 0);
+            const orderTotalCompleted = await ctx.db.orderItem.aggregate({
+                where: {
+                    Order: {
+                        officeId: { in: company.Offices.map(office => office.id) },
+                        status: { in: ['PaymentReceived', 'Completed'] },
+                    },
+                },
+                _sum: { amount: true },
+            });
 
             return {
                 id: company.id,
                 name: company.name,
-                workOrderTotalPending,
-                orderTotalPending,
-                orderTotalCompleted,
+                workOrderTotalPending: Number(workOrderTotalPending._sum.amount) || 0,
+                orderTotalPending: Number(orderTotalPending._sum.amount) || 0,
+                orderTotalCompleted: Number(orderTotalCompleted._sum.amount) || 0,
             };
-        });
+        }));
 
         return companyDashboardData;
     }),

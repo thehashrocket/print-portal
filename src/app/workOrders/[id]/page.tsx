@@ -124,17 +124,6 @@ export default async function WorkOrderPage({
           }
         />
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <InfoSection
-            title="Notes"
-            content={<WorkOrderNotesComponent workOrder={workOrder} />}
-          />
-          <InfoSection
-            title="Special Instructions"
-            content={<p>{workOrder.specialInstructions || "No special instructions"}</p>}
-          />
-        </div>
-
         <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Work Order Items</h2>

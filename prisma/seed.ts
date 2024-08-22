@@ -46,15 +46,9 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
   });
   const order = await prismaClient.order.create({
     data: {
-
-      deposit: workOrder?.deposit,
-      description: workOrder?.description,
-      expectedDate: workOrder?.expectedDate,
       officeId,
       shippingInfoId: workOrder?.shippingInfoId || "", // Assign an empty string if shippingInfoId is undefined
-      specialInstructions: workOrder?.specialInstructions,
       status: randomElementFromArray(orderStatuses),
-      totalCost: workOrder?.totalCost,
       createdById: workOrder?.createdById || "", // Assign an empty string if userId is undefined
       workOrderId,
       version: 1,
@@ -819,12 +813,7 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       inHandsDate: faker.date.future(),
       estimateNumber: String(faker.number.int({ min: 500, max: 30000 })),
       purchaseOrderNumber: faker.number.int().toString(),
-      specialInstructions: faker.lorem.sentence(),
-      expectedDate: faker.date.between(currentDate, maxFutureDate),
-      deposit: faker.number.int({ min: 100, max: 500 }) + 0.01,
-      totalCost: faker.number.int({ min: 500, max: 10000 }) + 0.03,
       version: 1,
-      description: faker.commerce.productName(),
       status: randomElementFromArray(workOrderStatuses),
       shippingInfoId,
       createdById: randomUser.id, // Correct field based on your schema's relation

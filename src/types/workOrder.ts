@@ -4,7 +4,6 @@ import { WorkOrderStatus } from "@prisma/client";
 export type SerializedWorkOrder = {
     createdAt: string;
     dateIn: string;
-    deposit: string;
     id: string;
     Order?: {
         id: string;

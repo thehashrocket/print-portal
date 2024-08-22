@@ -6,9 +6,19 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer
 } from 'recharts';
-import { Company, Office, WorkOrder, Order, WorkOrderStatus, OrderStatus } from '@prisma/client';
+import { Company, Office, WorkOrder as PrismaWorkOrder, Order as PrismaOrder, WorkOrderStatus, OrderStatus } from '@prisma/client';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+// Extend the WorkOrder type to include totalCost
+type WorkOrder = PrismaWorkOrder & {
+    totalCost?: number | null;
+};
+
+// Extend the Order type to include totalCost
+type Order = PrismaOrder & {
+    totalCost?: number | null;
+};
 
 type CompanyWithOffices = Company & {
     Offices: (Office & {
@@ -96,8 +106,8 @@ const CompanyCharts: React.FC<CompanyChartsProps> = ({ company }) => {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="workOrders" stackId="a" fill="#8884d8" />
-                            <Bar dataKey="orders" stackId="a" fill="#82ca9d" />
+                            <Bar dataKey="workOrders" name="Work Orders" fill="#8884d8" />
+                            <Bar dataKey="orders" name="Orders" fill="#82ca9d" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -204,17 +214,34 @@ function prepareCostByStatusData(company: CompanyWithOffices): CostByStatusDataI
         });
     });
 
-    return Object.keys(costByStatus.WorkOrders).map(status => ({
-        name: status,
-        workOrders: costByStatus.WorkOrders[status as WorkOrderStatus],
-        orders: costByStatus.Orders[status as OrderStatus] || 0
-    }));
+    // Combine WorkOrders and Orders data
+    const combinedData: CostByStatusDataItem[] = [];
+    for (const status in costByStatus.WorkOrders) {
+        combinedData.push({
+            name: status,
+            workOrders: costByStatus.WorkOrders[status as WorkOrderStatus],
+            orders: costByStatus.Orders[status as OrderStatus] || 0
+        });
+    }
+
+    // Add any Order statuses that don't exist in WorkOrders
+    for (const status in costByStatus.Orders) {
+        if (!costByStatus.WorkOrders.hasOwnProperty(status)) {
+            combinedData.push({
+                name: status,
+                workOrders: 0,
+                orders: costByStatus.Orders[status as OrderStatus]
+            });
+        }
+    }
+
+    return combinedData;
 }
 
 function prepareOfficePerformanceData(company: CompanyWithOffices): OfficePerformanceDataItem[] {
     return company.Offices.map(office => {
-        const workOrdersTotal = office.WorkOrders.reduce((sum, workOrder) => sum + Number(workOrder.totalCost) || 0, 0);
-        const ordersTotal = office.Orders.reduce((sum, order) => sum + Number(order.totalCost) || 0, 0);
+        const workOrdersTotal = office.WorkOrders.reduce((sum, workOrder) => sum + (Number(workOrder.totalCost) || 0), 0);
+        const ordersTotal = office.Orders.reduce((sum, order) => sum + (Number(order.totalCost) || 0), 0);
         return {
             name: office.name,
             workOrders: workOrdersTotal,
@@ -225,7 +252,7 @@ function prepareOfficePerformanceData(company: CompanyWithOffices): OfficePerfor
 
 function prepareAverageOrderValueData(company: CompanyWithOffices): AverageOrderValueDataItem[] {
     return company.Offices.map(office => {
-        const totalOrderValue = office.Orders.reduce((sum, order) => sum + Number(order.totalCost) || 0, 0);
+        const totalOrderValue = office.Orders.reduce((sum, order) => sum + (Number(order.totalCost) || 0), 0);
         const averageValue = office.Orders.length > 0 ? totalOrderValue / office.Orders.length : 0;
         return {
             name: office.name,
