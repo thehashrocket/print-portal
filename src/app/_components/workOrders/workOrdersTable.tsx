@@ -15,7 +15,7 @@ import {
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
-import { SerializedWorkOrder } from "~/types/workOrder";
+import { SerializedWorkOrder } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 

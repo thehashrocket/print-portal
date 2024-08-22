@@ -15,21 +15,10 @@ import {
   RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { OrderStatus } from "@prisma/client";
 import Link from "next/link";
+import { SerializedOrder } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-
-type SerializedOrder = {
-  id: string;
-  status: OrderStatus;
-  workOrderId: string | null;
-  orderNumber: number;
-  deposit: string | null;
-  totalCost: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
 
 interface OrdersTableProps {
   orders: SerializedOrder[];

@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
-import { SerializedOrderItem } from "~/types/seralizedTypes";
+import { SerializedOrderItem } from "~/types/serializedTypes";
 import NoPermission from "../_components/noPermission/noPremission";
 
 dayjs.extend(utc);
@@ -38,8 +38,15 @@ export default async function DashboardPage() {
         status: orderItem.status,
         id: orderItem.id,
         description: orderItem.description,
-        expectedDate: formatDate(orderItem.expectedDate),
+        expectedDate: orderItem.expectedDate ? formatDate(orderItem.expectedDate) : null,
         orderId: orderItem.orderId,
+        amount: orderItem.amount?.toString() ?? null,
+        cost: orderItem.cost?.toString() ?? null,
+        costPerM: orderItem.costPerM?.toString() ?? null,
+        createdAt: orderItem.createdAt ? formatDate(orderItem.createdAt) : null,
+        finishedQty: orderItem.finishedQty,
+        quantity: orderItem.quantity,
+        updatedAt: orderItem.updatedAt ? formatDate(orderItem.updatedAt) : null,
     }));
 
 

@@ -7,30 +7,8 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
 import Link from "next/link";
-import { WorkOrder } from "@prisma/client";
 import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
-import { SerializedWorkOrder } from "~/types/workOrder";
 import NoPermission from "~/app/_components/noPermission/noPremission";
-import { Decimal } from "@prisma/client/runtime/library";
-
-type WorkOrderWithRelations = WorkOrder & {
-  Order?: {
-    id: string;
-  } | null;
-  totalCost?: Decimal | null; // Add this line to include totalCost
-};
-
-const serializeWorkOrder = (workOrder: WorkOrderWithRelations): SerializedWorkOrder => ({
-  createdAt: workOrder.createdAt.toISOString(),
-  dateIn: workOrder.dateIn.toISOString(),
-  id: workOrder.id,
-  Order: workOrder.Order ? { id: workOrder.Order.id } : null,
-  purchaseOrderNumber: workOrder.purchaseOrderNumber,
-  status: workOrder.status,
-  totalCost: workOrder.totalCost?.toString() ?? null,
-  updatedAt: workOrder.updatedAt.toISOString(),
-  workOrderNumber: workOrder.workOrderNumber.toString(),
-});
 
 export default async function WorkOrdersPage() {
   const session = await getServerAuthSession();
@@ -42,7 +20,6 @@ export default async function WorkOrdersPage() {
   }
 
   const workOrders = await api.workOrders.getAll();
-  const serializedData = workOrders.map(serializeWorkOrder);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,11 +40,11 @@ export default async function WorkOrdersPage() {
           </ul>
         </nav>
       </header>
-      <WorkOrderCharts workOrders={serializedData} />
+      <WorkOrderCharts workOrders={workOrders} />
       <main>
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Work Orders List</h2>
-          <WorkOrdersTable workOrders={serializedData} />
+          <WorkOrdersTable workOrders={workOrders} />
         </section>
       </main>
     </div>

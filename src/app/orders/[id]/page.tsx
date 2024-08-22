@@ -6,7 +6,6 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
-import OrderNotesComponent from "~/app/_components/orders/orderNotesComponent";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Prisma, OrderStatus } from "@prisma/client";
@@ -60,9 +59,9 @@ export default async function OrderPage({
     ...item,
     amount: item.amount?.toString() ?? null,
     cost: item.cost?.toString() ?? null,
-    createdAt: item.createdAt?.toISOString(),
-    expectedDate: item.expectedDate?.toISOString(),
-    updatedAt: item.updatedAt?.toISOString(),
+    createdAt: item.createdAt?.toString(),
+    expectedDate: item.expectedDate?.toString(),
+    updatedAt: item.updatedAt?.toString(),
   }));
 
   const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
@@ -98,7 +97,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Company"
-            content={<p className="text-xl">{order.Office.Company.name}</p>}
+            content={<p className="text-xl">{order.Office?.Company.name}</p>}
           />
           <InfoSection
             title="Status"
@@ -106,7 +105,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Total"
-            content={<p className="text-2xl font-bold">{formatCurrency(order.totalCost)}</p>}
+            content={<p className="text-2xl font-bold">{formatCurrency(order.totalCost as unknown as Decimal)}</p>}
           />
           <InfoSection
             title="Created By"
@@ -114,7 +113,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Created At"
-            content={<p>{formatDate(order.createdAt)}</p>}
+            content={<p>{formatDate(new Date(order.createdAt))}</p>}
           />
         </div>
 
@@ -125,7 +124,7 @@ export default async function OrderPage({
               title="Recipient"
               content={
                 <>
-                  <p className="font-semibold">{order.Office.Company.name}</p>
+                  <p className="font-semibold">{order.Office?.Company.name}</p>
                   <p>{order.ShippingInfo?.Address?.line1}</p>
                   {order.ShippingInfo?.Address?.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
                   <p>{order.ShippingInfo?.Address?.city}, {order.ShippingInfo?.Address?.state} {order.ShippingInfo?.Address?.zipCode}</p>

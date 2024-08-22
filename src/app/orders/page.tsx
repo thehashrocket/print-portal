@@ -1,31 +1,13 @@
 // ~/app/orders/page.tsx
 
-"use server";
-
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import { Order, Prisma } from "@prisma/client";
 import OrdersTable from "../_components/orders/ordersTable";
 import Link from "next/link";
 import NoPermission from "../_components/noPermission/noPremission";
-
-type OrderWithTotalCost = Order & { totalCost: Prisma.Decimal };
-
-type SerializedOrder = Omit<Order, 'deposit' | 'createdAt' | 'updatedAt'> & {
-  deposit: string;
-  totalCost: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-const serializeOrder = (order: OrderWithTotalCost): SerializedOrder => ({
-  ...order,
-  deposit: order.deposit.toString(),
-  totalCost: order.totalCost.toString(),
-  createdAt: order.createdAt.toISOString(),
-  updatedAt: order.updatedAt.toISOString(),
-});
+import { SerializedOrder } from "~/types/serializedTypes";
+import { normalizeOrder } from "~/utils/dataNormalization";
 
 export default async function OrdersPage() {
   const session = await getServerAuthSession();
@@ -35,7 +17,7 @@ export default async function OrdersPage() {
   }
 
   const orders = await api.orders.getAll();
-  const serializedData = orders.map(serializeOrder);
+  const serializedData: SerializedOrder[] = orders.map(normalizeOrder);
 
   return (
     <div className="container mx-auto px-4 py-8">

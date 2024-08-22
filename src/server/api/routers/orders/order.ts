@@ -1,6 +1,8 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma } from "@prisma/client";
+import { normalizeOrder, normalizeOrderItem } from "~/utils/dataNormalization";
+
 
 export const orderRouter = createTRPCRouter({
   getByID: protectedProcedure
@@ -9,44 +11,18 @@ export const orderRouter = createTRPCRouter({
       const order = await ctx.db.order.findUnique({
         where: { id: input },
         include: {
-          createdBy: true,
-          OrderItems: {
-            include: {
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true
-                }
-              },
-              ProcessingOptions: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true
             }
           },
-          OrderNotes: {
-            include: {
-              createdBy: true
-            }
-          },
-          ShippingInfo: {
-            include: {
-              Address: {
-                select: {
-                  line1: true,
-                  line2: true,
-                  city: true,
-                  state: true,
-                  zipCode: true,
-                  country: true,
-                  telephoneNumber: true,
-                  addressType: true
-                }
-              }
-            }
-          },
+          OrderItems: true,
           Office: {
             include: {
               Company: true
             }
-          }
+          },
         },
       });
 
@@ -54,19 +30,29 @@ export const orderRouter = createTRPCRouter({
 
       const totalCost = await ctx.db.orderItem.aggregate({
         where: { orderId: input },
-        _sum: { cost: true }
+        _sum: { amount: true }
       });
 
-      return {
+      const normalizedOrder = normalizeOrder({
         ...order,
-        totalCost: totalCost._sum.cost || new Prisma.Decimal(0)
-      };
+        totalCost: totalCost._sum.amount ? new Prisma.Decimal(totalCost._sum.amount) : null,
+      });
+
+      normalizedOrder.OrderItems = order.OrderItems.map(normalizeOrderItem);
+
+      return normalizedOrder;
     }),
 
   getAll: protectedProcedure
     .query(async ({ ctx }) => {
       const orders = await ctx.db.order.findMany({
         include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
           Office: {
             include: {
               Company: true

@@ -7,6 +7,8 @@ import { z } from "zod";
 import { InvoicePrintEmailOptions, WorkOrderStatus } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { Prisma } from "@prisma/client";
+import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
+
 
 export const workOrderRouter = createTRPCRouter({
   // Get an Order by ID
@@ -17,45 +19,25 @@ export const workOrderRouter = createTRPCRouter({
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: input },
         include: {
-          createdBy: true,
-          WorkOrderItems: {
-            include: {
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true
-                }
-              },
-              ProcessingOptions: true,
-            },
-          },
-          WorkOrderVersions: true,
-          WorkOrderNotes: {
-            include: {
-              createdBy: true
-            }
-          },
-          ShippingInfo: {
-            include: {
-              Address: {
+          WorkOrderItems: true,
+          Office: {
+            select: {
+              id: true,
+              name: true,
+              Company: {
                 select: {
-                  line1: true,
-                  line2: true,
-                  city: true,
-                  state: true,
-                  zipCode: true,
-                  country: true,
-                  telephoneNumber: true,
-                  addressType: true
+                  name: true
                 }
               }
             }
           },
-          Office: {
-            include: {
-              Company: true
+          Order: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true
             }
-          }
+          },
         },
       });
 
@@ -66,10 +48,26 @@ export const workOrderRouter = createTRPCRouter({
         _sum: { amount: true }
       });
 
-      return {
+      const normalizedWorkOrder = normalizeWorkOrder({
         ...workOrder,
-        totalCost: totalCost._sum.amount || new Prisma.Decimal(0)
-      };
+        totalCost: totalCost._sum.amount || new Prisma.Decimal(0),
+        createdBy: {
+          id: workOrder.createdBy.id,
+          name: workOrder.createdBy.name
+        },
+        Office: {
+          id: workOrder.officeId,
+          name: workOrder.Office.name,
+          Company:
+          {
+            name: workOrder.Office.Company.name
+          }
+        }
+      });
+
+      normalizedWorkOrder.WorkOrderItems = workOrder.WorkOrderItems.map(normalizeWorkOrderItem);
+
+      return normalizedWorkOrder;
     }),
   // Create a new Work Order
   createWorkOrder: protectedProcedure
@@ -165,28 +163,58 @@ export const workOrderRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const workOrders = await ctx.db.workOrder.findMany({
         include: {
+          WorkOrderItems: true,
+          Office: {
+            select: {
+              id: true,
+              name: true,
+              Company: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          },
           Order: {
             select: {
               id: true
             }
           },
-          WorkOrderItems: true
-        }
+          createdBy: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
+        },
       });
 
-      const workOrdersWithTotalCost = await Promise.all(workOrders.map(async (workOrder) => {
+      const normalizedWorkOrders = await Promise.all(workOrders.map(async (workOrder) => {
         const totalCost = await ctx.db.workOrderItem.aggregate({
           where: { workOrderId: workOrder.id },
           _sum: { amount: true }
         });
 
-        return {
+        return normalizeWorkOrder({
           ...workOrder,
-          totalCost: totalCost._sum.amount || new Prisma.Decimal(0)
-        };
+          totalCost: totalCost._sum.amount || new Prisma.Decimal(0),
+          createdBy: {
+            id: workOrder.createdBy.id,
+            name: workOrder.createdBy.name
+          },
+          Office: {
+            id: workOrder.Office.id,
+            name: workOrder.Office.name,
+            Company: {
+              name: workOrder.Office.Company.name
+            }
+          },
+          Order: workOrder.Order,
+          WorkOrderItems: workOrder.WorkOrderItems
+        });
       }));
 
-      return workOrdersWithTotalCost;
+      return normalizedWorkOrders;
     }),
   // update status of a work order
   updateStatus: protectedProcedure

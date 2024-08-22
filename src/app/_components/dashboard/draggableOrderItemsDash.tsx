@@ -5,13 +5,8 @@ import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from '@prisma/client';
 
-type SerializedOrderItem = {
-    id: string;
-    status: OrderItemStatus;
-    description: string;
-    expectedDate: string;
-    orderId: string;
-};
+import type { SerializedOrderItem } from "~/types/serializedTypes";
+
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>(initialOrderItems);
@@ -83,7 +78,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                             onDragStart={(event) => onDragStart(event, orderItem.id)}
                             className="flex-column p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
                             style={{
-                                borderColor: isWithinAWeek(orderItem.expectedDate) ? 'red' : 'green'
+                                borderColor: orderItem.expectedDate && isWithinAWeek(orderItem.expectedDate) ? 'red' : 'green'
                             }}>
                             <div className="flex mb-3">
                                 <div className="text-sm font-medium">{orderItem.description}</div>
