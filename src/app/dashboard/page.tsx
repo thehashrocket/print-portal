@@ -38,17 +38,6 @@ export default async function DashboardPage() {
     const orderItems = await api.orderItems.getAll();
     const orderDashboard = await api.orders.dashboard();
 
-    const serializedOrderData: SerializedOrder[] = orderDashboard.map((order) => ({
-        status: order.OrderItemStatus as OrderStatus,
-        id: order.id,
-        companyName: order.Office.name,
-    }));
-
-    const serializedWorkOrderData: SerializedWorkOrder[] = workOrders.map((workOrder) => ({
-        status: workOrder.status,
-        id: workOrder.id,
-    }));
-
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
         status: orderItem.status,
         id: orderItem.id,
@@ -75,7 +64,7 @@ export default async function DashboardPage() {
                     </button>
                 </div>
             </div>
-            <DashboardTabsClient orders={serializedOrderData} workOrders={serializedWorkOrderData} orderItems={serializedOrderItemsData} />
+            <DashboardTabsClient orderItems={serializedOrderItemsData} />
         </div>
     );
 }
