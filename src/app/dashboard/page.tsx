@@ -32,7 +32,6 @@ export default async function DashboardPage() {
             <NoPermission />
         )
     }
-    // const orders = await api.orders.getAll();
     const orderItems = await api.orderItems.getAll();
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
