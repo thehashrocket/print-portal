@@ -8,8 +8,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
-import { SerializedOrder, SerializedWorkOrder, SerializedOrderItem } from "~/types/seralizedTypes";
-import { OrderStatus } from "@prisma/client";
+import { SerializedOrderItem } from "~/types/seralizedTypes";
 import NoPermission from "../_components/noPermission/noPremission";
 
 dayjs.extend(utc);
@@ -34,9 +33,7 @@ export default async function DashboardPage() {
         )
     }
     // const orders = await api.orders.getAll();
-    const workOrders = await api.workOrders.getAll();
     const orderItems = await api.orderItems.getAll();
-    const orderDashboard = await api.orders.dashboard();
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
         status: orderItem.status,

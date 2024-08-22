@@ -1,10 +1,8 @@
 // ~src/app/_components/dashboard/dashboardTabsClient.tsx
 "use client";
 import React, { useState } from "react";
-import DraggableOrdersDash from "./draggableOrdersDash";
-import DraggableWorkOrdersDash from "./draggableWorkOrdersDash";
 import DraggableOrderItemsDash from "./draggableOrderItemsDash";
-import { SerializedOrder, SerializedWorkOrder, SerializedOrderItem } from "~/types/seralizedTypes";
+import { SerializedOrderItem } from "~/types/seralizedTypes";
 
 // Update the component props to match the actual data being passed
 interface DashboardTabsClientProps {
