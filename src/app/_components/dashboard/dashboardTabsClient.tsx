@@ -10,7 +10,7 @@ interface DashboardTabsClientProps {
 }
 
 export default function DashboardTabsClient({ orderItems }: DashboardTabsClientProps) {
-    const [activeTab, setActiveTab] = useState("orders");
+    const [activeTab, setActiveTab] = useState("orderItems");
 
     return (
         <div className="flex flex-col">
