@@ -10,6 +10,7 @@ import { postRouter } from "~/server/api/routers/post";
 import { rolesRouter } from "./routers/roles/roles";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
 import { shippingInfoRouter } from "./routers/shared/shippingInfo";
+import { shippingPickupRouter } from "./routers/shared/shippingPickup";
 import { typesettingOptionsRouter } from "./routers/shared/typesetting/typesettingOptions";
 import { typesettingProofsRouter } from "./routers/shared/typesetting/typesettingProofs";
 import { typesettingRouter } from "./routers/shared/typesetting/typesetting";
@@ -35,6 +36,7 @@ export const appRouter = createTRPCRouter({
   processingOptions: processingOptionsRouter,
   roles: rolesRouter,
   shippingInfo: shippingInfoRouter,
+  shippingPickups: shippingPickupRouter,
   typesettings: typesettingRouter,
   typesettingOptions: typesettingOptionsRouter,
   typesettingProofs: typesettingProofsRouter,

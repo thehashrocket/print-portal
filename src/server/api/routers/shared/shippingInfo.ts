@@ -20,6 +20,7 @@ export const shippingInfoRouter = createTRPCRouter({
             where: {
                 id: input,
             },
+            include: { ShippingPickup: true },
         });
     }),
     getByOfficeId: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -27,39 +28,54 @@ export const shippingInfoRouter = createTRPCRouter({
             where: {
                 officeId: input,
             },
+            include: { ShippingPickup: true },
         });
     }),
     getAll: protectedProcedure.query(async ({ ctx }) => {
-        return ctx.db.shippingInfo.findMany();
+        return ctx.db.shippingInfo.findMany({
+            include: { ShippingPickup: true },
+        });
     }),
 
     create: protectedProcedure
         .input(z.object({
-            addressId: z.string(),
+            addressId: z.string().optional(),
             instructions: z.string().optional().default(''),
             officeId: z.string(),
-            shippingCost: z.number(),
+            shippingCost: z.number().optional().default(0),
             shippingDate: z.date().optional().default(new Date()),
             shippingMethod: z.nativeEnum(ShippingMethod),
             shippingNotes: z.string().optional().default(''),
             shippingOther: z.string().optional().default(''),
             shipToSameAsBillTo: z.boolean().optional().default(false),
+            shippingPickup: z.object({
+                contactName: z.string(),
+                contactPhone: z.string(),
+                notes: z.string().optional(),
+                pickupDate: z.date(),
+                pickupTime: z.string(),
+            }).optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.shippingInfo.create({
+            const { shippingPickup, ...shippingInfoData } = input;
+
+            const createdShippingInfo = await ctx.db.shippingInfo.create({
                 data: {
-                    addressId: input.addressId,
-                    createdById: ctx.session.user.id, // Use the session user ID
-                    instructions: input.instructions,
-                    officeId: input.officeId,
-                    shippingCost: input.shippingCost,
-                    shippingDate: input.shippingDate,
-                    shippingMethod: input.shippingMethod,
-                    shippingNotes: input.shippingNotes,
-                    shippingOther: input.shippingOther,
-                    shipToSameAsBillTo: input.shipToSameAsBillTo,
+                    ...shippingInfoData,
+                    createdById: ctx.session.user.id,
+                    ...(shippingPickup && {
+                        ShippingPickup: {
+                            create: {
+                                ...shippingPickup,
+                                createdById: ctx.session.user.id,
+                            },
+                        },
+                    }),
                 },
+                include: { ShippingPickup: true },
             });
+
+            return createdShippingInfo;
         }),
 
     update: protectedProcedure
@@ -68,34 +84,59 @@ export const shippingInfoRouter = createTRPCRouter({
             instructions: z.string().optional(),
             shippingOther: z.string().optional(),
             shippingDate: z.date().optional(),
-            shippingMethod: z.enum(['Courier', 'Deliver', 'DHL', 'FedEx', 'Other', 'UPS', 'USPS']),
+            shippingMethod: z.nativeEnum(ShippingMethod),
             shippingCost: z.number().optional(),
             shipToSameAsBillTo: z.boolean().optional(),
             addressId: z.string().optional(),
+            shippingPickup: z.object({
+                id: z.string().optional(),
+                contactName: z.string(),
+                contactPhone: z.string(),
+                notes: z.string().optional(),
+                pickupDate: z.date(),
+                pickupTime: z.string(),
+            }).optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.shippingInfo.update({
-                where: {
-                    id: input.id,
-                },
+            const { shippingPickup, ...shippingInfoData } = input;
+
+            const updatedShippingInfo = await ctx.db.shippingInfo.update({
+                where: { id: input.id },
                 data: {
-                    instructions: input.instructions,
-                    shippingOther: input.shippingOther,
-                    shippingDate: input.shippingDate,
-                    shippingMethod: input.shippingMethod,
-                    shippingCost: input.shippingCost,
-                    shipToSameAsBillTo: input.shipToSameAsBillTo,
-                    addressId: input.addressId,
+                    ...shippingInfoData,
+                    ...(shippingPickup && {
+                        ShippingPickup: {
+                            upsert: {
+                                create: {
+                                    ...shippingPickup,
+                                    createdById: ctx.session.user.id,
+                                },
+                                update: shippingPickup,
+                                where: {
+                                    id: shippingPickup.id ?? '',
+                                },
+                            },
+                        },
+                    }),
                 },
+                include: { ShippingPickup: true },
             });
+
+            return updatedShippingInfo;
         }),
 
-    delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-        return ctx.db.shippingInfo.delete({
-            where: {
-                id: input,
-            },
-        });
-    }),
+    delete: protectedProcedure
+        .input(z.string())
+        .mutation(async ({ ctx, input }) => {
+            // First, delete any associated ShippingPickup
+            await ctx.db.shippingPickup.deleteMany({
+                where: { shippingInfoId: input },
+            });
+
+            // Then delete the ShippingInfo
+            return ctx.db.shippingInfo.delete({
+                where: { id: input },
+            });
+        }),
 });
 

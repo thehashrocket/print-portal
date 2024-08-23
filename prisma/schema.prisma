@@ -258,28 +258,44 @@ model Session {
 }
 
 model ShippingInfo {
-  id                 String         @id @default(uuid())
+  Address            Address?         @relation(fields: [addressId], references: [id])
+  addressId          String?
+  attentionTo        String?
+  createdAt          DateTime         @default(now())
+  createdBy          User             @relation(fields: [createdById], references: [id])
+  createdById        String
+  estimatedDelivery  DateTime?
+  id                 String           @id @default(uuid())
   instructions       String?
-  shippingOther      String?
+  numberOfPackages   Int?             @default(1)
+  Office             Office           @relation(fields: [officeId], references: [id])
+  officeId           String
+  Order              Order[]
+  shippingCost       Decimal?         @db.Decimal(10, 2)
   shippingDate       DateTime?
   shippingMethod     ShippingMethod
-  shippingCost       Decimal?       @db.Decimal(10, 2)
-  officeId           String
-  shipToSameAsBillTo Boolean        @default(false)
-  attentionTo        String?
-  addressId          String?
-  createdAt          DateTime       @default(now())
-  createdById        String
-  updatedAt          DateTime       @updatedAt
-  numberOfPackages   Int?           @default(1)
   shippingNotes      String?
-  estimatedDelivery  DateTime?
+  shippingOther      String?
+  shipToSameAsBillTo Boolean          @default(false)
   trackingNumber     String?
-  Order              Order[]
-  Address            Address?       @relation(fields: [addressId], references: [id])
-  createdBy          User           @relation(fields: [createdById], references: [id])
-  Office             Office         @relation(fields: [officeId], references: [id])
+  updatedAt          DateTime         @updatedAt
   WorkOrder          WorkOrder[]
+  ShippingPickup     ShippingPickup[]
+}
+
+model ShippingPickup {
+  contactName    String
+  contactPhone   String
+  createdAt      DateTime     @default(now())
+  createdBy      User         @relation(fields: [createdById], references: [id])
+  createdById    String
+  id             String       @id @default(uuid())
+  notes          String?
+  pickupDate     DateTime
+  pickupTime     String
+  ShippingInfo   ShippingInfo @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId String
+  updatedAt      DateTime     @updatedAt
 }
 
 model Typesetting {
@@ -365,6 +381,7 @@ model User {
   CreatedWorkOrders       WorkOrder[]          @relation("WorkOrderCreatedBy")
   ContactPersonOrders     Order[]              @relation("OrderContactPerson")
   ContactPersonWorkOrders WorkOrder[]          @relation("WorkOrderContactPerson")
+  ShippingPickup          ShippingPickup[]
 }
 
 model VerificationToken {
@@ -611,10 +628,11 @@ enum RoleName {
 
 enum ShippingMethod {
   Courier
-  Deliver
+  Delivery
   DHL
   FedEx
   Other
+  Pickup
   UPS
   USPS
 }

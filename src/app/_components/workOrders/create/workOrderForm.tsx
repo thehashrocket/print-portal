@@ -1,17 +1,14 @@
-// ~/app/_components/workOrders/create/WorkOrderForm.tsx
-"use client";
-import React, { useState, useEffect, useContext, use } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
-import { ref } from 'pdfkit';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
-    dateIn: z.date(),
+    dateIn: z.string().min(1, 'Date In is required'),
     contactPersonId: z.string().min(1, 'Contact Person is required'),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
     inHandsDate: z.string(),
@@ -25,13 +22,12 @@ const workOrderSchema = z.object({
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
 
 const WorkOrderForm: React.FC = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm<WorkOrderFormData>({
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
     });
     const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
-    const [contactPerson, setContactPerson] = useState<string | null>(null);
     const [companies, setCompanies] = useState<any[]>([]);
     const [offices, setOffices] = useState<any[]>([]);
     const [employees, setEmployees] = useState<any[]>([]);
@@ -72,7 +68,6 @@ const WorkOrderForm: React.FC = () => {
     }, [employeeData]);
 
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
-
         const newWorkOrder = {
             ...data,
             officeId: selectedOffice ? selectedOffice : '',
@@ -85,12 +80,10 @@ const WorkOrderForm: React.FC = () => {
         createWorkOrderMutation.mutate(newWorkOrder, {
             onSuccess: (createdWorkOrder) => {
                 setWorkOrder(createdWorkOrder);
-                // setCurrentStep(prev => prev + 1);
-                // Navigate to /workOrders/create/[id]/page
-                router.push(`/workOrders/create/${createdWorkOrder.id}`) // Navigate to the new post page
+                router.push(`/workOrders/create/${createdWorkOrder.id}`)
             },
             onError: (error) => {
-                console.error('Error creating work order:', error);  // Log error
+                console.error('Error creating work order:', error);
             },
         });
     });
@@ -98,7 +91,6 @@ const WorkOrderForm: React.FC = () => {
     return (
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
-                {/* Form fields */}
                 <div>
                     <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
                     <select id="company" onChange={(e) => setSelectedCompany(e.target.value)} className="select select-bordered w-full">
@@ -121,13 +113,19 @@ const WorkOrderForm: React.FC = () => {
                 )}
                 {selectedOffice && (
                     <div>
-                        <label htmlFor="contactPerson" className="block text-sm font-medium text-gray-700">Contact Person</label>
-                        <select id="contactPerson" onChange={(e) => setContactPerson(e.target.value)} className="select select-bordered w-full">
+                        <label htmlFor="contactPersonId" className="block text-sm font-medium text-gray-700">Contact Person</label>
+                        <select
+                            id="contactPersonId"
+                            {...register('contactPersonId')}
+                            onChange={(e) => setValue('contactPersonId', e.target.value)}
+                            className="select select-bordered w-full"
+                        >
                             <option value="">Select a Contact Person</option>
                             {employees.map((employee) => (
                                 <option key={employee.id} value={employee.id}>{employee.name}</option>
                             ))}
                         </select>
+                        {errors.contactPersonId && <p className="text-red-500">{errors.contactPersonId.message}</p>}
                     </div>
                 )}
                 <div>
@@ -174,8 +172,6 @@ const WorkOrderForm: React.FC = () => {
                     </select>
                     {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                 </div>
-
-                {/* Additional form fields */}
                 <button type="submit" className="btn btn-primary">Submit and Next Step</button>
             </form>
         </div>
