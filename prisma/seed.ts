@@ -49,6 +49,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
       officeId,
       shippingInfoId: workOrder?.shippingInfoId || "", // Assign an empty string if shippingInfoId is undefined
       status: randomElementFromArray(orderStatuses),
+      contactPersonId: workOrder?.contactPersonId || "", // Assign an empty string if contactPersonId is undefined
       createdById: workOrder?.createdById || "", // Assign an empty string if userId is undefined
       workOrderId,
       version: 1,
@@ -800,6 +801,14 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       },
     },
   });
+  // Fetch users for Office
+  const officeUsers = await prismaClient.user.findMany({
+    where: {
+      officeId,
+    },
+  });
+
+  const randomOfficeUser = randomElementFromArray(officeUsers);
 
   const randomUser = randomElementFromArray(internalUsers);
   if (!randomUser) {
@@ -816,6 +825,7 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       version: 1,
       status: randomElementFromArray(workOrderStatuses),
       shippingInfoId,
+      contactPersonId: randomOfficeUser.id, // Correct field based on your schema's relation
       createdById: randomUser.id, // Correct field based on your schema's relation
     },
   });

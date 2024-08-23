@@ -2,7 +2,7 @@
 "use client"
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { SerializedWorkOrder } from '~/types/workOrder';
+import { SerializedWorkOrder } from '~/types/serializedTypes'
 
 
 

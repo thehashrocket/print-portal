@@ -11,6 +11,10 @@ export interface SerializedOrder {
     totalCost: string | null;
     createdAt: string;
     updatedAt: string;
+    contactPerson: {
+        id: string;
+        name: string | null;
+    };
     createdBy: {
         id: string;
         name: string | null;
@@ -46,12 +50,14 @@ export interface SerializedOrderItem {
     finishedQty: number | null;
     id: string;
     orderId: string;
+    pressRun: string | null;
     quantity: number;
     status: OrderItemStatus;
     updatedAt: string | null;
 }
 
 export interface SerializedWorkOrder {
+    contactPersonId: string;
     createdAt: string;
     createdById: string;
     dateIn: string;
@@ -67,6 +73,10 @@ export interface SerializedWorkOrder {
     updatedAt: string;
     version: number;
     workOrderNumber: string;
+    contactPerson: {
+        id: string;
+        name: string | null;
+    };
     createdBy: {
         id: string;
         name: string | null;
@@ -99,13 +109,16 @@ export interface SerializedWorkOrder {
 
 export interface SerializedWorkOrderItem {
     amount: string | undefined;
+    artwork: string | null;
     cost: string | undefined;
     costPerM: string | null;
     customerSuppliedStock: string | null;
     description: string;
     finishedQty: number | null;
     id: string;
+    inkColor: string | null;
     other: string | null;
+    overUnder: string | null;
     pressRun: string | null;
     quantity: string;
     status: WorkOrderItemStatus;

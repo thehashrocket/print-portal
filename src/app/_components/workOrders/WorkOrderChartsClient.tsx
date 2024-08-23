@@ -2,13 +2,7 @@
 "use client";
 
 import React from 'react';
-import {
-    PieChart, Pie, Cell,
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    LineChart, Line,
-    ResponsiveContainer
-} from 'recharts';
-import { SerializedWorkOrder } from '~/types/workOrder'; // Ensure the import path is correct
+import { SerializedWorkOrder } from '~/types/serializedTypes';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 

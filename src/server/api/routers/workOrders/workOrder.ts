@@ -19,7 +19,18 @@ export const workOrderRouter = createTRPCRouter({
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: input },
         include: {
-          WorkOrderItems: true,
+          contactPerson: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
           Office: {
             select: {
               id: true,
@@ -32,12 +43,7 @@ export const workOrderRouter = createTRPCRouter({
             }
           },
           Order: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
+          WorkOrderItems: true,
         },
       });
 
@@ -51,6 +57,11 @@ export const workOrderRouter = createTRPCRouter({
       const normalizedWorkOrder = normalizeWorkOrder({
         ...workOrder,
         totalCost: totalCost._sum.amount || new Prisma.Decimal(0),
+        contactPersonId: workOrder.contactPersonId,
+        contactPerson: {
+          id: workOrder.contactPersonId,
+          name: workOrder.contactPerson.name || null
+        },
         createdBy: {
           id: workOrder.createdBy.id,
           name: workOrder.createdBy.name
@@ -74,6 +85,7 @@ export const workOrderRouter = createTRPCRouter({
     .input(z.object({
       dateIn: z.date(),
       estimateNumber: z.string(),
+      contactPersonId: z.string(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
@@ -115,6 +127,11 @@ export const workOrderRouter = createTRPCRouter({
               }
             }
           }),
+          contactPerson: {
+            connect: {
+              id: input.contactPersonId
+            }
+          },
           createdBy: {
             connect: {
               id: ctx.session.user.id
@@ -178,6 +195,12 @@ export const workOrderRouter = createTRPCRouter({
           Order: {
             select: {
               id: true
+            }
+          },
+          contactPerson: {
+            select: {
+              id: true,
+              name: true
             }
           },
           createdBy: {

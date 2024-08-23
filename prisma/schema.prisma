@@ -134,8 +134,10 @@ model Order {
   inHandsDate       DateTime?
   invoicePrintEmail InvoicePrintEmailOptions @default(Both)
   createdById       String
+  contactPersonId   String
   Invoice           Invoice?
-  createdBy         User                     @relation(fields: [createdById], references: [id])
+  createdBy         User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  contactPerson     User                     @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
   Office            Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo      ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
   WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
@@ -144,36 +146,36 @@ model Order {
 }
 
 model OrderItem {
-  id                    String              @id @default(uuid())
-  orderId               String
-  finishedQty           Int
-  pressRun              String
-  size                  String?
-  stockOnHand           Boolean             @default(false)
-  stockOrdered          String?
-  inkColor              String?
   amount                Decimal?            @db.Decimal(10, 2)
-  quantity              Int                 @default(1)
-  specialInstructions   String?
   approved              Boolean             @default(false)
   artwork               String?
-  status                OrderItemStatus     @default(Pending)
-  createdAt             DateTime            @default(now())
-  createdById           String
-  updatedAt             DateTime            @updatedAt
-  description           String              @default("")
-  expectedDate          DateTime            @default(now())
   cost                  Decimal?            @db.Decimal(10, 2)
   costPerM              Decimal?            @db.Decimal(10, 2)
+  createdAt             DateTime            @default(now())
+  createdBy             User                @relation(fields: [createdById], references: [id])
+  createdById           String
+  customerSuppliedStock String              @default("")
+  description           String              @default("")
+  expectedDate          DateTime            @default(now())
+  finishedQty           Int
+  id                    String              @id @default(uuid())
+  inkColor              String?
+  InvoiceItems          InvoiceItem[]
+  Order                 Order               @relation(fields: [orderId], references: [id])
+  orderId               String
+  OrderItemStock        OrderItemStock[]
   overUnder             String?
   prepTime              Int?
-  customerSuppliedStock String              @default("")
-  InvoiceItems          InvoiceItem[]
-  createdBy             User                @relation(fields: [createdById], references: [id])
-  Order                 Order               @relation(fields: [orderId], references: [id])
-  OrderItemStock        OrderItemStock[]
+  pressRun              String
   ProcessingOptions     ProcessingOptions[]
+  quantity              Int                 @default(1)
+  size                  String?
+  specialInstructions   String?
+  status                OrderItemStatus     @default(Pending)
+  stockOnHand           Boolean             @default(false)
+  stockOrdered          String?
   Typesetting           Typesetting[]
+  updatedAt             DateTime            @updatedAt
 }
 
 model OrderNote {
@@ -333,34 +335,36 @@ model TypesettingProof {
 }
 
 model User {
-  id                 String               @id @default(cuid())
-  name               String?
-  email              String?              @unique
-  emailVerified      DateTime?
-  image              String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @default(now())
-  officeId           String?
-  accounts           Account[]
-  Invoice            Invoice[]
-  CreatedOffices     Office[]             @relation("CreatedBy")
-  Order              Order[]
-  OrderItem          OrderItem[]
-  OrderItemStock     OrderItemStock[]
-  OrderNote          OrderNote[]
-  Posts              Post[]
-  ProcessingOptions  ProcessingOptions[]
-  sessions           Session[]
-  ShippingInfo       ShippingInfo[]
-  Typesetting        Typesetting[]
-  TypesettingOption  TypesettingOption[]
-  TypesettingProof   TypesettingProof[]
-  Office             Office?              @relation(fields: [officeId], references: [id])
-  WorkOrders         WorkOrder[]
-  WorkOrderItem      WorkOrderItem[]
-  WorkOrderItemStock WorkOrderItemStock[]
-  WorkOrderNote      WorkOrderNote[]
-  Roles              Role[]               @relation("RoleToUser")
+  id                      String               @id @default(cuid())
+  name                    String?
+  email                   String?              @unique
+  emailVerified           DateTime?
+  image                   String?
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @default(now())
+  officeId                String?
+  accounts                Account[]
+  Invoice                 Invoice[]
+  CreatedOffices          Office[]             @relation("CreatedBy")
+  OrderItem               OrderItem[]
+  OrderItemStock          OrderItemStock[]
+  OrderNote               OrderNote[]
+  Posts                   Post[]
+  ProcessingOptions       ProcessingOptions[]
+  sessions                Session[]
+  ShippingInfo            ShippingInfo[]
+  Typesetting             Typesetting[]
+  TypesettingOption       TypesettingOption[]
+  TypesettingProof        TypesettingProof[]
+  Office                  Office?              @relation(fields: [officeId], references: [id])
+  WorkOrderItem           WorkOrderItem[]
+  WorkOrderItemStock      WorkOrderItemStock[]
+  WorkOrderNote           WorkOrderNote[]
+  Roles                   Role[]               @relation("RoleToUser")
+  CreatedOrders           Order[]              @relation("OrderCreatedBy")
+  CreatedWorkOrders       WorkOrder[]          @relation("WorkOrderCreatedBy")
+  ContactPersonOrders     Order[]              @relation("OrderContactPerson")
+  ContactPersonWorkOrders WorkOrder[]          @relation("WorkOrderContactPerson")
 }
 
 model VerificationToken {
@@ -385,46 +389,48 @@ model WorkOrder {
   shippingInfoId      String?
   status              WorkOrderStatus          @default(Draft)
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  contactPersonId     String
   createdById         String
   Order               Order?
-  createdBy           User                     @relation(fields: [createdById], references: [id])
+  createdBy           User                     @relation("WorkOrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
   WorkOrderItems      WorkOrderItem[]
   WorkOrderNotes      WorkOrderNote[]
   WorkOrderVersions   WorkOrderVersion[]
+  contactPerson       User                     @relation("WorkOrderContactPerson", fields: [contactPersonId], references: [id])
 }
 
 model WorkOrderItem {
-  id                    String               @id @default(uuid())
-  workOrderId           String?
-  finishedQty           Int?
-  other                 String?
-  pressRun              String?
-  size                  String?
-  stockOnHand           Boolean              @default(false)
-  stockOrdered          String?
-  inkColor              String?
   amount                Decimal?             @db.Decimal(10, 2)
-  quantity              Int                  @default(1)
-  specialInstructions   String?
   approved              Boolean              @default(false)
   artwork               String?
-  status                WorkOrderItemStatus  @default(Pending)
-  createdAt             DateTime             @default(now())
-  createdById           String
-  updatedAt             DateTime             @updatedAt
-  description           String               @default("")
-  expectedDate          DateTime             @default(now())
   cost                  Decimal?             @db.Decimal(10, 2)
   costPerM              Decimal              @default(0) @db.Decimal(10, 2)
+  createdAt             DateTime             @default(now())
+  createdBy             User                 @relation(fields: [createdById], references: [id])
+  createdById           String
+  customerSuppliedStock String?
+  description           String               @default("")
+  expectedDate          DateTime             @default(now())
+  finishedQty           Int?
+  id                    String               @id @default(uuid())
+  inkColor              String?
+  other                 String?
   overUnder             String?
   prepTime              Int?
-  customerSuppliedStock String?
+  pressRun              String?
   ProcessingOptions     ProcessingOptions[]
+  quantity              Int                  @default(1)
+  size                  String?
+  specialInstructions   String?
+  status                WorkOrderItemStatus  @default(Pending)
+  stockOnHand           Boolean              @default(false)
+  stockOrdered          String?
   Typesetting           Typesetting[]
-  createdBy             User                 @relation(fields: [createdById], references: [id])
+  updatedAt             DateTime             @updatedAt
   WorkOrder             WorkOrder?           @relation(fields: [workOrderId], references: [id])
+  workOrderId           String?
   WorkOrderItemStock    WorkOrderItemStock[]
 }
 

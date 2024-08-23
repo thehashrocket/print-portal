@@ -16,10 +16,6 @@ dayjs.extend(timezone);
 
 export default async function DashboardPage() {
 
-    const formatDate = (dateString: string | Date) => {
-        return dayjs(dateString).tz(dayjs.tz.guess()).format('MMMM D, YYYY h:mm A');
-    };
-
     const session = await getServerAuthSession();
 
     if (
@@ -32,6 +28,11 @@ export default async function DashboardPage() {
             <NoPermission />
         )
     }
+
+    const formatDate = (dateString: string | Date) => {
+        return dayjs(dateString).tz(dayjs.tz.guess()).format('MMMM D, YYYY h:mm A');
+    };
+
     const orderItems = await api.orderItems.getAll();
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
         costPerM: orderItem.costPerM?.toString() ?? null,
         createdAt: orderItem.createdAt ? formatDate(orderItem.createdAt) : null,
         finishedQty: orderItem.finishedQty,
+        pressRun: orderItem.pressRun,
         quantity: orderItem.quantity,
         updatedAt: orderItem.updatedAt ? formatDate(orderItem.updatedAt) : null,
     }));

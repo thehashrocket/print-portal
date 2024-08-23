@@ -11,6 +11,12 @@ export const orderRouter = createTRPCRouter({
       const order = await ctx.db.order.findUnique({
         where: { id: input },
         include: {
+          contactPerson: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
           createdBy: {
             select: {
               id: true,
@@ -47,6 +53,12 @@ export const orderRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const orders = await ctx.db.order.findMany({
         include: {
+          contactPerson: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
           createdBy: {
             select: {
               id: true,

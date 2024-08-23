@@ -1,10 +1,10 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 
 // Get a User by ID
 // Get the User's Roles and Permissions
 export const userRouter = createTRPCRouter({
-  getByID: publicProcedure.input(z.string()).query(({ ctx, input }) => {
+  getByID: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
     return ctx.db.user.findUnique({
       where: {
         id: input,
@@ -22,8 +22,22 @@ export const userRouter = createTRPCRouter({
   // This is a more complex query that requires joining multiple tables
   // Users has a many-to-many relationship with Roles
   // Roles has a many-to-many relationship with Permissions through Roles
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.db.user.findMany({
+      include: {
+        Roles: {
+          include: {
+            Permissions: true,
+          },
+        },
+      },
+    });
+  }),
+  getByOfficeId: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
+    return ctx.db.user.findMany({
+      where: {
+        officeId: input,
+      },
       include: {
         Roles: {
           include: {

@@ -1,25 +1,9 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, OrderStatus, OrderItemStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import { normalizeWorkOrder } from "~/utils/dataNormalization";
+import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const prisma = new PrismaClient();
-
-type WorkOrderWithRelations = Prisma.WorkOrderGetPayload<{
-    include: {
-        WorkOrderItems: {
-            include: {
-                Typesetting: {
-                    include: {
-                        TypesettingOptions: true,
-                        TypesettingProofs: true,
-                    },
-                },
-                ProcessingOptions: true,
-                WorkOrderItemStock: true,
-            },
-        },
-        ShippingInfo: true,
-    }
-}>;
 
 export async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
     console.log('Converting Work Order to Order');
@@ -34,7 +18,7 @@ export async function convertWorkOrderToOrder(workOrderId: string, officeId: str
     });
 }
 
-async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): Promise<WorkOrderWithRelations> {
+async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): Promise<SerializedWorkOrder> {
     const workOrder = await tx.workOrder.findUnique({
         where: { id: workOrderId },
         include: {
@@ -51,6 +35,14 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
                 },
             },
             ShippingInfo: true,
+            Office: {
+                include: {
+                    Company: true,
+                },
+            },
+            contactPerson: true,
+            createdBy: true,
+            Order: true,
         },
     });
 
@@ -61,18 +53,34 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         });
     }
 
-    return workOrder;
+    // Calculate totalCost
+    const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => {
+        return sum.add(item.amount || 0);
+    }, new Prisma.Decimal(0));
+
+    // Prepare the data for normalization
+    const workOrderData = {
+        ...workOrder,
+        totalCost,
+        Order: workOrder.Order ? { id: workOrder.Order.id } : null,
+    };
+
+    return normalizeWorkOrder(workOrderData);
 }
 
-async function createOrder(tx: Prisma.TransactionClient, workOrder: WorkOrderWithRelations, officeId: string) {
+async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, officeId: string) {
     const order = await tx.order.create({
         data: {
             officeId,
             shippingInfoId: workOrder.shippingInfoId ?? undefined,
-            status: "Pending",
+            status: OrderStatus.Pending,
             createdById: workOrder.createdById,
+            contactPersonId: workOrder.contactPersonId,
             workOrderId: workOrder.id,
             version: 1,
+            dateInvoiced: null,
+            inHandsDate: new Date(workOrder.inHandsDate),
+            invoicePrintEmail: workOrder.invoicePrintEmail,
         },
     });
 
@@ -80,41 +88,41 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: WorkOrderWit
     return order;
 }
 
-async function createOrderItems(tx: Prisma.TransactionClient, workOrder: WorkOrderWithRelations, orderId: string) {
+async function createOrderItems(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, orderId: string) {
     console.log('Converting work order items to order items');
 
     for (const workOrderItem of workOrder.WorkOrderItems) {
         const orderItem = await createOrderItem(tx, workOrderItem, orderId);
-        await updateTypesetting(tx, workOrderItem, orderItem.id);
-        await createProcessingOptions(tx, workOrderItem, orderItem.id);
-        await createOrderItemStock(tx, workOrderItem, orderItem.id);
+        await updateTypesetting(tx, workOrderItem.id, orderItem.id);
+        await createProcessingOptions(tx, workOrderItem.id, orderItem.id);
+        await createOrderItemStock(tx, workOrderItem.id, orderItem.id);
     }
 }
 
-async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: WorkOrderWithRelations['WorkOrderItems'][0], orderId: string) {
+async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: SerializedWorkOrderItem, orderId: string) {
     const orderItem = await tx.orderItem.create({
         data: {
             orderId,
-            approved: workOrderItem.approved,
-            artwork: workOrderItem.artwork,
-            amount: workOrderItem.amount,
-            cost: workOrderItem.cost,
-            costPerM: workOrderItem.costPerM,
+            approved: false,
+            artwork: workOrderItem.artwork ?? null,
+            amount: workOrderItem.amount ? new Prisma.Decimal(workOrderItem.amount) : null,
+            cost: workOrderItem.cost ? new Prisma.Decimal(workOrderItem.cost) : null,
+            costPerM: workOrderItem.costPerM ? new Prisma.Decimal(workOrderItem.costPerM) : null,
             customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
             description: workOrderItem.description,
-            expectedDate: workOrderItem.expectedDate,
+            expectedDate: new Date(),
             finishedQty: workOrderItem.finishedQty ?? 0,
-            inkColor: workOrderItem.inkColor,
-            overUnder: workOrderItem.overUnder,
-            prepTime: workOrderItem.prepTime,
-            pressRun: workOrderItem.pressRun ?? "",
-            quantity: workOrderItem.quantity,
-            size: workOrderItem.size,
-            specialInstructions: workOrderItem.specialInstructions,
-            stockOnHand: workOrderItem.stockOnHand,
-            stockOrdered: workOrderItem.stockOrdered,
-            createdById: workOrderItem.createdById,
-            status: "Pending",
+            inkColor: workOrderItem.inkColor ?? null,
+            overUnder: workOrderItem.overUnder ?? null,
+            prepTime: null,
+            pressRun: workOrderItem.pressRun ?? '',
+            quantity: parseInt(workOrderItem.quantity),
+            size: null,
+            specialInstructions: null,
+            stockOnHand: false,
+            stockOrdered: null,
+            createdById: "", // You'll need to set this appropriately
+            status: OrderItemStatus.Pending,
         },
     });
 
@@ -122,20 +130,26 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Work
     return orderItem;
 }
 
-async function updateTypesetting(tx: Prisma.TransactionClient, workOrderItem: WorkOrderWithRelations['WorkOrderItems'][0], orderItemId: string) {
-    if (workOrderItem.Typesetting && workOrderItem.Typesetting.length > 0) {
-        for (const typesetting of workOrderItem.Typesetting) {
-            await tx.typesetting.update({
-                where: { id: typesetting.id },
-                data: { orderItemId },
-            });
-            console.log(`Typesetting updated: ${typesetting.id}`);
-        }
+async function updateTypesetting(tx: Prisma.TransactionClient, workOrderItemId: string, orderItemId: string) {
+    const typesettings = await tx.typesetting.findMany({
+        where: { workOrderItemId },
+    });
+
+    for (const typesetting of typesettings) {
+        await tx.typesetting.update({
+            where: { id: typesetting.id },
+            data: { orderItemId },
+        });
+        console.log(`Typesetting updated: ${typesetting.id}`);
     }
 }
 
-async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderItem: WorkOrderWithRelations['WorkOrderItems'][0], orderItemId: string) {
-    for (const processingOption of workOrderItem.ProcessingOptions) {
+async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderItemId: string, orderItemId: string) {
+    const processingOptions = await tx.processingOptions.findMany({
+        where: { workOrderItemId },
+    });
+
+    for (const processingOption of processingOptions) {
         await tx.processingOptions.create({
             data: {
                 ...processingOption,
@@ -148,12 +162,25 @@ async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderIt
     }
 }
 
-async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItem: WorkOrderWithRelations['WorkOrderItems'][0], orderItemId: string) {
-    for (const stock of workOrderItem.WorkOrderItemStock) {
+async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemId: string, orderItemId: string) {
+    const stocks = await tx.workOrderItemStock.findMany({
+        where: { workOrderItemId },
+    });
+
+    for (const stock of stocks) {
         await tx.orderItemStock.create({
             data: {
-                ...stock,
-                id: undefined,
+                stockQty: stock.stockQty,
+                costPerM: stock.costPerM,
+                totalCost: stock.totalCost,
+                from: stock.from,
+                expectedDate: stock.expectedDate,
+                orderedDate: stock.orderedDate,
+                received: stock.received,
+                receivedDate: stock.receivedDate,
+                notes: stock.notes,
+                stockStatus: stock.stockStatus,
+                createdById: stock.createdById,
                 orderItemId,
             },
         });

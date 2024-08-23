@@ -7,6 +7,10 @@ export function normalizeOrder(order: Order & {
     totalCost?: Prisma.Decimal | null,
     Office: { Company: { name: string } },
     OrderItems?: OrderItem[],
+    contactPerson: {
+        id: string,
+        name: string | null
+    },
     createdBy: {
         id: string,
         name: string | null
@@ -21,6 +25,10 @@ export function normalizeOrder(order: Order & {
         totalCost: order.totalCost ? order.totalCost.toString() : null,
         createdAt: order.createdAt.toISOString(),
         updatedAt: order.updatedAt.toISOString(),
+        contactPerson: {
+            id: order.contactPersonId,
+            name: order.contactPerson?.name ?? null
+        },
         createdBy: {
             id: order.createdBy.id,
             name: order.createdBy.name ?? null
@@ -45,6 +53,7 @@ export function normalizeOrderItem(item: OrderItem): SerializedOrderItem {
         finishedQty: item.finishedQty,
         id: item.id,
         orderId: item.orderId,
+        pressRun: item.pressRun ? item.pressRun.toString() : '',
         quantity: item.quantity,
         status: item.status,
         updatedAt: "",
@@ -55,7 +64,11 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     Order: { id: string } | null;
     WorkOrderItems: WorkOrderItem[];
     totalCost: Prisma.Decimal;
-    createdBy?: { id: string; name: string | null };
+    contactPerson: {
+        id: string;
+        name: string | null;
+    };
+    createdBy: { id: string; name: string | null };
     Office: {
         id: string;
         name: string;
@@ -66,6 +79,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     };
 }): SerializedWorkOrder {
     return {
+        contactPersonId: workOrder.contactPersonId,
         createdAt: workOrder.createdAt.toISOString(),
         createdById: workOrder.createdById,
         dateIn: workOrder.dateIn.toISOString(),
@@ -80,6 +94,10 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         updatedAt: workOrder.updatedAt.toISOString(),
         version: workOrder.version,
         workOrderNumber: workOrder.workOrderNumber.toString(),
+        contactPerson: {
+            id: workOrder.contactPerson.id,
+            name: workOrder.contactPerson?.name ?? null
+        },
         createdBy: {
             id: workOrder.createdById,
             name: workOrder.createdBy?.name ?? null// We don't have this information in the current query
@@ -100,13 +118,16 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
 export function normalizeWorkOrderItem(item: WorkOrderItem): SerializedWorkOrderItem {
     return {
         amount: item.amount?.toString() ?? undefined,
+        artwork: item.artwork ?? null,
         cost: item.cost?.toString() ?? undefined,
         costPerM: item.costPerM?.toString() ?? null,
         customerSuppliedStock: item.customerSuppliedStock ?? null,
         description: item.description,
         finishedQty: item.finishedQty ?? null,
         id: item.id,
+        inkColor: item.inkColor ?? null,
         other: item.other ?? null,
+        overUnder: item.overUnder ?? null,
         pressRun: item.pressRun ?? null,
         quantity: item.quantity.toString(),
         status: item.status,

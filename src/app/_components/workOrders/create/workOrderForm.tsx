@@ -1,16 +1,18 @@
 // ~/app/_components/workOrders/create/WorkOrderForm.tsx
 "use client";
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
+import { ref } from 'pdfkit';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.date(),
+    contactPersonId: z.string().min(1, 'Contact Person is required'),
     estimateNumber: z.string().min(1, 'Estimate Number is required'),
     inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
@@ -29,10 +31,13 @@ const WorkOrderForm: React.FC = () => {
     const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
+    const [contactPerson, setContactPerson] = useState<string | null>(null);
     const [companies, setCompanies] = useState<any[]>([]);
     const [offices, setOffices] = useState<any[]>([]);
+    const [employees, setEmployees] = useState<any[]>([]);
     const { data: companyData } = api.companies.getAll.useQuery();
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
+    const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
     const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation();
     const router = useRouter()
 
@@ -53,6 +58,18 @@ const WorkOrderForm: React.FC = () => {
             setOffices(officeData);
         }
     }, [officeData]);
+
+    useEffect(() => {
+        if (selectedOffice) {
+            refetchEmployees();
+        }
+    }, [selectedOffice, refetchEmployees]);
+
+    useEffect(() => {
+        if (employeeData) {
+            setEmployees(employeeData);
+        }
+    }, [employeeData]);
 
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
 
@@ -98,6 +115,17 @@ const WorkOrderForm: React.FC = () => {
                             <option value="">Select an Office</option>
                             {offices.map((office) => (
                                 <option key={office.id} value={office.id}>{office.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+                {selectedOffice && (
+                    <div>
+                        <label htmlFor="contactPerson" className="block text-sm font-medium text-gray-700">Contact Person</label>
+                        <select id="contactPerson" onChange={(e) => setContactPerson(e.target.value)} className="select select-bordered w-full">
+                            <option value="">Select a Contact Person</option>
+                            {employees.map((employee) => (
+                                <option key={employee.id} value={employee.id}>{employee.name}</option>
                             ))}
                         </select>
                     </div>
