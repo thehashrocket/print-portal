@@ -15,21 +15,10 @@ import {
     RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { WorkOrderItemStatus } from "@prisma/client";
 import Link from "next/link";
+import { SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-
-type SerializedWorkOrderItem = {
-    amount: string | undefined;
-    cost: string | undefined;
-    description: string;
-    finishedQty: number | undefined;
-    id: string;
-    quantity: string;
-    status: WorkOrderItemStatus;
-    workOrderId: string | null;
-};
 
 interface WorkOrderItemsTableProps {
     workOrderItems: SerializedWorkOrderItem[];

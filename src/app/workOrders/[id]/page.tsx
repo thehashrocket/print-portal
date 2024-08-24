@@ -10,6 +10,7 @@ import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotes
 import Link from "next/link";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { WorkOrderStatus } from "@prisma/client";
+import { SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const StatusBadge = ({ status }: { status: WorkOrderStatus }) => {
   const getStatusColor = () => {
@@ -51,15 +52,8 @@ export default async function WorkOrderPage({
     throw new Error("Work Order not found");
   }
 
-  const serializedWorkOrderItems = workOrder.WorkOrderItems.map((item) => ({
-    amount: item.amount?.toString(),
-    cost: item.cost?.toString(),
-    description: item.description,
-    finishedQty: (item.finishedQty || 0),
-    id: item.id,
-    quantity: item.quantity.toString(),
-    status: item.status,
-    workOrderId: item.workOrderId,
+  const serializedWorkOrderItems = workOrder.WorkOrderItems.map((item: SerializedWorkOrderItem) => ({
+    ...item,
   }));
 
   return (

@@ -101,12 +101,9 @@ export interface SerializedWorkOrderItem {
     costPerM: string | null;
     customerSuppliedStock: string | null;
     description: string;
-    finishedQty: number | null;
     id: string;
     inkColor: string | null;
     other: string | null;
-    overUnder: string | null;
-    pressRun: string | null;
     quantity: string;
     status: WorkOrderItemStatus;
     workOrderId: string | null;

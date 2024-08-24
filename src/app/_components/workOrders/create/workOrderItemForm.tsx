@@ -22,18 +22,14 @@ const workOrderItemSchema = z.object({
         fileUrl: z.string(),
         description: z.string().optional(),
     })).optional(),
-    approved: z.boolean(),
     cost: z.number().optional(),
     costPerM: z.number().min(1, 'Cost Per M is required'),
     customerSuppliedStock: z.string().optional(),
     description: z.string().optional(),
     expectedDate: z.string().optional(),
-    finishedQty: z.number().optional(),
     inkColor: z.string().optional(),
     other: z.string().optional(),
-    overUnder: z.number().optional(),
     prepTime: z.number().optional(),
-    pressRun: z.string().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
     size: z.string().optional(),
     specialInstructions: z.string().optional(),
@@ -85,10 +81,8 @@ const WorkOrderItemForm: React.FC = () => {
                 customerSuppliedStock: data.customerSuppliedStock || '',
                 description: data.description || '',
                 expectedDate: new Date(), // Replace with the desired Date value
-                finishedQty: 0, // Add a default value for finishedQty
                 inkColor: '', // Add a default value for inkColor
                 other: '', // Add a default value for other
-                pressRun: '', // Add a default value for pressRun
                 size: '', // Add a default value for size
                 specialInstructions: '', // Add a default value for specialInstructions
                 stockOrdered: '', // Add a default value for stockOrdered
@@ -131,7 +125,7 @@ const WorkOrderItemForm: React.FC = () => {
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <div>
-                    <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount</label>
+                    <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount (we bill customer)</label>
                     <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
                     {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                 </div>
@@ -146,12 +140,7 @@ const WorkOrderItemForm: React.FC = () => {
                     />
                 </div>
                 <div>
-                    <label htmlFor='approved' className='block text-sm font-medium text-gray-700'>Approved</label>
-                    <input type="checkbox" className="checkbox" {...register("approved")} />
-                    {errors.approved && <p className='text-red-500'>{errors.approved.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor='cost' className='block text-sm font-medium text-gray-700'>Cost</label>
+                    <label htmlFor='cost' className='block text-sm font-medium text-gray-700'>Cost (our cost)</label>
                     <input id='cost' type='number' {...register('cost', { valueAsNumber: true })} className='input input-bordered w-full' />
                     {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                 </div>
@@ -176,11 +165,6 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.expectedDate && <p className='text-red-500'>{errors.expectedDate.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor='finishedQty' className='block text-sm font-medium text-gray-700'>Finished Qty</label>
-                    <input id='finishedQty' type='number' {...register('finishedQty', { valueAsNumber: true })} className='input input-bordered w-full' />
-                    {errors.finishedQty && <p className='text-red-500'>{errors.finishedQty.message}</p>}
-                </div>
-                <div>
                     <label htmlFor='inkColor' className='block text-sm font-medium text-gray-700'>Ink Color</label>
                     <input id='inkColor' {...register('inkColor')} className='input input-bordered w-full' />
                     {errors.inkColor && <p className='text-red-500'>{errors.inkColor.message}</p>}
@@ -191,19 +175,9 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.other && <p className='text-red-500'>{errors.other.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor='overUnder' className='block text-sm font-medium text-gray-700'>Over Under</label>
-                    <input id='overUnder' type='number' {...register('overUnder', { valueAsNumber: true })} className='input input-bordered w-full' />
-                    {errors.overUnder && <p className='text-red-500'>{errors.overUnder.message}</p>}
-                </div>
-                <div>
                     <label htmlFor='prepTime' className='block text-sm font-medium text-gray-700'>Prep Time</label>
                     <input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} className='input input-bordered w-full' />
                     {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor='pressRun' className='block text-sm font-medium text-gray-700'>Press Run</label>
-                    <input id='pressRun' {...register('pressRun')} className='input input-bordered w-full' />
-                    {errors.pressRun && <p className='text-red-500'>{errors.pressRun.message}</p>}
                 </div>
                 <div>
                     <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity</label>

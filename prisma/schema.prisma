@@ -430,7 +430,6 @@ model WorkOrder {
 
 model WorkOrderItem {
   amount                Decimal?               @db.Decimal(10, 2)
-  approved              Boolean                @default(false)
   artwork               WorkOrderItemArtwork[]
   cost                  Decimal?               @db.Decimal(10, 2)
   costPerM              Decimal                @default(0) @db.Decimal(10, 2)
@@ -440,13 +439,10 @@ model WorkOrderItem {
   customerSuppliedStock String?
   description           String                 @default("")
   expectedDate          DateTime               @default(now())
-  finishedQty           Int?
   id                    String                 @id @default(uuid())
   inkColor              String?
   other                 String?
-  overUnder             String?
   prepTime              Int?
-  pressRun              String?
   ProcessingOptions     ProcessingOptions[]
   quantity              Int                    @default(1)
   size                  String?
