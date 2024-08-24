@@ -8,7 +8,7 @@ await import("./src/env.js");
 const config = {
     reactStrictMode: true,
     images: {
-        domains: ["localhost", "client-frontend.ngrok.io", "print-shop.1905newmedia.com", "placedog.net"],
+        domains: ["localhost", "client-frontend.ngrok.io", "print-portal.1905newmedia.com", "placedog.net"],
     },
 
 };
