@@ -9,6 +9,7 @@ import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
+import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -97,7 +98,19 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                 } />
                 <InfoCard title="Quantity" content={orderItem.quantity} />
             </div>
-
+            <div className="grid grid-cols-1 gap-4 mb-2">
+                {/* Render OrderItemArtwork */}
+                <div className="rounded-lg bg-white p-6 shadow-md">
+                    <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {orderItem?.artwork.map((artwork) => (
+                            <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
+                                <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
             <div className="space-y-8">
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Typesetting</h2>
