@@ -215,6 +215,12 @@ export const workOrderRouter = createTRPCRouter({
               name: true
             }
           },
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
         },
       });
 
@@ -240,7 +246,7 @@ export const workOrderRouter = createTRPCRouter({
           },
           Order: workOrder.Order,
           WorkOrderItems: workOrder.WorkOrderItems,
-          ShippingInfo: null
+          ShippingInfo: workOrder.ShippingInfo,
         });
       }));
 

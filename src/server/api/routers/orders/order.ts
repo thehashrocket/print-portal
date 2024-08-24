@@ -11,23 +11,23 @@ export const orderRouter = createTRPCRouter({
       const order = await ctx.db.order.findUnique({
         where: { id: input },
         include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: true,
           contactPerson: {
             select: {
               id: true,
-              name: true
-            }
+              name: true,
+            },
           },
           createdBy: {
             select: {
               id: true,
-              name: true
-            }
-          },
-          OrderItems: true,
-          Office: {
-            include: {
-              Company: true
-            }
+              name: true,
+            },
           },
           ShippingInfo: {
             include: {
@@ -40,59 +40,69 @@ export const orderRouter = createTRPCRouter({
 
       if (!order) return null;
 
-      const totalCost = await ctx.db.orderItem.aggregate({
-        where: { orderId: input },
-        _sum: { amount: true }
-      });
+      const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
 
-      const normalizedOrder = normalizeOrder({
-        ...order,
-        totalCost: totalCost._sum.amount ? new Prisma.Decimal(totalCost._sum.amount) : null,
-      });
-
-      normalizedOrder.OrderItems = order.OrderItems.map(normalizeOrderItem);
-
-      return normalizedOrder;
+      return normalizeOrder({ ...order, totalCost });
     }),
 
   getAll: protectedProcedure
-    .query(async ({ ctx }) => {
+    .input(z.object({
+      limit: z.number().min(1).max(100).nullish(),
+      cursor: z.string().nullish(),
+    }).nullish())
+    .query(async ({ ctx, input }) => {
+      const limit = input?.limit ?? 50;
+      const cursor = input?.cursor;
+
       const orders = await ctx.db.order.findMany({
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          createdAt: 'desc',
+        },
         include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: true,
           contactPerson: {
             select: {
               id: true,
-              name: true
-            }
+              name: true,
+            },
           },
           createdBy: {
             select: {
               id: true,
-              name: true
-            }
+              name: true,
+            },
           },
-          Office: {
+          ShippingInfo: {
             include: {
-              Company: true
-            }
+              Address: true,
+              ShippingPickup: true,
+            },
           },
-          OrderItems: true
-        }
+        },
       });
 
-      const ordersWithTotalCost = await Promise.all(orders.map(async (order) => {
-        const totalCost = await ctx.db.orderItem.aggregate({
-          where: { orderId: order.id },
-          _sum: { cost: true }
-        });
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (orders.length > limit) {
+        const nextItem = orders.pop();
+        nextCursor = nextItem!.id;
+      }
 
-        return {
-          ...order,
-          totalCost: totalCost._sum.cost || new Prisma.Decimal(0)
-        };
+      const normalizedOrders = orders.map(order => normalizeOrder({
+        ...order,
+        totalCost: order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0)),
       }));
 
-      return ordersWithTotalCost;
+      return {
+        orders: normalizedOrders,
+        nextCursor,
+      };
     }),
 
   // update status of an order
