@@ -640,38 +640,54 @@ async function createRolesAndPermissions() {
 // addressId: take the addressId from the first address created for the office.
 // This function returns the ID of the created shipping info record
 async function createShippingInfo(officeId: string, userId: string) {
-  // Find office by officeId
   const office = await prismaClient.office.findUnique({
-    where: {
-      id: officeId,
-    },
-    include: {
-      Addresses: true,
-    },
+    where: { id: officeId },
+    include: { Addresses: true },
   });
 
-  // Create shipping info using faker for demo data
+  if (!office || !office.Addresses.length) {
+    throw new Error("Office or address not found");
+  }
+
+  const shippingMethod = randomElementFromArray(Object.values(ShippingMethod));
+
   const shippingInfo = await prismaClient.shippingInfo.create({
     data: {
       numberOfPackages: faker.datatype.number({ min: 1, max: 10 }),
       instructions: faker.lorem.sentence(),
       shippingOther: faker.lorem.sentence(),
       shippingDate: faker.date.future(),
-      shippingMethod: randomElementFromArray(shippingMethods),
+      shippingMethod,
       shippingCost: faker.number.float({ min: 10, max: 100, precision: 2 }),
       officeId,
       shippingNotes: faker.lorem.sentence(),
       shipToSameAsBillTo: faker.datatype.boolean(),
       attentionTo: faker.person.fullName(),
-      addressId: office?.Addresses[0]?.id, // Assuming the office has at least one address
-      createdById: userId, // Add the createdById property
+      addressId: office.Addresses[0]?.id,
+      createdById: userId,
+      estimatedDelivery: faker.date.future(),
+      trackingNumber: faker.string.alphanumeric(10),
     },
   });
+
+  // If the shipping method is pickup, create a ShippingPickup record
+  if (shippingMethod === ShippingMethod.Pickup) {
+    await prismaClient.shippingPickup.create({
+      data: {
+        shippingInfoId: shippingInfo.id,
+        pickupDate: faker.date.future(),
+        pickupTime: faker.date.future().toTimeString().slice(0, 5),
+        notes: faker.lorem.sentence(),
+        contactName: faker.person.fullName(),
+        contactPhone: faker.phone.number(),
+        createdById: userId,
+      },
+    });
+  }
 
   console.log(`Shipping Info created: ${shippingInfo.id}`);
   return shippingInfo.id;
 }
-
 
 // Create Typesetting record for a work order:
 async function createTypesetting(workOrderItemId: string, userId: string) {
@@ -824,13 +840,13 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       purchaseOrderNumber: faker.number.int().toString(),
       version: 1,
       status: randomElementFromArray(workOrderStatuses),
-      shippingInfoId,
-      contactPersonId: randomOfficeUser.id, // Correct field based on your schema's relation
-      createdById: randomUser.id, // Correct field based on your schema's relation
+      shippingInfoId, // Ensure this is always set
+      contactPersonId: randomOfficeUser.id,
+      createdById: randomUser.id,
     },
   });
-  console.log(`Work Order created: ${workOrder.estimateNumber}`);
 
+  console.log(`Work Order created: ${workOrder.estimateNumber}`);
   return workOrder;
 }
 
