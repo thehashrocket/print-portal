@@ -40,9 +40,10 @@ export const orderRouter = createTRPCRouter({
 
       if (!order) return null;
 
-      const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
 
-      return normalizeOrder({ ...order, totalCost });
+      return normalizeOrder({ ...order, totalAmount, totalCost });
     }),
 
   getAll: protectedProcedure
@@ -96,7 +97,8 @@ export const orderRouter = createTRPCRouter({
 
       const normalizedOrders = orders.map(order => normalizeOrder({
         ...order,
-        totalCost: order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0)),
+        totalAmount: order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0)),
+        totalCost: order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0)),
       }));
 
       return {

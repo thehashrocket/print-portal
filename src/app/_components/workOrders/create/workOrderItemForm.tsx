@@ -125,11 +125,6 @@ const WorkOrderItemForm: React.FC = () => {
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <div>
-                    <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount (we bill customer)</label>
-                    <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
-                    {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
-                </div>
-                <div>
                     <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
                     <FileUpload
                         onFileUploaded={handleFileUploaded}
@@ -138,6 +133,11 @@ const WorkOrderItemForm: React.FC = () => {
                         workOrderItemId={workOrderItemId}
                         initialFiles={artworks}
                     />
+                </div>
+                <div>
+                    <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount (we bill customer)</label>
+                    <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
+                    {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                 </div>
                 <div>
                     <label htmlFor='cost' className='block text-sm font-medium text-gray-700'>Cost (our cost)</label>

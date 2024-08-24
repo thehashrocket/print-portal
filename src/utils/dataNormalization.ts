@@ -5,6 +5,7 @@ import { Order, OrderItem, OrderItemArtwork, Prisma, WorkOrder, WorkOrderItem, S
 
 
 export function normalizeOrder(order: Order & {
+    totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     Office: {
         Company: { name: string };
@@ -29,6 +30,7 @@ export function normalizeOrder(order: Order & {
         workOrderId: order.workOrderId,
         orderNumber: order.orderNumber,
         deposit: order.deposit ? order.deposit.toString() : null,
+        totalAmount: order.totalAmount ? order.totalAmount.toString() : null,
         totalCost: order.totalCost ? order.totalCost.toString() : null,
         createdAt: order.createdAt.toISOString(),
         updatedAt: order.updatedAt.toISOString(),
@@ -77,6 +79,7 @@ export function normalizeOrderItem(item: OrderItem & { artwork?: OrderItemArtwor
 export function normalizeWorkOrder(workOrder: WorkOrder & {
     Order: { id: string } | null;
     WorkOrderItems: (WorkOrderItem & { artwork?: WorkOrderItemArtwork[] })[];
+    totalAmount: Prisma.Decimal;
     totalCost: Prisma.Decimal;
     contactPerson: {
         id: string;
@@ -107,6 +110,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         purchaseOrderNumber: workOrder.purchaseOrderNumber,
         shippingInfoId: workOrder.shippingInfoId,
         status: workOrder.status,
+        totalAmount: workOrder.totalAmount.toString(),
         totalCost: workOrder.totalCost.toString(),
         updatedAt: workOrder.updatedAt.toISOString(),
         version: workOrder.version,

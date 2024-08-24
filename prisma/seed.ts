@@ -51,6 +51,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
       status: randomElementFromArray(orderStatuses),
       contactPersonId: workOrder?.contactPersonId || "", // Assign an empty string if contactPersonId is undefined
       createdById: workOrder?.createdById || "", // Assign an empty string if userId is undefined
+      inHandsDate: workOrder?.inHandsDate || new Date(),
       workOrderId,
       version: 1,
     },
@@ -870,17 +871,21 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
 async function createWorkOrderItems(workOrderId: string, itemCount: number, userId: string) {
   // Create multiple work order items based on the itemCount
   for (let i = 0; i < itemCount; i++) {
+
+    const cost = faker.number.float({ min: 50, max: 200, precision: 2 });
+    const amount = cost * 1.3;
+
     const workOrderItem = await prismaClient.workOrderItem.create({
       data: {
         workOrderId: workOrderId,
-        amount: parseFloat(faker.commerce.price()),
+        amount: amount,
         artwork: {
           create: {
             fileUrl: "https://placedog.net/500?random.jpg",
             description: faker.lorem.sentence(),
           },
         },
-        cost: parseFloat(faker.commerce.price()),
+        cost: cost,
         costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
         customerSuppliedStock: randomElementFromArray(csOptions),
         description: faker.commerce.productDescription(),

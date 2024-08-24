@@ -62,14 +62,20 @@ export const workOrderRouter = createTRPCRouter({
 
       if (!workOrder) return null;
 
-      const totalCost = await ctx.db.workOrderItem.aggregate({
+      const totalAmount = await ctx.db.workOrderItem.aggregate({
         where: { workOrderId: input },
         _sum: { amount: true }
       });
 
+      const totalCost = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input },
+        _sum: { cost: true }
+      });
+
       const normalizedWorkOrder = normalizeWorkOrder({
         ...workOrder,
-        totalCost: totalCost._sum.amount || new Prisma.Decimal(0),
+        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
+        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
         contactPersonId: workOrder.contactPersonId,
         contactPerson: {
           id: workOrder.contactPersonId,
@@ -239,14 +245,21 @@ export const workOrderRouter = createTRPCRouter({
       });
 
       const normalizedWorkOrders = await Promise.all(workOrders.map(async (workOrder) => {
-        const totalCost = await ctx.db.workOrderItem.aggregate({
+
+        const totalAmount = await ctx.db.workOrderItem.aggregate({
           where: { workOrderId: workOrder.id },
           _sum: { amount: true }
         });
 
+        const totalCost = await ctx.db.workOrderItem.aggregate({
+          where: { workOrderId: workOrder.id },
+          _sum: { cost: true }
+        });
+
         return normalizeWorkOrder({
           ...workOrder,
-          totalCost: totalCost._sum.amount || new Prisma.Decimal(0),
+          totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
+          totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
           createdBy: {
             id: workOrder.createdBy.id,
             name: workOrder.createdBy.name

@@ -71,8 +71,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   const columnDefs: ColDef[] = [
     { headerName: "Status", field: "status", filter: true, width: 120 },
     { headerName: "Order Number", field: "orderNumber", filter: true, width: 140 },
-    { headerName: "Work Order ID", field: "workOrderId", filter: true, width: 150 },
     { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
+    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrency, width: 150 },
     { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
     { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDate, width: 120 },
     { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },

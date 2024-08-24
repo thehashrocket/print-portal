@@ -48,6 +48,7 @@ export const workOrderItemRouter = createTRPCRouter({
         .input(z.object({
             amount: z.number(),
             artwork: z.array(artworkSchema),
+            cost: z.number().optional(),
             customerSuppliedStock: z.string(),
             description: z.string(),
             expectedDate: z.date(),
@@ -65,6 +66,7 @@ export const workOrderItemRouter = createTRPCRouter({
             const workOrderItem = await ctx.db.workOrderItem.create({
                 data: {
                     amount: input.amount,
+                    cost: input.cost,
                     createdById: ctx.session.user.id,
                     customerSuppliedStock: input.customerSuppliedStock,
                     description: input.description,

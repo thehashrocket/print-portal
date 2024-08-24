@@ -109,8 +109,13 @@ export default async function OrderPage({
             content={<StatusBadge status={order.status} />}
           />
           <InfoSection
-            title="Total"
-            content={<p className="text-2xl font-bold">{formatCurrency(order.totalCost)}</p>}
+            title="Order Total Amount / Cost"
+            content={
+              <div>
+                <p><strong>Total:</strong> {formatCurrency(order.totalAmount)}</p>
+                <p><strong>Cost:</strong> {formatCurrency(order.totalCost)}</p>
+              </div>
+            }
           />
           <InfoSection
             title="Created By"
@@ -119,6 +124,14 @@ export default async function OrderPage({
           <InfoSection
             title="Created At"
             content={<p>{formatDate(order.createdAt)}</p>}
+          />
+          <InfoSection
+            title="Contact Person"
+            content={<p>{order.contactPerson?.name}</p>}
+          />
+          <InfoSection
+            title="In Hands Date"
+            content={<p>{formatCurrency(order.inHandsDate)}</p>}
           />
         </div>
 

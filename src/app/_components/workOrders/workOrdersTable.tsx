@@ -70,6 +70,7 @@ const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) 
         { headerName: "Work Order #", field: "workOrderNumber", filter: true, width: 150 },
         { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
         { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
+        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 150, sortable: false, filter: false },
     ];
 

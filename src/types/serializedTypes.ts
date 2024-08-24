@@ -8,6 +8,8 @@ export interface SerializedOrder {
     workOrderId: string | null;
     orderNumber: number;
     deposit: string | null;
+    inHandsDate: string | null;
+    totalAmount: string | null;
     totalCost: string | null;
     createdAt: string;
     updatedAt: string;
@@ -63,6 +65,7 @@ export interface SerializedWorkOrder {
     purchaseOrderNumber: string;
     shippingInfoId: string | null | undefined;
     status: WorkOrderStatus;
+    totalAmount: string | null;
     totalCost: string | null;
     updatedAt: string;
     version: number;
@@ -101,6 +104,7 @@ export interface SerializedWorkOrderItem {
     costPerM: string | null;
     customerSuppliedStock: string | null;
     description: string;
+    expectedDate: string;
     id: string;
     inkColor: string | null;
     other: string | null;

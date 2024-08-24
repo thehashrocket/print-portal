@@ -6,7 +6,6 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
-import WorkOrderNotesComponent from "../../_components/workOrders/workOrderNotesComponent";
 import Link from "next/link";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { WorkOrderStatus } from "@prisma/client";
@@ -90,8 +89,13 @@ export default async function WorkOrderPage({
             content={<StatusBadge status={workOrder.status} />}
           />
           <InfoSection
-            title="Total"
-            content={<p className="text-2xl font-bold">${workOrder.totalCost?.toString()}</p>}
+            title="Work Order Total Amount / Cost"
+            content={
+              <div>
+                <p><strong>Total:</strong> ${workOrder.totalAmount}</p>
+                <p><strong>Cost:</strong> ${workOrder.totalCost}</p>
+              </div>
+            }
           />
           <InfoSection
             title="Created By"
@@ -100,6 +104,14 @@ export default async function WorkOrderPage({
           <InfoSection
             title="Created At"
             content={<p>{new Date(workOrder.createdAt).toLocaleString()}</p>}
+          />
+          <InfoSection
+            title="Contact Person"
+            content={<p>{workOrder.contactPerson?.name}</p>}
+          />
+          <InfoSection
+            title="In Hands Date"
+            content={<p>{new Date(workOrder.inHandsDate).toLocaleString()}</p>}
           />
         </div>
 

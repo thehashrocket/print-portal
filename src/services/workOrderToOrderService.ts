@@ -58,14 +58,20 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         });
     }
 
+    // Calculate totalAmount
+    const totalAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
+        return sum.add(item.amount || 0);
+    }, new Prisma.Decimal(0));
+
     // Calculate totalCost
     const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.amount || 0);
+        return sum.add(item.cost || 0);
     }, new Prisma.Decimal(0));
 
     // Prepare the data for normalization
     const workOrderData = {
         ...workOrder,
+        totalAmount,
         totalCost,
         Order: workOrder.Order ? { id: workOrder.Order.id } : null,
     };
@@ -114,7 +120,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             costPerM: workOrderItem.costPerM ? new Prisma.Decimal(workOrderItem.costPerM) : null,
             customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
             description: workOrderItem.description,
-            expectedDate: new Date(),
+            expectedDate: new Date(workOrderItem.expectedDate),
             finishedQty: 0,
             inkColor: workOrderItem.inkColor ?? null,
             prepTime: null,
