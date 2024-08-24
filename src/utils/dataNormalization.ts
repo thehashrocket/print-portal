@@ -26,6 +26,7 @@ export function normalizeOrder(order: Order & {
 }): SerializedOrder {
     return {
         id: order.id,
+        inHandsDate: order.inHandsDate ? order.inHandsDate.toISOString() : null,
         status: order.status,
         workOrderId: order.workOrderId,
         orderNumber: order.orderNumber,
@@ -149,6 +150,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & { artwork?: WorkOrd
         cost: item.cost?.toString() ?? undefined,
         costPerM: item.costPerM?.toString() ?? null,
         customerSuppliedStock: item.customerSuppliedStock ?? null,
+        expectedDate: item.expectedDate?.toISOString() ?? null,
         description: item.description,
         id: item.id,
         inkColor: item.inkColor ?? null,
