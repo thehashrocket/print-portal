@@ -1,14 +1,16 @@
-// ~/src/app/_components/workOrders/WorkOrderChartsClient.tsx
+// ~/src/app/_components/workOrders/workOrderItemComponent.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { WorkOrderItem } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
+import Image from "next/image"; // Assuming you are using React Native
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
+import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import ArtworkComponent from "../shared/artworkComponent/artworkComponent";
 
 type WorkOrderItemPageProps = {
     workOrderId: string;
@@ -22,7 +24,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     // Fetch work order item data
     const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
-    const [workOrderItem, setWorkOrderItem] = useState<WorkOrderItem | null>(null);
+    const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
     const { data: typesettingData } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId); // Ensure you have an API endpoint to fetch typesetting data by work order item ID
 
     useEffect(() => {
@@ -65,12 +67,28 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         <p className="text-gray-800 text-lg font-semibold">{workOrder?.Office.name}</p>
                     </div>
                 </div>
+                {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Item Status</p>
                         <p className="text-gray-800 text-lg font-semibold">{workOrderItem?.status}</p>
                     </div>
                 </div>
+                {/* Row 3 */}
+                <div className="grid grid-cols-1 gap-4 mb-2">
+                    {/* Render WorkOrderItemArtwork */}
+                    <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            {workOrderItem?.artwork.map((artwork) => (
+                                <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
+                                    <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                {/* Row 4 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>

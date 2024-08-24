@@ -36,18 +36,19 @@ export default async function DashboardPage() {
     const orderItems = await api.orderItems.getAll();
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
-        status: orderItem.status,
-        id: orderItem.id,
-        description: orderItem.description,
-        expectedDate: orderItem.expectedDate ? formatDate(orderItem.expectedDate) : null,
-        orderId: orderItem.orderId,
         amount: orderItem.amount?.toString() ?? null,
+        artwork: orderItem.artwork ?? null,
         cost: orderItem.cost?.toString() ?? null,
         costPerM: orderItem.costPerM?.toString() ?? null,
         createdAt: orderItem.createdAt ? formatDate(orderItem.createdAt) : null,
+        description: orderItem.description,
+        expectedDate: orderItem.expectedDate ? formatDate(orderItem.expectedDate) : null,
         finishedQty: orderItem.finishedQty,
+        id: orderItem.id,
+        orderId: orderItem.orderId,
         pressRun: orderItem.pressRun,
         quantity: orderItem.quantity,
+        status: orderItem.status,
         updatedAt: orderItem.updatedAt ? formatDate(orderItem.updatedAt) : null,
     }));
 

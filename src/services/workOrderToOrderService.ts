@@ -109,7 +109,6 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
         data: {
             orderId,
             approved: false,
-            artwork: workOrderItem.artwork ?? null,
             amount: workOrderItem.amount ? new Prisma.Decimal(workOrderItem.amount) : null,
             cost: workOrderItem.cost ? new Prisma.Decimal(workOrderItem.cost) : null,
             costPerM: workOrderItem.costPerM ? new Prisma.Decimal(workOrderItem.costPerM) : null,
@@ -130,6 +129,21 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             status: OrderItemStatus.Pending,
         },
     });
+
+    // Add the artwork
+    if (workOrderItem.artwork) {
+        workOrderItem.artwork.forEach(async (artwork) => {
+            await tx.orderItemArtwork.create({
+                data: {
+                    fileUrl: artwork.fileUrl,
+                    description: artwork.description,
+                    orderItemId: orderItem.id,
+                },
+            });
+
+            console.log('Artwork created');
+        });
+    }
 
     console.log('Order Item created');
     return orderItem;

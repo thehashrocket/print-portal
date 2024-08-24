@@ -1,7 +1,7 @@
 // ~/utils/dataNormalization.ts
 
 import { SerializedOrder, SerializedOrderItem, SerializedWorkOrder, SerializedWorkOrderItem, SerializedShippingInfo, SerializedShippingPickup } from "~/types/serializedTypes";
-import { Order, OrderItem, Prisma, WorkOrder, WorkOrderItem, ShippingInfo, ShippingPickup, Address } from "@prisma/client";
+import { Order, OrderItem, OrderItemArtwork, Prisma, WorkOrder, WorkOrderItem, ShippingInfo, ShippingPickup, Address, WorkOrderItemArtwork } from "@prisma/client";
 
 
 export function normalizeOrder(order: Order & {
@@ -50,9 +50,15 @@ export function normalizeOrder(order: Order & {
     };
 }
 
-export function normalizeOrderItem(item: OrderItem): SerializedOrderItem {
+export function normalizeOrderItem(item: OrderItem & { artwork?: OrderItemArtwork[] }): SerializedOrderItem {
     return {
         amount: item.amount ? item.amount.toString() : null,
+        artwork: (item.artwork ?? []).map((art: OrderItemArtwork) => ({
+            id: art.id,
+            fileUrl: art.fileUrl,
+            description: art.description,
+            orderItemId: art.orderItemId,
+        })),
         cost: item.cost ? item.cost.toString() : null,
         costPerM: item.costPerM ? item.costPerM.toString() : null,
         createdAt: item.createdAt.toISOString(),
@@ -70,7 +76,7 @@ export function normalizeOrderItem(item: OrderItem): SerializedOrderItem {
 
 export function normalizeWorkOrder(workOrder: WorkOrder & {
     Order: { id: string } | null;
-    WorkOrderItems: WorkOrderItem[];
+    WorkOrderItems: (WorkOrderItem & { artwork?: WorkOrderItemArtwork[] })[];
     totalCost: Prisma.Decimal;
     contactPerson: {
         id: string;
@@ -127,10 +133,15 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     };
 }
 
-export function normalizeWorkOrderItem(item: WorkOrderItem): SerializedWorkOrderItem {
+export function normalizeWorkOrderItem(item: WorkOrderItem & { artwork?: WorkOrderItemArtwork[] }): SerializedWorkOrderItem {
     return {
         amount: item.amount?.toString() ?? undefined,
-        artwork: item.artwork ?? null,
+        artwork: (item.artwork ?? []).map((art: WorkOrderItemArtwork) => ({
+            id: art.id,
+            fileUrl: art.fileUrl,
+            description: art.description,
+            workOrderItemId: art.workOrderItemId,
+        })),
         cost: item.cost?.toString() ?? undefined,
         costPerM: item.costPerM?.toString() ?? null,
         customerSuppliedStock: item.customerSuppliedStock ?? null,

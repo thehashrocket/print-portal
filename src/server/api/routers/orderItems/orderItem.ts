@@ -12,6 +12,7 @@ export const orderItemRouter = createTRPCRouter({
                     id: input,
                 },
                 include: {
+                    artwork: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -30,6 +31,7 @@ export const orderItemRouter = createTRPCRouter({
                     orderId: input,  // Changed from id to orderId
                 },
                 include: {
+                    artwork: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -42,7 +44,18 @@ export const orderItemRouter = createTRPCRouter({
         }),
     // Get all OrderItems
     getAll: protectedProcedure.query(({ ctx }) => {
-        return ctx.db.orderItem.findMany();
+        return ctx.db.orderItem.findMany({
+            include: {
+                artwork: true,
+                Typesetting: {
+                    include: {
+                        TypesettingOptions: true,
+                        TypesettingProofs: true
+                    }
+                },
+                ProcessingOptions: true
+            }
+        });
     }),
     updateStatus: protectedProcedure
         .input(z.object({

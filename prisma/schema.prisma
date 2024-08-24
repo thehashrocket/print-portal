@@ -148,7 +148,7 @@ model Order {
 model OrderItem {
   amount                Decimal?            @db.Decimal(10, 2)
   approved              Boolean             @default(false)
-  artwork               String?
+  artwork               OrderItemArtwork[]
   cost                  Decimal?            @db.Decimal(10, 2)
   costPerM              Decimal?            @db.Decimal(10, 2)
   createdAt             DateTime            @default(now())
@@ -176,6 +176,16 @@ model OrderItem {
   stockOrdered          String?
   Typesetting           Typesetting[]
   updatedAt             DateTime            @updatedAt
+}
+
+model OrderItemArtwork {
+  id          String    @id @default(cuid())
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  orderItemId String
+  fileUrl     String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model OrderNote {
@@ -419,36 +429,46 @@ model WorkOrder {
 }
 
 model WorkOrderItem {
-  amount                Decimal?             @db.Decimal(10, 2)
-  approved              Boolean              @default(false)
-  artwork               String?
-  cost                  Decimal?             @db.Decimal(10, 2)
-  costPerM              Decimal              @default(0) @db.Decimal(10, 2)
-  createdAt             DateTime             @default(now())
-  createdBy             User                 @relation(fields: [createdById], references: [id])
+  amount                Decimal?               @db.Decimal(10, 2)
+  approved              Boolean                @default(false)
+  artwork               WorkOrderItemArtwork[]
+  cost                  Decimal?               @db.Decimal(10, 2)
+  costPerM              Decimal                @default(0) @db.Decimal(10, 2)
+  createdAt             DateTime               @default(now())
+  createdBy             User                   @relation(fields: [createdById], references: [id])
   createdById           String
   customerSuppliedStock String?
-  description           String               @default("")
-  expectedDate          DateTime             @default(now())
+  description           String                 @default("")
+  expectedDate          DateTime               @default(now())
   finishedQty           Int?
-  id                    String               @id @default(uuid())
+  id                    String                 @id @default(uuid())
   inkColor              String?
   other                 String?
   overUnder             String?
   prepTime              Int?
   pressRun              String?
   ProcessingOptions     ProcessingOptions[]
-  quantity              Int                  @default(1)
+  quantity              Int                    @default(1)
   size                  String?
   specialInstructions   String?
-  status                WorkOrderItemStatus  @default(Pending)
-  stockOnHand           Boolean              @default(false)
+  status                WorkOrderItemStatus    @default(Pending)
+  stockOnHand           Boolean                @default(false)
   stockOrdered          String?
   Typesetting           Typesetting[]
-  updatedAt             DateTime             @updatedAt
-  WorkOrder             WorkOrder?           @relation(fields: [workOrderId], references: [id])
+  updatedAt             DateTime               @updatedAt
+  WorkOrder             WorkOrder?             @relation(fields: [workOrderId], references: [id])
   workOrderId           String?
   WorkOrderItemStock    WorkOrderItemStock[]
+}
+
+model WorkOrderItemArtwork {
+  id              String        @id @default(cuid())
+  workOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId String
+  fileUrl         String
+  description     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model WorkOrderNote {

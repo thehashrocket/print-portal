@@ -1,3 +1,5 @@
+// ~/app/_components/workOrders/create/workOrderItemForm.tsx
+
 import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,11 +12,17 @@ import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsConte
 import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
 import Link from 'next/link';
 import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
+import { SerializedWorkOrderItem } from '~/types/serializedTypes';
+import FileUpload from '~/app/_components/shared/fileUpload';
+
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
+    artwork: z.array(z.object({
+        fileUrl: z.string(),
+        description: z.string().optional(),
+    })).optional(),
     approved: z.boolean(),
-    artwork: z.string().optional(),
     cost: z.number().optional(),
     costPerM: z.number().min(1, 'Cost Per M is required'),
     customerSuppliedStock: z.string().optional(),
@@ -37,7 +45,23 @@ const workOrderItemSchema = z.object({
 type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 
 const WorkOrderItemForm: React.FC = () => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<WorkOrderItemFormData>({
+    const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
+
+    const handleFileUploaded = (fileUrl: string, description: string) => {
+        setArtworks(prev => [...prev, { fileUrl, description }]);
+    };
+
+    const handleFileRemoved = (fileUrl: string) => {
+        setArtworks(prev => prev.filter(art => art.fileUrl !== fileUrl));
+    };
+
+    const handleDescriptionChanged = (fileUrl: string, newDescription: string) => {
+        setArtworks(prev => prev.map(art =>
+            art.fileUrl === fileUrl ? { ...art, description: newDescription } : art
+        ));
+    };
+
+    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
     });
     const { workOrder } = useContext(WorkOrderContext);
@@ -46,6 +70,7 @@ const WorkOrderItemForm: React.FC = () => {
     const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
     const [existingWorkOrderItems, setExistingWorkOrderItems] = useState<any[]>([]);
     const [isCreatingNewItem, setIsCreatingNewItem] = useState(true);
+    const [tempFileUrl, setTempFileUrl] = useState<string | null>(null);
     const { data: workOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
         { workOrderId: workOrder.id },
         { enabled: !!workOrder.id }
@@ -55,17 +80,18 @@ const WorkOrderItemForm: React.FC = () => {
         try {
             const newWorkOrderItem = await createWorkOrderItem.mutateAsync({
                 ...data,
+                artwork: artworks,
+                workOrderId: workOrder.id,
                 customerSuppliedStock: data.customerSuppliedStock || '',
                 description: data.description || '',
-                expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
-                finishedQty: data.finishedQty || 0,
-                inkColor: data.inkColor || '',
-                other: data.other || '',
-                pressRun: data.pressRun || '',
-                size: data.size || '',
-                specialInstructions: data.specialInstructions || '',
-                stockOrdered: data.stockOrdered || '',
-                workOrderId: workOrder.id,
+                expectedDate: new Date(), // Replace with the desired Date value
+                finishedQty: 0, // Add a default value for finishedQty
+                inkColor: '', // Add a default value for inkColor
+                other: '', // Add a default value for other
+                pressRun: '', // Add a default value for pressRun
+                size: '', // Add a default value for size
+                specialInstructions: '', // Add a default value for specialInstructions
+                stockOrdered: '', // Add a default value for stockOrdered
             });
             setWorkOrderItemId(newWorkOrderItem.id);
             setShowAdditionalForms(true);
@@ -81,7 +107,7 @@ const WorkOrderItemForm: React.FC = () => {
         setShowAdditionalForms(false);
         setIsCreatingNewItem(true);
         reset(); // This will reset all form fields to their default values
-    }
+    };
 
     useEffect(() => {
         if (workOrderItems) {
@@ -102,6 +128,7 @@ const WorkOrderItemForm: React.FC = () => {
                     </ul>
                 </div>
             )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <div>
                     <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount</label>
@@ -109,14 +136,19 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                 </div>
                 <div>
+                    <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
+                    <FileUpload
+                        onFileUploaded={handleFileUploaded}
+                        onFileRemoved={handleFileRemoved}
+                        onDescriptionChanged={handleDescriptionChanged}
+                        workOrderItemId={workOrderItemId}
+                        initialFiles={artworks}
+                    />
+                </div>
+                <div>
                     <label htmlFor='approved' className='block text-sm font-medium text-gray-700'>Approved</label>
                     <input type="checkbox" className="checkbox" {...register("approved")} />
                     {errors.approved && <p className='text-red-500'>{errors.approved.message}</p>}
-                </div>
-                <div>
-                    <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
-                    <input id='artwork' {...register('artwork')} className='input input-bordered w-full' />
-                    {errors.artwork && <p className='text-red-500'>{errors.artwork.message}</p>}
                 </div>
                 <div>
                     <label htmlFor='cost' className='block text-sm font-medium text-gray-700'>Cost</label>

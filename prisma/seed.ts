@@ -68,7 +68,6 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
     const orderItem = prismaClient.orderItem.create({
       data: {
         approved: faker.datatype.boolean(),
-        artwork: workOrderItem?.artwork,
         amount: workOrderItem.amount,
         cost: workOrderItem.cost,
         costPerM: workOrderItem.costPerM,
@@ -90,6 +89,23 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         status: randomElementFromArray(orderItemStatuses),
       }
     });
+    // Create OrderItemArtwork by looping through the workOrderItemArtwork
+    const workOrderItemArtworks = await prismaClient.workOrderItemArtwork.findMany({
+      where: {
+        workOrderItemId: workOrderItem.id,
+      },
+    });
+    workOrderItemArtworks.forEach(async (workOrderItemArtwork) => {
+      await prismaClient.orderItemArtwork.create({
+        data: {
+          orderItemId: (await orderItem).id,
+          fileUrl: workOrderItemArtwork.fileUrl,
+          description: workOrderItemArtwork.description,
+        }
+      });
+      console.log('Order Item Artwork created');
+    });
+
     console.log('Order Item created');
 
     await copyProcessingOptionsToOrderItem(workOrderItem, await orderItem, workOrderItem.createdById);
@@ -859,7 +875,12 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         workOrderId: workOrderId,
         amount: parseFloat(faker.commerce.price()),
         approved: faker.datatype.boolean(),
-        artwork: faker.internet.url(),
+        artwork: {
+          create: {
+            fileUrl: "https://placedog.net/500?random.jpg",
+            description: faker.lorem.sentence(),
+          },
+        },
         cost: parseFloat(faker.commerce.price()),
         costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
         customerSuppliedStock: randomElementFromArray(csOptions),

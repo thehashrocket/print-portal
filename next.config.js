@@ -5,6 +5,12 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    reactStrictMode: true,
+    images: {
+        domains: ["localhost", "client-frontend.ngrok.io", "print-shop.1905newmedia.com"],
+    },
+
+};
 
 export default config;

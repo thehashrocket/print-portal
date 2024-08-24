@@ -30,6 +30,12 @@ export interface SerializedOrder {
 
 export interface SerializedOrderItem {
     amount: string | null;
+    artwork: {
+        id: string;
+        fileUrl: string;
+        description: string | null;
+        orderItemId: string;
+    }[];
     cost: string | null;
     costPerM: string | null;
     createdAt: string | null;
@@ -85,7 +91,12 @@ export interface SerializedWorkOrder {
 
 export interface SerializedWorkOrderItem {
     amount: string | undefined;
-    artwork: string | null;
+    artwork: {
+        id: string;
+        fileUrl: string;
+        description: string | null;
+        workOrderItemId: string;
+    }[];
     cost: string | undefined;
     costPerM: string | null;
     customerSuppliedStock: string | null;

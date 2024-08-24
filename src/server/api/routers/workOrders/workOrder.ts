@@ -49,7 +49,14 @@ export const workOrderRouter = createTRPCRouter({
               ShippingPickup: true,
             },
           },
-          WorkOrderItems: true,
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: true,
+              ProcessingOptions: true,
+              createdBy: true,
+            },
+          },
         },
       });
 
@@ -186,7 +193,14 @@ export const workOrderRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const workOrders = await ctx.db.workOrder.findMany({
         include: {
-          WorkOrderItems: true,
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: true,
+              ProcessingOptions: true,
+              createdBy: true,
+            },
+          },
           Office: {
             select: {
               id: true,
