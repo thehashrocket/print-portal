@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+# ignore public uploads folder
+/public/uploads
+
 # testing
 /coverage
 
