@@ -8,7 +8,7 @@ import { getServerAuthSession } from "~/server/auth";
 import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma, OrderStatus } from "@prisma/client";
+import { Prisma, OrderStatus, ShippingMethod } from "@prisma/client";
 import NoPermission from "~/app/_components/noPermission/noPremission";
 
 type Decimal = Prisma.Decimal;
@@ -44,9 +44,7 @@ export default async function OrderPage({
   const session = await getServerAuthSession();
 
   if (!session?.user.Permissions.includes("work_order_read")) {
-    return (
-      <NoPermission />
-    )
+    return <NoPermission />;
   }
 
   const order = await api.orders.getByID(id);
@@ -64,13 +62,20 @@ export default async function OrderPage({
     updatedAt: item.updatedAt?.toString(),
   }));
 
-  const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-  });
+  const formatDate = (date: string | null) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  };
 
-  const formatCurrency = (amount: Decimal | null) => {
-    if (amount === null) return 'N/A';
+  const formatCurrency = (amount: string | null | undefined) => {
+    if (amount === null || amount === undefined) return 'N/A';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(amount));
+  };
+
+  const formatShippingMethod = (method: ShippingMethod) => {
+    return method.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   };
 
   return (
@@ -105,7 +110,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Total"
-            content={<p className="text-2xl font-bold">{formatCurrency(order.totalCost as unknown as Decimal)}</p>}
+            content={<p className="text-2xl font-bold">{formatCurrency(order.totalCost)}</p>}
           />
           <InfoSection
             title="Created By"
@@ -113,7 +118,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Created At"
-            content={<p>{formatDate(new Date(order.createdAt))}</p>}
+            content={<p>{formatDate(order.createdAt)}</p>}
           />
         </div>
 
@@ -124,10 +129,11 @@ export default async function OrderPage({
               title="Recipient"
               content={
                 <>
-                  <p className="font-semibold">{order.Office?.Company.name}</p>
+                  <p className="font-semibold">{order.ShippingInfo?.attentionTo || order.Office?.Company.name}</p>
                   <p>{order.ShippingInfo?.Address?.line1}</p>
                   {order.ShippingInfo?.Address?.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
                   <p>{order.ShippingInfo?.Address?.city}, {order.ShippingInfo?.Address?.state} {order.ShippingInfo?.Address?.zipCode}</p>
+                  <p>{order.ShippingInfo?.Address?.country}</p>
                 </>
               }
             />
@@ -135,12 +141,35 @@ export default async function OrderPage({
               title="Shipping Details"
               content={
                 <>
-                  <p><strong>Method:</strong> {order.ShippingInfo?.shippingMethod}</p>
-                  <p><strong>Phone:</strong> {order.ShippingInfo?.Address?.telephoneNumber}</p>
+                  <p><strong>Method:</strong> {order.ShippingInfo ? formatShippingMethod(order.ShippingInfo.shippingMethod) : 'N/A'}</p>
+                  <p><strong>Phone:</strong> {order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
+                  <p><strong>Cost:</strong> {formatCurrency(order.ShippingInfo?.shippingCost)}</p>
+                  <p><strong>Date:</strong> {formatDate(order.ShippingInfo?.shippingDate ?? null)}</p>
+                  <p><strong>Estimated Delivery:</strong> {formatDate(order.ShippingInfo?.estimatedDelivery ?? null)}</p>
+                  <p><strong>Number of Packages:</strong> {order.ShippingInfo?.numberOfPackages || 'N/A'}</p>
+                  <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber || 'N/A'}</p>
                 </>
               }
             />
           </div>
+          {order.ShippingInfo?.ShippingPickup && (
+            <div className="mt-4">
+              <InfoSection
+                title="Pickup Information"
+                content={
+                  <>
+                    <p><strong>Date:</strong> {formatDate(order.ShippingInfo.ShippingPickup.pickupDate)}</p>
+                    <p><strong>Time:</strong> {order.ShippingInfo.ShippingPickup.pickupTime}</p>
+                    <p><strong>Contact:</strong> {order.ShippingInfo.ShippingPickup.contactName}</p>
+                    <p><strong>Phone:</strong> {order.ShippingInfo.ShippingPickup.contactPhone}</p>
+                    {order.ShippingInfo.ShippingPickup.notes && (
+                      <p><strong>Notes:</strong> {order.ShippingInfo.ShippingPickup.notes}</p>
+                    )}
+                  </>
+                }
+              />
+            </div>
+          )}
         </section>
         <section>
           <h2 className="text-2xl font-semibold mb-4">Order Items</h2>

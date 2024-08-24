@@ -8,7 +8,6 @@ import { AddressType, ShippingMethod } from '@prisma/client';
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod),
-    contactName: z.string().min(1, 'Contact Name is required'),
     instructions: z.string().optional(),
     addressId: z.string().optional(),
     shippingCost: z.number().optional(),
@@ -87,7 +86,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         try {
             const shippingInfoData: any = {
                 shippingMethod: data.shippingMethod,
-                contactName: data.contactName,
                 instructions: data.instructions,
                 officeId: workOrder.officeId,
                 shippingCost: data.shippingCost,
@@ -101,7 +99,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 shippingInfoData.shippingPickup = {
                     pickupDate: data.pickupDate ? new Date(data.pickupDate) : undefined,
                     pickupTime: data.pickupTime,
-                    contactName: data.pickupContactName,
                     contactPhone: data.pickupContactPhone,
                     notes: data.pickupNotes,
                 };
@@ -164,11 +161,32 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                     {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
                 </div>
 
-                <div>
-                    <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">Contact Name</label>
-                    <input {...register('contactName')} className="input input-bordered w-full" />
-                    {errors.contactName && <p className="text-red-500">{errors.contactName.message}</p>}
-                </div>
+                {needsAddress && (
+                    <div>
+                        <label htmlFor="addressId" className="block text-sm font-medium text-gray-700">Select Address</label>
+                        <select
+                            {...register('addressId')}
+                            className="select select-bordered w-full"
+                            onChange={(e) => {
+                                if (e.target.value === 'new') {
+                                    setIsCreatingNewAddress(true);
+                                } else {
+                                    setSelectedAddress(e.target.value);
+                                    setIsCreatingNewAddress(false);
+                                }
+                            }}
+                        >
+                            <option value="">Select an address</option>
+                            {addresses.map((address) => (
+                                <option key={address.id} value={address.id}>
+                                    {address.line1}, {address.city}, {address.state} {address.zipCode}
+                                </option>
+                            ))}
+                            <option value="new">Create new address</option>
+                        </select>
+                        {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
+                    </div>
+                )}
 
                 {shippingMethod === ShippingMethod.Pickup && (
                     <>
