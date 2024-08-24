@@ -1,20 +1,27 @@
 // ~/utils/dataNormalization.ts
 
-import { SerializedOrder, SerializedOrderItem, SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
-import { Order, OrderItem, Prisma, WorkOrder, WorkOrderItem } from "@prisma/client";
+import { SerializedOrder, SerializedOrderItem, SerializedWorkOrder, SerializedWorkOrderItem, SerializedShippingInfo, SerializedShippingPickup } from "~/types/serializedTypes";
+import { Order, OrderItem, Prisma, WorkOrder, WorkOrderItem, ShippingInfo, ShippingPickup, Address } from "@prisma/client";
+
 
 export function normalizeOrder(order: Order & {
-    totalCost?: Prisma.Decimal | null,
-    Office: { Company: { name: string } },
-    OrderItems?: OrderItem[],
+    totalCost: Prisma.Decimal | null;
+    Office: {
+        Company: { name: string };
+    };
+    OrderItems?: OrderItem[];
     contactPerson: {
-        id: string,
-        name: string | null
-    },
+        id: string;
+        name: string | null;
+    };
     createdBy: {
-        id: string,
-        name: string | null
-    }
+        id: string;
+        name: string | null;
+    };
+    ShippingInfo?: (ShippingInfo & {
+        Address: Address | null;
+        ShippingPickup: ShippingPickup[];
+    }) | null;
 }): SerializedOrder {
     return {
         id: order.id,
@@ -38,7 +45,8 @@ export function normalizeOrder(order: Order & {
                 name: order.Office.Company.name
             }
         },
-        OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : []
+        OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
+        ShippingInfo: order.ShippingInfo ? normalizeShippingInfo(order.ShippingInfo) : null,
     };
 }
 
@@ -74,9 +82,12 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         name: string;
         Company: {
             name: string;
-
         }
     };
+    ShippingInfo: (ShippingInfo & {
+        Address: Address | null;
+        ShippingPickup: ShippingPickup[];
+    }) | null;
 }): SerializedWorkOrder {
     return {
         contactPersonId: workOrder.contactPersonId,
@@ -100,18 +111,19 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         },
         createdBy: {
             id: workOrder.createdById,
-            name: workOrder.createdBy?.name ?? null// We don't have this information in the current query
+            name: workOrder.createdBy?.name ?? null
         },
         Office: {
             Company: {
-                name: workOrder.Office.Company.name // We don't have this information in the current query
+                name: workOrder.Office.Company.name
             },
             id: workOrder.officeId,
-            name: workOrder.Office.name // We don't have this information in the current query
+            name: workOrder.Office.name
         },
         Order: workOrder.Order,
         WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
-        invoicePrintEmail: workOrder.invoicePrintEmail
+        invoicePrintEmail: workOrder.invoicePrintEmail,
+        ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
     };
 }
 
@@ -132,5 +144,57 @@ export function normalizeWorkOrderItem(item: WorkOrderItem): SerializedWorkOrder
         quantity: item.quantity.toString(),
         status: item.status,
         workOrderId: item.workOrderId ?? null,
+    };
+}
+
+export function normalizeShippingPickup(pickup: ShippingPickup): SerializedShippingPickup {
+    return {
+        id: pickup.id,
+        pickupDate: pickup.pickupDate.toISOString(),
+        pickupTime: pickup.pickupTime,
+        notes: pickup.notes,
+        contactName: pickup.contactName,
+        contactPhone: pickup.contactPhone,
+        createdAt: pickup.createdAt.toISOString(),
+        updatedAt: pickup.updatedAt.toISOString(),
+        createdById: pickup.createdById,
+        shippingInfoId: pickup.shippingInfoId,
+    };
+}
+
+export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
+    Address: Address | null;
+    ShippingPickup: ShippingPickup[];
+}): SerializedShippingInfo {
+    return {
+        id: shippingInfo.id,
+        shippingMethod: shippingInfo.shippingMethod,
+        instructions: shippingInfo.instructions,
+        shippingCost: shippingInfo.shippingCost?.toString() ?? null,
+        shippingDate: shippingInfo.shippingDate?.toISOString() ?? null,
+        shippingNotes: shippingInfo.shippingNotes,
+        shippingOther: shippingInfo.shippingOther,
+        shipToSameAsBillTo: shippingInfo.shipToSameAsBillTo,
+        estimatedDelivery: shippingInfo.estimatedDelivery?.toISOString() ?? null,
+        numberOfPackages: shippingInfo.numberOfPackages,
+        trackingNumber: shippingInfo.trackingNumber,
+        attentionTo: shippingInfo.attentionTo,
+        addressId: shippingInfo.addressId,
+        createdAt: shippingInfo.createdAt.toISOString(),
+        updatedAt: shippingInfo.updatedAt.toISOString(),
+        createdById: shippingInfo.createdById,
+        officeId: shippingInfo.officeId,
+        Address: shippingInfo.Address ? {
+            line1: shippingInfo.Address.line1,
+            line2: shippingInfo.Address.line2,
+            city: shippingInfo.Address.city,
+            state: shippingInfo.Address.state,
+            zipCode: shippingInfo.Address.zipCode,
+            country: shippingInfo.Address.country,
+            telephoneNumber: shippingInfo.Address.telephoneNumber,
+        } : null,
+        ShippingPickup: shippingInfo.ShippingPickup.length > 0 && shippingInfo.ShippingPickup[0]
+            ? normalizeShippingPickup(shippingInfo.ShippingPickup[0])
+            : null,
     };
 }

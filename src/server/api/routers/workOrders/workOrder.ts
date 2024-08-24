@@ -43,6 +43,12 @@ export const workOrderRouter = createTRPCRouter({
             }
           },
           Order: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
           WorkOrderItems: true,
         },
       });
@@ -73,7 +79,7 @@ export const workOrderRouter = createTRPCRouter({
           {
             name: workOrder.Office.Company.name
           }
-        }
+        },
       });
 
       normalizedWorkOrder.WorkOrderItems = workOrder.WorkOrderItems.map(normalizeWorkOrderItem);
@@ -233,7 +239,8 @@ export const workOrderRouter = createTRPCRouter({
             }
           },
           Order: workOrder.Order,
-          WorkOrderItems: workOrder.WorkOrderItems
+          WorkOrderItems: workOrder.WorkOrderItems,
+          ShippingInfo: null
         });
       }));
 

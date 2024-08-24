@@ -34,7 +34,12 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
                     WorkOrderItemStock: true,
                 },
             },
-            ShippingInfo: true,
+            ShippingInfo: {
+                include: {
+                    Address: true,
+                    ShippingPickup: true,
+                },
+            },
             Office: {
                 include: {
                     Company: true,

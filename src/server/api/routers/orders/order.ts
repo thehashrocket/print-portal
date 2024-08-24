@@ -29,6 +29,12 @@ export const orderRouter = createTRPCRouter({
               Company: true
             }
           },
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
         },
       });
 

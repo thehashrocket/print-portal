@@ -25,19 +25,7 @@ export interface SerializedOrder {
         };
     };
     OrderItems: SerializedOrderItem[];
-    ShippingInfo?: {
-        id: string;
-        shippingMethod: ShippingMethod;
-        Address: {
-            line1: string;
-            line2: string | null;
-            city: string;
-            state: string;
-            zipCode: string;
-            country: string;
-            telephoneNumber: string;
-        };
-    } | null;
+    ShippingInfo: SerializedShippingInfo | null;
 }
 
 export interface SerializedOrderItem {
@@ -91,19 +79,7 @@ export interface SerializedWorkOrder {
     Order?: {
         id: string;
     } | null;
-    ShippingInfo?: {
-        id: string;
-        shippingMethod: ShippingMethod;
-        Address: {
-            line1: string;
-            line2: string | null;
-            city: string;
-            state: string;
-            zipCode: string;
-            country: string;
-            telephoneNumber: string;
-        };
-    } | null;
+    ShippingInfo: SerializedShippingInfo | null;
     WorkOrderItems: SerializedWorkOrderItem[];
 }
 
@@ -123,4 +99,47 @@ export interface SerializedWorkOrderItem {
     quantity: string;
     status: WorkOrderItemStatus;
     workOrderId: string | null;
+}
+
+export interface SerializedShippingPickup {
+    id: string;
+    pickupDate: string;
+    pickupTime: string;
+    notes: string | null;
+    contactName: string;
+    contactPhone: string;
+    createdAt: string;
+    updatedAt: string;
+    createdById: string;
+    shippingInfoId: string;
+}
+
+export interface SerializedShippingInfo {
+    id: string;
+    shippingMethod: ShippingMethod;
+    instructions: string | null;
+    shippingCost: string | null;
+    shippingDate: string | null;
+    shippingNotes: string | null;
+    shippingOther: string | null;
+    shipToSameAsBillTo: boolean;
+    estimatedDelivery: string | null;
+    numberOfPackages: number | null;
+    trackingNumber: string | null;
+    attentionTo: string | null;
+    addressId: string | null;
+    createdAt: string;
+    updatedAt: string;
+    createdById: string;
+    officeId: string;
+    Address: {
+        line1: string;
+        line2: string | null;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        telephoneNumber: string;
+    } | null;
+    ShippingPickup: SerializedShippingPickup | null;
 }
