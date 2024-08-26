@@ -1,5 +1,5 @@
 // ~/src/app/_components/shared/fileUpload.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 interface FileUploadProps {
@@ -17,6 +17,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     workOrderItemId,
     initialFiles = []
 }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadedFiles, setUploadedFiles] = useState<{ fileUrl: string; description: string }[]>(initialFiles);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
             });
         };
     }, [uploadedFiles]);
+
+    useEffect(() => {
+        setUploadedFiles(initialFiles);
+    }, [initialFiles]);
 
     const validateFile = (file: File): boolean => {
         const fileType = file.type;
@@ -78,6 +83,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
                         const newFile = { fileUrl: response.fileUrl, description: '' };
                         setUploadedFiles(prev => [...prev, newFile]);
                         onFileUploaded(response.fileUrl, '');
+                        if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                        }
                     } else {
                         throw new Error(response.message || 'Upload failed');
                     }
@@ -135,6 +143,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         <div>
             <input
                 type="file"
+                ref={fileInputRef}
                 onChange={handleFileChange}
                 disabled={uploading}
                 accept={allowedExtensions.join(',')}

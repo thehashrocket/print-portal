@@ -1,5 +1,5 @@
 // ~/app/_components/workOrders/create/workOrderItemForm.tsx
-
+"use client"
 import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,14 +7,11 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { WorkOrderItemStatus } from '@prisma/client'
-import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
-import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
-import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
-import Link from 'next/link';
-import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
-import { SerializedWorkOrderItem } from '~/types/serializedTypes';
+import ExistingWorkOrderItemsList from './existing_work_order_items_list';
+import ExpandableWorkOrderItemDetails from './expandable_work_order_item_details';
 import FileUpload from '~/app/_components/shared/fileUpload';
-
+import { SerializedWorkOrderItem } from '~/types/serializedTypes';
+import { useRouter } from 'next/navigation';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -25,7 +22,7 @@ const workOrderItemSchema = z.object({
     cost: z.number().optional(),
     costPerM: z.number().min(1, 'Cost Per M is required'),
     customerSuppliedStock: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
     inkColor: z.string().optional(),
     other: z.string().optional(),
@@ -42,6 +39,60 @@ type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 
 const WorkOrderItemForm: React.FC = () => {
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
+    const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
+    const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+    const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<WorkOrderItemFormData>({
+        resolver: zodResolver(workOrderItemSchema),
+    });
+    const { workOrder } = useContext(WorkOrderContext);
+    const [isMounted, setIsMounted] = useState(false);
+    const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
+    const router = useRouter();
+
+    const { data: existingWorkOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
+        { workOrderId: workOrder.id },
+        { enabled: !!workOrder.id }
+    );
+
+    useEffect(() => {
+        if (existingWorkOrderItems) {
+            setWorkOrderItems(existingWorkOrderItems);
+        }
+    }, [existingWorkOrderItems]);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const onSubmit = async (data: WorkOrderItemFormData) => {
+        try {
+            const newWorkOrderItem = await createWorkOrderItem.mutateAsync({
+                ...data,
+                workOrderId: workOrder.id,
+                description: data.description, // Provide a default empty string if description is undefined
+                artwork: artworks, // Use the artworks state instead of data.artwork
+                customerSuppliedStock: data.customerSuppliedStock || '',
+                expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
+                inkColor: data.inkColor || '',
+                other: data.other || '',
+                size: data.size || '',
+                specialInstructions: data.specialInstructions || '',
+                stockOrdered: data.stockOrdered || '',
+            });
+            await refetchWorkOrderItems();
+            reset(); // Reset form after successful creation
+            setArtworks([]); // Clear artworks after successful creation
+        } catch (error) {
+            console.error('Error saving work order item', error);
+        }
+    };
+
+    const handleFinish = () => {
+        if (isMounted) {
+            router.push(`/workOrders/${workOrder.id}`);
+        }
+    };
 
     const handleFileUploaded = (fileUrl: string, description: string) => {
         setArtworks(prev => [...prev, { fileUrl, description }]);
@@ -57,73 +108,16 @@ const WorkOrderItemForm: React.FC = () => {
         ));
     };
 
-    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<WorkOrderItemFormData>({
-        resolver: zodResolver(workOrderItemSchema),
-    });
-    const { workOrder } = useContext(WorkOrderContext);
-    const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
-    const [showAdditionalForms, setShowAdditionalForms] = useState(false);
-    const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
-    const [existingWorkOrderItems, setExistingWorkOrderItems] = useState<any[]>([]);
-    const [isCreatingNewItem, setIsCreatingNewItem] = useState(true);
-    const [tempFileUrl, setTempFileUrl] = useState<string | null>(null);
-    const { data: workOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
-        { workOrderId: workOrder.id },
-        { enabled: !!workOrder.id }
-    );
-
-    const onSubmit = async (data: WorkOrderItemFormData) => {
-        try {
-            const newWorkOrderItem = await createWorkOrderItem.mutateAsync({
-                ...data,
-                artwork: artworks,
-                workOrderId: workOrder.id,
-                customerSuppliedStock: data.customerSuppliedStock || '',
-                description: data.description || '',
-                expectedDate: new Date(), // Replace with the desired Date value
-                inkColor: '', // Add a default value for inkColor
-                other: '', // Add a default value for other
-                size: '', // Add a default value for size
-                specialInstructions: '', // Add a default value for specialInstructions
-                stockOrdered: '', // Add a default value for stockOrdered
-            });
-            setWorkOrderItemId(newWorkOrderItem.id);
-            setShowAdditionalForms(true);
-            setIsCreatingNewItem(false);
-            await refetchWorkOrderItems();
-        } catch (error) {
-            console.error('Error saving work order item', error);
-        }
-    };
-
-    const handleCreateAnotherWorkOrderItem = () => {
-        setWorkOrderItemId(null);
-        setShowAdditionalForms(false);
-        setIsCreatingNewItem(true);
-        reset(); // This will reset all form fields to their default values
-    };
-
-    useEffect(() => {
-        if (workOrderItems) {
-            setExistingWorkOrderItems(workOrderItems);
-        }
-    }, [workOrderItems]);
-
     return (
-        <>
+        <div className="space-y-8">
             <h2 className="text-2xl font-semibold">Work Order Item Details</h2>
-            {existingWorkOrderItems.length > 0 && (
-                <div className='bg-gray-100 p-4 rounded-lg mb-4'>
-                    <h3 className='text-lg font-semibold'>Existing Work Order Items</h3>
-                    <ul className='list-disc list-inside'>
-                        {existingWorkOrderItems.map((workOrderItem) => (
-                            <li key={workOrderItem.id}>{workOrderItem.description}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
+            <ExistingWorkOrderItemsList
+                items={workOrderItems}
+                onItemClick={setExpandedItemId}
+            />
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
                     <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
                     <FileUpload
@@ -180,7 +174,7 @@ const WorkOrderItemForm: React.FC = () => {
                     {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
                 </div>
                 <div>
-                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity</label>
+                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity Ordered</label>
                     <input id="quantity" type="number" {...register('quantity', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.quantity && <p className="text-red-500">{errors.quantity.message}</p>}
                 </div>
@@ -213,41 +207,24 @@ const WorkOrderItemForm: React.FC = () => {
                     <input id="stockOrdered" {...register('stockOrdered')} className="input input-bordered w-full" />
                     {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                 </div>
-                {isCreatingNewItem && (
-                    <button type="submit" className="btn btn-primary">
-                        Save Work Order Item
-                    </button>
-                )}
+                <button type="submit" className="btn btn-primary">
+                    Add Work Order Item
+                </button>
             </form>
 
-            {showAdditionalForms && workOrderItemId && (
-                <div className='flex flex-col gap-4 w-full'>
-                    <h2 className="text-2xl font-semibold mt-8">Typesetting Options</h2>
-                    <TypesettingProvider>
-                        <TypesettingComponent
-                            workOrderItemId={workOrderItemId}
-                            orderItemId=''
-                            initialTypesetting={[]}
-                        />
-                    </TypesettingProvider>
-                    <h2 className="text-2xl font-semibold mt-8">Processing Options</h2>
-                    <ProcessingOptionsProvider>
-                        <ProcessingOptionsComponent workOrderItemId={workOrderItemId} />
-                    </ProcessingOptionsProvider>
-                </div>
+            {expandedItemId && (
+                <ExpandableWorkOrderItemDetails
+                    itemId={expandedItemId}
+                    onClose={() => setExpandedItemId(null)}
+                />
             )}
 
-            {workOrderItemId && (
-                <div className='flex flex-row gap-4 mt-8'>
-                    <Link href={`/workOrders/${workOrder.id}`} className="btn btn-primary">
-                        View Work Order
-                    </Link>
-                    <button onClick={handleCreateAnotherWorkOrderItem} className="btn btn-secondary">
-                        Create Another Work Order Item
-                    </button>
-                </div>
+            {isMounted && (
+                <button onClick={handleFinish} className="btn btn-secondary">
+                    Finish
+                </button>
             )}
-        </>
+        </div>
     );
 };
 
