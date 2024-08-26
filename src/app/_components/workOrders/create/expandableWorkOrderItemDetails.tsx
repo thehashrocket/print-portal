@@ -5,6 +5,7 @@ import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
 import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
 import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
+import { api } from '~/trpc/react';
 
 interface ExpandableWorkOrderItemDetailsProps {
     itemId: string;
@@ -12,6 +13,16 @@ interface ExpandableWorkOrderItemDetailsProps {
 }
 
 const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsProps> = ({ itemId, onClose }) => {
+    const { data: workOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(itemId);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!workOrderItem) {
+        return <div>Work Order Item not found</div>;
+    }
+
     return (
         <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
@@ -19,6 +30,11 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                     Close
                 </button>
+            </div>
+
+            <div className="mb-4">
+                <h4 className="text-lg font-medium mb-2">Description</h4>
+                <p>{workOrderItem.description}</p>
             </div>
 
             <div className="space-y-6">

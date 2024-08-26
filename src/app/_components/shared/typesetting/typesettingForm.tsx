@@ -5,20 +5,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { Typesetting, TypesettingStatus } from "@prisma/client";
+import { Prisma, Typesetting, TypesettingStatus } from "@prisma/client";
 
 // Define the schema using Zod
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
-    dateIn: z.date(),
-    cost: z.number().optional().nullable(),
-    timeIn: z.string(),
-    plateRan: z.string().optional().nullable(),
-    prepTime: z.number().min(0, "Prep time must be greater than or equal to 0").nullable(),
     approved: z.boolean(),
-    status: z.nativeEnum(TypesettingStatus),
-    followUpNotes: z.string().optional().nullable(),
+    cost: z.number().nullable(),
+    dateIn: z.date(),
+    followUpNotes: z.string().optional(),
     orderItemId: z.string().nullable(),
+    plateRan: z.string().nullable(),
+    prepTime: z.number().nullable(),
+    status: z.nativeEnum(TypesettingStatus),
+    timeIn: z.string(),
     workOrderItemId: z.string().nullable(),
 });
 
@@ -40,7 +40,7 @@ function createDefaultTypesetting(overrides: Partial<Typesetting> = {}): Typeset
         cost: null,
         timeIn: '',
         plateRan: null,
-        prepTime: null,
+        prepTime: 0,
         approved: false,
         status: TypesettingStatus.InProgress,
         followUpNotes: null,
@@ -61,10 +61,27 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
     const [success, setSuccess] = useState<string | null>(null);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingFormData>({
+        resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
             ...typesetting,
-            cost: typesetting.cost ? Number(typesetting.cost.toFixed(2)) : null, // Convert Decimal to number
-        } : {},
+            prepTime: typesetting.prepTime ?? null,
+            cost: typesetting.cost ? Number(typesetting.cost.toString()) : null,
+            plateRan: typesetting.plateRan ?? null,
+            followUpNotes: typesetting.followUpNotes ?? "",
+            workOrderItemId: workOrderItemId ?? null,
+            orderItemId: orderItemId ?? null,
+        } : {
+            plateRan: null,
+            prepTime: null,
+            cost: null,
+            followUpNotes: "",
+            approved: false,
+            status: TypesettingStatus.InProgress,
+            dateIn: new Date(),
+            timeIn: "",
+            orderItemId: null,
+            workOrderItemId: null,
+        },
     });
 
     const updateTypesetting = api.typesettings.update.useMutation({
@@ -93,18 +110,36 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
         if (typesetting) {
             reset({
                 ...typesetting,
-                cost: typesetting.cost ? Number(typesetting.cost.toFixed(2)) : null,
+                cost: typesetting.cost ? Number(typesetting.cost.toString()) : null,
+                plateRan: typesetting.plateRan ?? null,
+                prepTime: typesetting.prepTime ?? null,
+                followUpNotes: typesetting.followUpNotes ?? "",
             });
         } else {
-            reset();
+            reset({
+                plateRan: null,
+                prepTime: null,
+                cost: null,
+                followUpNotes: "",
+                approved: false,
+                status: TypesettingStatus.InProgress,
+                dateIn: new Date(),
+                timeIn: "",
+                orderItemId: null,
+                workOrderItemId: null,
+            });
         }
     }, [typesetting, reset]);
 
     const submit = handleSubmit((data) => {
         const formattedData = {
             ...data,
-            cost: data.cost ?? 0, // Ensure cost is correctly handled
-            followUpNotes: data.followUpNotes || '', // Ensure followUpNotes is nullable
+            cost: data.cost === null || isNaN(data.cost) ? undefined : Number(data.cost),
+            followUpNotes: data.followUpNotes || undefined,
+            prepTime: data.prepTime === null || isNaN(data.prepTime) ? undefined : data.prepTime,
+            plateRan: data.plateRan || undefined,
+            orderItemId: orderItemId || undefined,
+            workOrderItemId: workOrderItemId || undefined,
         };
 
         if (isAddMode) {
@@ -112,7 +147,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
         } else {
             const updateData = {
                 ...formattedData,
-                id: data.id || '',  // Ensure `id` is always defined
+                id: data.id || '',
             };
 
             updateTypesetting.mutate(updateData);
@@ -151,14 +186,25 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     <label className="label">
                         <span className="label-text">Plate Ran</span>
                     </label>
-                    <input type="text" className="input input-bordered" {...register("plateRan")} />
+                    <input
+                        type="text"
+                        className="input input-bordered"
+                        {...register("plateRan")}
+                    />
                     {errors.plateRan && <span className="text-error">{errors.plateRan.message}</span>}
                 </div>
                 <div className="form-control">
                     <label className="label">
                         <span className="label-text">Prep Time</span>
                     </label>
-                    <input type="number" className="input input-bordered" {...register("prepTime", { valueAsNumber: true })} />
+                    <input
+                        type="number"
+                        className="input input-bordered"
+                        {...register("prepTime", {
+                            setValueAs: v => v === "" ? null : parseInt(v, 10),
+                            valueAsNumber: true
+                        })}
+                    />
                     {errors.prepTime && <span className="text-error">{errors.prepTime.message}</span>}
                 </div>
                 <div className="form-control">
@@ -173,9 +219,12 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                         <span className="label-text">Cost</span>
                     </label>
                     <input
-                        type="text"
+                        type="number"
                         className="input input-bordered"
-                        {...register("cost", { valueAsNumber: true })}
+                        {...register("cost", {
+                            setValueAs: v => v === "" ? null : parseFloat(v),
+                            valueAsNumber: true
+                        })}
                     />
                     {errors.cost && <span className="text-error">{errors.cost.message}</span>}
                 </div>
@@ -194,7 +243,10 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     <label className="label">
                         <span className="label-text">Follow Up Notes</span>
                     </label>
-                    <textarea className="textarea textarea-bordered" {...register("followUpNotes")} />
+                    <textarea
+                        className="textarea textarea-bordered"
+                        {...register("followUpNotes")}
+                    />
                     {errors.followUpNotes && <span className="text-error">{errors.followUpNotes.message}</span>}
                 </div>
             </div>
