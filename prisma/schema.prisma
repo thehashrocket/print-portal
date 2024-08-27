@@ -120,37 +120,36 @@ model Office {
 }
 
 model Order {
-  id                String                   @id @default(uuid())
-  workOrderId       String                   @unique
-  officeId          String
-  status            OrderStatus              @default(Pending)
-  deposit           Decimal                  @default(0) @db.Decimal(10, 2)
-  version           Int                      @default(1)
-  createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
-  orderNumber       Int                      @default(autoincrement())
-  shippingInfoId    String?
-  dateInvoiced      DateTime?
-  inHandsDate       DateTime?
-  invoicePrintEmail InvoicePrintEmailOptions @default(Both)
-  createdById       String
-  contactPersonId   String
-  Invoice           Invoice?
-  createdBy         User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
   contactPerson     User                     @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
+  contactPersonId   String
+  createdAt         DateTime                 @default(now())
+  createdBy         User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  createdById       String
+  dateInvoiced      DateTime?
+  deposit           Decimal                  @default(0) @db.Decimal(10, 2)
+  id                String                   @id @default(uuid())
+  inHandsDate       DateTime?
+  Invoice           Invoice?
+  invoicePrintEmail InvoicePrintEmailOptions @default(Both)
   Office            Office                   @relation(fields: [officeId], references: [id])
-  ShippingInfo      ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
+  officeId          String
   OrderItems        OrderItem[]
   OrderNotes        OrderNote[]
+  orderNumber       Int                      @default(autoincrement())
+  pressRun          String?                  @default("")
+  ShippingInfo      ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId    String?
+  status            OrderStatus              @default(Pending)
+  updatedAt         DateTime                 @updatedAt
+  version           Int                      @default(1)
+  WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
+  workOrderId       String                   @unique
 }
 
 model OrderItem {
   amount                Decimal?            @db.Decimal(10, 2)
-  approved              Boolean             @default(false)
   artwork               OrderItemArtwork[]
   cost                  Decimal?            @db.Decimal(10, 2)
-  costPerM              Decimal?            @db.Decimal(10, 2)
   createdAt             DateTime            @default(now())
   createdBy             User                @relation(fields: [createdById], references: [id])
   createdById           String
@@ -159,21 +158,18 @@ model OrderItem {
   expectedDate          DateTime            @default(now())
   finishedQty           Int
   id                    String              @id @default(uuid())
-  inkColor              String?
+  ink                   String?
   InvoiceItems          InvoiceItem[]
   Order                 Order               @relation(fields: [orderId], references: [id])
   orderId               String
   OrderItemStock        OrderItemStock[]
-  overUnder             String?
+  other                 String?
   prepTime              Int?
   pressRun              String
   ProcessingOptions     ProcessingOptions[]
-  quantity              Int                 @default(1)
   size                  String?
   specialInstructions   String?
   status                OrderItemStatus     @default(Pending)
-  stockOnHand           Boolean             @default(false)
-  stockOrdered          String?
   Typesetting           Typesetting[]
   updatedAt             DateTime            @updatedAt
 }
@@ -200,23 +196,25 @@ model OrderNote {
 }
 
 model OrderItemStock {
-  id           String      @id @default(uuid())
-  stockQty     Int
-  costPerM     Decimal?    @db.Decimal(10, 2)
-  totalCost    Decimal?    @db.Decimal(10, 2)
-  from         String?
-  expectedDate DateTime?
-  orderedDate  DateTime?
-  received     Boolean     @default(false)
-  receivedDate DateTime?
-  notes        String?
-  stockStatus  StockStatus
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  orderItemId  String
-  createdById  String
-  createdBy    User        @relation(fields: [createdById], references: [id])
-  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
+  costPerM        Decimal     @default(0) @db.Decimal(10, 2)
+  createdAt       DateTime    @default(now())
+  createdBy       User        @relation(fields: [createdById], references: [id])
+  createdById     String
+  expectedDate    DateTime?
+  from            String?
+  id              String      @id @default(uuid())
+  notes           String?
+  orderedDate     DateTime?
+  orderItemId     String
+  OrderItem       OrderItem   @relation(fields: [orderItemId], references: [id])
+  received        Boolean     @default(false)
+  receivedDate    DateTime?
+  stockQty        Int
+  stockStatus     StockStatus
+  supplier        String?
+  totalCost       Decimal?    @db.Decimal(10, 2)
+  updatedAt       DateTime    @updatedAt
+  workOrderItemId String
 }
 
 model Permission {
@@ -226,6 +224,7 @@ model Permission {
   Roles       Role[] @relation("PermissionToRole")
 }
 
+// Bindery Options
 model ProcessingOptions {
   id              String         @id @default(uuid())
   cutting         String?
@@ -309,25 +308,25 @@ model ShippingPickup {
 }
 
 model Typesetting {
-  id                 String              @id @default(uuid())
-  dateIn             DateTime
-  timeIn             String
   approved           Boolean             @default(false)
-  prepTime           Int?
-  plateRan           String?
-  createdById        String
-  orderItemId        String?
-  workOrderItemId    String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
   cost               Decimal?            @db.Decimal(10, 2)
-  followUpNotes      String?
-  status             TypesettingStatus   @default(InProgress)
+  createdAt          DateTime            @default(now())
   createdBy          User                @relation(fields: [createdById], references: [id])
+  createdById        String
+  dateIn             DateTime
+  followUpNotes      String?
+  id                 String              @id @default(uuid())
   OrderItem          OrderItem?          @relation(fields: [orderItemId], references: [id])
-  WorkOrderItem      WorkOrderItem?      @relation(fields: [workOrderItemId], references: [id])
+  orderItemId        String?
+  plateRan           String?
+  prepTime           Int?
+  status             TypesettingStatus   @default(InProgress)
+  timeIn             String
   TypesettingOptions TypesettingOption[]
   TypesettingProofs  TypesettingProof[]
+  updatedAt          DateTime            @updatedAt
+  WorkOrderItem      WorkOrderItem?      @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId    String?
 }
 
 model TypesettingOption {
@@ -432,7 +431,6 @@ model WorkOrderItem {
   amount                Decimal?               @db.Decimal(10, 2)
   artwork               WorkOrderItemArtwork[]
   cost                  Decimal?               @db.Decimal(10, 2)
-  costPerM              Decimal                @default(0) @db.Decimal(10, 2)
   createdAt             DateTime               @default(now())
   createdBy             User                   @relation(fields: [createdById], references: [id])
   createdById           String
@@ -440,16 +438,13 @@ model WorkOrderItem {
   description           String                 @default("")
   expectedDate          DateTime               @default(now())
   id                    String                 @id @default(uuid())
-  inkColor              String?
+  ink                   String?
   other                 String?
   prepTime              Int?
   ProcessingOptions     ProcessingOptions[]
-  quantity              Int                    @default(1)
   size                  String?
   specialInstructions   String?
   status                WorkOrderItemStatus    @default(Pending)
-  stockOnHand           Boolean                @default(false)
-  stockOrdered          String?
   Typesetting           Typesetting[]
   updatedAt             DateTime               @updatedAt
   WorkOrder             WorkOrder?             @relation(fields: [workOrderId], references: [id])
@@ -479,24 +474,24 @@ model WorkOrderNote {
 }
 
 model WorkOrderItemStock {
-  id              String        @id @default(uuid())
-  stockQty        Int
-  costPerM        Decimal?      @db.Decimal(10, 2)
-  totalCost       Decimal?      @db.Decimal(10, 2)
-  from            String?
+  costPerM        Decimal       @default(0) @db.Decimal(10, 2)
+  createdAt       DateTime      @default(now())
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  createdById     String
   expectedDate    DateTime?
+  from            String?
+  id              String        @id @default(uuid())
+  notes           String?
   orderedDate     DateTime?
   received        Boolean       @default(false)
   receivedDate    DateTime?
-  notes           String?
+  stockQty        Int
   stockStatus     StockStatus
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  workOrderItemId String
-  createdById     String
   supplier        String?
-  createdBy       User          @relation(fields: [createdById], references: [id])
+  totalCost       Decimal?      @db.Decimal(10, 2)
+  updatedAt       DateTime      @updatedAt
   WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
+  workOrderItemId String
 }
 
 model WorkOrderVersion {
@@ -672,12 +667,9 @@ enum StaticRoles {
 }
 
 enum StockStatus {
-  InStock
   OnHand
   CS
   Ordered
-  OutOfStock
-  LowStock
 }
 
 enum TypesettingStatus {

@@ -83,7 +83,6 @@ function serializeCompany(company: Company & {
                     expectedDate: item.expectedDate?.toISOString() ?? null,
                     amount: item.amount?.toString() ?? null,
                     cost: item.cost?.toString() ?? null,
-                    costPerM: item.costPerM.toString(),
                 })),
             })),
             Orders: office.Orders.map(order => ({

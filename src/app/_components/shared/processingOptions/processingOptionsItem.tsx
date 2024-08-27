@@ -58,7 +58,7 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
             ) : (
                 <div className="p-6">
                     <div className="flex flex-col mb-4">
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{option.name || "Processing Option"}</h3>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{option.name || "Bindery Option"}</h3>
                         <div className="flex justify-between items-start">
                             <div className="text-sm text-gray-500">
                                 <p>Created: {formatValue("createdAt", option.createdAt)}</p>

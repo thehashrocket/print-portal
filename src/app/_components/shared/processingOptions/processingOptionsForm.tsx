@@ -234,7 +234,7 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                     Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                    {initialData ? "Update" : "Add"} Processing Option
+                    {initialData ? "Update" : "Add"} Bindery Options
                 </button>
             </div>
         </form>

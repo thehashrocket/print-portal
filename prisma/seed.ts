@@ -1,8 +1,24 @@
-import { OrderItem, PrismaClient, ProofMethod, TypesettingStatus, RoleName, WorkOrderItem } from "@prisma/client";
+import {
+  AddressType,
+  BindingType,
+  InvoicePrintEmailOptions,
+  OrderItem,
+  OrderItemStatus,
+  OrderStatus,
+  Prisma,
+  PrismaClient,
+  ProofMethod,
+  RoleName,
+  ShippingMethod,
+  StockStatus,
+  TypesettingStatus,
+  WorkOrderItem,
+  WorkOrderItemStatus,
+  WorkOrderStatus,
+} from "@prisma/client";
 import { faker } from "@faker-js/faker";
-import { AddressType, BindingType, WorkOrderStatus, OrderStatus, OrderItemStatus, ShippingMethod, StockStatus, WorkOrderItemStatus } from "@prisma/client";
-import { string } from "zod";
 import bcrypt from "bcryptjs";
+
 const prismaClient = new PrismaClient();
 const randomElementFromArray = <T>(array: T[]): T => {
   if (array.length === 0) {
@@ -38,88 +54,80 @@ const maxFutureDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000)
 // Convert a work order to an order
 async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
   console.log('Converting Work Order to Order');
-  // Find the work order
   const workOrder = await prismaClient.workOrder.findUnique({
-    where: {
-      id: workOrderId,
-    }
+    where: { id: workOrderId },
+    include: { WorkOrderItems: true, ShippingInfo: true }
   });
+
+  if (!workOrder) {
+    throw new Error(`Work order with id ${workOrderId} not found`);
+  }
+
   const order = await prismaClient.order.create({
     data: {
       officeId,
-      shippingInfoId: workOrder?.shippingInfoId || "", // Assign an empty string if shippingInfoId is undefined
+      shippingInfoId: workOrder.shippingInfoId,
       status: randomElementFromArray(orderStatuses),
-      contactPersonId: workOrder?.contactPersonId || "", // Assign an empty string if contactPersonId is undefined
-      createdById: workOrder?.createdById || "", // Assign an empty string if userId is undefined
-      inHandsDate: workOrder?.inHandsDate || new Date(),
+      contactPersonId: workOrder.contactPersonId,
+      createdById: workOrder.createdById,
+      inHandsDate: workOrder.inHandsDate,
       workOrderId,
       version: 1,
-    },
-  });
-  console.log('Order created: ', order.id);
-  console.log('converting work order items to order items');
-  // Convert work order items to order items
-  const workOrderItems = await prismaClient.workOrderItem.findMany({
-    where: {
-      workOrderId,
+      deposit: new Prisma.Decimal(faker.number.float({ min: 0, max: 1000, precision: 2 })),
+      dateInvoiced: faker.date.recent(),
+      invoicePrintEmail: workOrder.invoicePrintEmail,
     },
   });
 
-  workOrderItems.forEach(async (workOrderItem) => {
-    const orderItem = prismaClient.orderItem.create({
+  console.log('Order created: ', order.id);
+  console.log('converting work order items to order items');
+
+  for (const workOrderItem of workOrder.WorkOrderItems) {
+    const orderItem = await prismaClient.orderItem.create({
       data: {
         approved: faker.datatype.boolean(),
         amount: workOrderItem.amount,
         cost: workOrderItem.cost,
-        costPerM: workOrderItem.costPerM,
         customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
         description: workOrderItem.description,
         expectedDate: workOrderItem.expectedDate,
         finishedQty: 0,
-        inkColor: workOrderItem.inkColor,
         orderId: order.id,
         overUnder: '0',
-        prepTime: workOrderItem?.prepTime,
+        prepTime: workOrderItem.prepTime,
         pressRun: '0',
-        quantity: workOrderItem.quantity,
         size: workOrderItem.size,
         specialInstructions: workOrderItem.specialInstructions,
-        stockOnHand: workOrderItem.stockOnHand,
-        stockOrdered: workOrderItem.stockOrdered,
-        createdById: workOrderItem.createdById, // Add the missing createdById property
+        createdById: workOrderItem.createdById,
         status: randomElementFromArray(orderItemStatuses),
       }
     });
-    // Create OrderItemArtwork by looping through the workOrderItemArtwork
+
+    // Create OrderItemArtwork
     const workOrderItemArtworks = await prismaClient.workOrderItemArtwork.findMany({
-      where: {
-        workOrderItemId: workOrderItem.id,
-      },
+      where: { workOrderItemId: workOrderItem.id },
     });
-    workOrderItemArtworks.forEach(async (workOrderItemArtwork) => {
+
+    for (const workOrderItemArtwork of workOrderItemArtworks) {
       await prismaClient.orderItemArtwork.create({
         data: {
-          orderItemId: (await orderItem).id,
+          orderItemId: orderItem.id,
           fileUrl: workOrderItemArtwork.fileUrl,
           description: workOrderItemArtwork.description,
         }
       });
-      console.log('Order Item Artwork created');
-    });
+    }
 
     console.log('Order Item created');
 
-    await copyProcessingOptionsToOrderItem(workOrderItem, await orderItem, workOrderItem.createdById);
-
-    await copyTypesettingsToOrderItem(workOrderItem, await orderItem, workOrderItem.createdById);
+    await copyProcessingOptionsToOrderItem(workOrderItem, orderItem, workOrderItem.createdById);
+    await copyTypesettingsToOrderItem(workOrderItem, orderItem, workOrderItem.createdById);
 
     const workOrderStocks = await prismaClient.workOrderItemStock.findMany({
-      where: {
-        workOrderItemId: workOrderItem.id,
-      },
+      where: { workOrderItemId: workOrderItem.id },
     });
 
-    workOrderStocks.forEach(async (workOrderStock) => {
+    for (const workOrderStock of workOrderStocks) {
       await prismaClient.orderItemStock.create({
         data: {
           costPerM: workOrderStock.costPerM,
@@ -127,7 +135,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
           from: workOrderStock.from,
           notes: workOrderStock.notes,
           orderedDate: workOrderStock.orderedDate,
-          orderItemId: (await orderItem).id,
+          orderItemId: orderItem.id,
           received: workOrderStock.received,
           receivedDate: workOrderStock.receivedDate,
           stockQty: workOrderStock.stockQty,
@@ -136,65 +144,99 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
           createdById: workOrderStock.createdById,
         }
       });
-      console.log('Order Stock created');
-    });
+    }
+  }
 
-  });
   return order;
+}
 
-  async function copyTypesettingsToOrderItem(workOrderItem: WorkOrderItem, orderItem: OrderItem, userId: string) {
-    const typesettings = await prismaClient.typesetting.findMany({
-      where: {
-        workOrderItemId: workOrderItem.id,
-      },
-    });
+async function copyProcessingOptionsToOrderItem(workOrderItem: WorkOrderItem, orderItem: OrderItem, userId: string) {
+  const processingOptions = await prismaClient.processingOptions.findMany({
+    where: {
+      workOrderItemId: workOrderItem.id,
+    },
+  });
 
-    typesettings.forEach(async (typesetting) => {
-      {
-        await prismaClient.typesetting.update({
-          data: {
-            orderItemId: (await orderItem).id,
-          },
-          where: {
-            id: typesetting.id,
-          }
-        });
-        console.log('Typesetting created');
+  for (const processingOption of processingOptions) {
+    await prismaClient.processingOptions.create({
+      data: {
+        name: processingOption.name,
+        description: processingOption.description,
+        binderyTime: processingOption.binderyTime,
+        binding: processingOption.binding,
+        cutting: processingOption.cutting,
+        drilling: processingOption.drilling,
+        folding: processingOption.folding,
+        numberingColor: processingOption.numberingColor,
+        numberingEnd: processingOption.numberingEnd,
+        numberingStart: processingOption.numberingStart,
+        other: processingOption.other,
+        padding: processingOption.padding,
+        stitching: processingOption.stitching,
+        orderItemId: orderItem.id,
+        createdById: userId,
       }
     });
-    console.log('Typesettings copied to Order Item')
   }
+  console.log('Processing Options copied to Order Item');
+}
 
-  async function copyProcessingOptionsToOrderItem(workOrderItem: WorkOrderItem, orderItem: OrderItem, userId: string) {
-    const processingOptions = await prismaClient.processingOptions.findMany({
-      where: {
-        workOrderItemId: workOrderItem.id,
-      },
+async function copyTypesettingsToOrderItem(workOrderItem: WorkOrderItem, orderItem: OrderItem, userId: string) {
+  const typesettings = await prismaClient.typesetting.findMany({
+    where: {
+      workOrderItemId: workOrderItem.id,
+    },
+    include: {
+      TypesettingOptions: true,
+      TypesettingProofs: true,
+    },
+  });
+
+  for (const typesetting of typesettings) {
+    const newTypesetting = await prismaClient.typesetting.create({
+      data: {
+        approved: typesetting.approved,
+        cost: typesetting.cost,
+        dateIn: typesetting.dateIn,
+        followUpNotes: typesetting.followUpNotes,
+        plateRan: typesetting.plateRan,
+        prepTime: typesetting.prepTime,
+        status: typesetting.status,
+        timeIn: typesetting.timeIn,
+        orderItemId: orderItem.id,
+        createdById: userId,
+      }
     });
 
-    processingOptions.forEach(async (processingOption) => {
-      await prismaClient.processingOptions.create({
+    // Copy TypesettingOptions
+    for (const option of typesetting.TypesettingOptions) {
+      await prismaClient.typesettingOption.create({
         data: {
-          binderyTime: processingOption.binderyTime,
-          binding: processingOption.binding,
-          cutting: processingOption.cutting,
-          drilling: processingOption.drilling,
-          folding: processingOption.folding,
-          numberingColor: processingOption.numberingColor,
-          numberingEnd: processingOption.numberingEnd,
-          numberingStart: processingOption.numberingStart,
-          other: processingOption.other,
-          orderItemId: (await orderItem).id,
-          padding: processingOption.padding,
-          stitching: processingOption.stitching,
-          createdById: userId, // Add the missing createdById property
-          name: processingOption.name, // Add the missing name property
+          typesettingId: newTypesetting.id,
+          option: option.option,
+          selected: option.selected,
+          createdById: userId,
         }
       });
-      console.log('Processing Option created');
-    });
-    console.log('Processing Options copied to Order Item');
+    }
+
+    // Copy TypesettingProofs
+    for (const proof of typesetting.TypesettingProofs) {
+      await prismaClient.typesettingProof.create({
+        data: {
+          typesettingId: newTypesetting.id,
+          proofNumber: proof.proofNumber,
+          dateSubmitted: proof.dateSubmitted,
+          notes: proof.notes,
+          approved: proof.approved,
+          proofCount: proof.proofCount,
+          proofMethod: proof.proofMethod,
+          createdById: userId,
+        }
+      });
+    }
   }
+  console.log('Typesettings copied to Order Item');
 }
 
 // Create an address record for an office
@@ -822,30 +864,18 @@ async function createUsers(officeId: string) {
 
 // Create a work order
 async function createWorkOrder(officeId: string, shippingInfoId: string) {
-  // Fetch internal users (assuming they don't have the 'Customer' role)
   const internalUsers = await prismaClient.user.findMany({
     where: {
-      Roles: {
-        some: {
-          NOT: {
-            name: "Customer",
-          },
-        },
-      },
+      Roles: { some: { NOT: { name: "Customer" } } }
     },
   });
-  // Fetch users for Office
-  const officeUsers = await prismaClient.user.findMany({
-    where: {
-      officeId,
-    },
-  });
+  const officeUsers = await prismaClient.user.findMany({ where: { officeId } });
 
   const randomOfficeUser = randomElementFromArray(officeUsers);
-
   const randomUser = randomElementFromArray(internalUsers);
-  if (!randomUser) {
-    throw new Error("No internal users found to create work order");
+
+  if (!randomUser || !randomOfficeUser) {
+    throw new Error("No users found to create work order");
   }
 
   const workOrder = await prismaClient.workOrder.create({
@@ -857,9 +887,11 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       purchaseOrderNumber: faker.number.int().toString(),
       version: 1,
       status: randomElementFromArray(workOrderStatuses),
-      shippingInfoId, // Ensure this is always set
+      shippingInfoId,
       contactPersonId: randomOfficeUser.id,
       createdById: randomUser.id,
+      invoicePrintEmail: randomElementFromArray(Object.values(InvoicePrintEmailOptions)),
+      workOrderNumber: faker.number.int({ min: 1000, max: 9999 }),
     },
   });
 
@@ -869,47 +901,38 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
 
 // Create work order items
 async function createWorkOrderItems(workOrderId: string, itemCount: number, userId: string) {
-  // Create multiple work order items based on the itemCount
   for (let i = 0; i < itemCount; i++) {
-
     const cost = faker.number.float({ min: 50, max: 200, precision: 2 });
     const amount = cost * 1.3;
 
     const workOrderItem = await prismaClient.workOrderItem.create({
       data: {
-        workOrderId: workOrderId,
-        amount: amount,
+        workOrderId,
+        amount: new Prisma.Decimal(amount),
+        cost: new Prisma.Decimal(cost),
+        customerSuppliedStock: faker.helpers.arrayElement(csOptions),
+        description: faker.commerce.productDescription(),
+        expectedDate: faker.date.future(),
+        ink: faker.helpers.arrayElement(inkColors),
+        other: faker.commerce.productMaterial(),
+        prepTime: faker.number.int({ min: 0, max: 100 }),
+        size: faker.helpers.arrayElement(sizes),
+        specialInstructions: faker.lorem.sentence(),
+        status: faker.helpers.arrayElement(workOrderItemStatuses),
+        createdById: userId,
         artwork: {
           create: {
-            fileUrl: "https://placedog.net/500?random.jpg",
+            fileUrl: faker.image.url(),
             description: faker.lorem.sentence(),
           },
         },
-        cost: cost,
-        costPerM: faker.number.int({ min: 50, max: 200 }) + 0.02,
-        customerSuppliedStock: randomElementFromArray(csOptions),
-        description: faker.commerce.productDescription(),
-        expectedDate: faker.date.future(),
-        inkColor: randomElementFromArray(inkColors),
-        other: faker.commerce.productMaterial(),
-        prepTime: faker.number.int({ min: 0, max: 100 }),
-        quantity: faker.number.int({ min: 1, max: 1000 }),
-        size: randomElementFromArray(sizes),
-        specialInstructions: faker.lorem.sentence(),
-        status: randomElementFromArray(workOrderItemStatuses),
-        stockOnHand: faker.datatype.boolean(),
-        stockOrdered: faker.datatype.boolean()
-          ? faker.commerce.product()
-          : null,
-        createdById: userId, // Add the createdById property
       },
     });
-    await createWorkOrderStock(workOrderItem.id, userId);
 
+    await createWorkOrderStock(workOrderItem.id, userId);
     const typeSettingID = await createTypesetting(workOrderItem.id, userId);
     await createTypesettingOption(typeSettingID, userId);
 
-    // Create 1-5 typesetting proofs for each typesetting record
     const numberOfProofs = faker.number.int({ min: 1, max: 5 });
     for (let i = 0; i < numberOfProofs; i++) {
       await createTypesettingProof(typeSettingID, i + 1, userId);
@@ -1011,55 +1034,27 @@ async function seed() {
     for (let companyIndex = 0; companyIndex < companyCount; companyIndex++) {
       console.log(`Creating company ${companyIndex + 1} of ${companyCount}`);
       const company = await createCompany();
-      try {
-        const numOffices = faker.number.int({ min: 1, max: 4 });
 
-        for (let officeIndex = 0; officeIndex < numOffices; officeIndex++) {
-          const internalUser = await prismaClient.user.findFirst({
-            where: {
-              Roles: {
-                some: {
-                  name: "Sales",
-                },
-              },
-            },
-          });
-
-          if (internalUser) {
-            const office = await createOffice(company.id, internalUser.id);
-            const numAddresses = faker.number.int({ min: 1, max: 2 });
-
-            const addressPromises = [];
-            for (let addressIndex = 0; addressIndex < numAddresses; addressIndex++) {
-              addressPromises.push(createAddress(office.id));
-            }
-            await Promise.all(addressPromises);
-
-            await createUsers(office.id);
-          } else {
-            console.warn("No internal user with the 'Sales' role found.");
-          }
-        }
-      } catch (error) {
-        console.error(`Error creating offices for company ${companyIndex}:`, error);
-      }
-    }
-
-    const offices = await prismaClient.office.findMany();
-    for (const office of offices) {
-      const numberOfWorkOrders = faker.number.int({ min: 1, max: 9 });
-      for (let workOrderIndex = 0; workOrderIndex < numberOfWorkOrders; workOrderIndex++) {
+      const numOffices = faker.number.int({ min: 1, max: 4 });
+      for (let officeIndex = 0; officeIndex < numOffices; officeIndex++) {
         const internalUser = await prismaClient.user.findFirst({
-          where: {
-            Roles: {
-              some: {
-                name: "Sales",
-              },
-            },
-          },
+          where: { Roles: { some: { name: "Sales" } } },
         });
 
-        if (internalUser) {
+        if (!internalUser) {
+          console.warn("No internal user with the 'Sales' role found.");
+          continue;
+        }
+
+        const office = await createOffice(company.id, internalUser.id);
+
+        const numAddresses = faker.number.int({ min: 1, max: 2 });
+        await Promise.all(Array(numAddresses).fill(null).map(() => createAddress(office.id)));
+
+        await createUsers(office.id);
+
+        const numberOfWorkOrders = faker.number.int({ min: 1, max: 9 });
+        for (let workOrderIndex = 0; workOrderIndex < numberOfWorkOrders; workOrderIndex++) {
           const shippingInfoId = await createShippingInfo(office.id, internalUser.id);
           const workOrder = await createWorkOrder(office.id, shippingInfoId);
 
@@ -1077,20 +1072,18 @@ async function seed() {
             await createWorkOrderVersions(workOrder.id);
 
             if (workOrder.status === "Approved") {
-              await prismaClient.$transaction(async (): Promise<void> => {
+              await prismaClient.$transaction(async () => {
                 await convertWorkOrderToOrder(workOrder.id, office.id);
               });
             }
           } else {
             console.warn("Failed to create work order.");
           }
-        } else {
-          console.warn("No internal user with the 'Sales' role found.");
         }
       }
     }
 
-    console.log("Database has been seeded.");
+    console.log("Database has been seeded successfully.");
   } catch (error) {
     console.error("Error seeding the database:", error);
     process.exit(1);

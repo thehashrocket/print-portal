@@ -91,6 +91,12 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 {/* Row 4 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Bindery Options</h2>
+                        <ProcessingOptionsProvider workOrderItemId={workOrderItem?.id || ''}>
+                            <ProcessingOptionsComponent workOrderItemId={workOrderItem?.id || ''} />
+                        </ProcessingOptionsProvider>
+                    </div>
+                    <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
                         {workOrderItem && typesettingData && (
                             <TypesettingProvider>
@@ -101,12 +107,6 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                 />
                             </TypesettingProvider>
                         )}
-                    </div>
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Processing Options</h2>
-                        <ProcessingOptionsProvider workOrderItemId={workOrderItem?.id || ''}>
-                            <ProcessingOptionsComponent workOrderItemId={workOrderItem?.id || ''} />
-                        </ProcessingOptionsProvider>
                     </div>
                 </div>
             </div>

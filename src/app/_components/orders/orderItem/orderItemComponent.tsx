@@ -126,7 +126,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                 </section>
 
                 <section>
-                    <h2 className="text-2xl font-semibold mb-4">Processing Options</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Bindery Options</h2>
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <ProcessingOptionsProvider orderItemId={orderItem.id}>
                             <ProcessingOptionsComponent orderItemId={orderItem.id} />

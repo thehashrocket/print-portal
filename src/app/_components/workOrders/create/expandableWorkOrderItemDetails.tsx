@@ -39,6 +39,12 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
 
             <div className="space-y-6">
                 <section>
+                    <h4 className="text-lg font-medium mb-2">Bindery Options</h4>
+                    <ProcessingOptionsProvider>
+                        <ProcessingOptionsComponent workOrderItemId={itemId} />
+                    </ProcessingOptionsProvider>
+                </section>
+                <section>
                     <h4 className="text-lg font-medium mb-2">Typesetting Options</h4>
                     <TypesettingProvider>
                         <TypesettingComponent
@@ -47,13 +53,6 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
                             initialTypesetting={[]}
                         />
                     </TypesettingProvider>
-                </section>
-
-                <section>
-                    <h4 className="text-lg font-medium mb-2">Processing Options</h4>
-                    <ProcessingOptionsProvider>
-                        <ProcessingOptionsComponent workOrderItemId={itemId} />
-                    </ProcessingOptionsProvider>
                 </section>
             </div>
         </div>

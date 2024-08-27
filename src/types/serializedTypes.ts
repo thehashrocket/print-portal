@@ -1,18 +1,38 @@
 // ~/types/serializedTypes.ts
 
-import { OrderStatus, WorkOrderStatus, OrderItemStatus, WorkOrderItemStatus, ShippingMethod, InvoicePrintEmailOptions } from "@prisma/client";
+import {
+    AddressType,
+    BindingType,
+    InvoicePrintEmailOptions,
+    InvoiceStatus,
+    OrderStatus,
+    OrderItemStatus,
+    PaymentMethod,
+    ProofMethod,
+    ShippingMethod,
+    StockStatus,
+    TypesettingStatus,
+    WorkOrderItemStatus,
+    WorkOrderStatus,
+} from "@prisma/client";
 
 export interface SerializedOrder {
     id: string;
     status: OrderStatus;
-    workOrderId: string | null;
+    workOrderId: string;
     orderNumber: number;
-    deposit: string | null;
-    inHandsDate: string | null;
-    totalAmount: string | null;
-    totalCost: string | null;
+    deposit: string;
+    version: number;
     createdAt: string;
     updatedAt: string;
+    shippingInfoId: string | null;
+    dateInvoiced: string | null;
+    inHandsDate: string | null;
+    invoicePrintEmail: InvoicePrintEmailOptions;
+    createdById: string;
+    contactPersonId: string;
+    officeId: string;
+    totalCost: string | null;
     contactPerson: {
         id: string;
         name: string | null;
@@ -28,48 +48,62 @@ export interface SerializedOrder {
     };
     OrderItems: SerializedOrderItem[];
     ShippingInfo: SerializedShippingInfo | null;
+    Invoice: SerializedInvoice | null;
 }
 
 export interface SerializedOrderItem {
+    id: string;
     amount: string | null;
-    artwork: {
-        id: string;
-        fileUrl: string;
-        description: string | null;
-        orderItemId: string;
-    }[];
+    approved: boolean;
     cost: string | null;
     costPerM: string | null;
-    createdAt: string | null;
-    description: string | null;
+    createdAt: string;
+    createdById: string;
+    customerSuppliedStock: string;
+    description: string;
     expectedDate: string | null;
-    finishedQty: number | null;
-    id: string;
+    finishedQty: number;
+    inkColor: string | null;
     orderId: string;
-    pressRun: string | null;
+    overUnder: string | null;
+    prepTime: number | null;
+    pressRun: string;
     quantity: number;
+    size: string | null;
+    specialInstructions: string | null;
     status: OrderItemStatus;
-    updatedAt: string | null;
+    stockOnHand: boolean;
+    stockOrdered: string | null;
+    updatedAt: string;
+    artwork: SerializedOrderItemArtwork[];
+}
+
+export interface SerializedOrderItemArtwork {
+    id: string;
+    orderItemId: string;
+    fileUrl: string;
+    description: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface SerializedWorkOrder {
-    contactPersonId: string;
-    createdAt: string;
-    createdById: string;
-    dateIn: string;
-    estimateNumber: string;
     id: string;
-    inHandsDate: string;
-    invoicePrintEmail: InvoicePrintEmailOptions;
     officeId: string;
+    dateIn: string;
+    inHandsDate: string;
+    estimateNumber: string;
     purchaseOrderNumber: string;
-    shippingInfoId: string | null | undefined;
-    status: WorkOrderStatus;
-    totalAmount: string | null;
-    totalCost: string | null;
-    updatedAt: string;
     version: number;
-    workOrderNumber: string;
+    createdAt: string;
+    updatedAt: string;
+    workOrderNumber: number;
+    shippingInfoId: string | null;
+    status: WorkOrderStatus;
+    invoicePrintEmail: InvoicePrintEmailOptions;
+    contactPersonId: string;
+    createdById: string;
+    totalCost: string | null;
     contactPerson: {
         id: string;
         name: string | null;
@@ -85,7 +119,7 @@ export interface SerializedWorkOrder {
         id: string;
         name: string;
     };
-    Order?: {
+    Order: {
         id: string;
     } | null;
     ShippingInfo: SerializedShippingInfo | null;
@@ -93,37 +127,35 @@ export interface SerializedWorkOrder {
 }
 
 export interface SerializedWorkOrderItem {
-    amount: string | undefined;
-    artwork: {
-        id: string;
-        fileUrl: string;
-        description: string | null;
-        workOrderItemId: string;
-    }[];
-    cost: string | undefined;
-    costPerM: string | null;
+    id: string;
+    amount: string | null;
+    cost: string | null;
+    createdAt: string;
+    createdById: string;
     customerSuppliedStock: string | null;
     description: string;
     expectedDate: string;
-    id: string;
-    inkColor: string | null;
+    ink: string | null;
     other: string | null;
-    quantity: string;
+    prepTime: number | null;
+    size: string | null;
+    specialInstructions: string | null;
     status: WorkOrderItemStatus;
+    updatedAt: string;
     workOrderId: string | null;
+    artwork: SerializedWorkOrderItemArtwork[];
+    ProcessingOptions: SerializedProcessingOptions[];
+    Typesetting: SerializedTypesetting[];
+    WorkOrderItemStock: SerializedWorkOrderItemStock[];
 }
 
-export interface SerializedShippingPickup {
+export interface SerializedWorkOrderItemArtwork {
     id: string;
-    pickupDate: string;
-    pickupTime: string;
-    notes: string | null;
-    contactName: string;
-    contactPhone: string;
+    workOrderItemId: string;
+    fileUrl: string;
+    description: string | null;
     createdAt: string;
     updatedAt: string;
-    createdById: string;
-    shippingInfoId: string;
 }
 
 export interface SerializedShippingInfo {
@@ -144,14 +176,155 @@ export interface SerializedShippingInfo {
     updatedAt: string;
     createdById: string;
     officeId: string;
-    Address: {
-        line1: string;
-        line2: string | null;
-        city: string;
-        state: string;
-        zipCode: string;
-        country: string;
-        telephoneNumber: string;
-    } | null;
+    Address: SerializedAddress | null;
     ShippingPickup: SerializedShippingPickup | null;
+}
+
+export interface SerializedAddress {
+    id: string;
+    officeId: string;
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    telephoneNumber: string;
+    addressType: AddressType;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface SerializedShippingPickup {
+    id: string;
+    pickupDate: string;
+    pickupTime: string;
+    notes: string | null;
+    contactName: string;
+    contactPhone: string;
+    createdAt: string;
+    updatedAt: string;
+    createdById: string;
+    shippingInfoId: string;
+}
+
+export interface SerializedProcessingOptions {
+    id: string;
+    cutting: string | null;
+    padding: string | null;
+    drilling: string | null;
+    folding: string | null;
+    other: string | null;
+    numberingStart: number | null;
+    numberingEnd: number | null;
+    numberingColor: string | null;
+    createdAt: string;
+    updatedAt: string;
+    orderItemId: string | null;
+    workOrderItemId: string | null;
+    createdById: string;
+    description: string;
+    name: string;
+    stitching: string | null;
+    binderyTime: number | null;
+    binding: BindingType | null;
+}
+
+export interface SerializedTypesetting {
+    id: string;
+    approved: boolean;
+    cost: string | null;
+    createdAt: string;
+    createdById: string;
+    dateIn: string;
+    followUpNotes: string | null;
+    orderItemId: string | null;
+    plateRan: string | null;
+    prepTime: number | null;
+    status: TypesettingStatus;
+    timeIn: string;
+    updatedAt: string;
+    workOrderItemId: string | null;
+    TypesettingOptions: SerializedTypesettingOption[];
+    TypesettingProofs: SerializedTypesettingProof[];
+}
+
+export interface SerializedTypesettingOption {
+    id: string;
+    typesettingId: string;
+    option: string;
+    selected: boolean;
+    createdAt: string;
+    createdById: string;
+    updatedAt: string;
+}
+
+export interface SerializedTypesettingProof {
+    id: string;
+    typesettingId: string;
+    proofNumber: number;
+    dateSubmitted: string | null;
+    notes: string | null;
+    approved: boolean | null;
+    createdAt: string;
+    createdById: string;
+    updatedAt: string;
+    proofCount: number;
+    proofMethod: ProofMethod;
+}
+
+export interface SerializedWorkOrderItemStock {
+    id: string;
+    stockQty: number;
+    costPerM: string;
+    totalCost: string | null;
+    from: string | null;
+    expectedDate: string | null;
+    orderedDate: string | null;
+    received: boolean;
+    receivedDate: string | null;
+    notes: string | null;
+    stockStatus: StockStatus;
+    createdAt: string;
+    updatedAt: string;
+    workOrderItemId: string;
+    createdById: string;
+    supplier: string | null;
+}
+
+export interface SerializedInvoice {
+    id: string;
+    invoiceNumber: string;
+    dateIssued: string;
+    dateDue: string;
+    subtotal: string;
+    taxRate: string;
+    taxAmount: string;
+    total: string;
+    status: InvoiceStatus;
+    notes: string | null;
+    createdAt: string;
+    updatedAt: string;
+    orderId: string;
+    createdById: string;
+    InvoiceItems: SerializedInvoiceItem[];
+    InvoicePayments: SerializedInvoicePayment[];
+}
+
+export interface SerializedInvoiceItem {
+    id: string;
+    description: string;
+    quantity: number;
+    unitPrice: string;
+    total: string;
+    invoiceId: string;
+    orderItemId: string | null;
+}
+
+export interface SerializedInvoicePayment {
+    id: string;
+    amount: string;
+    paymentDate: string;
+    paymentMethod: PaymentMethod;
+    invoiceId: string;
 }

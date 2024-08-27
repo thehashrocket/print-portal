@@ -25,7 +25,6 @@ const ExistingWorkOrderItemsList: React.FC<ExistingWorkOrderItemsListProps> = ({
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                                 <span className="font-medium text-lg mb-2 sm:mb-0">{item.description}</span>
                                 <div className="flex flex-col sm:flex-row sm:space-x-4 text-sm text-gray-500">
-                                    <span>Qty: {item.quantity}</span>
                                     <span>Status: <span className={`font-semibold ${getStatusColor(item.status)}`}>{item.status}</span></span>
                                     <span>Amount: ${item.amount}</span>
                                 </div>

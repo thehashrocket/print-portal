@@ -32,7 +32,7 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
                     isActive={isAdding}
                 />
             ) : (
-                <button onClick={toggleAdding} className="btn btn-primary">Add Processing Option</button>
+                <button onClick={toggleAdding} className="btn btn-primary">Add Bindery Option</button>
             )}
             <div className="mb-4 mt-4 grid grid-cols-2 gap-4">
                 {processingOptions.map((option) => (
