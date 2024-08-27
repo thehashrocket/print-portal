@@ -1,13 +1,13 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem } from "~/utils/dataNormalization";
-
+import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 
 export const orderRouter = createTRPCRouter({
   getByID: protectedProcedure
     .input(z.string())
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }): Promise<SerializedOrder | null> => {
       const order = await ctx.db.order.findUnique({
         where: { id: input },
         include: {
@@ -16,7 +16,12 @@ export const orderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          OrderItems: true,
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            },
+          },
           contactPerson: {
             select: {
               id: true,
@@ -35,6 +40,13 @@ export const orderRouter = createTRPCRouter({
               ShippingPickup: true,
             },
           },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+            },
+          },
+          OrderNotes: true,
         },
       });
 
@@ -67,7 +79,12 @@ export const orderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          OrderItems: true,
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            },
+          },
           contactPerson: {
             select: {
               id: true,
@@ -86,6 +103,13 @@ export const orderRouter = createTRPCRouter({
               ShippingPickup: true,
             },
           },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+            },
+          },
+          OrderNotes: true,
         },
       });
 
@@ -107,31 +131,71 @@ export const orderRouter = createTRPCRouter({
       };
     }),
 
-  // update status of an order
   updateStatus: protectedProcedure
     .input(z.object({
       id: z.string(),
-      status: z.nativeEnum(OrderStatus), // Use z.nativeEnum to validate the status
+      status: z.nativeEnum(OrderStatus),
     }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.order.update({
-        where: {
-          id: input.id
+    .mutation(async ({ ctx, input }): Promise<SerializedOrder> => {
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: input.id },
+        data: { status: input.status },
+        include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            },
+          },
+          contactPerson: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+            },
+          },
+          OrderNotes: true,
         },
-        data: {
-          status: input.status
-        }
       });
+
+      const totalAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalCost = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+
+      return normalizeOrder({ ...updatedOrder, totalAmount, totalCost });
     }),
-  // Order Dashbaord
-  // Shows all orders, their status, and the company they are associated with
-  // Includes OrderItemStatus, returns the status that all OrderItems equal,
-  // otherwise, it returns the lowest status of all OrderItems
+
   dashboard: protectedProcedure
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx }): Promise<SerializedOrderItem[]> => {
       const orders = await ctx.db.order.findMany({
         include: {
-          OrderItems: true,
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            }
+          },
           Office: {
             include: {
               Company: true
@@ -139,15 +203,19 @@ export const orderRouter = createTRPCRouter({
           }
         }
       });
-      return orders.map(order => {
-        const orderItemStatuses = order.OrderItems.map(orderItem => orderItem.status);
-        const orderStatus = orderItemStatuses.every(status => status === orderItemStatuses[0]) ?
-          orderItemStatuses[0] :
-          orderItemStatuses.reduce((prev, current) => prev < current ? prev : current);
-        return {
-          ...order,
-          OrderItemStatus: orderStatus
-        };
-      });
+
+      const allOrderItems: SerializedOrderItem[] = orders.flatMap(order =>
+        order.OrderItems.map(item => {
+          const normalizedItem = normalizeOrderItem(item);
+          return {
+            ...normalizedItem,
+            officeId: order.officeId,
+            officeName: order.Office.name,
+            companyName: order.Office.Company.name,
+          };
+        })
+      );
+
+      return allOrderItems;
     }),
 });

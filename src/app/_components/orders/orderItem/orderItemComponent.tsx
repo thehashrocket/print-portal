@@ -96,7 +96,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                 <InfoCard title="Status" content={
                     <StatusBadge id={orderItem.id} status={orderItem.status} />
                 } />
-                <InfoCard title="Quantity" content={orderItem.quantity} />
             </div>
             <div className="grid grid-cols-1 gap-4 mb-2">
                 {/* Render OrderItemArtwork */}

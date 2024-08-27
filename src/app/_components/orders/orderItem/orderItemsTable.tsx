@@ -22,7 +22,6 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedOrderItem = {
     id: string;
-    quantity: number;
     description: string | null;
     finishedQty: number | null;
     orderId: string;

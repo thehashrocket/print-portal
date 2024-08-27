@@ -92,7 +92,6 @@ export default async function WorkOrderPage({
             title="Work Order Total Amount / Cost"
             content={
               <div>
-                <p><strong>Total:</strong> ${workOrder.totalAmount}</p>
                 <p><strong>Cost:</strong> ${workOrder.totalCost}</p>
               </div>
             }

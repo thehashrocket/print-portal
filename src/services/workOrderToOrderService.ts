@@ -12,9 +12,24 @@ export async function convertWorkOrderToOrder(workOrderId: string, officeId: str
         const workOrder = await getWorkOrder(tx, workOrderId);
         const order = await createOrder(tx, workOrder, officeId);
         await createOrderItems(tx, workOrder, order.id);
-        await updateWorkOrder(tx, workOrderId, order.id);
+        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id);
 
-        return order;
+        // Calculate totalAmount and totalCost
+        const totalAmount = updatedWorkOrder.WorkOrderItems.reduce(
+            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+            new Prisma.Decimal(0)
+        );
+        const totalCost = updatedWorkOrder.WorkOrderItems.reduce(
+            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
+            new Prisma.Decimal(0)
+        );
+
+        return {
+            ...updatedWorkOrder,
+            totalAmount,
+            totalCost,
+            Order: { id: order.id },
+        };
     });
 }
 
@@ -24,6 +39,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         include: {
             WorkOrderItems: {
                 include: {
+                    artwork: true, // Add this line
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -48,6 +64,8 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
             contactPerson: true,
             createdBy: true,
             Order: true,
+            WorkOrderNotes: true,
+            WorkOrderVersions: true,
         },
     });
 
@@ -60,12 +78,12 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
 
     // Calculate totalAmount
     const totalAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.amount || 0);
+        return sum.add(item.amount || new Prisma.Decimal(0));
     }, new Prisma.Decimal(0));
 
     // Calculate totalCost
     const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.cost || 0);
+        return sum.add(item.cost || new Prisma.Decimal(0));
     }, new Prisma.Decimal(0));
 
     // Prepare the data for normalization
@@ -114,23 +132,16 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
     const orderItem = await tx.orderItem.create({
         data: {
             orderId,
-            approved: false,
             amount: workOrderItem.amount ? new Prisma.Decimal(workOrderItem.amount) : null,
             cost: workOrderItem.cost ? new Prisma.Decimal(workOrderItem.cost) : null,
-            costPerM: workOrderItem.costPerM ? new Prisma.Decimal(workOrderItem.costPerM) : null,
             customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
             description: workOrderItem.description,
             expectedDate: new Date(workOrderItem.expectedDate),
             finishedQty: 0,
-            inkColor: workOrderItem.inkColor ?? null,
             prepTime: null,
             pressRun: '0',
-            quantity: parseInt(workOrderItem.quantity),
             size: null,
             specialInstructions: null,
-            stockOnHand: false,
-            stockOrdered: null,
-            overUnder: '0',
             createdById: "", // You'll need to set this appropriately
             status: OrderItemStatus.Pending,
         },
@@ -207,6 +218,7 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
                 stockStatus: stock.stockStatus,
                 createdById: stock.createdById,
                 orderItemId,
+                workOrderItemId: workOrderItemId, // Add the missing property
             },
         });
         console.log('Order Stock created');
@@ -214,8 +226,40 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
 }
 
 async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string, orderId: string) {
-    await tx.workOrder.update({
+    return await tx.workOrder.update({
         where: { id: workOrderId },
         data: { Order: { connect: { id: orderId } } },
+        include: {
+            // Include all necessary relations here
+            contactPerson: true,
+            createdBy: true,
+            Office: {
+                include: {
+                    Company: true,
+                }
+            },
+            Order: true,
+            ShippingInfo: {
+                include: {
+                    Address: true,
+                    ShippingPickup: true,
+                }
+            },
+            WorkOrderItems: {
+                include: {
+                    artwork: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    ProcessingOptions: true,
+                    WorkOrderItemStock: true,
+                }
+            },
+            WorkOrderNotes: true,
+            WorkOrderVersions: true,
+        }
     });
 }

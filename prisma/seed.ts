@@ -85,7 +85,6 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
   for (const workOrderItem of workOrder.WorkOrderItems) {
     const orderItem = await prismaClient.orderItem.create({
       data: {
-        approved: faker.datatype.boolean(),
         amount: workOrderItem.amount,
         cost: workOrderItem.cost,
         customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
@@ -93,7 +92,6 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         expectedDate: workOrderItem.expectedDate,
         finishedQty: 0,
         orderId: order.id,
-        overUnder: '0',
         prepTime: workOrderItem.prepTime,
         pressRun: '0',
         size: workOrderItem.size,
@@ -142,6 +140,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
           stockStatus: workOrderStock.stockStatus,
           totalCost: workOrderStock.totalCost,
           createdById: workOrderStock.createdById,
+          workOrderItemId: workOrderItem.id, // Add the workOrderItemId property
         }
       });
     }

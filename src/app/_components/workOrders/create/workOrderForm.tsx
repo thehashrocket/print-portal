@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
+import { SerializedWorkOrder } from '~/types/serializedTypes';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
@@ -34,7 +35,7 @@ const WorkOrderForm: React.FC = () => {
     const { data: companyData } = api.companies.getAll.useQuery();
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
     const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
-    const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation();
+    const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation<SerializedWorkOrder>();
     const router = useRouter()
 
     useEffect(() => {
@@ -78,7 +79,7 @@ const WorkOrderForm: React.FC = () => {
         };
 
         createWorkOrderMutation.mutate(newWorkOrder, {
-            onSuccess: (createdWorkOrder) => {
+            onSuccess: (createdWorkOrder: SerializedWorkOrder) => {
                 setWorkOrder(createdWorkOrder);
                 router.push(`/workOrders/create/${createdWorkOrder.id}`)
             },

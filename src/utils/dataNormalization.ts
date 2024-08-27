@@ -18,6 +18,10 @@ import {
     InvoiceItem,
     InvoicePayment,
     OrderItemArtwork,
+    OrderItemStock,
+    OrderNote,
+    WorkOrderNote,
+    WorkOrderVersion,
     Prisma
 } from "@prisma/client";
 
@@ -38,16 +42,44 @@ import {
     SerializedInvoice,
     SerializedInvoiceItem,
     SerializedInvoicePayment,
-    SerializedOrderItemArtwork
+    SerializedOrderItemArtwork,
+    SerializedOrderItemStock,
+    SerializedOrderNote,
+    SerializedWorkOrderNote,
+    SerializedWorkOrderVersion
 } from "~/types/serializedTypes";
 
+export function normalizeInvoiceItem(item: InvoiceItem): SerializedInvoiceItem {
+    return {
+        id: item.id,
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice.toString(),
+        total: item.total.toString(),
+        invoiceId: item.invoiceId,
+        orderItemId: item.orderItemId,
+    };
+}
+
+export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvoicePayment {
+    return {
+        id: payment.id,
+        amount: payment.amount.toString(),
+        paymentDate: payment.paymentDate.toISOString(),
+        paymentMethod: payment.paymentMethod,
+        invoiceId: payment.invoiceId,
+    };
+}
+
 export function normalizeOrder(order: Order & {
+    totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     Office: {
         Company: { name: string };
     };
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
+        OrderItemStock: OrderItemStock[];
     })[];
     contactPerson: {
         id: string;
@@ -65,6 +97,7 @@ export function normalizeOrder(order: Order & {
         InvoiceItems: InvoiceItem[];
         InvoicePayments: InvoicePayment[];
     }) | null;
+    OrderNotes?: OrderNote[];
 }): SerializedOrder {
     return {
         id: order.id,
@@ -82,7 +115,9 @@ export function normalizeOrder(order: Order & {
         createdById: order.createdById,
         contactPersonId: order.contactPersonId,
         officeId: order.officeId,
+        totalAmount: order.totalAmount ? order.totalAmount.toString() : null,
         totalCost: order.totalCost ? order.totalCost.toString() : null,
+        pressRun: order.pressRun,
         contactPerson: {
             id: order.contactPerson.id,
             name: order.contactPerson.name
@@ -99,41 +134,85 @@ export function normalizeOrder(order: Order & {
         OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
         ShippingInfo: order.ShippingInfo ? normalizeShippingInfo(order.ShippingInfo) : null,
         Invoice: order.Invoice ? normalizeInvoice(order.Invoice) : null,
+        OrderNotes: order.OrderNotes ? order.OrderNotes.map(normalizeOrderNote) : []
     };
 }
 
 export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
+    OrderItemStock: OrderItemStock[];
 }): SerializedOrderItem {
     return {
         id: item.id,
         amount: item.amount ? item.amount.toString() : null,
-        approved: item.approved,
         cost: item.cost ? item.cost.toString() : null,
-        costPerM: item.costPerM ? item.costPerM.toString() : null,
         createdAt: item.createdAt.toISOString(),
         createdById: item.createdById,
         customerSuppliedStock: item.customerSuppliedStock,
         description: item.description,
         expectedDate: item.expectedDate ? item.expectedDate.toISOString() : null,
         finishedQty: item.finishedQty,
-        inkColor: item.inkColor,
+        ink: item.ink,
         orderId: item.orderId,
-        overUnder: item.overUnder,
+        other: item.other,
         prepTime: item.prepTime,
         pressRun: item.pressRun,
-        quantity: item.quantity,
         size: item.size,
         specialInstructions: item.specialInstructions,
         status: item.status,
-        stockOnHand: item.stockOnHand,
-        stockOrdered: item.stockOrdered,
         updatedAt: item.updatedAt.toISOString(),
         artwork: item.artwork.map(normalizeOrderItemArtwork),
+        OrderItemStock: item.OrderItemStock.map(normalizeOrderItemStock)
+    };
+}
+
+
+export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): SerializedOrderItemArtwork {
+    return {
+        id: artwork.id,
+        orderItemId: artwork.orderItemId,
+        fileUrl: artwork.fileUrl,
+        description: artwork.description,
+        createdAt: artwork.createdAt.toISOString(),
+        updatedAt: artwork.updatedAt.toISOString(),
+    };
+}
+
+export function normalizeOrderItemStock(stock: OrderItemStock): SerializedOrderItemStock {
+    return {
+        id: stock.id,
+        stockQty: stock.stockQty,
+        costPerM: stock.costPerM.toString(),
+        totalCost: stock.totalCost?.toString() ?? null,
+        from: stock.from,
+        expectedDate: stock.expectedDate?.toISOString() ?? null,
+        orderedDate: stock.orderedDate?.toISOString() ?? null,
+        received: stock.received,
+        receivedDate: stock.receivedDate?.toISOString() ?? null,
+        notes: stock.notes,
+        stockStatus: stock.stockStatus,
+        createdAt: stock.createdAt.toISOString(),
+        updatedAt: stock.updatedAt.toISOString(),
+        orderItemId: stock.orderItemId,
+        createdById: stock.createdById,
+        supplier: stock.supplier,
+        workOrderItemId: stock.workOrderItemId
+    };
+}
+
+export function normalizeOrderNote(note: OrderNote): SerializedOrderNote {
+    return {
+        id: note.id,
+        note: note.note,
+        orderId: note.orderId,
+        createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt.toISOString(),
+        createdById: note.createdById
     };
 }
 
 export function normalizeWorkOrder(workOrder: WorkOrder & {
+    totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     Order: { id: string } | null;
     WorkOrderItems: (WorkOrderItem & {
@@ -161,6 +240,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         Address: Address | null;
         ShippingPickup: ShippingPickup[];
     }) | null;
+    WorkOrderNotes: WorkOrderNote[];
+    WorkOrderVersions: WorkOrderVersion[];
 }): SerializedWorkOrder {
     return {
         id: workOrder.id,
@@ -178,6 +259,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         invoicePrintEmail: workOrder.invoicePrintEmail,
         contactPersonId: workOrder.contactPersonId,
         createdById: workOrder.createdById,
+        totalAmount: workOrder.totalAmount ? workOrder.totalAmount.toString() : null,
         totalCost: workOrder.totalCost ? workOrder.totalCost.toString() : null,
         contactPerson: {
             id: workOrder.contactPerson.id,
@@ -197,6 +279,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         Order: workOrder.Order,
         WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
         ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
+        WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),
+        WorkOrderVersions: workOrder.WorkOrderVersions.map(normalizeWorkOrderVersion)
     };
 }
 
@@ -402,6 +486,27 @@ export function normalizeWorkOrderItemStock(stock: WorkOrderItemStock): Serializ
     };
 }
 
+export function normalizeWorkOrderNote(note: WorkOrderNote): SerializedWorkOrderNote {
+    return {
+        id: note.id,
+        workOrderId: note.workOrderId,
+        note: note.note,
+        createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt.toISOString(),
+        createdById: note.createdById
+    };
+}
+
+export function normalizeWorkOrderVersion(version: WorkOrderVersion): SerializedWorkOrderVersion {
+    return {
+        id: version.id,
+        workOrderId: version.workOrderId,
+        version: version.version,
+        createdBy: version.createdBy,
+        createdAt: version.createdAt.toISOString()
+    };
+}
+
 export function normalizeInvoice(invoice: Invoice & {
     InvoiceItems: InvoiceItem[];
     InvoicePayments: InvoicePayment[];
@@ -423,38 +528,5 @@ export function normalizeInvoice(invoice: Invoice & {
         createdById: invoice.createdById,
         InvoiceItems: invoice.InvoiceItems.map(normalizeInvoiceItem),
         InvoicePayments: invoice.InvoicePayments.map(normalizeInvoicePayment),
-    };
-}
-
-export function normalizeInvoiceItem(item: InvoiceItem): SerializedInvoiceItem {
-    return {
-        id: item.id,
-        description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice.toString(),
-        total: item.total.toString(),
-        invoiceId: item.invoiceId,
-        orderItemId: item.orderItemId,
-    };
-}
-
-export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvoicePayment {
-    return {
-        id: payment.id,
-        amount: payment.amount.toString(),
-        paymentDate: payment.paymentDate.toISOString(),
-        paymentMethod: payment.paymentMethod,
-        invoiceId: payment.invoiceId,
-    };
-}
-
-export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): SerializedOrderItemArtwork {
-    return {
-        id: artwork.id,
-        orderItemId: artwork.orderItemId,
-        fileUrl: artwork.fileUrl,
-        description: artwork.description,
-        createdAt: artwork.createdAt.toISOString(),
-        updatedAt: artwork.updatedAt.toISOString(),
     };
 }

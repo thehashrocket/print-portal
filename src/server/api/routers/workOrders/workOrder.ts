@@ -1,46 +1,23 @@
-// /src/server/routers/workOrderRouter.ts
-// This file contains the workOrderRouter which is used to handle all work order related requests.
-// ~/server/api/trpc.ts is a file that contains the createTRPCRouter function which is used to create a router for handling requests.
-
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { InvoicePrintEmailOptions, WorkOrderStatus } from "@prisma/client";
+import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
-import { Prisma } from "@prisma/client";
 import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
-
+import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 export const workOrderRouter = createTRPCRouter({
-  // Get an Order by ID
-  // Include workOrderItems, WorkOrderStock, WorkOrderVersions, Typesetting, ProcessiongOptions, and WorkOrderNote
   getByID: protectedProcedure
     .input(z.string())
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }): Promise<SerializedWorkOrder | null> => {
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: input },
         include: {
-          contactPerson: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          createdBy: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
+          contactPerson: true,
+          createdBy: true,
           Office: {
-            select: {
-              id: true,
-              name: true,
-              Company: {
-                select: {
-                  name: true
-                }
-              }
-            }
+            include: {
+              Company: true,
+            },
           },
           Order: true,
           ShippingInfo: {
@@ -52,11 +29,18 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              Typesetting: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
               ProcessingOptions: true,
-              createdBy: true,
+              WorkOrderItemStock: true,
             },
           },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
         },
       });
 
@@ -72,34 +56,13 @@ export const workOrderRouter = createTRPCRouter({
         _sum: { cost: true }
       });
 
-      const normalizedWorkOrder = normalizeWorkOrder({
+      return normalizeWorkOrder({
         ...workOrder,
         totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
         totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
-        contactPersonId: workOrder.contactPersonId,
-        contactPerson: {
-          id: workOrder.contactPersonId,
-          name: workOrder.contactPerson.name || null
-        },
-        createdBy: {
-          id: workOrder.createdBy.id,
-          name: workOrder.createdBy.name
-        },
-        Office: {
-          id: workOrder.officeId,
-          name: workOrder.Office.name,
-          Company:
-          {
-            name: workOrder.Office.Company.name
-          }
-        },
       });
-
-      normalizedWorkOrder.WorkOrderItems = workOrder.WorkOrderItems.map(normalizeWorkOrderItem);
-
-      return normalizedWorkOrder;
     }),
-  // Create a new Work Order
+
   createWorkOrder: protectedProcedure
     .input(z.object({
       dateIn: z.date(),
@@ -113,19 +76,14 @@ export const workOrderRouter = createTRPCRouter({
       status: z.nativeEnum(WorkOrderStatus),
       workOrderNumber: z.number(),
       workOrderItems: z.array(z.object({
-        itemId: z.string(),
         quantity: z.number(),
-        typesettingId: z.string(),
-        processingOptionsId: z.string(),
-        dateIn: z.date(),
-        estimateNumber: z.string(),
-        inHandsDate: z.date(),
-        purchaseOrderNumber: z.string(),
-        createdById: z.string()
-      })).optional().nullable()
+        description: z.string(),
+        expectedDate: z.date(),
+        status: z.nativeEnum(WorkOrderItemStatus), // Changed from WorkOrderStatus to WorkOrderItemStatus
+      })).optional(),
     }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.workOrder.create({
+    .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
+      const createdWorkOrder = await ctx.db.workOrder.create({
         data: {
           dateIn: input.dateIn,
           estimateNumber: input.estimateNumber,
@@ -134,106 +92,24 @@ export const workOrderRouter = createTRPCRouter({
           purchaseOrderNumber: input.purchaseOrderNumber,
           status: input.status,
           workOrderNumber: input.workOrderNumber,
-          Office: {
-            connect: {
-              id: input.officeId
-            }
-          },
-          ...(input.shippingInfoId && {
-            ShippingInfo: {
-              connect: {
-                id: input.shippingInfoId
-              }
-            }
-          }),
-          contactPerson: {
-            connect: {
-              id: input.contactPersonId
-            }
-          },
-          createdBy: {
-            connect: {
-              id: ctx.session.user.id
-            }
-          },
-          ...(input.workOrderItems && input.workOrderItems.length > 0 && {
-            WorkOrderItems: {
-              createMany: {
-                data: input.workOrderItems.map((item) => ({
-                  quantity: item.quantity,
-                  Item: {
-                    connect: {
-                      id: item.itemId
-                    }
-                  },
-                  Typesetting: {
-                    connect: {
-                      id: item.typesettingId
-                    }
-                  },
-                  ProcessingOptions: {
-                    connect: {
-                      id: item.processingOptionsId
-                    }
-                  },
-                  createdBy: {
-                    connect: {
-                      id: ctx.session.user.id
-                    }
-                  },
-                  dateIn: item.dateIn,
-                  estimateNumber: item.estimateNumber,
-                  inHandsDate: item.inHandsDate,
-                  purchaseOrderNumber: item.purchaseOrderNumber,
-                  createdById: ctx.session.user.id
-                }))
-              }
-            }
-          })
-        }
-      });
-    }),
-  // Return WorkOrders
-  // Include Order Id if the Work Order is converted to an Order
-  getAll: protectedProcedure
-    .query(async ({ ctx }) => {
-      const workOrders = await ctx.db.workOrder.findMany({
-        include: {
+          Office: { connect: { id: input.officeId } },
+          ShippingInfo: input.shippingInfoId ? { connect: { id: input.shippingInfoId } } : undefined,
+          contactPerson: { connect: { id: input.contactPersonId } },
+          createdBy: { connect: { id: ctx.session.user.id } },
           WorkOrderItems: {
-            include: {
-              artwork: true,
-              Typesetting: true,
-              ProcessingOptions: true,
-              createdBy: true,
-            },
+            create: input.workOrderItems?.map(item => ({
+              ...item,
+              createdBy: { connect: { id: ctx.session.user.id } },
+            })) || [],
           },
+        },
+        include: {
+          contactPerson: true,
+          createdBy: true,
           Office: {
-            select: {
-              id: true,
-              name: true,
-              Company: {
-                select: {
-                  name: true
-                }
-              }
-            }
-          },
-          Order: {
-            select: {
-              id: true
-            }
-          },
-          contactPerson: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          createdBy: {
-            select: {
-              id: true,
-              name: true
-            }
+            include: {
+              Company: true,
+            },
           },
           ShippingInfo: {
             include: {
@@ -241,11 +117,73 @@ export const workOrderRouter = createTRPCRouter({
               ShippingPickup: true,
             },
           },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
+        },
+      });
+
+      // Calculate totalAmount and totalCost
+      const totalAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalCost = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+
+      return normalizeWorkOrder({
+        ...createdWorkOrder,
+        totalAmount,
+        totalCost,
+        Order: null, // Since this is a new work order, it won't have an associated order yet
+      });
+    }),
+
+  getAll: protectedProcedure
+    .query(async ({ ctx }): Promise<SerializedWorkOrder[]> => {
+      const workOrders = await ctx.db.workOrder.findMany({
+        include: {
+          contactPerson: true,
+          createdBy: true,
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          Order: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
         },
       });
 
       const normalizedWorkOrders = await Promise.all(workOrders.map(async (workOrder) => {
-
         const totalAmount = await ctx.db.workOrderItem.aggregate({
           where: { workOrderId: workOrder.id },
           _sum: { amount: true }
@@ -260,68 +198,139 @@ export const workOrderRouter = createTRPCRouter({
           ...workOrder,
           totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
           totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
-          createdBy: {
-            id: workOrder.createdBy.id,
-            name: workOrder.createdBy.name
-          },
-          Office: {
-            id: workOrder.Office.id,
-            name: workOrder.Office.name,
-            Company: {
-              name: workOrder.Office.Company.name
-            }
-          },
-          Order: workOrder.Order,
-          WorkOrderItems: workOrder.WorkOrderItems,
-          ShippingInfo: workOrder.ShippingInfo,
         });
       }));
 
       return normalizedWorkOrders;
     }),
-  // update status of a work order
+
   updateStatus: protectedProcedure
     .input(z.object({
       id: z.string(),
-      status: z.nativeEnum(WorkOrderStatus), // Use z.nativeEnum to validate the status
+      status: z.nativeEnum(WorkOrderStatus),
     }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.workOrder.update({
-        where: {
-          id: input.id
+    .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
+      const updatedWorkOrder = await ctx.db.workOrder.update({
+        where: { id: input.id },
+        data: { status: input.status },
+        include: {
+          contactPerson: true,
+          createdBy: true,
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          Order: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
         },
-        data: {
-          status: input.status
-        }
+      });
+
+      const totalAmount = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input.id },
+        _sum: { amount: true }
+      });
+
+      const totalCost = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input.id },
+        _sum: { cost: true }
+      });
+
+      return normalizeWorkOrder({
+        ...updatedWorkOrder,
+        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
+        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
       });
     }),
-  // add shippingInfoId to a work order
+
   addShippingInfo: protectedProcedure
     .input(z.object({
       id: z.string(),
       shippingInfoId: z.string(),
     }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.workOrder.update({
-        where: {
-          id: input.id
-        },
+    .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
+      const updatedWorkOrder = await ctx.db.workOrder.update({
+        where: { id: input.id },
         data: {
+          ShippingInfo: { connect: { id: input.shippingInfoId } }
+        },
+        include: {
+          contactPerson: true,
+          createdBy: true,
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          Order: true,
           ShippingInfo: {
-            connect: {
-              id: input.shippingInfoId
-            }
-          }
-        }
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
+        },
+      });
+
+      const totalAmount = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input.id },
+        _sum: { amount: true }
+      });
+
+      const totalCost = await ctx.db.workOrderItem.aggregate({
+        where: { workOrderId: input.id },
+        _sum: { cost: true }
+      });
+
+      return normalizeWorkOrder({
+        ...updatedWorkOrder,
+        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
+        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
       });
     }),
-  // convert a work order to an order
+
   convertWorkOrderToOrder: protectedProcedure
     .input(z.object({
       id: z.string(),
       officeId: z.string(),
     }))
-    .mutation(async ({ ctx, input }) => {
-      return convertWorkOrderToOrder(input.id, input.officeId);
+    .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
+      const convertedWorkOrder = await convertWorkOrderToOrder(input.id, input.officeId);
+      return normalizeWorkOrder(convertedWorkOrder);
     }),
 });

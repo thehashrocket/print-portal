@@ -15,7 +15,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default async function DashboardPage() {
-
     const session = await getServerAuthSession();
 
     if (
@@ -35,23 +34,21 @@ export default async function DashboardPage() {
 
     const orderItems = await api.orderItems.getAll();
 
-    const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((orderItem) => ({
-        amount: orderItem.amount?.toString() ?? null,
-        artwork: orderItem.artwork ?? null,
-        cost: orderItem.cost?.toString() ?? null,
-        costPerM: orderItem.costPerM?.toString() ?? null,
-        createdAt: orderItem.createdAt ? formatDate(orderItem.createdAt) : null,
-        description: orderItem.description,
-        expectedDate: orderItem.expectedDate ? formatDate(orderItem.expectedDate) : null,
-        finishedQty: orderItem.finishedQty,
-        id: orderItem.id,
-        orderId: orderItem.orderId,
-        pressRun: orderItem.pressRun,
-        quantity: orderItem.quantity,
-        status: orderItem.status,
-        updatedAt: orderItem.updatedAt ? formatDate(orderItem.updatedAt) : null,
+    const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({
+        ...item,
+        prepTime: item.prepTime ?? null,
+        size: item.size ?? null,
+        specialInstructions: item.specialInstructions ?? null,
+        OrderItemStock: item.OrderItemStock ?? [],
+        createdAt: item.createdAt.toISOString(),
+        updatedAt: item.updatedAt.toISOString(),
+        expectedDate: item.expectedDate?.toISOString() ?? null,
+        artwork: item.artwork.map((art: any) => ({
+            ...art,
+            createdAt: art.createdAt.toISOString(),
+            updatedAt: art.updatedAt.toISOString(),
+        })),
     }));
-
 
     return (
         <div className="container mx-auto px-4 py-8">

@@ -18,14 +18,34 @@ export const workOrderItemRouter = createTRPCRouter({
         .query(async ({ ctx, input }): Promise<SerializedWorkOrderItem | null> => {
             const workOrderItem = await ctx.db.workOrderItem.findUnique({
                 where: { id: input },
-                include: { artwork: true },
+                include: {
+                    artwork: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
             });
             return workOrderItem ? normalizeWorkOrderItem(workOrderItem) : null;
         }),
 
     getAll: protectedProcedure.query(async ({ ctx }): Promise<SerializedWorkOrderItem[]> => {
         const workOrderItems = await ctx.db.workOrderItem.findMany({
-            include: { artwork: true },
+            include: {
+                artwork: true,
+                ProcessingOptions: true,
+                Typesetting: {
+                    include: {
+                        TypesettingOptions: true,
+                        TypesettingProofs: true,
+                    }
+                },
+                WorkOrderItemStock: true,
+            },
         });
         return workOrderItems.map(normalizeWorkOrderItem);
     }),
@@ -39,7 +59,17 @@ export const workOrderItemRouter = createTRPCRouter({
             const updatedItem = await ctx.db.workOrderItem.update({
                 where: { id: input.id },
                 data: { status: input.status },
-                include: { artwork: true },
+                include: {
+                    artwork: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
             });
             return normalizeWorkOrderItem(updatedItem);
         }),
@@ -71,20 +101,26 @@ export const workOrderItemRouter = createTRPCRouter({
                     customerSuppliedStock: input.customerSuppliedStock,
                     description: input.description,
                     expectedDate: input.expectedDate,
-                    inkColor: input.inkColor,
                     other: input.other,
-                    quantity: input.quantity,
                     size: input.size,
                     specialInstructions: input.specialInstructions,
                     status: input.status,
-                    stockOnHand: input.stockOnHand,
-                    stockOrdered: input.stockOrdered,
                     workOrderId: input.workOrderId,
                     artwork: {
                         create: input.artwork,
                     },
                 },
-                include: { artwork: true },
+                include: {
+                    artwork: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
             });
             return normalizeWorkOrderItem(workOrderItem);
         }),
@@ -96,7 +132,17 @@ export const workOrderItemRouter = createTRPCRouter({
         .query(async ({ ctx, input }): Promise<SerializedWorkOrderItem[]> => {
             const workOrderItems = await ctx.db.workOrderItem.findMany({
                 where: { workOrderId: input.workOrderId },
-                include: { artwork: true },
+                include: {
+                    artwork: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
                 orderBy: { createdAt: 'desc' },
             });
             return workOrderItems.map(normalizeWorkOrderItem);
@@ -121,7 +167,17 @@ export const workOrderItemRouter = createTRPCRouter({
                         create: input.artwork,
                     },
                 },
-                include: { artwork: true },
+                include: {
+                    artwork: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: true,
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
             });
 
             return normalizeWorkOrderItem(workOrderItem);

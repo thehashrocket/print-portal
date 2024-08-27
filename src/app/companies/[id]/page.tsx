@@ -97,8 +97,7 @@ function serializeCompany(company: Company & {
                     createdAt: item.createdAt.toISOString(),
                     updatedAt: item.updatedAt.toISOString(),
                     amount: item.amount?.toString() ?? null,
-                    cost: item.cost?.toString() ?? null,
-                    costPerM: item.costPerM?.toString() ?? null,
+                    cost: item.cost?.toString() ?? null
                 })),
             })),
         })),
