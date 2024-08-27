@@ -12,7 +12,7 @@ import { Decimal } from "decimal.js";
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
     approved: z.boolean(),
-    cost: z.string().nullable().transform(v => v ? new Decimal(v) : null),
+    cost: z.number().optional().default(0),
     dateIn: z.string(),
     followUpNotes: z.string().nullable(),
     orderItemId: z.string().nullable(),
@@ -55,12 +55,12 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
         resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
             ...typesetting,
-            cost: typesetting.cost ? typesetting.cost.toString() : null,
+            cost: typesetting.cost !== null ? new Decimal(typesetting.cost).toNumber() : 0,
             dateIn: new Date(typesetting.dateIn).toISOString().split('T')[0],
         } : {
             plateRan: null,
             prepTime: null,
-            cost: null,
+            cost: 0,
             followUpNotes: null,
             approved: false,
             status: TypesettingStatus.InProgress,
@@ -102,7 +102,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
             orderItemId: orderItemId || undefined,
             workOrderItemId: workOrderItemId || undefined,
             dateIn: new Date(data.dateIn),
-            cost: data.cost ? data.cost.toNumber() : undefined,
+            cost: data.cost !== null ? Number(data.cost) : 0,
         };
 
         if (isAddMode) {
@@ -179,9 +179,10 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                         type="number"
                         className="input input-bordered"
                         {...register("cost", {
-                            setValueAs: v => v === "" ? null : parseFloat(v),
+                            setValueAs: v => v === "" ? null : parseInt(v, 10),
                             valueAsNumber: true
                         })}
+                        step="0.01"
                     />
                     {errors.cost && <span className="text-error">{errors.cost.message}</span>}
                 </div>
