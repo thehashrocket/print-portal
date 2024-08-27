@@ -52,10 +52,12 @@ export const orderRouter = createTRPCRouter({
 
       if (!order) return null;
 
-      const totalAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
       const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalShippingAmount = order.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
 
-      return normalizeOrder({ ...order, totalAmount, totalCost });
+      return normalizeOrder({ ...order, totalAmount, totalCost, totalItemAmount, totalShippingAmount });
     }),
 
   getAll: protectedProcedure
@@ -113,22 +115,14 @@ export const orderRouter = createTRPCRouter({
         },
       });
 
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (orders.length > limit) {
-        const nextItem = orders.pop();
-        nextCursor = nextItem!.id;
-      }
+      return Promise.all(orders.map(async order => {
+        const totalItemAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+        const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+        const totalShippingAmount = order.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+        const totalAmount = totalItemAmount.add(totalShippingAmount);
 
-      const normalizedOrders = orders.map(order => normalizeOrder({
-        ...order,
-        totalAmount: order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0)),
-        totalCost: order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0)),
+        return normalizeOrder({ ...order, totalAmount, totalItemAmount, totalCost, totalShippingAmount });
       }));
-
-      return {
-        orders: normalizedOrders,
-        nextCursor,
-      };
     }),
 
   updateStatus: protectedProcedure
@@ -180,10 +174,11 @@ export const orderRouter = createTRPCRouter({
         },
       });
 
-      const totalAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
       const totalCost = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
-
-      return normalizeOrder({ ...updatedOrder, totalAmount, totalCost });
+      const totalItemAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalShippingAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
+      return normalizeOrder({ ...updatedOrder, totalAmount, totalItemAmount, totalShippingAmount, totalCost });
     }),
 
   dashboard: protectedProcedure

@@ -55,6 +55,18 @@ export default async function WorkOrderPage({
     ...item,
   }));
 
+  const formatCurrency = (amount: string | null | undefined) => {
+    if (amount === null || amount === undefined) return 'N/A';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(amount));
+  };
+
+  const formatDate = (date: string | null) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
@@ -89,11 +101,12 @@ export default async function WorkOrderPage({
             content={<StatusBadge status={workOrder.status} />}
           />
           <InfoSection
-            title="Work Order Total Amount / Cost"
+            title="Work Order Price Details"
             content={
               <div>
-                <p><strong>Cost:</strong> ${workOrder.totalCost}</p>
-                <p><strong>Amount:</strong> ${workOrder.totalAmount}</p>
+                <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount)}</p>
+                <p><strong>Shipping Amount: </strong>{formatCurrency(workOrder.totalShippingAmount)}</p>
+                <p><strong>Total Amount:</strong> {formatCurrency(workOrder.totalAmount)}</p>
               </div>
             }
           />
@@ -103,7 +116,7 @@ export default async function WorkOrderPage({
           />
           <InfoSection
             title="Created At"
-            content={<p>{new Date(workOrder.createdAt).toLocaleString()}</p>}
+            content={<p>{formatDate(workOrder.createdAt)}</p>}
           />
           <InfoSection
             title="Contact Person"
@@ -111,7 +124,7 @@ export default async function WorkOrderPage({
           />
           <InfoSection
             title="In Hands Date"
-            content={<p>{new Date(workOrder.inHandsDate).toLocaleString()}</p>}
+            content={<p>{formatDate(workOrder.inHandsDate)}</p>}
           />
         </div>
 

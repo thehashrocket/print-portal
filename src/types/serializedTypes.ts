@@ -107,7 +107,9 @@ export interface SerializedOrder {
     contactPersonId: string;
     officeId: string;
     totalAmount: string | null;
+    totalItemAmount: string | null;
     totalCost: string | null;
+    totalShippingAmount: string | null;
     pressRun: string | null;
     contactPerson: {
         id: string;
@@ -143,6 +145,7 @@ export interface SerializedOrderItem {
     other: string | null;
     prepTime: number | null;
     pressRun: string;
+    shippingAmount: string | null;
     size: string | null;
     specialInstructions: string | null;
     status: OrderItemStatus;
@@ -282,6 +285,8 @@ export interface SerializedWorkOrder {
     status: WorkOrderStatus;
     totalAmount: string | null;
     totalCost: string | null;
+    totalItemAmount: string | null;
+    totalShippingAmount: string | null;
     invoicePrintEmail: InvoicePrintEmailOptions;
     contactPersonId: string;
     createdById: string;
@@ -321,6 +326,7 @@ export interface SerializedWorkOrderItem {
     ink: string | null;
     other: string | null;
     prepTime: number | null;
+    shippingAmount: string | null;
     size: string | null;
     specialInstructions: string | null;
     status: WorkOrderItemStatus;

@@ -14,19 +14,29 @@ export async function convertWorkOrderToOrder(workOrderId: string, officeId: str
         const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id);
 
         // Calculate totalAmount and totalCost
-        const totalAmount = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-            new Prisma.Decimal(0)
-        );
         const totalCost = updatedWorkOrder.WorkOrderItems.reduce(
             (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
             new Prisma.Decimal(0)
         );
 
+        const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce(
+            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+            new Prisma.Decimal(0)
+        );
+
+        const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce(
+            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
+            new Prisma.Decimal(0)
+        );
+
+        const totalAmount = totalItemAmount.add(totalShippingAmount);
+
         return {
             ...updatedWorkOrder,
             totalAmount,
             totalCost,
+            totalItemAmount,
+            totalShippingAmount,
             Order: { id: order.id },
         };
     });
@@ -75,21 +85,31 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         });
     }
 
-    // Calculate totalAmount
-    const totalAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.amount || new Prisma.Decimal(0));
-    }, new Prisma.Decimal(0));
-
     // Calculate totalCost
     const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => {
         return sum.add(item.cost || new Prisma.Decimal(0));
     }, new Prisma.Decimal(0));
+
+    // Calculate totalAmount
+    const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
+        return sum.add(item.amount || new Prisma.Decimal(0));
+    }, new Prisma.Decimal(0));
+
+    // Calculate totalShippingAmount
+    const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
+        return sum.add(item.shippingAmount || new Prisma.Decimal(0));
+    }, new Prisma.Decimal(0));
+
+    // Calculate totalAmount
+    const totalAmount = totalItemAmount.add(totalShippingAmount)
 
     // Prepare the data for normalization
     const workOrderData = {
         ...workOrder,
         totalAmount,
         totalCost,
+        totalItemAmount,
+        totalShippingAmount,
         Order: workOrder.Order ? { id: workOrder.Order.id } : null,
     };
 
@@ -137,6 +157,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             finishedQty: 0,
             prepTime: null,
             pressRun: '0',
+            shippingAmount: workOrderItem.shippingAmount ? new Prisma.Decimal(workOrderItem.shippingAmount) : null,
             size: null,
             specialInstructions: null,
             createdById: "", // You'll need to set this appropriately

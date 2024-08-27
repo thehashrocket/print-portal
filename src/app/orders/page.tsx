@@ -5,7 +5,7 @@ import { SerializedOrder } from "~/types/serializedTypes";
 import Link from "next/link";
 
 export default async function OrdersPage() {
-  const { orders, nextCursor } = await api.orders.getAll();
+  const orders: SerializedOrder[] = await api.orders.getAll();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -16,13 +16,6 @@ export default async function OrdersPage() {
         </Link>
       </div>
       <OrdersTable orders={orders} />
-      {nextCursor && (
-        <div className="mt-4">
-          <Link href={`/orders?cursor=${nextCursor}`} className="btn btn-secondary">
-            Load More
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

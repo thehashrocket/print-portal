@@ -167,6 +167,7 @@ model OrderItem {
   prepTime              Int?
   pressRun              String
   ProcessingOptions     ProcessingOptions[]
+  shippingAmount        Decimal?            @db.Decimal(10, 2)
   size                  String?
   specialInstructions   String?
   status                OrderItemStatus     @default(Pending)
@@ -442,6 +443,7 @@ model WorkOrderItem {
   other                 String?
   prepTime              Int?
   ProcessingOptions     ProcessingOptions[]
+  shippingAmount        Decimal?               @db.Decimal(10, 2)
   size                  String?
   specialInstructions   String?
   status                WorkOrderItemStatus    @default(Pending)

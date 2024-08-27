@@ -46,20 +46,17 @@ export const workOrderRouter = createTRPCRouter({
 
       if (!workOrder) return null;
 
-      const totalAmount = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input },
-        _sum: { amount: true }
-      });
-
-      const totalCost = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input },
-        _sum: { cost: true }
-      });
+      const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...workOrder,
-        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
-        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
+        totalAmount,
+        totalItemAmount,
+        totalCost,
+        totalShippingAmount
       });
     }),
 
@@ -136,13 +133,17 @@ export const workOrderRouter = createTRPCRouter({
       });
 
       // Calculate totalAmount and totalCost
-      const totalAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalItemAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalCost = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...createdWorkOrder,
         totalAmount,
         totalCost,
+        totalItemAmount,
+        totalShippingAmount,
         Order: null, // Since this is a new work order, it won't have an associated order yet
       });
     }),
@@ -184,20 +185,18 @@ export const workOrderRouter = createTRPCRouter({
       });
 
       return Promise.all(workOrders.map(async (workOrder) => {
-        const totalAmount = await ctx.db.workOrderItem.aggregate({
-          where: { workOrderId: workOrder.id },
-          _sum: { amount: true }
-        });
+        const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+        const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+        const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
 
-        const totalCost = await ctx.db.workOrderItem.aggregate({
-          where: { workOrderId: workOrder.id },
-          _sum: { cost: true }
-        });
+        const totalAmount = totalItemAmount.add(totalShippingAmount);
 
         const normalized = normalizeWorkOrder({
           ...workOrder,
-          totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
-          totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
+          totalAmount,
+          totalCost,
+          totalItemAmount,
+          totalShippingAmount,
         });
         return normalized;
 
@@ -246,20 +245,17 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
-      const totalAmount = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input.id },
-        _sum: { amount: true }
-      });
-
-      const totalCost = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input.id },
-        _sum: { cost: true }
-      });
+      const totalCost = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...updatedWorkOrder,
-        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
-        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
+        totalAmount,
+        totalCost,
+        totalItemAmount,
+        totalShippingAmount
       });
     }),
 
@@ -307,20 +303,17 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
-      const totalAmount = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input.id },
-        _sum: { amount: true }
-      });
-
-      const totalCost = await ctx.db.workOrderItem.aggregate({
-        where: { workOrderId: input.id },
-        _sum: { cost: true }
-      });
+      const totalCost = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...updatedWorkOrder,
-        totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
-        totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
+        totalAmount,
+        totalCost,
+        totalItemAmount,
+        totalShippingAmount
       });
     }),
 

@@ -74,6 +74,8 @@ export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvo
 export function normalizeOrder(order: Order & {
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
+    totalItemAmount: Prisma.Decimal | null;
+    totalShippingAmount: Prisma.Decimal | null;
     Office: {
         Company: { name: string };
     };
@@ -117,6 +119,8 @@ export function normalizeOrder(order: Order & {
         officeId: order.officeId,
         totalAmount: order.totalAmount ? order.totalAmount.toString() : null,
         totalCost: order.totalCost ? order.totalCost.toString() : null,
+        totalItemAmount: order.totalItemAmount ? order.totalItemAmount.toString() : null,
+        totalShippingAmount: order.totalShippingAmount ? order.totalShippingAmount.toString() : null,
         pressRun: order.pressRun,
         contactPerson: {
             id: order.contactPerson.id,
@@ -157,6 +161,7 @@ export function normalizeOrderItem(item: OrderItem & {
         other: item.other,
         prepTime: item.prepTime,
         pressRun: item.pressRun,
+        shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
         size: item.size,
         specialInstructions: item.specialInstructions,
         status: item.status,
@@ -352,6 +357,8 @@ export function normalizeTypesettingProof(proof: TypesettingProof): SerializedTy
 export function normalizeWorkOrder(workOrder: WorkOrder & {
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
+    totalItemAmount: Prisma.Decimal | null;
+    totalShippingAmount: Prisma.Decimal | null;
     contactPerson: { id: string; name: string | null };
     createdBy: { id: string; name: string | null };
     Office: {
@@ -394,6 +401,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         createdById: workOrder.createdById,
         totalAmount: workOrder.totalAmount?.toString() ?? null,
         totalCost: workOrder.totalCost?.toString() ?? null,
+        totalItemAmount: workOrder.totalItemAmount?.toString() ?? null,
+        totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? null,
         contactPerson: {
             id: workOrder.contactPerson.id,
             name: workOrder.contactPerson.name
@@ -438,6 +447,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         ink: item.ink,
         other: item.other,
         prepTime: item.prepTime,
+        shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
         size: item.size,
         specialInstructions: item.specialInstructions,
         status: item.status,

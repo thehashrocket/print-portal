@@ -11,8 +11,6 @@ import { notFound } from "next/navigation";
 import { Prisma, OrderStatus, ShippingMethod } from "@prisma/client";
 import NoPermission from "~/app/_components/noPermission/noPremission";
 
-type Decimal = Prisma.Decimal;
-
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
   const getStatusColor = () => {
     switch (status) {
@@ -109,11 +107,13 @@ export default async function OrderPage({
             content={<StatusBadge status={order.status} />}
           />
           <InfoSection
-            title="Order Total Amount / Cost"
+            title="Order Price Details"
             content={
               <div>
-                <p><strong>Cost:</strong> {formatCurrency(order.totalCost)}</p>
-                <p><strong>Amount:</strong> {formatCurrency(order.totalAmount)}</p>
+                <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount)}</p>
+                <p><strong>Shipping Amount: </strong>{formatCurrency(order.totalShippingAmount)}</p>
+                <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount)}</p>
+                <p><strong>Deposit:</strong> {formatCurrency(order.deposit)}</p>
               </div>
             }
           />
@@ -131,7 +131,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="In Hands Date"
-            content={<p>{formatCurrency(order.inHandsDate)}</p>}
+            content={<p>{formatDate(order.inHandsDate)}</p>}
           />
         </div>
 
