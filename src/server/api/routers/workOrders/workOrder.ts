@@ -183,7 +183,7 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
-      const normalizedWorkOrders = await Promise.all(workOrders.map(async (workOrder) => {
+      return Promise.all(workOrders.map(async (workOrder) => {
         const totalAmount = await ctx.db.workOrderItem.aggregate({
           where: { workOrderId: workOrder.id },
           _sum: { amount: true }
@@ -194,14 +194,15 @@ export const workOrderRouter = createTRPCRouter({
           _sum: { cost: true }
         });
 
-        return normalizeWorkOrder({
+        const normalized = normalizeWorkOrder({
           ...workOrder,
           totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
           totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
         });
-      }));
+        console.log("Normalized workOrder:", JSON.stringify(normalized, null, 2));
+        return normalized;
 
-      return normalizedWorkOrders;
+      }));
     }),
 
   updateStatus: protectedProcedure

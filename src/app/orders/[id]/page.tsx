@@ -113,6 +113,7 @@ export default async function OrderPage({
             content={
               <div>
                 <p><strong>Cost:</strong> {formatCurrency(order.totalCost)}</p>
+                <p><strong>Amount:</strong> {formatCurrency(order.totalAmount)}</p>
               </div>
             }
           />

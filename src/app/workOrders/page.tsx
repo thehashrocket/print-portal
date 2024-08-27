@@ -9,27 +9,24 @@ import WorkOrdersTable from "../_components/workOrders/workOrdersTable";
 import Link from "next/link";
 import WorkOrderCharts from "../_components/workOrders/WorkOrderCharts";
 import NoPermission from "~/app/_components/noPermission/noPremission";
+import { SerializedWorkOrder } from "~/types/serializedTypes";
 
 export default async function WorkOrdersPage() {
   const session = await getServerAuthSession();
 
   if (!session || !session.user.Permissions.includes("work_order_read")) {
-    return (
-      <NoPermission />
-    )
+    return <NoPermission />;
   }
 
-  const workOrders = await api.workOrders.getAll();
+  const workOrders: SerializedWorkOrder[] = await api.workOrders.getAll();
+  console.log("WorkOrders data:", JSON.stringify(workOrders, null, 2));
 
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Work Orders</h1>
-          <Link
-            className="btn btn-primary"
-            href="/workOrders/create"
-          >
+          <Link className="btn btn-primary" href="/workOrders/create">
             Create Work Order
           </Link>
         </div>

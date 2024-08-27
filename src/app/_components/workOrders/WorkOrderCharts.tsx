@@ -2,8 +2,7 @@
 "use client"
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { SerializedWorkOrder } from '~/types/serializedTypes'
-
+import { SerializedWorkOrder } from "~/types/serializedTypes";
 
 
 const WorkOrderChartsClient = dynamic(() => import('./WorkOrderChartsClient'), {
@@ -15,6 +14,8 @@ interface WorkOrderChartsProps {
 }
 
 const WorkOrderCharts: React.FC<WorkOrderChartsProps> = ({ workOrders }) => {
+    console.log("WorkOrderCharts received:", JSON.stringify(workOrders, null, 2));
+
     return <WorkOrderChartsClient workOrders={workOrders} />;
 };
 

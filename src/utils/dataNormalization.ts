@@ -211,111 +211,6 @@ export function normalizeOrderNote(note: OrderNote): SerializedOrderNote {
     };
 }
 
-export function normalizeWorkOrder(workOrder: WorkOrder & {
-    totalAmount: Prisma.Decimal | null;
-    totalCost: Prisma.Decimal | null;
-    Order: { id: string } | null;
-    WorkOrderItems: (WorkOrderItem & {
-        artwork: WorkOrderItemArtwork[];
-        ProcessingOptions: ProcessingOptions[];
-        Typesetting: (Typesetting & {
-            TypesettingOptions: TypesettingOption[];
-            TypesettingProofs: TypesettingProof[];
-        })[];
-        WorkOrderItemStock: WorkOrderItemStock[];
-    })[];
-    contactPerson: {
-        id: string;
-        name: string | null;
-    };
-    createdBy: { id: string; name: string | null };
-    Office: {
-        id: string;
-        name: string;
-        Company: {
-            name: string;
-        }
-    };
-    ShippingInfo: (ShippingInfo & {
-        Address: Address | null;
-        ShippingPickup: ShippingPickup[];
-    }) | null;
-    WorkOrderNotes: WorkOrderNote[];
-    WorkOrderVersions: WorkOrderVersion[];
-}): SerializedWorkOrder {
-    return {
-        id: workOrder.id,
-        officeId: workOrder.officeId,
-        dateIn: workOrder.dateIn.toISOString(),
-        inHandsDate: workOrder.inHandsDate.toISOString(),
-        estimateNumber: workOrder.estimateNumber,
-        purchaseOrderNumber: workOrder.purchaseOrderNumber,
-        version: workOrder.version,
-        createdAt: workOrder.createdAt.toISOString(),
-        updatedAt: workOrder.updatedAt.toISOString(),
-        workOrderNumber: workOrder.workOrderNumber,
-        shippingInfoId: workOrder.shippingInfoId,
-        status: workOrder.status,
-        invoicePrintEmail: workOrder.invoicePrintEmail,
-        contactPersonId: workOrder.contactPersonId,
-        createdById: workOrder.createdById,
-        totalAmount: workOrder.totalAmount ? workOrder.totalAmount.toString() : null,
-        totalCost: workOrder.totalCost ? workOrder.totalCost.toString() : null,
-        contactPerson: {
-            id: workOrder.contactPerson.id,
-            name: workOrder.contactPerson.name
-        },
-        createdBy: {
-            id: workOrder.createdBy.id,
-            name: workOrder.createdBy.name
-        },
-        Office: {
-            Company: {
-                name: workOrder.Office.Company.name
-            },
-            id: workOrder.Office.id,
-            name: workOrder.Office.name
-        },
-        Order: workOrder.Order,
-        WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
-        ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
-        WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),
-        WorkOrderVersions: workOrder.WorkOrderVersions.map(normalizeWorkOrderVersion)
-    };
-}
-
-export function normalizeWorkOrderItem(item: WorkOrderItem & {
-    artwork: WorkOrderItemArtwork[];
-    ProcessingOptions: ProcessingOptions[];
-    Typesetting: (Typesetting & {
-        TypesettingOptions: TypesettingOption[];
-        TypesettingProofs: TypesettingProof[];
-    })[];
-    WorkOrderItemStock: WorkOrderItemStock[];
-}): SerializedWorkOrderItem {
-    return {
-        id: item.id,
-        amount: item.amount?.toString() ?? null,
-        cost: item.cost?.toString() ?? null,
-        createdAt: item.createdAt.toISOString(),
-        createdById: item.createdById,
-        customerSuppliedStock: item.customerSuppliedStock,
-        description: item.description,
-        expectedDate: item.expectedDate.toISOString(),
-        ink: item.ink,
-        other: item.other,
-        prepTime: item.prepTime,
-        size: item.size,
-        specialInstructions: item.specialInstructions,
-        status: item.status,
-        updatedAt: item.updatedAt.toISOString(),
-        workOrderId: item.workOrderId,
-        artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
-        ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
-        Typesetting: item.Typesetting.map(normalizeTypesetting),
-        WorkOrderItemStock: item.WorkOrderItemStock.map(normalizeWorkOrderItemStock),
-    };
-}
 
 export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
     Address: Address | null;
@@ -451,6 +346,107 @@ export function normalizeTypesettingProof(proof: TypesettingProof): SerializedTy
         updatedAt: proof.updatedAt.toISOString(),
         proofCount: proof.proofCount,
         proofMethod: proof.proofMethod,
+    };
+}
+
+export function normalizeWorkOrder(workOrder: WorkOrder & {
+    totalAmount: Prisma.Decimal | null;
+    totalCost: Prisma.Decimal | null;
+    contactPerson: { id: string; name: string | null };
+    createdBy: { id: string; name: string | null };
+    Office: {
+        id: string;
+        name: string;
+        Company: { name: string };
+    };
+    Order: { id: string } | null;
+    ShippingInfo: (ShippingInfo & {
+        Address: Address | null;
+        ShippingPickup: ShippingPickup[];
+    }) | null;
+    WorkOrderItems: (WorkOrderItem & {
+        artwork: WorkOrderItemArtwork[];
+        Typesetting: (Typesetting & {
+            TypesettingOptions: TypesettingOption[];
+            TypesettingProofs: TypesettingProof[];
+        })[];
+        ProcessingOptions: ProcessingOptions[];
+        WorkOrderItemStock: WorkOrderItemStock[];
+    })[];
+    WorkOrderNotes: WorkOrderNote[];
+    WorkOrderVersions: WorkOrderVersion[];
+}): SerializedWorkOrder {
+    return {
+        id: workOrder.id,
+        officeId: workOrder.officeId,
+        dateIn: workOrder.dateIn.toISOString(),
+        inHandsDate: workOrder.inHandsDate.toISOString(),
+        estimateNumber: workOrder.estimateNumber,
+        purchaseOrderNumber: workOrder.purchaseOrderNumber,
+        version: workOrder.version,
+        createdAt: workOrder.createdAt.toISOString(),
+        updatedAt: workOrder.updatedAt.toISOString(),
+        workOrderNumber: workOrder.workOrderNumber,
+        shippingInfoId: workOrder.shippingInfoId,
+        status: workOrder.status,
+        invoicePrintEmail: workOrder.invoicePrintEmail,
+        contactPersonId: workOrder.contactPersonId,
+        createdById: workOrder.createdById,
+        totalAmount: workOrder.totalAmount?.toString() ?? null,
+        totalCost: workOrder.totalCost?.toString() ?? null,
+        contactPerson: {
+            id: workOrder.contactPerson.id,
+            name: workOrder.contactPerson.name
+        },
+        createdBy: {
+            id: workOrder.createdBy.id,
+            name: workOrder.createdBy.name
+        },
+        Office: {
+            Company: {
+                name: workOrder.Office.Company.name
+            },
+            id: workOrder.Office.id,
+            name: workOrder.Office.name
+        },
+        Order: workOrder.Order?.id ? { id: workOrder.Order.id } : null,
+        WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
+        ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
+        WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),
+        WorkOrderVersions: workOrder.WorkOrderVersions.map(normalizeWorkOrderVersion)
+    };
+}
+
+export function normalizeWorkOrderItem(item: WorkOrderItem & {
+    artwork: WorkOrderItemArtwork[];
+    ProcessingOptions: ProcessingOptions[];
+    Typesetting: (Typesetting & {
+        TypesettingOptions: TypesettingOption[];
+        TypesettingProofs: TypesettingProof[];
+    })[];
+    WorkOrderItemStock: WorkOrderItemStock[];
+}): SerializedWorkOrderItem {
+    return {
+        id: item.id,
+        amount: item.amount?.toString() ?? null,
+        cost: item.cost?.toString() ?? null,
+        createdAt: item.createdAt.toISOString(),
+        createdById: item.createdById,
+        customerSuppliedStock: item.customerSuppliedStock,
+        description: item.description,
+        expectedDate: item.expectedDate.toISOString(),
+        ink: item.ink,
+        other: item.other,
+        prepTime: item.prepTime,
+        size: item.size,
+        specialInstructions: item.specialInstructions,
+        status: item.status,
+        updatedAt: item.updatedAt.toISOString(),
+        workOrderId: item.workOrderId,
+        artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
+        ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
+        Typesetting: item.Typesetting.map(normalizeTypesetting),
+        WorkOrderItemStock: item.WorkOrderItemStock.map(normalizeWorkOrderItemStock),
     };
 }
 

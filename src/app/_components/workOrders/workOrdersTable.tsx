@@ -19,7 +19,11 @@ import { SerializedWorkOrder } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const WorkOrdersTable = ({ workOrders }: { workOrders: SerializedWorkOrder[] }) => {
+interface WorkOrdersTableProps {
+    workOrders: SerializedWorkOrder[];
+}
+
+const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
