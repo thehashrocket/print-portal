@@ -6,7 +6,6 @@ import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serialized
 const prisma = new PrismaClient();
 
 export async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
-    console.log('Converting Work Order to Order');
 
     return await prisma.$transaction(async (tx) => {
         const workOrder = await getWorkOrder(tx, workOrderId);
@@ -113,12 +112,10 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
         },
     });
 
-    console.log('Order created:', order.id);
     return order;
 }
 
 async function createOrderItems(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, orderId: string) {
-    console.log('Converting work order items to order items');
 
     for (const workOrderItem of workOrder.WorkOrderItems) {
         const orderItem = await createOrderItem(tx, workOrderItem, orderId);
@@ -157,12 +154,8 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
                     orderItemId: orderItem.id,
                 },
             });
-
-            console.log('Artwork created');
         });
     }
-
-    console.log('Order Item created');
     return orderItem;
 }
 
@@ -176,7 +169,6 @@ async function updateTypesetting(tx: Prisma.TransactionClient, workOrderItemId: 
             where: { id: typesetting.id },
             data: { orderItemId },
         });
-        console.log(`Typesetting updated: ${typesetting.id}`);
     }
 }
 
@@ -194,7 +186,6 @@ async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderIt
                 workOrderItemId: undefined,
             },
         });
-        console.log('Processing Option created');
     }
 }
 
@@ -221,7 +212,6 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
                 workOrderItemId: workOrderItemId, // Add the missing property
             },
         });
-        console.log('Order Stock created');
     }
 }
 

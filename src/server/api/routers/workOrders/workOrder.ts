@@ -199,7 +199,6 @@ export const workOrderRouter = createTRPCRouter({
           totalAmount: totalAmount._sum.amount || new Prisma.Decimal(0),
           totalCost: totalCost._sum.cost || new Prisma.Decimal(0),
         });
-        console.log("Normalized workOrder:", JSON.stringify(normalized, null, 2));
         return normalized;
 
       }));

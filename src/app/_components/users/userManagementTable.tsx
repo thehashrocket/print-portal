@@ -92,7 +92,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
-        console.log(`Rows after filter: ${filteredRowCount}`);
     };
 
     const handleEditRoles = (user: UserWithRoles) => {

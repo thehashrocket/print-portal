@@ -14,8 +14,6 @@ interface WorkOrderChartsProps {
 }
 
 const WorkOrderCharts: React.FC<WorkOrderChartsProps> = ({ workOrders }) => {
-    console.log("WorkOrderCharts received:", JSON.stringify(workOrders, null, 2));
-
     return <WorkOrderChartsClient workOrders={workOrders} />;
 };
 

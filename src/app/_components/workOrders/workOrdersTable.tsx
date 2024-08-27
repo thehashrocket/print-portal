@@ -89,7 +89,6 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
-        console.log(`Rows after filter: ${filteredRowCount}`);
     };
 
     if (loading) {

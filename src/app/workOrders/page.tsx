@@ -19,8 +19,6 @@ export default async function WorkOrdersPage() {
   }
 
   const workOrders: SerializedWorkOrder[] = await api.workOrders.getAll();
-  console.log("WorkOrders data:", JSON.stringify(workOrders, null, 2));
-
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">

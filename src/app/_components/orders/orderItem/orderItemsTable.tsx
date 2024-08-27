@@ -88,7 +88,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
-        console.log(`Rows after filter: ${filteredRowCount}`);
         // You can update a state here to show the filtered row count if desired
     };
 
