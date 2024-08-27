@@ -72,6 +72,7 @@ export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvo
 }
 
 export function normalizeOrder(order: Order & {
+    calculatedSalesTax: Prisma.Decimal | null;
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
@@ -102,25 +103,26 @@ export function normalizeOrder(order: Order & {
     OrderNotes?: OrderNote[];
 }): SerializedOrder {
     return {
-        id: order.id,
-        status: order.status,
-        workOrderId: order.workOrderId,
-        orderNumber: order.orderNumber,
-        deposit: order.deposit.toString(),
-        version: order.version,
+        calculatedSalesTax: order.calculatedSalesTax ? order.calculatedSalesTax.toString() : null,
+        contactPersonId: order.contactPersonId,
         createdAt: order.createdAt.toISOString(),
-        updatedAt: order.updatedAt.toISOString(),
-        shippingInfoId: order.shippingInfoId,
+        createdById: order.createdById,
         dateInvoiced: order.dateInvoiced?.toISOString() ?? null,
+        deposit: order.deposit.toString(),
+        id: order.id,
         inHandsDate: order.inHandsDate?.toISOString() ?? null,
         invoicePrintEmail: order.invoicePrintEmail,
-        createdById: order.createdById,
-        contactPersonId: order.contactPersonId,
         officeId: order.officeId,
+        orderNumber: order.orderNumber,
+        shippingInfoId: order.shippingInfoId,
+        status: order.status,
         totalAmount: order.totalAmount ? order.totalAmount.toString() : null,
         totalCost: order.totalCost ? order.totalCost.toString() : null,
         totalItemAmount: order.totalItemAmount ? order.totalItemAmount.toString() : null,
         totalShippingAmount: order.totalShippingAmount ? order.totalShippingAmount.toString() : null,
+        updatedAt: order.updatedAt.toISOString(),
+        version: order.version,
+        workOrderId: order.workOrderId,
         pressRun: order.pressRun,
         contactPerson: {
             id: order.contactPerson.id,

@@ -4,6 +4,8 @@ import { OrderStatus, Prisma } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem } from "~/utils/dataNormalization";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 
+const SALES_TAX = 0.07;
+
 export const orderRouter = createTRPCRouter({
   getByID: protectedProcedure
     .input(z.string())
@@ -52,12 +54,14 @@ export const orderRouter = createTRPCRouter({
 
       if (!order) return null;
 
-      const totalItemAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-      const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
-      const totalShippingAmount = order.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
-      const totalAmount = totalItemAmount.add(totalShippingAmount);
+      const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
-      return normalizeOrder({ ...order, totalAmount, totalCost, totalItemAmount, totalShippingAmount });
+      return normalizeOrder({ ...order, calculatedSalesTax, totalAmount, totalCost, totalItemAmount, totalShippingAmount });
     }),
 
   getAll: protectedProcedure
@@ -116,12 +120,14 @@ export const orderRouter = createTRPCRouter({
       });
 
       return Promise.all(orders.map(async order => {
-        const totalItemAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-        const totalCost = order.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
-        const totalShippingAmount = order.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
-        const totalAmount = totalItemAmount.add(totalShippingAmount);
+        const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
+        const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+        const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+        const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
-        return normalizeOrder({ ...order, totalAmount, totalItemAmount, totalCost, totalShippingAmount });
+        return normalizeOrder({ ...order, calculatedSalesTax, totalAmount, totalItemAmount, totalCost, totalShippingAmount });
       }));
     }),
 
@@ -173,12 +179,13 @@ export const orderRouter = createTRPCRouter({
           OrderNotes: true,
         },
       });
-
-      const totalCost = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
-      const totalItemAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-      const totalShippingAmount = updatedOrder.OrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
-      const totalAmount = totalItemAmount.add(totalShippingAmount);
-      return normalizeOrder({ ...updatedOrder, totalAmount, totalItemAmount, totalShippingAmount, totalCost });
+      const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      return normalizeOrder({ ...updatedOrder, calculatedSalesTax, totalAmount, totalItemAmount, totalShippingAmount, totalCost });
     }),
 
   dashboard: protectedProcedure

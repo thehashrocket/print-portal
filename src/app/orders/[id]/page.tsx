@@ -111,6 +111,7 @@ export default async function OrderPage({
             content={
               <div>
                 <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount)}</p>
+                <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax)}</p>
                 <p><strong>Shipping Amount: </strong>{formatCurrency(order.totalShippingAmount)}</p>
                 <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount)}</p>
                 <p><strong>Deposit:</strong> {formatCurrency(order.deposit)}</p>
