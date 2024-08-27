@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import Link from "next/link";
-import Image from "next/image"; // Assuming you are using React Native
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { SerializedWorkOrderItem, SerializedTypesetting } from "~/types/serializedTypes";
+import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../shared/artworkComponent/artworkComponent";
 
 type WorkOrderItemPageProps = {
@@ -21,17 +21,24 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     workOrderId = '',
     workOrderItemId = '',
 }) => {
-    // Fetch work order item data
     const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
     const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
-    const { data: typesettingData } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId); // Ensure you have an API endpoint to fetch typesetting data by work order item ID
+    const { data: typesettingData } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId);
+    const [serializedTypesettingData, setSerializedTypesettingData] = useState<SerializedTypesetting[]>([]);
 
     useEffect(() => {
         if (fetchedWorkOrderItem) {
             setWorkOrderItem(fetchedWorkOrderItem);
         }
     }, [fetchedWorkOrderItem]);
+
+    useEffect(() => {
+        if (typesettingData) {
+            const serializedData = typesettingData.map(normalizeTypesetting);
+            setSerializedTypesettingData(serializedData);
+        }
+    }, [typesettingData]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -98,12 +105,12 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-                        {workOrderItem && typesettingData && (
+                        {workOrderItem && serializedTypesettingData.length > 0 && (
                             <TypesettingProvider>
                                 <TypesettingComponent
-                                    workOrderItemId={workOrderItem?.id || ''}
+                                    workOrderItemId={workOrderItem.id}
                                     orderItemId=""
-                                    initialTypesetting={typesettingData}
+                                    initialTypesetting={serializedTypesettingData}
                                 />
                             </TypesettingProvider>
                         )}

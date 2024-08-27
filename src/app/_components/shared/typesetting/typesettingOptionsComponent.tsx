@@ -1,10 +1,13 @@
+"use client";
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { TypesettingOption } from '@prisma/client';
 import { useTypesettingContext } from '~/app/contexts/TypesettingContext';
+import { SerializedTypesettingOption } from '~/types/serializedTypes';
+import { normalizeTypesettingOption } from '~/utils/dataNormalization';
 
 const typesettingOptionsSchema = z.object({
     option: z.string(),
@@ -15,7 +18,7 @@ type TypesettingOptionsFormData = z.infer<typeof typesettingOptionsSchema>;
 
 export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel }: {
     typesettingId: string;
-    onSubmit: (data: TypesettingOption) => void;
+    onSubmit: (data: SerializedTypesettingOption) => void;
     onCancel: () => void;
 }) {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingOptionsFormData>({
@@ -33,17 +36,18 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
             setSuccess("Typesetting option created successfully!");
             setError(null);
             reset();
-            onSubmit(createdTypesettingOption);
 
-            // Directly update the typesetting state
+            const serializedOption = normalizeTypesettingOption(createdTypesettingOption);
+            onSubmit(serializedOption);
+
+            // Update the typesetting state with serialized data
             const updatedTypesetting = typesetting.map((type) =>
                 type.id === typesettingId
-                    ? { ...type, TypesettingOptions: [...type.TypesettingOptions, createdTypesettingOption] }
+                    ? { ...type, TypesettingOptions: [...type.TypesettingOptions, serializedOption] }
                     : type
             );
             setTypesetting(updatedTypesetting);
         },
-
         onError: () => {
             setIsLoading(false);
             setError("An error occurred while creating the typesetting option.");

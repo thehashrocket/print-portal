@@ -1,4 +1,3 @@
-// ~/app/_components/orders/orderItem/orderItemComponent.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -10,6 +9,8 @@ import TypesettingComponent from "~/app/_components/shared/typesetting/typesetti
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
+import { normalizeTypesetting } from "~/utils/dataNormalization";
+import { SerializedTypesetting } from "~/types/serializedTypes";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -76,6 +77,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
         return <div className="text-red-500 text-center mt-8">Error loading order item details.</div>;
     }
 
+    const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
@@ -97,6 +100,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                     <StatusBadge id={orderItem.id} status={orderItem.status} />
                 } />
             </div>
+
             <div className="grid grid-cols-1 gap-4 mb-2">
                 {/* Render OrderItemArtwork */}
                 <div className="rounded-lg bg-white p-6 shadow-md">
@@ -110,6 +114,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                     </div>
                 </div>
             </div>
+
             <div className="space-y-8">
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Typesetting</h2>
@@ -118,7 +123,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                             <TypesettingComponent
                                 workOrderItemId=""
                                 orderItemId={orderItem.id}
-                                initialTypesetting={typesettingData || []}
+                                initialTypesetting={normalizedTypesetting}
                             />
                         </TypesettingProvider>
                     </div>

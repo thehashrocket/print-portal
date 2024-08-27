@@ -4,8 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { TypesettingProof, ProofMethod } from "@prisma/client";
+import { ProofMethod } from "@prisma/client";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
+import { SerializedTypesettingProof } from "~/types/serializedTypes";
+import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -20,7 +22,7 @@ type TypesettingProofFormData = z.infer<typeof typesettingProofFormSchema>;
 
 export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     typesettingId: string;
-    onSubmit: (data: TypesettingProof) => void;
+    onSubmit: (data: SerializedTypesettingProof) => void;
     onCancel: () => void;
 }) {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingProofFormData>({
@@ -38,12 +40,14 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             setSuccess("Typesetting proof created successfully!");
             setError(null);
             reset();
-            onSubmit(createdTypesettingProof);
 
-            // Update the context state directly with a new array
+            const serializedProof = normalizeTypesettingProof(createdTypesettingProof);
+            onSubmit(serializedProof);
+
+            // Update the context state with serialized data
             const updatedTypesetting = typesetting.map((type) =>
                 type.id === typesettingId
-                    ? { ...type, TypesettingProofs: [...type.TypesettingProofs, createdTypesettingProof] }
+                    ? { ...type, TypesettingProofs: [...type.TypesettingProofs, serializedProof] }
                     : type
             );
             setTypesetting(updatedTypesetting);
@@ -61,8 +65,6 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             typesettingId,
             ...data,
             dateSubmitted: new Date(data.dateSubmitted).toISOString(),
-            proofCount: data.proofCount, // Replace 0 with the appropriate value
-            proofMethod: data.proofMethod, // Replace "Digital" with the appropriate value
         });
     };
 
@@ -115,6 +117,19 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                 />
                 {errors.notes && (
                     <span className="text-red-500">{errors.notes.message}</span>
+                )}
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Proof Method</label>
+                <select {...register("proofMethod")} className="select select-bordered w-full">
+                    {Object.values(ProofMethod).map((method) => (
+                        <option key={method} value={method}>
+                            {method}
+                        </option>
+                    ))}
+                </select>
+                {errors.proofMethod && (
+                    <span className="text-red-500">{errors.proofMethod.message}</span>
                 )}
             </div>
             <div className="flex justify-end">

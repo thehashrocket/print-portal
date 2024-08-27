@@ -1,19 +1,20 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { Prisma, Typesetting, TypesettingStatus } from "@prisma/client";
+import { TypesettingStatus, Typesetting, TypesettingOption, TypesettingProof } from "@prisma/client";
+import { SerializedTypesetting, SerializedTypesettingOption, SerializedTypesettingProof } from "~/types/serializedTypes";
+import { normalizeTypesetting } from "~/utils/dataNormalization";
+import { TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
+import { Decimal } from "decimal.js";
 
-// Define the schema using Zod
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
     approved: z.boolean(),
-    cost: z.number().nullable(),
-    dateIn: z.date(),
-    followUpNotes: z.string().optional(),
+    cost: z.string().nullable().transform(v => v ? new Decimal(v) : null),
+    dateIn: z.string(),
+    followUpNotes: z.string().nullable(),
     orderItemId: z.string().nullable(),
     plateRan: z.string().nullable(),
     prepTime: z.number().nullable(),
@@ -25,59 +26,45 @@ const typesettingFormSchema = z.object({
 type TypesettingFormData = z.infer<typeof typesettingFormSchema>;
 
 interface TypesettingFormProps {
-    typesetting?: Typesetting | null;
+    typesetting?: TypesettingWithRelations | null;
     orderItemId: string;
     workOrderItemId: string;
-    onSubmit: () => void;
+    onSubmit: (newTypesetting: TypesettingWithRelations) => void;
     onCancel: () => void;
 }
 
-// Factory function to create a complete Typesetting object
-function createDefaultTypesetting(overrides: Partial<Typesetting> = {}): Typesetting {
+function ensureCompleteTypesettingData(data: Partial<Typesetting>): Typesetting & {
+    TypesettingOptions: TypesettingOption[];
+    TypesettingProofs: TypesettingProof[];
+} {
     return {
-        id: '', // Default or generated ID
-        dateIn: new Date(),
-        cost: null,
-        timeIn: '',
-        plateRan: null,
-        prepTime: 0,
-        approved: false,
-        status: TypesettingStatus.InProgress,
-        followUpNotes: null,
-        orderItemId: null,
-        workOrderItemId: null,
-        createdById: '', // Replace with actual user ID if needed
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        ...overrides, // Apply any overrides
+        ...data,
+        TypesettingOptions: [],
+        TypesettingProofs: [],
+    } as Typesetting & {
+        TypesettingOptions: TypesettingOption[];
+        TypesettingProofs: TypesettingProof[];
     };
 }
 
 export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onSubmit, onCancel }: TypesettingFormProps) {
     const isAddMode = !typesetting;
-    const completeTypesetting = typesetting ? typesetting : createDefaultTypesetting({ orderItemId, workOrderItemId });
-
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingFormData>({
+    const { register, handleSubmit, formState: { errors } } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
             ...typesetting,
-            prepTime: typesetting.prepTime ?? null,
-            cost: typesetting.cost ? Number(typesetting.cost.toString()) : null,
-            plateRan: typesetting.plateRan ?? null,
-            followUpNotes: typesetting.followUpNotes ?? "",
-            workOrderItemId: workOrderItemId ?? null,
-            orderItemId: orderItemId ?? null,
+            cost: typesetting.cost ? typesetting.cost.toString() : null,
+            dateIn: new Date(typesetting.dateIn).toISOString().split('T')[0],
         } : {
             plateRan: null,
             prepTime: null,
             cost: null,
-            followUpNotes: "",
+            followUpNotes: null,
             approved: false,
             status: TypesettingStatus.InProgress,
-            dateIn: new Date(),
+            dateIn: new Date().toISOString().split('T')[0],
             timeIn: "",
             orderItemId: null,
             workOrderItemId: null,
@@ -86,8 +73,9 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
 
     const updateTypesetting = api.typesettings.update.useMutation({
         onSuccess: (updatedTypesetting) => {
-            setSuccess("Typesetting updated successfully");
-            onSubmit();
+            const completeTypesetting = ensureCompleteTypesettingData(updatedTypesetting);
+            const normalizedTypesetting = normalizeTypesetting(completeTypesetting);
+            onSubmit(normalizedTypesetting);
         },
         onError: (error) => {
             setError("Error updating typesetting");
@@ -97,8 +85,9 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
 
     const createTypesetting = api.typesettings.create.useMutation({
         onSuccess: (newTypesetting) => {
-            setSuccess("Typesetting created successfully");
-            onSubmit();
+            const completeTypesetting = ensureCompleteTypesettingData(newTypesetting);
+            const normalizedTypesetting = normalizeTypesetting(completeTypesetting);
+            onSubmit(normalizedTypesetting);
         },
         onError: (error) => {
             setError("Error creating typesetting");
@@ -106,40 +95,14 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
         },
     });
 
-    useEffect(() => {
-        if (typesetting) {
-            reset({
-                ...typesetting,
-                cost: typesetting.cost ? Number(typesetting.cost.toString()) : null,
-                plateRan: typesetting.plateRan ?? null,
-                prepTime: typesetting.prepTime ?? null,
-                followUpNotes: typesetting.followUpNotes ?? "",
-            });
-        } else {
-            reset({
-                plateRan: null,
-                prepTime: null,
-                cost: null,
-                followUpNotes: "",
-                approved: false,
-                status: TypesettingStatus.InProgress,
-                dateIn: new Date(),
-                timeIn: "",
-                orderItemId: null,
-                workOrderItemId: null,
-            });
-        }
-    }, [typesetting, reset]);
-
     const submit = handleSubmit((data) => {
         const formattedData = {
             ...data,
-            cost: data.cost === null || isNaN(data.cost) ? undefined : Number(data.cost),
             followUpNotes: data.followUpNotes || undefined,
-            prepTime: data.prepTime === null || isNaN(data.prepTime) ? undefined : data.prepTime,
-            plateRan: data.plateRan || undefined,
             orderItemId: orderItemId || undefined,
             workOrderItemId: workOrderItemId || undefined,
+            dateIn: new Date(data.dateIn),
+            cost: data.cost ? data.cost.toNumber() : undefined,
         };
 
         if (isAddMode) {
@@ -149,17 +112,14 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                 ...formattedData,
                 id: data.id || '',
             };
-
             updateTypesetting.mutate(updateData);
         }
     });
 
     return (
         <form onSubmit={submit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div className="toast toast-top toast-end">
-                {error && <div className="alert alert-error">{error}</div>}
-                {success && <div className="alert alert-success">{success}</div>}
-            </div>
+            {error && <div className="alert alert-error">{error}</div>}
+            {/* Form fields */}
             <div className="grid grid-cols-1 gap-6 mb-4">
                 <div className="form-control">
                     <label className="label">
@@ -168,10 +128,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     <input
                         type="date"
                         className="input input-bordered"
-                        {...register("dateIn", {
-                            valueAsDate: true,
-                            required: "Date In is required"
-                        })}
+                        {...register("dateIn")}
                     />
                     {errors.dateIn && <span className="text-error">{errors.dateIn.message}</span>}
                 </div>
@@ -250,7 +207,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.followUpNotes && <span className="text-error">{errors.followUpNotes.message}</span>}
                 </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
                 <button type="submit" className="btn btn-primary">Submit</button>
                 <button type="button" className="btn" onClick={onCancel}>Cancel</button>
             </div>

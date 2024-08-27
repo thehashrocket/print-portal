@@ -923,7 +923,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         createdById: userId,
         artwork: {
           create: {
-            fileUrl: faker.image.url(),
+            fileUrl: "https://placedog.net/500?random.jpg",
             description: faker.lorem.sentence(),
           },
         },

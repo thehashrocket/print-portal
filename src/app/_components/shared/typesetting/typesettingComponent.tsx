@@ -1,6 +1,4 @@
-// ~/app/_components/shared/typesetting/typesettingComponent.tsx
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { useTypesettingContext, TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import TypesettingForm from "./typesettingForm";
@@ -8,7 +6,6 @@ import TypesettingProofForm from "./typesettingProofForm";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { Decimal } from 'decimal.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,11 +27,11 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [addProofMode, setAddProofMode] = useState<boolean>(false);
 
-    const formatNumberAsCurrency = (value: number) => {
-        return `$${(value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+    const formatNumberAsCurrency = (value: number | string) => {
+        return `$${Number(value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
     };
 
-    const formatDate = (date: Date | string) => {
+    const formatDate = (date: string) => {
         return dayjs.utc(date).tz(dayjs.tz.guess()).format('MMMM D, YYYY, h:mm A');
     };
 
@@ -47,27 +44,39 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
         if (initialTypesetting && initialTypesetting.length > 0) {
             setTypesetting(initialTypesetting);
             const mostRecent = initialTypesetting.reduce((prev, current) =>
-                (prev && prev.dateIn > current.dateIn) ? prev : current,
-                initialTypesetting[0]
+                (prev.dateIn > current.dateIn) ? prev : current
             );
-            if (mostRecent) {
-                setSelectedTypeId(mostRecent.id);
-            }
+            setSelectedTypeId(mostRecent.id);
         }
     }, [initialTypesetting, setTypesetting]);
 
-    const currentItem = typesetting.find((type): type is TypesettingWithRelations => type.id === selectedTypeId) || {
-        id: '', // Default ID
-        dateIn: new Date(), // Default date
+    const handleNewTypesetting = (newTypesetting: TypesettingWithRelations) => {
+        setTypesetting((prev: TypesettingWithRelations[]) => {
+            const index = prev.findIndex((t: TypesettingWithRelations) => t.id === newTypesetting.id);
+            if (index !== -1) {
+                // Update existing typesetting
+                return prev.map((t, i) => i === index ? newTypesetting : t);
+            } else {
+                // Add new typesetting
+                return [...prev, newTypesetting];
+            }
+        });
+        setSelectedTypeId(newTypesetting.id);
+        setIsEditMode(false);
+    };
+
+    const currentItem = typesetting.find(type => type.id === selectedTypeId) || {
+        id: '',
+        dateIn: new Date().toISOString(),
         timeIn: '',
-        cost: new Decimal(0), // Default cost
+        cost: '0',
         prepTime: 0,
         plateRan: '',
         approved: false,
         status: 'WaitingApproval',
-        createdById: '', // Default createdById
-        createdAt: new Date(), // Default createdAt
-        updatedAt: new Date(), // Default updatedAt
+        createdById: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         followUpNotes: '',
         orderItemId: null,
         workOrderItemId: null,
@@ -77,6 +86,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
 
     return (
         <>
+            {/* Buttons and dropdown */}
             <div className="mb-4 grid grid-cols-4 gap-4">
                 <button className="btn btn-active btn-primary" onClick={() => {
                     setMode('add');
@@ -112,14 +122,12 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                         typesetting={mode === 'edit' ? currentItem : undefined}
                         workOrderItemId={workOrderItemId}
                         orderItemId={orderItemId}
-                        onSubmit={() => {
-                            setIsEditMode(false);
-                        }}
-                        onCancel={() => {
-                            setIsEditMode(false);
-                        }} />
+                        onSubmit={handleNewTypesetting}
+                        onCancel={() => setIsEditMode(false)}
+                    />
                 ) : (
                     <>
+                        {/* Display typesetting details */}
                         <div className="grid grid-cols-4 gap-4 mb-4">
                             <div className="rounded-lg bg-white p-6 shadow-md">
                                 <p className="mb-2 text-gray-600 text-md font-semibold">Date In</p>
@@ -146,6 +154,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
                             </div>
                         </div>
+                        {/* Display proofs */}
                         <div>
                             <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
                             <div className="mb-4 grid grid-cols-4 gap-4">
@@ -186,6 +195,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
             )}
         </>
     );
-};
+}
 
 export default TypesettingComponent;
