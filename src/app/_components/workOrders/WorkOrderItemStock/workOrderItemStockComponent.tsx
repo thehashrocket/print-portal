@@ -1,48 +1,33 @@
 // ~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent.tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from '~/trpc/react';
-import { SerializedWorkOrderItemStock } from '~/types/serializedTypes';
 import WorkOrderItemStockForm from './workOrderItemStockForm';
+import { StockStatus } from '@prisma/client';
 
 interface WorkOrderItemStockComponentProps {
     workOrderItemId: string;
 }
 
 const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = ({ workOrderItemId }) => {
-    const [stocks, setStocks] = useState<SerializedWorkOrderItemStock[]>([]);
     const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
     const [isAddMode, setIsAddMode] = useState(false);
 
-    const { data: fetchedStocks, refetch } = api.workOrderItemStocks.getByWorkOrderItemId.useQuery(
+    const { data: stocks, refetch } = api.workOrderItemStocks.getByWorkOrderItemId.useQuery(
         workOrderItemId,
         { enabled: !!workOrderItemId }
     );
 
-    useEffect(() => {
-        if (fetchedStocks) {
-            setStocks(fetchedStocks);
-        }
-    }, [fetchedStocks]);
-
-    const handleStockAdded = (newStock: SerializedWorkOrderItemStock) => {
-        setStocks(prevStocks => [...prevStocks, newStock]);
-        setIsAddMode(false);
-        refetch();
+    const formatDate = (date: Date | null) => {
+        if (!date) return 'N/A';
+        return new Date(date).toLocaleDateString();
     };
 
-    const handleStockUpdated = (updatedStock: SerializedWorkOrderItemStock) => {
-        setStocks(prevStocks =>
-            prevStocks.map(stock => stock.id === updatedStock.id ? updatedStock : stock)
-        );
+    const handleSuccess = () => {
+        setIsAddMode(false);
         setSelectedStockId(null);
         refetch();
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString();
     };
 
     return (
@@ -50,7 +35,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
             <h3 className="text-lg font-semibold">Work Order Item Stock</h3>
 
             {/* List of existing stocks */}
-            {stocks.length > 0 && (
+            {stocks && stocks.length > 0 && (
                 <div className="overflow-x-auto">
                     <table className="table w-full">
                         <thead>
@@ -67,10 +52,10 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
                             {stocks.map(stock => (
                                 <tr key={stock.id}>
                                     <td>{stock.stockQty}</td>
-                                    <td>${stock.costPerM}</td>
+                                    <td>${stock.costPerM.toString()}</td>
                                     <td>{stock.supplier || 'N/A'}</td>
                                     <td>{stock.stockStatus}</td>
-                                    <td>{formatDate(stock.expectedDate)}</td>
+                                    <td>{formatDate(stock.expectedDate ? new Date(stock.expectedDate) : null)}</td>
                                     <td>
                                         <button
                                             className="btn btn-xs btn-primary"
@@ -101,8 +86,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
                 <WorkOrderItemStockForm
                     workOrderItemId={workOrderItemId}
                     stockId={selectedStockId}
-                    onStockAdded={handleStockAdded}
-                    onStockUpdated={handleStockUpdated}
+                    onSuccess={handleSuccess}
                     onCancel={() => {
                         setIsAddMode(false);
                         setSelectedStockId(null);
