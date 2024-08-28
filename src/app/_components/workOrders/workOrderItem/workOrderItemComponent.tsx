@@ -1,4 +1,3 @@
-// ~/src/app/_components/workOrders/workOrderItemComponent.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -13,27 +12,26 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
 
-type WorkOrderItemPageProps = {
-    workOrderId: string;
-    workOrderItemId: string;
-};
-
-const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus }> = ({ id, status }) => {
+const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation();
-
+    const utils = api.useContext();
+    const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation({
+        onSuccess: () => {
+            utils.workOrders.getByID.invalidate(workOrderId);
+        }
+    });
     const getStatusColor = (status: WorkOrderItemStatus): string => {
         switch (status) {
             case "Approved": return "bg-green-100 text-green-800";
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
-            default: return "bg-gray-100 text-gray-800";
+            default: return "bg-blue-100 text-blue-800";
         }
     };
 
     const handleStatusChange = async (newStatus: WorkOrderItemStatus) => {
         await updateStatus({ id, status: newStatus });
-        setCurrentStatus(newStatus);
+
     };
 
     return (
@@ -54,6 +52,11 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus }> = ({ id
     );
 };
 
+type WorkOrderItemPageProps = {
+    workOrderId: string;
+    workOrderItemId: string;
+};
+
 const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title, content }) => (
     <div className="rounded-lg bg-white p-4 shadow-md">
         <h3 className="mb-2 text-gray-600 text-lg font-semibold">{title}</h3>
@@ -62,13 +65,13 @@ const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title
 );
 
 const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
-    workOrderId = '',
-    workOrderItemId = ''
+    workOrderId,
+    workOrderItemId
 }) => {
-    const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
-    const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
+    const { data: workOrder, isLoading: isWorkOrderLoading, error: workOrderError } = api.workOrders.getByID.useQuery(workOrderId);
+    const { data: fetchedWorkOrderItem, isLoading: isItemLoading, error: itemError } = api.workOrderItems.getByID.useQuery(workOrderItemId);
     const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
-    const { data: typesettingData } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId);
+    const { data: typesettingData, isLoading: isTypesettingLoading } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId);
     const [serializedTypesettingData, setSerializedTypesettingData] = useState<SerializedTypesetting[]>([]);
 
     useEffect(() => {
@@ -84,8 +87,16 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         }
     }, [typesettingData]);
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (isWorkOrderLoading || isItemLoading || isTypesettingLoading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
+
+    if (workOrderError || itemError) {
+        return <div className="text-red-500 text-center">Error loading data. Please try again.</div>;
+    }
+
+    if (!workOrderItem) {
+        return <div className="text-center">No work order item found.</div>;
     }
 
     return (
@@ -97,7 +108,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/workOrders">Work Orders</Link></li>
-                            <li><Link href={`/workOrders/${workOrderItem?.workOrderId}`}>Work Order</Link></li>
+                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Work Order</Link></li>
                             <li>Job</li>
                         </ul>
                     </div>
@@ -109,32 +120,42 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Number</p>
-                        <p className="text-gray-800 text-lg font-semibold">{workOrder?.workOrderNumber}</p>
-                    </div>
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Office Name</p>
-                        <p className="text-gray-800 text-lg font-semibold">{workOrder?.Office.name}</p>
-                    </div>
+                    <InfoCard
+                        title="Work Order Number"
+                        content={workOrder?.workOrderNumber ?? 'N/A'}
+                    />
+                    <InfoCard
+                        title="Office Name"
+                        content={workOrder?.Office?.name ?? 'N/A'}
+                    />
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
-                    <InfoCard title="Status" content={
-                        <StatusBadge id={workOrderItem?.id || ''} status={workOrderItem?.status || WorkOrderItemStatus.Pending} />
-                    } />
+                    <InfoCard
+                        title="Status"
+                        content={
+                            <StatusBadge
+                                id={workOrderItem.id}
+                                status={workOrderItem.status}
+                                workOrderId={workOrderItem.workOrderId ?? ''}
+                            />
+                        }
+                    />
                 </div>
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
-                    {/* Render WorkOrderItemArtwork */}
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
                         <div className="grid grid-cols-2 gap-4">
-                            {workOrderItem?.artwork.map((artwork) => (
-                                <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
-                                    <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
-                                </div>
-                            ))}
+                            {workOrderItem.artwork && workOrderItem.artwork.length > 0 ? (
+                                workOrderItem.artwork.map((artwork) => (
+                                    <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
+                                        <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No artwork available</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -142,13 +163,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Bindery Options</h2>
-                        <ProcessingOptionsProvider workOrderItemId={workOrderItem?.id || ''}>
-                            <ProcessingOptionsComponent workOrderItemId={workOrderItem?.id || ''} />
+                        <ProcessingOptionsProvider workOrderItemId={workOrderItem.id}>
+                            <ProcessingOptionsComponent workOrderItemId={workOrderItem.id} />
                         </ProcessingOptionsProvider>
                     </div>
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-                        {workOrderItem && serializedTypesettingData.length > 0 && (
+                        {serializedTypesettingData.length > 0 ? (
                             <TypesettingProvider>
                                 <TypesettingComponent
                                     workOrderItemId={workOrderItem.id}
@@ -156,6 +177,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                     initialTypesetting={serializedTypesettingData}
                                 />
                             </TypesettingProvider>
+                        ) : (
+                            <p>No typesetting data available</p>
                         )}
                     </div>
                 </div>

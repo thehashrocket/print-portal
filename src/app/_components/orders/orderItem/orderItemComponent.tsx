@@ -19,9 +19,14 @@ type OrderItemPageProps = {
     orderItemId: string;
 };
 
-const StatusBadge: React.FC<{ id: string, status: OrderItemStatus }> = ({ id, status }) => {
+const StatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation();
+    const utils = api.useContext();
+    const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation({
+        onSuccess: () => {
+            utils.orders.getByID.invalidate(orderId);
+        }
+    });
 
     const getStatusColor = (status: OrderItemStatus): string => {
         switch (status) {
@@ -62,7 +67,10 @@ const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title
     </div>
 );
 
-const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId }) => {
+const OrderItemComponent: React.FC<OrderItemPageProps> = ({
+    orderId,
+    orderItemId
+}) => {
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
@@ -99,7 +107,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                 <InfoCard title="Order Number" content={order.orderNumber} />
                 <InfoCard title="Company" content={order.Office?.Company.name} />
                 <InfoCard title="Status" content={
-                    <StatusBadge id={orderItem.id} status={orderItem.status} />
+                    <StatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
                 } />
             </div>
 

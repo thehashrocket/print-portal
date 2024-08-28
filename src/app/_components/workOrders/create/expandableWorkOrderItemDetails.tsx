@@ -14,14 +14,22 @@ interface ExpandableWorkOrderItemDetailsProps {
 }
 
 const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsProps> = ({ itemId, onClose }) => {
-    const { data: workOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(itemId);
+    const { data: workOrderItem, isLoading, isError } = api.workOrderItems.getByID.useQuery(itemId);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+        );
     }
 
-    if (!workOrderItem) {
-        return <div>Work Order Jobs not found</div>;
+    if (isError || !workOrderItem) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-red-500 text-xl">Error loading work order item details. Please try again.</div>
+            </div>
+        );
     }
 
     return (
