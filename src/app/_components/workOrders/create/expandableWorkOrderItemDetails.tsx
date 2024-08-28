@@ -5,6 +5,7 @@ import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import { ProcessingOptionsProvider } from '~/app/contexts/ProcessingOptionsContext';
 import TypesettingComponent from '../../shared/typesetting/typesettingComponent';
 import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
+import WorkOrderItemStockComponent from '../../workOrders/WorkOrderItemStock/workOrderItemStockComponent';
 import { api } from '~/trpc/react';
 
 interface ExpandableWorkOrderItemDetailsProps {
@@ -53,6 +54,10 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
                             initialTypesetting={[]}
                         />
                     </TypesettingProvider>
+                </section>
+                <section>
+                    <h4 className="text-lg font-medium mb-2">Stock Information</h4>
+                    <WorkOrderItemStockComponent workOrderItemId={itemId} />
                 </section>
             </div>
         </div>

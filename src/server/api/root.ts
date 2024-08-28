@@ -16,6 +16,7 @@ import { typesettingProofsRouter } from "./routers/shared/typesetting/typesettin
 import { typesettingRouter } from "./routers/shared/typesetting/typesetting";
 import { userManagementRouter } from "./routers/userManagement/userManagement";
 import { userRouter } from "~/server/api/routers/user";
+import { workOrderItemStockRouter } from "./routers/workOrderItemStocks/workOrderItemStock";
 import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
@@ -45,6 +46,7 @@ export const appRouter = createTRPCRouter({
   workOrderNotes: workOrderNoteRouter,
   workOrders: workOrderRouter,
   workOrderItems: workOrderItemRouter,
+  workOrderItemStocks: workOrderItemStockRouter,
 });
 
 // export type definition of API

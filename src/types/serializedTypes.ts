@@ -349,22 +349,22 @@ export interface SerializedWorkOrderItemArtwork {
 }
 
 export interface SerializedWorkOrderItemStock {
-    id: string;
-    stockQty: number;
     costPerM: string;
-    totalCost: string | null;
-    from: string | null;
+    createdAt: string;
+    createdById: string;
     expectedDate: string | null;
+    from: string | null;
+    id: string;
+    notes: string | null;
     orderedDate: string | null;
     received: boolean;
     receivedDate: string | null;
-    notes: string | null;
+    stockQty: number;
     stockStatus: StockStatus;
-    createdAt: string;
+    supplier: string | null;
+    totalCost: string | null;
     updatedAt: string;
     workOrderItemId: string;
-    createdById: string;
-    supplier: string | null;
 }
 
 export interface SerializedWorkOrderNote {

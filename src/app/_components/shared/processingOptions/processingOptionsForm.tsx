@@ -230,12 +230,13 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2 mt-6">
-                <button type="button" onClick={onCancel} className="btn btn-ghost">
-                    Cancel
-                </button>
                 <button type="submit" className="btn btn-primary">
                     {initialData ? "Update" : "Add"} Bindery Options
                 </button>
+                <button type="button" className="btn btn-ghost" onClick={onCancel} >
+                    Cancel
+                </button>
+
             </div>
         </form>
     );

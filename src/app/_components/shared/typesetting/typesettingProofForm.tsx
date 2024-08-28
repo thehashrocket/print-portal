@@ -140,7 +140,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                 >
                     Submit
                 </button>
-                <button type="button" onClick={cancel} className="btn btn-outline">
+                <button type="button" onClick={cancel} className="btn btn-ghost">
                     Cancel
                 </button>
             </div>
