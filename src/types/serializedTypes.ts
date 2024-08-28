@@ -137,7 +137,6 @@ export interface SerializedOrderItem {
     cost: string | null;
     createdAt: string;
     createdById: string;
-    customerSuppliedStock: string;
     description: string;
     expectedDate: string | null;
     finishedQty: number;
@@ -146,6 +145,7 @@ export interface SerializedOrderItem {
     other: string | null;
     prepTime: number | null;
     pressRun: string;
+    quantity: number;
     shippingAmount: string | null;
     size: string | null;
     specialInstructions: string | null;
@@ -320,12 +320,12 @@ export interface SerializedWorkOrderItem {
     cost: string | null;
     createdAt: string;
     createdById: string;
-    customerSuppliedStock: string | null;
     description: string;
     expectedDate: string;
     ink: string | null;
     other: string | null;
     prepTime: number | null;
+    quantity: number;
     shippingAmount: string | null;
     size: string | null;
     specialInstructions: string | null;

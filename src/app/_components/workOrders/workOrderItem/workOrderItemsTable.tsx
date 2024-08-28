@@ -60,7 +60,6 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const columnDefs: ColDef[] = [
         { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
-        { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
         { headerName: "Status", field: "status", filter: true, width: 150 },
         { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },

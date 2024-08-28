@@ -129,6 +129,16 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         content={workOrder?.Office?.name ?? 'N/A'}
                     />
                 </div>
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                    <InfoCard
+                        title="Job Description"
+                        content={workOrderItem.description}
+                    />
+                    <InfoCard
+                        title="Quantity"
+                        content={workOrderItem.quantity}
+                    />
+                </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <InfoCard

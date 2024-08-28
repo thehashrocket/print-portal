@@ -106,11 +106,22 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <InfoCard title="Order Number" content={order.orderNumber} />
                 <InfoCard title="Company" content={order.Office?.Company.name} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+                <InfoCard
+                    title="Job Description"
+                    content={orderItem.description}
+                />
+                <InfoCard
+                    title="Quantity"
+                    content={orderItem.quantity}
+                />
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-2">
                 <InfoCard title="Status" content={
                     <StatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
                 } />
             </div>
-
             <div className="grid grid-cols-1 gap-4 mb-2">
                 {/* Render OrderItemArtwork */}
                 <div className="rounded-lg bg-white p-6 shadow-md">
