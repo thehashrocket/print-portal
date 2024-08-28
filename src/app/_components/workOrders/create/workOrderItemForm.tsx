@@ -84,7 +84,7 @@ const WorkOrderItemForm: React.FC = () => {
             reset(); // Reset form after successful creation
             setArtworks([]); // Clear artworks after successful creation
         } catch (error) {
-            console.error('Error saving work order item', error);
+            console.error('Error saving work job', error);
         }
     };
 
@@ -110,7 +110,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">Work Order Items</h2>
+            <h2 className="text-2xl font-semibold">Work Order Jobs</h2>
 
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
@@ -124,7 +124,7 @@ const WorkOrderItemForm: React.FC = () => {
                 />
             ) : (
                 <>
-                    <h3 className="text-xl font-semibold">Add New Work Order Item</h3>
+                    <h3 className="text-xl font-semibold">Add New Work Order Job</h3>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div>
                             <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
@@ -216,7 +216,7 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.stockOrdered && <p className="text-red-500">{errors.stockOrdered.message}</p>}
                         </div>
                         <button type="submit" className="btn btn-primary">
-                            Add Work Order Item
+                            Add Work Order Job
                         </button>
                     </form>
                 </>

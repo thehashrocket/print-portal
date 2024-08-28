@@ -47,7 +47,7 @@ export default async function CreateWorkOrderPage() {
                         Shipping Information
                     </div>
                     <div className={`step`}>
-                        Work Order Items
+                        Work Order Jobs
                     </div>
                 </div>
             </div>

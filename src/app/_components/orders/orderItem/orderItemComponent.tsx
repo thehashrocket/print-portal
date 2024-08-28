@@ -75,7 +75,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
     }
 
     if (orderError || itemError || !order || !orderItem) {
-        return <div className="text-red-500 text-center mt-8">Error loading order item details.</div>;
+        return <div className="text-red-500 text-center mt-8">Error loading job details.</div>;
     }
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
@@ -83,7 +83,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Order Item Details</h1>
+                <h1 className="text-3xl font-bold mb-2">Job Details</h1>
                 <div className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>
@@ -139,7 +139,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                     </div>
                 </section>
                 <section>
-                    <h2 className="text-2xl font-semibold mb-4">Order Item Stock</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Job Stock</h2>
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <OrderItemStockComponent orderItemId={orderItem.id} />
                     </div>

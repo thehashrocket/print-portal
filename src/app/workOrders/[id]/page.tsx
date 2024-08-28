@@ -145,9 +145,9 @@ export default async function WorkOrderPage({
 
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Work Order Items</h2>
+            <h2 className="text-2xl font-semibold">Work Order Jobs</h2>
             <Link className="btn btn-primary" href={`/workOrders/create/${workOrder.id}`}>
-              Add Work Order Item
+              Add Work Order Job
             </Link>
           </div>
           <WorkOrderItemsTable workOrderItems={serializedWorkOrderItems} />

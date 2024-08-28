@@ -186,7 +186,7 @@ export default async function OrderPage({
           )}
         </section>
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Order Items</h2>
+          <h2 className="text-2xl font-semibold mb-4">Order Jobs</h2>
           <div className="bg-white p-4 rounded-lg shadow-md">
             <OrderItemsTable orderItems={serializedOrderItems} />
           </div>

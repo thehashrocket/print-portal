@@ -48,13 +48,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Work Order Item Details</a>
+                    <a className="btn btn-ghost text-xl">Work Job Details</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/workOrders">Work Orders</Link></li>
                             <li><Link href={`/workOrders/${workOrderItem?.workOrderId}`}>Work Order</Link></li>
-                            <li>Work Order Item</li>
+                            <li>Job</li>
                         </ul>
                     </div>
                 </div>
@@ -77,7 +77,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Work Order Item Status</p>
+                        <p className="mb-2 text-gray-600 text-xl font-semibold">Job Status</p>
                         <p className="text-gray-800 text-lg font-semibold">{workOrderItem?.status}</p>
                     </div>
                 </div>

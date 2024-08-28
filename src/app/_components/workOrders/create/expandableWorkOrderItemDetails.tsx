@@ -21,13 +21,13 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
     }
 
     if (!workOrderItem) {
-        return <div>Work Order Item not found</div>;
+        return <div>Work Order Jobs not found</div>;
     }
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Work Order Item Details</h3>
+                <h3 className="text-xl font-semibold">Job Details</h3>
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                     Close
                 </button>

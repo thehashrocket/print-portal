@@ -11,9 +11,9 @@ interface ExistingWorkOrderItemsListProps {
 const ExistingWorkOrderItemsList: React.FC<ExistingWorkOrderItemsListProps> = ({ items, onItemClick }) => {
     return (
         <div className="bg-white shadow-md rounded-lg mb-4">
-            <h3 className="text-lg font-semibold p-4 border-b">Existing Work Order Items</h3>
+            <h3 className="text-lg font-semibold p-4 border-b">Existing Job Items</h3>
             {items.length === 0 ? (
-                <p className="p-4 text-gray-500">No work order items created yet.</p>
+                <p className="p-4 text-gray-500">No work order jobs created yet.</p>
             ) : (
                 <ul className="divide-y divide-gray-200">
                     {items.map((item) => (
