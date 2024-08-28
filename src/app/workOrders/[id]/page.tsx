@@ -5,7 +5,7 @@
 import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import WorkOrderItemsTable from "../../_components/workOrders/workOrderItemsTable";
+import WorkOrderItemsTable from "../../_components/workOrders/workOrderItem/workOrderItemsTable";
 import Link from "next/link";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { WorkOrderStatus } from "@prisma/client";

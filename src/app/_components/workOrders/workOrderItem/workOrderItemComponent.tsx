@@ -10,7 +10,7 @@ import ProcessingOptionsComponent from "~/app/_components/shared/processingOptio
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 import { SerializedWorkOrderItem, SerializedTypesetting } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
-import ArtworkComponent from "../shared/artworkComponent/artworkComponent";
+import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
 
 type WorkOrderItemPageProps = {

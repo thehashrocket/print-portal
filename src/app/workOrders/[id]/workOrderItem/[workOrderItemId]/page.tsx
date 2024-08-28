@@ -8,7 +8,7 @@
 
 "use server";
 import React from "react";
-import WorkOrderItemComponent from "~/app/_components/workOrders/workOrderItemComponent";
+import WorkOrderItemComponent from "~/app/_components/workOrders/workOrderItem/workOrderItemComponent";
 import { getServerAuthSession } from "~/server/auth";
 
 export default async function WorkOrderItemPage({
