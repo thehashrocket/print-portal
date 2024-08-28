@@ -165,23 +165,22 @@ export interface SerializedOrderItemArtwork {
 }
 
 export interface SerializedOrderItemStock {
-    id: string;
-    stockQty: number;
     costPerM: string;
-    totalCost: string | null;
-    from: string | null;
+    createdAt: string;
+    createdById: string;
     expectedDate: string | null;
+    from: string | null;
+    id: string;
+    notes: string | null;
     orderedDate: string | null;
+    orderItemId: string;
     received: boolean;
     receivedDate: string | null;
-    notes: string | null;
+    stockQty: number;
     stockStatus: StockStatus;
-    createdAt: string;
-    updatedAt: string;
-    orderItemId: string;
-    createdById: string;
     supplier: string | null;
-    workOrderItemId: string;
+    totalCost: string | null;
+    updatedAt: string;
 }
 
 export interface SerializedOrderNote {

@@ -11,6 +11,7 @@ import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsConte
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import { SerializedTypesetting } from "~/types/serializedTypes";
+import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -135,6 +136,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({ orderId, orderItemId
                         <ProcessingOptionsProvider orderItemId={orderItem.id}>
                             <ProcessingOptionsComponent orderItemId={orderItem.id} />
                         </ProcessingOptionsProvider>
+                    </div>
+                </section>
+                <section>
+                    <h2 className="text-2xl font-semibold mb-4">Order Item Stock</h2>
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <OrderItemStockComponent orderItemId={orderItem.id} />
                     </div>
                 </section>
             </div>

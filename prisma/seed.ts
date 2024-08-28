@@ -140,8 +140,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
           stockQty: workOrderStock.stockQty,
           stockStatus: workOrderStock.stockStatus,
           totalCost: workOrderStock.totalCost,
-          createdById: workOrderStock.createdById,
-          workOrderItemId: workOrderItem.id, // Add the workOrderItemId property
+          createdById: workOrderStock.createdById
         }
       });
     }

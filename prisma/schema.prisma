@@ -197,25 +197,24 @@ model OrderNote {
 }
 
 model OrderItemStock {
-  costPerM        Decimal     @default(0) @db.Decimal(10, 2)
-  createdAt       DateTime    @default(now())
-  createdBy       User        @relation(fields: [createdById], references: [id])
-  createdById     String
-  expectedDate    DateTime?
-  from            String?
-  id              String      @id @default(uuid())
-  notes           String?
-  orderedDate     DateTime?
-  orderItemId     String
-  OrderItem       OrderItem   @relation(fields: [orderItemId], references: [id])
-  received        Boolean     @default(false)
-  receivedDate    DateTime?
-  stockQty        Int
-  stockStatus     StockStatus
-  supplier        String?
-  totalCost       Decimal?    @db.Decimal(10, 2)
-  updatedAt       DateTime    @updatedAt
-  workOrderItemId String
+  costPerM     Decimal     @default(0) @db.Decimal(10, 2)
+  createdAt    DateTime    @default(now())
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  createdById  String
+  expectedDate DateTime?
+  from         String?
+  id           String      @id @default(uuid())
+  notes        String?
+  orderedDate  DateTime?
+  orderItemId  String
+  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
+  received     Boolean     @default(false)
+  receivedDate DateTime?
+  stockQty     Int
+  stockStatus  StockStatus
+  supplier     String?
+  totalCost    Decimal?    @db.Decimal(10, 2)
+  updatedAt    DateTime    @updatedAt
 }
 
 model Permission {

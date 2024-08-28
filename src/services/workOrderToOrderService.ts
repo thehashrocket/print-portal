@@ -230,7 +230,6 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
                 stockStatus: stock.stockStatus,
                 createdById: stock.createdById,
                 orderItemId,
-                workOrderItemId: workOrderItemId, // Add the missing property
             },
         });
     }

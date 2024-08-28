@@ -187,23 +187,22 @@ export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): Serialized
 
 export function normalizeOrderItemStock(stock: OrderItemStock): SerializedOrderItemStock {
     return {
-        id: stock.id,
-        stockQty: stock.stockQty,
         costPerM: stock.costPerM.toString(),
-        totalCost: stock.totalCost?.toString() ?? null,
-        from: stock.from,
+        createdAt: stock.createdAt.toISOString(),
+        createdById: stock.createdById,
         expectedDate: stock.expectedDate?.toISOString() ?? null,
+        from: stock.from,
+        id: stock.id,
+        notes: stock.notes,
         orderedDate: stock.orderedDate?.toISOString() ?? null,
+        orderItemId: stock.orderItemId,
         received: stock.received,
         receivedDate: stock.receivedDate?.toISOString() ?? null,
-        notes: stock.notes,
+        stockQty: stock.stockQty,
         stockStatus: stock.stockStatus,
-        createdAt: stock.createdAt.toISOString(),
-        updatedAt: stock.updatedAt.toISOString(),
-        orderItemId: stock.orderItemId,
-        createdById: stock.createdById,
         supplier: stock.supplier,
-        workOrderItemId: stock.workOrderItemId
+        totalCost: stock.totalCost?.toString() ?? null,
+        updatedAt: stock.updatedAt.toISOString(),
     };
 }
 
