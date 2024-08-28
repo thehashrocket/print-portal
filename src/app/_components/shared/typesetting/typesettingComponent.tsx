@@ -6,6 +6,7 @@ import TypesettingProofForm from "./typesettingProofForm";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { formatDate, formatCurrency } from "~/utils/formatters";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -26,14 +27,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
     const [selectedTypeId, setSelectedTypeId] = useState<string>('');
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [addProofMode, setAddProofMode] = useState<boolean>(false);
-
-    const formatNumberAsCurrency = (value: number | string) => {
-        return `$${Number(value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    };
-
-    const formatDate = (date: string) => {
-        return dayjs.utc(date).tz(dayjs.tz.guess()).format('MMMM D, YYYY, h:mm A');
-    };
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedId = e.target.value;
@@ -139,7 +132,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                             </div>
                             <div className="rounded-lg bg-white p-6 shadow-md">
                                 <p className="mb-2 text-gray-600 text-md font-semibold">Cost</p>
-                                <p className="text-sm">{formatNumberAsCurrency(Number(currentItem.cost))}</p>
+                                <p className="text-sm">{formatCurrency(Number(currentItem.cost))}</p>
                             </div>
                             <div className="rounded-lg bg-white p-6 shadow-md">
                                 <p className="mb-2 text-gray-600 text-md font-semibold">Prep Time</p>

@@ -11,15 +11,59 @@ import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsConte
 import { SerializedWorkOrderItem, SerializedTypesetting } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../shared/artworkComponent/artworkComponent";
+import { WorkOrderItemStatus } from "@prisma/client";
 
 type WorkOrderItemPageProps = {
     workOrderId: string;
     workOrderItemId: string;
 };
 
+const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus }> = ({ id, status }) => {
+    const [currentStatus, setCurrentStatus] = useState(status);
+    const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation();
+
+    const getStatusColor = (status: WorkOrderItemStatus): string => {
+        switch (status) {
+            case "Approved": return "bg-green-100 text-green-800";
+            case "Cancelled": return "bg-red-100 text-red-800";
+            case "Pending": return "bg-yellow-100 text-yellow-800";
+            default: return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const handleStatusChange = async (newStatus: WorkOrderItemStatus) => {
+        await updateStatus({ id, status: newStatus });
+        setCurrentStatus(newStatus);
+    };
+
+    return (
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                {currentStatus}
+            </span>
+            <select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value as WorkOrderItemStatus)}
+                className="px-2 py-1 rounded-md border border-gray-300"
+            >
+                {Object.values(WorkOrderItemStatus).map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
+const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title, content }) => (
+    <div className="rounded-lg bg-white p-4 shadow-md">
+        <h3 className="mb-2 text-gray-600 text-lg font-semibold">{title}</h3>
+        <div className="text-gray-800">{content}</div>
+    </div>
+);
+
 const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     workOrderId = '',
-    workOrderItemId = '',
+    workOrderItemId = ''
 }) => {
     const { data: workOrder } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading } = api.workOrderItems.getByID.useQuery(workOrderItemId);
@@ -76,10 +120,9 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <p className="mb-2 text-gray-600 text-xl font-semibold">Job Status</p>
-                        <p className="text-gray-800 text-lg font-semibold">{workOrderItem?.status}</p>
-                    </div>
+                    <InfoCard title="Status" content={
+                        <StatusBadge id={workOrderItem?.id || ''} status={workOrderItem?.status || WorkOrderItemStatus.Pending} />
+                    } />
                 </div>
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">

@@ -17,7 +17,7 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { SerializedOrder } from "~/types/serializedTypes";
-
+import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/formatters";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface OrdersTableProps {
@@ -48,15 +48,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
     </div>
   );
 
-  const formatNumberAsCurrency = (params: ValueFormatterParams) => {
-    if (params.value === null) return "$0.00";
-    return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-  };
-
-  const formatDate = (params: ValueFormatterParams) => {
-    return new Date(params.value).toLocaleDateString();
-  };
-
   const getRowStyle = (params: RowClassParams<SerializedOrder>): { backgroundColor: string } | undefined => {
     if (!params.data) return undefined;
 
@@ -71,10 +62,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   const columnDefs: ColDef[] = [
     { headerName: "Status", field: "status", filter: true, width: 120 },
     { headerName: "Order Number", field: "orderNumber", filter: true, width: 140 },
-    { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrency, width: 150 },
-    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-    { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDate, width: 120 },
+    { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 150 },
+    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+    { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDateInTable, width: 120 },
     { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },
   ];
 

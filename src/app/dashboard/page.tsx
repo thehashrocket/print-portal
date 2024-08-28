@@ -28,10 +28,6 @@ export default async function DashboardPage() {
         )
     }
 
-    const formatDate = (dateString: string | Date) => {
-        return dayjs(dateString).tz(dayjs.tz.guess()).format('MMMM D, YYYY h:mm A');
-    };
-
     const orderItems = await api.orderItems.getAll();
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({

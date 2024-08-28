@@ -4,7 +4,8 @@
 import React, { useState } from 'react';
 import { api } from '~/trpc/react';
 import OrderItemStockForm from './orderItemStockForm';
-import { StockStatus } from '@prisma/client';
+import { formatDate } from "~/utils/formatters";
+
 
 interface OrderItemStockComponentProps {
     orderItemId: string;
@@ -19,10 +20,10 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
         { enabled: !!orderItemId }
     );
 
-    const formatDate = (date: Date | null) => {
-        if (!date) return 'N/A';
-        return new Date(date).toLocaleDateString();
-    };
+    // const formatDate = (date: Date | null) => {
+    //     if (!date) return 'N/A';
+    //     return new Date(date).toLocaleDateString();
+    // };
 
     const handleSuccess = () => {
         setIsAddMode(false);
@@ -55,7 +56,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                                     <td>${stock.costPerM.toString()}</td>
                                     <td>{stock.supplier || 'N/A'}</td>
                                     <td>{stock.stockStatus}</td>
-                                    <td>{formatDate(stock.expectedDate ? new Date(stock.expectedDate) : null)}</td>
+                                    <td>{stock.expectedDate ? formatDate(new Date(stock.expectedDate)) : null}</td>
                                     <td>
                                         <button
                                             className="btn btn-xs btn-primary"

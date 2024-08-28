@@ -10,6 +10,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Prisma, OrderStatus, ShippingMethod } from "@prisma/client";
 import NoPermission from "~/app/_components/noPermission/noPremission";
+import { formatCurrency, formatDate } from "~/utils/formatters";
 
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
   const getStatusColor = () => {
@@ -60,18 +61,6 @@ export default async function OrderPage({
     updatedAt: item.updatedAt?.toString(),
   }));
 
-  const formatDate = (date: string | null) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
-  const formatCurrency = (amount: string | null | undefined) => {
-    if (amount === null || amount === undefined) return 'N/A';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(amount));
-  };
-
   const formatShippingMethod = (method: ShippingMethod) => {
     return method.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   };
@@ -110,11 +99,12 @@ export default async function OrderPage({
             title="Order Price Details"
             content={
               <div>
-                <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount)}</p>
-                <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax)}</p>
-                <p><strong>Shipping Amount: </strong>{formatCurrency(order.totalShippingAmount)}</p>
-                <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount)}</p>
-                <p><strong>Deposit:</strong> {formatCurrency(order.deposit)}</p>
+                <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
+                <p><strong>Shipping Amount: </strong>{formatCurrency(order.totalShippingAmount ?? "")}</p>
+                <p><strong>Subtotal: </strong></p>
+                <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
+                <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
+                <p><strong>Deposit:</strong> {formatCurrency(order.deposit ?? "")}</p>
               </div>
             }
           />
@@ -124,7 +114,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="Created At"
-            content={<p>{formatDate(order.createdAt)}</p>}
+            content={<p>{formatDate(order.createdAt ?? "")}</p>}
           />
           <InfoSection
             title="Contact Person"
@@ -132,7 +122,7 @@ export default async function OrderPage({
           />
           <InfoSection
             title="In Hands Date"
-            content={<p>{formatDate(order.inHandsDate)}</p>}
+            content={<p>{formatDate(order.inHandsDate ?? "")}</p>}
           />
         </div>
 
@@ -157,9 +147,9 @@ export default async function OrderPage({
                 <>
                   <p><strong>Method:</strong> {order.ShippingInfo ? formatShippingMethod(order.ShippingInfo.shippingMethod) : 'N/A'}</p>
                   <p><strong>Phone:</strong> {order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
-                  <p><strong>Cost:</strong> {formatCurrency(order.ShippingInfo?.shippingCost)}</p>
-                  <p><strong>Date:</strong> {formatDate(order.ShippingInfo?.shippingDate ?? null)}</p>
-                  <p><strong>Estimated Delivery:</strong> {formatDate(order.ShippingInfo?.estimatedDelivery ?? null)}</p>
+                  <p><strong>Cost:</strong> {formatCurrency(order.ShippingInfo?.shippingCost ?? "")}</p>
+                  <p><strong>Date:</strong> {formatDate(order.ShippingInfo?.shippingDate ?? "")}</p>
+                  <p><strong>Estimated Delivery:</strong> {formatDate(order.ShippingInfo?.estimatedDelivery ?? "")}</p>
                   <p><strong>Number of Packages:</strong> {order.ShippingInfo?.numberOfPackages || 'N/A'}</p>
                   <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber || 'N/A'}</p>
                 </>
@@ -172,7 +162,7 @@ export default async function OrderPage({
                 title="Pickup Information"
                 content={
                   <>
-                    <p><strong>Date:</strong> {formatDate(order.ShippingInfo.ShippingPickup.pickupDate)}</p>
+                    <p><strong>Date:</strong> {order.ShippingInfo.ShippingPickup.pickupDate ? formatDate(order.ShippingInfo.ShippingPickup.pickupDate) : null}</p>
                     <p><strong>Time:</strong> {order.ShippingInfo.ShippingPickup.pickupTime}</p>
                     <p><strong>Contact:</strong> {order.ShippingInfo.ShippingPickup.contactName}</p>
                     <p><strong>Phone:</strong> {order.ShippingInfo.ShippingPickup.contactPhone}</p>

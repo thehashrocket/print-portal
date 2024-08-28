@@ -16,7 +16,7 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { SerializedWorkOrder } from "~/types/serializedTypes";
-
+import { formatNumberAsCurrencyInTable, formatDateInTable } from "~/utils/formatters";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface WorkOrdersTableProps {
@@ -47,15 +47,6 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
         </div>
     );
 
-    const formatNumberAsCurrency = (params: ValueFormatterParams) => {
-        if (params.value === null) return "$0.00";
-        return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    }
-
-    const formatDate = (params: ValueFormatterParams) => {
-        return new Date(params.value).toLocaleDateString();
-    }
-
     const getRowStyle = (params: RowClassParams<SerializedWorkOrder>): { backgroundColor: string } | undefined => {
         if (!params.data) return undefined;
 
@@ -70,11 +61,11 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
 
     const columnDefs: ColDef[] = [
         { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDate, width: 120 },
+        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120 },
         { headerName: "Work Order #", field: "workOrderNumber", filter: true, width: 150 },
         { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
-        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
+        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 150, sortable: false, filter: false },
     ];
 

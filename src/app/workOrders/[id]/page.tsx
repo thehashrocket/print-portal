@@ -10,6 +10,7 @@ import Link from "next/link";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { WorkOrderStatus } from "@prisma/client";
 import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { formatCurrency, formatDate } from "~/utils/formatters";
 
 const StatusBadge = ({ status }: { status: WorkOrderStatus }) => {
   const getStatusColor = () => {
@@ -55,18 +56,6 @@ export default async function WorkOrderPage({
     ...item,
   }));
 
-  const formatCurrency = (amount: string | null | undefined) => {
-    if (amount === null || amount === undefined) return 'N/A';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(amount));
-  };
-
-  const formatDate = (date: string | null) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
@@ -104,9 +93,9 @@ export default async function WorkOrderPage({
             title="Work Order Price Details"
             content={
               <div>
-                <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount)}</p>
-                <p><strong>Shipping Amount: </strong>{formatCurrency(workOrder.totalShippingAmount)}</p>
-                <p><strong>Total Amount:</strong> {formatCurrency(workOrder.totalAmount)}</p>
+                <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount ?? 0)}</p>
+                <p><strong>Shipping Amount: </strong>{formatCurrency(workOrder.totalShippingAmount ?? 0)}</p>
+                <p><strong>Total Amount:</strong> {formatCurrency(workOrder.totalAmount ?? 0)}</p>
               </div>
             }
           />
