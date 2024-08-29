@@ -21,7 +21,6 @@ const workOrderItemSchema = z.object({
     })).optional(),
     cost: z.number().optional(),
     costPerM: z.number().min(1, 'Cost Per M is required'),
-    customerSuppliedStock: z.string().optional(),
     description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
     inkColor: z.string().optional(),
@@ -72,7 +71,6 @@ const WorkOrderItemForm: React.FC = () => {
                 workOrderId: workOrder.id,
                 description: data.description, // Provide a default empty string if description is undefined
                 artwork: artworks, // Use the artworks state instead of data.artwork
-                customerSuppliedStock: data.customerSuppliedStock || '',
                 expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
                 inkColor: data.inkColor || '',
                 other: data.other || '',
@@ -150,11 +148,6 @@ const WorkOrderItemForm: React.FC = () => {
                             <label htmlFor='costPerM' className='block text-sm font-medium text-gray-700'>Cost Per M</label>
                             <input id='costPerM' type='number' {...register('costPerM', { valueAsNumber: true })} className='input input-bordered w-full' />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor='customerSuppliedStock' className='block text-sm font-medium text-gray-700'>Customer Supplied Stock</label>
-                            <input id='customerSuppliedStock' {...register('customerSuppliedStock')} className='input input-bordered w-full' />
-                            {errors.customerSuppliedStock && <p className='text-red-500'>{errors.customerSuppliedStock.message}</p>}
                         </div>
                         <div>
                             <label htmlFor='description' className='block text-sm font-medium text-gray-700'>Description</label>
