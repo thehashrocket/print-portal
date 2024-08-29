@@ -73,6 +73,7 @@ export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvo
 
 export function normalizeOrder(order: Order & {
     calculatedSalesTax: Prisma.Decimal | null;
+    calculatedSubTotal: Prisma.Decimal | null;
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
@@ -104,6 +105,7 @@ export function normalizeOrder(order: Order & {
 }): SerializedOrder {
     return {
         calculatedSalesTax: order.calculatedSalesTax ? order.calculatedSalesTax.toString() : null,
+        calculatedSubTotal: order.calculatedSubTotal ? order.calculatedSubTotal.toString() : null,
         contactPersonId: order.contactPersonId,
         createdAt: order.createdAt.toISOString(),
         createdById: order.createdById,
@@ -359,6 +361,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
+    calculatedSalesTax: Prisma.Decimal | null;
+    calculatedSubTotal: Prisma.Decimal | null;
     totalShippingAmount: Prisma.Decimal | null;
     contactPerson: { id: string; name: string | null };
     createdBy: { id: string; name: string | null };
@@ -385,25 +389,27 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     WorkOrderVersions: WorkOrderVersion[];
 }): SerializedWorkOrder {
     return {
-        id: workOrder.id,
-        officeId: workOrder.officeId,
-        dateIn: workOrder.dateIn.toISOString(),
-        inHandsDate: workOrder.inHandsDate.toISOString(),
-        estimateNumber: workOrder.estimateNumber,
-        purchaseOrderNumber: workOrder.purchaseOrderNumber,
-        version: workOrder.version,
+        calculatedSalesTax: workOrder.calculatedSalesTax ? workOrder.calculatedSalesTax.toString() : null,
+        calculatedSubTotal: workOrder.calculatedSubTotal ? workOrder.calculatedSubTotal.toString() : null,
+        contactPersonId: workOrder.contactPersonId,
         createdAt: workOrder.createdAt.toISOString(),
-        updatedAt: workOrder.updatedAt.toISOString(),
-        workOrderNumber: workOrder.workOrderNumber,
+        createdById: workOrder.createdById,
+        dateIn: workOrder.dateIn.toISOString(),
+        estimateNumber: workOrder.estimateNumber,
+        id: workOrder.id,
+        inHandsDate: workOrder.inHandsDate.toISOString(),
+        invoicePrintEmail: workOrder.invoicePrintEmail,
+        officeId: workOrder.officeId,
+        purchaseOrderNumber: workOrder.purchaseOrderNumber,
         shippingInfoId: workOrder.shippingInfoId,
         status: workOrder.status,
-        invoicePrintEmail: workOrder.invoicePrintEmail,
-        contactPersonId: workOrder.contactPersonId,
-        createdById: workOrder.createdById,
         totalAmount: workOrder.totalAmount?.toString() ?? null,
         totalCost: workOrder.totalCost?.toString() ?? null,
         totalItemAmount: workOrder.totalItemAmount?.toString() ?? null,
         totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? null,
+        updatedAt: workOrder.updatedAt.toISOString(),
+        version: workOrder.version,
+        workOrderNumber: workOrder.workOrderNumber,
         contactPerson: {
             id: workOrder.contactPerson.id,
             name: workOrder.contactPerson.name

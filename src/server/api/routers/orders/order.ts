@@ -57,11 +57,20 @@ export const orderRouter = createTRPCRouter({
       const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
       const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
       const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
-      return normalizeOrder({ ...order, calculatedSalesTax, totalAmount, totalCost, totalItemAmount, totalShippingAmount });
+      return normalizeOrder({
+        ...order,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalCost,
+        totalItemAmount,
+        totalShippingAmount
+      });
     }),
 
   getAll: protectedProcedure
@@ -123,11 +132,21 @@ export const orderRouter = createTRPCRouter({
         const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
         const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
         const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
         const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
         const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
-        return normalizeOrder({ ...order, calculatedSalesTax, totalAmount, totalItemAmount, totalCost, totalShippingAmount });
+        return normalizeOrder({
+          ...order,
+          calculatedSalesTax,
+          calculatedSubTotal,
+          totalAmount,
+          totalItemAmount,
+          totalCost,
+          totalShippingAmount
+
+        });
       }));
     }),
 
@@ -182,10 +201,19 @@ export const orderRouter = createTRPCRouter({
       const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
       const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
       const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
-      return normalizeOrder({ ...updatedOrder, calculatedSalesTax, totalAmount, totalItemAmount, totalShippingAmount, totalCost });
+      return normalizeOrder({
+        ...updatedOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalItemAmount,
+        totalShippingAmount,
+        totalCost
+      });
     }),
 
   dashboard: protectedProcedure

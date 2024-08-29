@@ -4,6 +4,7 @@ import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const prisma = new PrismaClient();
+const SALES_TAX = 0.07;
 
 export async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
 
@@ -30,9 +31,13 @@ export async function convertWorkOrderToOrder(workOrderId: string, officeId: str
         );
 
         const totalAmount = totalItemAmount.add(totalShippingAmount);
+        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+        const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
 
         return {
             ...updatedWorkOrder,
+            calculatedSalesTax,
+            calculatedSubTotal,
             totalAmount,
             totalCost,
             totalItemAmount,
@@ -102,10 +107,14 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
 
     // Calculate totalAmount
     const totalAmount = totalItemAmount.add(totalShippingAmount)
+    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+    const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
 
     // Prepare the data for normalization
     const workOrderData = {
         ...workOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalAmount,
         totalCost,
         totalItemAmount,

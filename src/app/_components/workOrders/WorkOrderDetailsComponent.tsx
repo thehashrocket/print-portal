@@ -144,6 +144,8 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             <div>
                                 <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount ?? 0)}</p>
                                 <p><strong>Shipping Amount: </strong>{formatCurrency(workOrder.totalShippingAmount ?? 0)}</p>
+                                <p><strong>Subtotal:</strong> {formatCurrency(workOrder.calculatedSubTotal ?? 0)}</p>
+                                <p><strong>Tax Amount:</strong> {formatCurrency(workOrder.calculatedSalesTax ?? 0)}</p>
                                 <p><strong>Total Amount:</strong> {formatCurrency(workOrder.totalAmount ?? 0)}</p>
                             </div>
                         }

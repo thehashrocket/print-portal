@@ -93,6 +93,7 @@ export interface SerializedShippingInfo {
 export interface SerializedOrder {
     contactPersonId: string;
     calculatedSalesTax: string | null;
+    calculatedSubTotal: string | null;
     createdAt: string;
     createdById: string;
     dateInvoiced: string | null;
@@ -271,25 +272,27 @@ export interface SerializedTypesettingProof {
 }
 
 export interface SerializedWorkOrder {
-    id: string;
-    officeId: string;
-    dateIn: string;
-    inHandsDate: string;
-    estimateNumber: string;
-    purchaseOrderNumber: string;
-    version: number;
+    calculatedSalesTax: string | null;
+    calculatedSubTotal: string | null;
+    contactPersonId: string;
     createdAt: string;
-    updatedAt: string;
-    workOrderNumber: number;
+    createdById: string;
+    dateIn: string;
+    estimateNumber: string;
+    id: string;
+    inHandsDate: string;
+    invoicePrintEmail: InvoicePrintEmailOptions;
+    officeId: string;
+    purchaseOrderNumber: string;
     shippingInfoId: string | null;
     status: WorkOrderStatus;
     totalAmount: string | null;
     totalCost: string | null;
     totalItemAmount: string | null;
     totalShippingAmount: string | null;
-    invoicePrintEmail: InvoicePrintEmailOptions;
-    contactPersonId: string;
-    createdById: string;
+    updatedAt: string;
+    version: number;
+    workOrderNumber: number;
     contactPerson: {
         id: string;
         name: string | null;

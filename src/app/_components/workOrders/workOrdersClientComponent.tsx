@@ -32,7 +32,7 @@ const WorkOrdersClientComponent: React.FC<WorkOrdersClientComponentProps> = ({ w
             <main>
                 <section className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-xl font-semibold mb-4">Work Orders List</h2>
-                    <WorkOrdersTable workOrders={workOrders} />
+                    <WorkOrdersTable />
                 </section>
             </main>
         </div>

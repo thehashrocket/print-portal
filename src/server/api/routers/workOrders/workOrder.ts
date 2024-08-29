@@ -5,6 +5,8 @@ import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
 import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
 
+const SALES_TAX = 0.07;
+
 export const workOrderRouter = createTRPCRouter({
   getByID: protectedProcedure
     .input(z.string())
@@ -48,11 +50,15 @@ export const workOrderRouter = createTRPCRouter({
 
       const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const totalAmount = totalItemAmount.add(totalShippingAmount);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
       return normalizeWorkOrder({
         ...workOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalAmount,
         totalItemAmount,
         totalCost,
@@ -136,10 +142,14 @@ export const workOrderRouter = createTRPCRouter({
       const totalItemAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalCost = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalShippingAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...createdWorkOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalAmount,
         totalCost,
         totalItemAmount,
@@ -184,15 +194,18 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
-      return Promise.all(workOrders.map(async (workOrder) => {
+      return Promise.all(workOrders.map(async workOrder => {
         const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
         const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
         const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
-
-        const totalAmount = totalItemAmount.add(totalShippingAmount);
+        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
         const normalized = normalizeWorkOrder({
           ...workOrder,
+          calculatedSalesTax,
+          calculatedSubTotal,
           totalAmount,
           totalCost,
           totalItemAmount,
@@ -247,11 +260,15 @@ export const workOrderRouter = createTRPCRouter({
 
       const totalCost = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
       const totalAmount = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...updatedWorkOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalAmount,
         totalCost,
         totalItemAmount,
@@ -305,11 +322,15 @@ export const workOrderRouter = createTRPCRouter({
 
       const totalCost = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalAmount = totalItemAmount.add(totalShippingAmount);
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
 
       return normalizeWorkOrder({
         ...updatedWorkOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalAmount,
         totalCost,
         totalItemAmount,
