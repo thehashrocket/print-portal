@@ -87,7 +87,6 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
       data: {
         amount: workOrderItem.amount,
         cost: workOrderItem.cost,
-        customerSuppliedStock: workOrderItem.customerSuppliedStock ?? "",
         description: workOrderItem.description,
         expectedDate: workOrderItem.expectedDate,
         finishedQty: 0,
@@ -910,7 +909,6 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         workOrderId,
         amount: new Prisma.Decimal(amount),
         cost: new Prisma.Decimal(cost),
-        customerSuppliedStock: faker.helpers.arrayElement(csOptions),
         description: faker.commerce.productDescription(),
         expectedDate: faker.date.future(),
         ink: faker.helpers.arrayElement(inkColors),
