@@ -1,14 +1,13 @@
 // ~/src/app/_components/workOrders/workOrdersTable.tsx
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     ModuleRegistry,
     ColDef,
-    ValueFormatterParams,
     GridReadyEvent,
     FilterChangedEvent,
     RowClassParams
@@ -16,17 +15,22 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { SerializedWorkOrder } from "~/types/serializedTypes";
+import { api } from "~/trpc/react";
 import { formatNumberAsCurrencyInTable, formatDateInTable } from "~/utils/formatters";
+
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-interface WorkOrdersTableProps {
-    workOrders: SerializedWorkOrder[];
-}
-
-const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
+const WorkOrdersTable: React.FC = () => {
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery(
+        undefined, // no input
+        {
+            refetchInterval: 5000, // Refetch every 5 seconds
+        }
+    );
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -70,8 +74,10 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
     ];
 
     useEffect(() => {
-        setRowData(workOrders);
-        setLoading(false);
+        if (workOrders) {
+            setRowData(workOrders);
+            setLoading(false);
+        }
     }, [workOrders]);
 
     const onGridReady = (params: GridReadyEvent) => {
@@ -80,9 +86,10 @@ const WorkOrdersTable: React.FC<WorkOrdersTableProps> = ({ workOrders }) => {
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
+        console.log(`Filtered row count: ${filteredRowCount}`);
     };
 
-    if (loading) {
+    if (loading || isLoading) {
         return <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
         </div>;
