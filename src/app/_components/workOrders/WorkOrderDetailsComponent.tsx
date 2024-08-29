@@ -1,7 +1,7 @@
 // ~/app/_components/workOrders/WorkOrderDetailsComponent.tsx
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { WorkOrderStatus } from "@prisma/client";
 import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
@@ -10,19 +10,53 @@ import WorkOrderItemsTable from "../../_components/workOrders/workOrderItem/work
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { api } from "~/trpc/react";
 
-const StatusBadge = ({ status }: { status: WorkOrderStatus }) => {
-    const getStatusColor = () => {
+const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
+    const [currentStatus, setCurrentStatus] = useState(status);
+    const utils = api.useContext();
+    const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
+        onSuccess: (updatedWorkOrder) => {
+            setCurrentStatus(updatedWorkOrder.status);
+            utils.workOrders.getByID.invalidate(workOrderId);
+        },
+        onError: (error) => {
+            console.error('Failed to update status:', error);
+            // Optionally, you can show an error message to the user here
+        }
+    });
+
+    const getStatusColor = (status: WorkOrderStatus): string => {
         switch (status) {
             case "Approved": return "bg-green-100 text-green-800";
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
-            default: return "bg-gray-100 text-gray-800";
+            default: return "bg-blue-100 text-blue-800";
         }
     };
+
+    const handleStatusChange = (newStatus: WorkOrderStatus) => {
+        updateStatus({ id, status: newStatus });
+    };
+
+    useEffect(() => {
+        setCurrentStatus(status);
+    }, [status]);
+
     return (
-        <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor()}`}>
-            {status}
-        </span>
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                {currentStatus}
+            </span>
+            <select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value as WorkOrderStatus)}
+                className="px-2 py-1 rounded-md border border-gray-300"
+            >
+                {Object.values(WorkOrderStatus).map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                ))}
+            </select>
+            {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
+        </div>
     );
 };
 
@@ -102,7 +136,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     />
                     <InfoSection
                         title="Work Order Status"
-                        content={<StatusBadge status={workOrder.status} />}
+                        content={<StatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}
                     />
                     <InfoSection
                         title="Work Order Price Details"

@@ -108,8 +108,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/workOrders">Work Orders</Link></li>
-                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Work Order</Link></li>
-                            <li>Job</li>
+                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Work Order {workOrder?.workOrderNumber}</Link></li>
+                            <li>Job {workOrderItem.id}</li>
                         </ul>
                     </div>
                 </div>

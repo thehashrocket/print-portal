@@ -1,7 +1,7 @@
 // ~/app/_components/orders/OrderDetailsComponent.tsx
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Order, OrderStatus, ShippingMethod } from "@prisma/client";
 import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
@@ -9,19 +9,56 @@ import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { SerializedOrder } from "~/types/serializedTypes";
 
-const StatusBadge = ({ status }: { status: OrderStatus }) => {
-    const getStatusColor = () => {
+const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
+    const [currentStatus, setCurrentStatus] = useState(status);
+    const utils = api.useContext();
+    const { mutate: updateStatus, isError } = api.orders.updateStatus.useMutation({
+        onSuccess: (udpatedOrder) => {
+            setCurrentStatus(udpatedOrder.status);
+            utils.workOrders.getByID.invalidate(orderId);
+        },
+        onError: (error) => {
+            console.error('Failed to update status:', error);
+            // Optionally, you can show an error message to the user here
+        }
+    });
+
+    const getStatusColor = (status: OrderStatus): string => {
         switch (status) {
             case "Completed": return "bg-green-100 text-green-800";
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
+            case "Shipping": return "bg-blue-100 text-blue-800";
+            case "Invoicing": return "bg-blue-100 text-blue-800";
+            case "PaymentReceived": return "bg-blue-100 text-blue-800";
             default: return "bg-blue-100 text-blue-800";
         }
     };
+
+    const handleStatusChange = (newStatus: OrderStatus) => {
+        updateStatus({ id, status: newStatus });
+    };
+
+    useEffect(() => {
+        setCurrentStatus(status);
+    }, [status]);
+
     return (
-        <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor()}`}>
-            {status}
-        </span>
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                {currentStatus}
+            </span>
+            <select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
+                className="px-2 py-1 rounded-md border border-gray-300"
+            >
+                {Object.values(OrderStatus).map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                ))}
+            </select>
+            {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
+        </div>
     );
 };
 
@@ -108,7 +145,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     />
                     <InfoSection
                         title="Status"
-                        content={<StatusBadge status={order.status} />}
+                        content={<StatusBadge
+                            id={order.id}
+                            status={order.status}
+                            orderId={order.id}
+                        />}
                     />
                     <InfoSection
                         title="Order Price Details"
