@@ -72,9 +72,18 @@ interface WorkOrderDetailsProps {
 }
 
 export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: WorkOrderDetailsProps) {
-    const { data: workOrder, refetch, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
+    const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
+    const [isWorkOrderItemsLoading, setIsWorkOrderItemsLoading] = useState(false);
+    const { data: workOrder, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
         initialData: initialWorkOrder,
     });
+
+    useEffect(() => {
+        if (workOrder) {
+            setWorkOrderItems(workOrder.WorkOrderItems)
+            setIsWorkOrderItemsLoading(false);
+        }
+    }, [workOrder]);
 
     if (isLoading) {
         return (
@@ -91,9 +100,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             </div>
         );
     }
-
-    const serializedOrderItems = workOrder.WorkOrderItems as SerializedWorkOrderItem[];
-
 
     return (
         <div className="container mx-auto px-4 py-8">

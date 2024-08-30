@@ -25,11 +25,7 @@ const WorkOrdersTable: React.FC = () => {
     const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery(
-        undefined, // no input
-        {
-        }
-    );
+    const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery();
 
     const defaultColDef = useMemo(() => ({
         resizable: true,

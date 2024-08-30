@@ -7,7 +7,7 @@ import { Order, OrderStatus, ShippingMethod } from "@prisma/client";
 import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
-import { SerializedOrder } from "~/types/serializedTypes";
+import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -79,9 +79,19 @@ interface OrderDetailsProps {
 }
 
 export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProps) {
-    const { data: order, refetch, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
+    const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
+    const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
+
+    const { data: order, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
     });
+
+    useEffect(() => {
+        if (order) {
+            setOrderItems(order.OrderItems);
+            setIsOrderItemsLoading(false);
+        }
+    }, [order]);
 
     if (isLoading) {
         return (
@@ -94,19 +104,10 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     if (isError || !order) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="text-red-500 text-xl">Error loading work order. Please try again.</div>
+                <div className="text-red-500 text-xl">Error loading order. Please try again.</div>
             </div>
         );
     }
-
-    const serializedOrderItems = order.OrderItems.map((item: any) => ({
-        ...item,
-        amount: item.amount?.toString() ?? null,
-        cost: item.cost?.toString() ?? null,
-        createdAt: item.createdAt?.toString(),
-        expectedDate: item.expectedDate?.toString(),
-        updatedAt: item.updatedAt?.toString(),
-    }));
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -225,7 +226,13 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Order Jobs</h2>
                     <div className="bg-white p-4 rounded-lg shadow-md">
-                        <OrderItemsTable orderItems={serializedOrderItems} />
+                        {isOrderItemsLoading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+                            </div>
+                        ) : (
+                            <OrderItemsTable orderItems={orderItems} />
+                        )}
                     </div>
                 </section>
             </main>
