@@ -126,7 +126,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
         if (['jpg', 'jpeg', 'png'].includes(fileExtension || '')) {
             return (
-                <Image src={file.fileUrl} alt="File preview" width={100} height={100} objectFit="contain" />
+                <img src={file.fileUrl} alt="File preview" width={100} height={100} />
             );
         }
 
