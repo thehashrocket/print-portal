@@ -261,14 +261,24 @@ export interface SerializedTypesettingProof {
     id: string;
     typesettingId: string;
     proofNumber: number;
-    dateSubmitted: string | null;
+    dateSubmitted: Date | null;
     notes: string | null;
     approved: boolean | null;
-    createdAt: string;
+    createdAt: Date;
     createdById: string;
-    updatedAt: string;
+    updatedAt: Date;
     proofCount: number;
     proofMethod: ProofMethod;
+    artwork: SerializedTypesettingProofArtwork[];
+}
+
+export interface SerializedTypesettingProofArtwork {
+    id: string;
+    typesettingProofId: string;
+    fileUrl: string;
+    description: string | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface SerializedWorkOrder {

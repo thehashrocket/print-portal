@@ -41,6 +41,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
             );
             setSelectedTypeId(mostRecent.id);
         }
+        console.log('initialTypesetting', initialTypesetting);
     }, [initialTypesetting, setTypesetting]);
 
     const handleNewTypesetting = (newTypesetting: TypesettingWithRelations) => {
@@ -171,6 +172,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                             <div className="grid grid-cols-4 gap-4">
                                 {currentItem.TypesettingProofs?.map((proof) => (
                                     <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-1">
+                                        {/* if artwork present, then show it. */}
                                         <p className="text-gray-600 text-sm font-semibold">Approved</p>
                                         <p className="mb-2 text-sm">{proof.approved ? 'Yes' : 'No'}</p>
                                         <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>

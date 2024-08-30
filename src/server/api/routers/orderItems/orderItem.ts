@@ -16,10 +16,15 @@ export const orderItemRouter = createTRPCRouter({
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true, // Include the artwork for TypesettingProofs
+                                }
+                            }
                         }
                     },
                     ProcessingOptions: true,
+                    OrderItemStock: true,
                 }
             });
         }),
@@ -35,7 +40,11 @@ export const orderItemRouter = createTRPCRouter({
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            }
                         }
                     },
                     ProcessingOptions: true
@@ -50,7 +59,11 @@ export const orderItemRouter = createTRPCRouter({
                 Typesetting: {
                     include: {
                         TypesettingOptions: true,
-                        TypesettingProofs: true
+                        TypesettingProofs: {
+                            include: {
+                                artwork: true,
+                            }
+                        }
                     }
                 },
                 ProcessingOptions: true

@@ -8,6 +8,8 @@ import { ProofMethod } from "@prisma/client";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
 import { SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";
+import FileUpload from "../fileUpload";
+import ArtworkComponent from "../artworkComponent/artworkComponent";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -28,7 +30,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingProofFormData>({
         resolver: zodResolver(typesettingProofFormSchema),
     });
-
+    const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
     const { typesetting, setTypesetting } = useTypesettingContext();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,22 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             typesettingId,
             ...data,
             dateSubmitted: new Date(data.dateSubmitted).toISOString(),
+            artwork: artworks
         });
+    };
+
+    const handleFileUploaded = (fileUrl: string, description: string) => {
+        setArtworks(prev => [...prev, { fileUrl, description }]);
+    };
+
+    const handleFileRemoved = (fileUrl: string) => {
+        setArtworks(prev => prev.filter(art => art.fileUrl !== fileUrl));
+    };
+
+    const handleDescriptionChanged = (fileUrl: string, newDescription: string) => {
+        setArtworks(prev => prev.map(art =>
+            art.fileUrl === fileUrl ? { ...art, description: newDescription } : art
+        ));
     };
 
     const cancel = () => {
@@ -74,6 +91,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
 
     return (
         <form onSubmit={handleSubmit(onSubmitHandler)} className="max-w-md mx-auto">
+            <h2 className="text-xl font-bold mb-4">Create Typesetting Proof</h2>
             <div className="mb-4">
                 <label className="block text-gray-700 font-bold mb-2">Proof Number</label>
                 <input
@@ -84,6 +102,28 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                 {errors.proofNumber && (
                     <span className="text-red-500">{errors.proofNumber.message}</span>
                 )}
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Artwork</label>
+                <div className="grid grid-cols-2 gap-4">
+                    {artworks.map((artwork, index) => (
+                        <ArtworkComponent
+                            key={index}
+                            artworkUrl={artwork.fileUrl}
+                            artworkDescription={artwork.description}
+                        />
+                    ))}
+                </div>
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Proof Count</label>
+                <FileUpload
+                    onFileUploaded={handleFileUploaded}
+                    onFileRemoved={handleFileRemoved}
+                    onDescriptionChanged={handleDescriptionChanged}
+                    workOrderItemId={typesettingId}
+                    initialFiles={artworks}
+                />
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 font-bold mb-2">Date Submitted</label>

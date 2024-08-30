@@ -40,7 +40,11 @@ export const typesettingRouter = createTRPCRouter({
             },
             include: {
                 TypesettingOptions: true,
-                TypesettingProofs: true,
+                TypesettingProofs: {
+                    include: {
+                        artwork: true,
+                    }
+                },
             }
         });
     }),

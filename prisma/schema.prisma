@@ -344,19 +344,30 @@ model TypesettingOption {
 }
 
 model TypesettingProof {
-  id            String      @id @default(uuid())
+  id            String                    @id @default(uuid())
   typesettingId String
   proofNumber   Int
   dateSubmitted DateTime?
   notes         String?
   approved      Boolean?
-  createdAt     DateTime    @default(now())
+  createdAt     DateTime                  @default(now())
   createdById   String
-  updatedAt     DateTime    @updatedAt
+  updatedAt     DateTime                  @updatedAt
   proofCount    Int
-  proofMethod   ProofMethod @default(Digital)
-  createdBy     User        @relation(fields: [createdById], references: [id])
-  Typesetting   Typesetting @relation(fields: [typesettingId], references: [id])
+  proofMethod   ProofMethod               @default(Digital)
+  createdBy     User                      @relation(fields: [createdById], references: [id])
+  Typesetting   Typesetting               @relation(fields: [typesettingId], references: [id])
+  artwork       TypesettingProofArtwork[]
+}
+
+model TypesettingProofArtwork {
+  id                 String           @id @default(cuid())
+  typesettingProof   TypesettingProof @relation(fields: [typesettingProofId], references: [id])
+  typesettingProofId String
+  fileUrl            String
+  description        String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 }
 
 model User {

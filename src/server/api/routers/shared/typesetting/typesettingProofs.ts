@@ -1,18 +1,28 @@
 // This class is used to generate the typesetting proofs for the typesetting process.
 // /src/server/api/routers/shared/typesetting/typesettingProofs.ts
-import { ProofMethod } from "@prisma/client";
+import { ProofMethod, TypesettingProofArtwork } from "@prisma/client";
 import { z } from "zod";
 import {
     createTRPCRouter,
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
+import { SerializedTypesettingProof } from "~/types/serializedTypes";
+import { normalizeTypesettingProof } from "~/utils/dataNormalization";
+
+const artworkSchema = z.object({
+    fileUrl: z.string(),
+    description: z.string().nullable(),
+});
 
 export const typesettingProofsRouter = createTRPCRouter({
     getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.typesettingProof.findUnique({
             where: {
                 id: input,
+            },
+            include: {
+                artwork: true,
             },
         });
     }),
@@ -30,20 +40,32 @@ export const typesettingProofsRouter = createTRPCRouter({
             proofMethod: z.nativeEnum(ProofMethod),
             proofNumber: z.number(),
             typesettingId: z.string(),
+            artwork: z.array(artworkSchema),
         }))
-        .mutation(async ({ ctx, input }) => {
-            return ctx.db.typesettingProof.create({
+        .mutation(async ({ ctx, input }): Promise<SerializedTypesettingProof> => {
+            const createdProof = await ctx.db.typesettingProof.create({
                 data: {
                     approved: input.approved,
-                    createdById: ctx.session.user.id,
-                    dateSubmitted: input.dateSubmitted,
+                    dateSubmitted: new Date(input.dateSubmitted),
                     notes: input.notes,
                     proofCount: input.proofCount,
                     proofMethod: input.proofMethod,
                     proofNumber: input.proofNumber,
                     typesettingId: input.typesettingId,
+                    createdById: ctx.session.user.id,
+                    artwork: {
+                        create: input.artwork.map(art => ({
+                            fileUrl: art.fileUrl,
+                            description: art.description,
+                        })),
+                    },
+                },
+                include: {
+                    artwork: true,
                 },
             });
+
+            return normalizeTypesettingProof(createdProof);
         }),
 
     update: protectedProcedure

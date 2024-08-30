@@ -9,9 +9,11 @@ import {
     ShippingPickup,
     Address,
     ProcessingOptions,
+    ProofMethod,
     Typesetting,
     TypesettingOption,
     TypesettingProof,
+    TypesettingProofArtwork,
     WorkOrderItemArtwork,
     WorkOrderItemStock,
     Invoice,
@@ -36,6 +38,7 @@ import {
     SerializedTypesetting,
     SerializedTypesettingOption,
     SerializedTypesettingProof,
+    SerializedTypesettingProofArtwork,
     SerializedWorkOrderItemArtwork,
     SerializedWorkOrderItemStock,
     SerializedAddress,
@@ -341,19 +344,21 @@ export function normalizeTypesettingOption(option: TypesettingOption): Serialize
     };
 }
 
-export function normalizeTypesettingProof(proof: TypesettingProof): SerializedTypesettingProof {
+export function normalizeTypesettingProof(proof: TypesettingProof & { artwork?: TypesettingProofArtwork[] }): SerializedTypesettingProof {
     return {
-        id: proof.id,
-        typesettingId: proof.typesettingId,
-        proofNumber: proof.proofNumber,
-        dateSubmitted: proof.dateSubmitted?.toISOString() ?? null,
-        notes: proof.notes,
-        approved: proof.approved,
-        createdAt: proof.createdAt.toISOString(),
-        createdById: proof.createdById,
-        updatedAt: proof.updatedAt.toISOString(),
-        proofCount: proof.proofCount,
-        proofMethod: proof.proofMethod,
+        ...proof,
+        dateSubmitted: proof.dateSubmitted ? new Date(proof.dateSubmitted) : null,
+        createdAt: new Date(proof.createdAt),
+        updatedAt: new Date(proof.updatedAt),
+        artwork: (proof.artwork || []).map(normalizeTypesettingProofArtwork),
+    };
+}
+
+function normalizeTypesettingProofArtwork(artwork: TypesettingProofArtwork): SerializedTypesettingProofArtwork {
+    return {
+        ...artwork,
+        createdAt: new Date(artwork.createdAt),
+        updatedAt: new Date(artwork.updatedAt),
     };
 }
 

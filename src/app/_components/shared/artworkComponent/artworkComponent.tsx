@@ -29,7 +29,6 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
 
     return (
         <div>
-            <p> `{NEXTAUTH_URL}`</p>
             {isImage && (
                 <img src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
                 // <Image src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
