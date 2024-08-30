@@ -25,11 +25,14 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
     const isImage = artworkUrl.match(/\.(jpeg|jpg|gif|png)$/) != null;
     const isPdf = artworkUrl.match(/\.(pdf)$/) != null;
     const isPSD = artworkUrl.match(/\.(psd)$/) != null;
+    const NEXTAUTH_URL = process.env.GOOGLE_CLIENT_ID;
 
     return (
         <div>
+            <p> `{NEXTAUTH_URL}`</p>
             {isImage && (
-                <Image src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
+                <img src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
+                // <Image src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
             )}
             {isPdf && (
                 <div>

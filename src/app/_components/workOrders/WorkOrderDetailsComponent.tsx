@@ -16,7 +16,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
         onSuccess: (updatedWorkOrder) => {
             setCurrentStatus(updatedWorkOrder.status);
-            utils.workOrders.getByID.invalidate(workOrderId);
+            utils.workOrders.getAll.invalidate();
         },
         onError: (error) => {
             console.error('Failed to update status:', error);

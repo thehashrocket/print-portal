@@ -43,6 +43,7 @@ export const env = createEnv({
     SENDGRID_SMTP_HOST: z.string(),
     SENDGRID_SMTP_PORT: z.string(),
     SENDGRID_EMAIL_FROM: z.string().email(),
+    WEBSITE_URL: z.string(),
   },
 
   /**
@@ -72,6 +73,7 @@ export const env = createEnv({
     SENDGRID_SMTP_HOST: process.env.SENDGRID_SMTP_HOST,
     SENDGRID_SMTP_PORT: process.env.SENDGRID_SMTP_PORT,
     SENDGRID_EMAIL_FROM: process.env.SENDGRID_EMAIL_FROM,
+    WEBSITE_URL: process.env.WEBSITE_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
