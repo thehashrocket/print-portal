@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { formatDate, formatCurrency } from "~/utils/formatters";
+import ArtworkComponent from "../artworkComponent/artworkComponent";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -171,8 +172,10 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                             </div>
                             <div className="grid grid-cols-4 gap-4">
                                 {currentItem.TypesettingProofs?.map((proof) => (
-                                    <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-1">
-                                        {/* if artwork present, then show it. */}
+                                    <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-3">
+                                        {proof.artwork.map((artwork) => (
+                                            <ArtworkComponent key={artwork.id} artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
+                                        ))}
                                         <p className="text-gray-600 text-sm font-semibold">Approved</p>
                                         <p className="mb-2 text-sm">{proof.approved ? 'Yes' : 'No'}</p>
                                         <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>
