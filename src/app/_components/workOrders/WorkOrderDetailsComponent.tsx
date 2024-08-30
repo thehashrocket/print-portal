@@ -15,12 +15,10 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
     const utils = api.useContext();
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
         onSuccess: (updatedWorkOrder) => {
-            setCurrentStatus(updatedWorkOrder.status);
             utils.workOrders.getAll.invalidate();
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
-            // Optionally, you can show an error message to the user here
         }
     });
 
@@ -35,6 +33,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
 
     const handleStatusChange = (newStatus: WorkOrderStatus) => {
         updateStatus({ id, status: newStatus });
+        setCurrentStatus(newStatus);
     };
 
     useEffect(() => {
@@ -75,16 +74,7 @@ interface WorkOrderDetailsProps {
 export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: WorkOrderDetailsProps) {
     const { data: workOrder, refetch, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
         initialData: initialWorkOrder,
-        refetchInterval: 5000,
     });
-
-    useEffect(() => {
-        const refetchInterval = setInterval(() => {
-            refetch();
-        }, 5000);
-
-        return () => clearInterval(refetchInterval);
-    }, [refetch]);
 
     if (isLoading) {
         return (

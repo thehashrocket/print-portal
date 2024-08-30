@@ -30,7 +30,8 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
     };
 
     const handleStatusChange = async (newStatus: WorkOrderItemStatus) => {
-        await updateStatus({ id, status: newStatus });
+        updateStatus({ id, status: newStatus });
+        setCurrentStatus(newStatus);
 
     };
 

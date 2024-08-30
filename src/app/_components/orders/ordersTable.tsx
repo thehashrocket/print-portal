@@ -60,10 +60,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   };
 
   const columnDefs: ColDef[] = [
+    { headerName: "Order #", field: "orderNumber", filter: true, width: 90 },
     { headerName: "Status", field: "status", filter: true, width: 120 },
-    { headerName: "Order Number", field: "orderNumber", filter: true, width: 140 },
+    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 150, sort: "asc" },
     { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 150 },
+    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
     { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
     { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDateInTable, width: 120 },
     { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },

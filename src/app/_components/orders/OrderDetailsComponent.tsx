@@ -14,8 +14,7 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
     const utils = api.useContext();
     const { mutate: updateStatus, isError } = api.orders.updateStatus.useMutation({
         onSuccess: (udpatedOrder) => {
-            setCurrentStatus(udpatedOrder.status);
-            utils.workOrders.getAll.invalidate();
+            utils.orders.getAll.invalidate();
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
@@ -37,6 +36,7 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
 
     const handleStatusChange = (newStatus: OrderStatus) => {
         updateStatus({ id, status: newStatus });
+        setCurrentStatus(newStatus);
     };
 
     useEffect(() => {
@@ -81,16 +81,7 @@ interface OrderDetailsProps {
 export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProps) {
     const { data: order, refetch, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
-        refetchInterval: 5000,
     });
-
-    useEffect(() => {
-        const refetchInterval = setInterval(() => {
-            refetch();
-        }, 5000);
-
-        return () => clearInterval(refetchInterval);
-    }, [refetch]);
 
     if (isLoading) {
         return (
