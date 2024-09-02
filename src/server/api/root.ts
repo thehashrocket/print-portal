@@ -5,6 +5,7 @@ import { invoiceRouter } from "./routers/invoices/invoice";
 import { officeRouter } from "./routers/offices/office";
 import { orderItemRouter } from "./routers/orderItems/orderItem";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
+import { orderPaymentRouter } from "./routers/orderPayments/orderPayment";
 import { orderRouter } from "./routers/orders/order";
 import { postRouter } from "~/server/api/routers/post";
 import { rolesRouter } from "./routers/roles/roles";
@@ -35,6 +36,7 @@ export const appRouter = createTRPCRouter({
   orderItems: orderItemRouter,
   orderItemStocks: orderItemStockRouter,
   orderNotes: orderNoteRouter,
+  orderPayments: orderPaymentRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
   roles: rolesRouter,

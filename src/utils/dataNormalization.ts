@@ -8,6 +8,7 @@ import {
     ShippingInfo,
     ShippingPickup,
     Address,
+    OrderPayment,
     ProcessingOptions,
     ProofMethod,
     Typesetting,
@@ -48,6 +49,7 @@ import {
     SerializedOrderItemArtwork,
     SerializedOrderItemStock,
     SerializedOrderNote,
+    SerializedOrderPayment,
     SerializedWorkOrderNote,
     SerializedWorkOrderVersion
 } from "~/types/serializedTypes";
@@ -80,7 +82,10 @@ export function normalizeOrder(order: Order & {
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
+    totalPaid: Prisma.Decimal | null;
+    balance: Prisma.Decimal | null;
     totalShippingAmount: Prisma.Decimal | null;
+    OrderPayments: OrderPayment[] | null;
     Office: {
         Company: { name: string };
     };
@@ -125,6 +130,8 @@ export function normalizeOrder(order: Order & {
         totalCost: order.totalCost ? order.totalCost.toString() : null,
         totalItemAmount: order.totalItemAmount ? order.totalItemAmount.toString() : null,
         totalShippingAmount: order.totalShippingAmount ? order.totalShippingAmount.toString() : null,
+        totalPaid: order.totalPaid ? order.totalPaid.toString() : null,
+        balance: order.balance ? order.balance.toString() : null,
         updatedAt: order.updatedAt.toISOString(),
         version: order.version,
         workOrderId: order.workOrderId,
@@ -143,6 +150,7 @@ export function normalizeOrder(order: Order & {
             }
         },
         OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
+        OrderPayments: order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : null,
         ShippingInfo: order.ShippingInfo ? normalizeShippingInfo(order.ShippingInfo) : null,
         Invoice: order.Invoice ? normalizeInvoice(order.Invoice) : null,
         OrderNotes: order.OrderNotes ? order.OrderNotes.map(normalizeOrderNote) : []
@@ -222,6 +230,15 @@ export function normalizeOrderNote(note: OrderNote): SerializedOrderNote {
     };
 }
 
+export function normalizeOrderPayment(payment: OrderPayment): SerializedOrderPayment {
+    return {
+        id: payment.id,
+        amount: payment.amount.toString(),
+        paymentDate: payment.paymentDate.toISOString(),
+        paymentMethod: payment.paymentMethod,
+        orderId: payment.orderId,
+    };
+}
 
 export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
     Address: Address | null;

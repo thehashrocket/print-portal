@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma } from "@prisma/client";
-import { normalizeOrder, normalizeOrderItem } from "~/utils/dataNormalization";
+import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 
 const SALES_TAX = 0.07;
@@ -36,6 +36,7 @@ export const orderRouter = createTRPCRouter({
               name: true,
             },
           },
+          OrderPayments: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -61,6 +62,9 @@ export const orderRouter = createTRPCRouter({
       const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
       const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
+      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
 
       return normalizeOrder({
         ...order,
@@ -69,7 +73,9 @@ export const orderRouter = createTRPCRouter({
         totalAmount,
         totalCost,
         totalItemAmount,
-        totalShippingAmount
+        totalShippingAmount,
+        balance,
+        totalPaid,
       });
     }),
 
@@ -112,6 +118,7 @@ export const orderRouter = createTRPCRouter({
               name: true,
             },
           },
+          OrderPayments: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -136,6 +143,9 @@ export const orderRouter = createTRPCRouter({
         const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
         const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
         const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+        const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
+        const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+        const balance = totalAmount.sub(totalPaid);
 
         return normalizeOrder({
           ...order,
@@ -144,8 +154,9 @@ export const orderRouter = createTRPCRouter({
           totalAmount,
           totalItemAmount,
           totalCost,
-          totalShippingAmount
-
+          totalShippingAmount,
+          totalPaid,
+          balance,
         });
       }));
     }),
@@ -183,6 +194,7 @@ export const orderRouter = createTRPCRouter({
               name: true,
             },
           },
+          OrderPayments: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -205,6 +217,10 @@ export const orderRouter = createTRPCRouter({
       const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
       const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
       const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
+      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
+
       return normalizeOrder({
         ...updatedOrder,
         calculatedSalesTax,
@@ -212,7 +228,9 @@ export const orderRouter = createTRPCRouter({
         totalAmount,
         totalItemAmount,
         totalShippingAmount,
-        totalCost
+        totalCost,
+        totalPaid,
+        balance,
       });
     }),
 

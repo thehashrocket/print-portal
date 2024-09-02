@@ -3,11 +3,12 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Order, OrderStatus, ShippingMethod } from "@prisma/client";
+import { Order, OrderStatus, OrderPayment, ShippingMethod } from "@prisma/client";
 import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
+import OrderPaymentComponent from "~/app/_components/orders/OrderPayment/OrderPaymentComponent";
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -135,14 +136,20 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         title="Company"
                         content={<p className="text-xl">{order.Office?.Company.name}</p>}
                     />
-                    <InfoSection
-                        title="Status"
-                        content={<StatusBadge
-                            id={order.id}
-                            status={order.status}
-                            orderId={order.id}
-                        />}
-                    />
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid grid-rows-2 gap-6">
+                        <InfoSection
+                            title="Status"
+                            content={<StatusBadge
+                                id={order.id}
+                                status={order.status}
+                                orderId={order.id}
+                            />}
+                        />
+                        <OrderPaymentComponent order={order} />
+
+                    </div>
                     <InfoSection
                         title="Order Price Details"
                         content={
@@ -156,6 +163,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             </div>
                         }
                     />
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
                     <InfoSection
                         title="Created By"
                         content={<p>{order.createdBy?.name}</p>}

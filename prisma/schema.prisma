@@ -144,6 +144,7 @@ model Order {
   version           Int                      @default(1)
   WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
   workOrderId       String                   @unique
+  OrderPayments     OrderPayment[]
 }
 
 model OrderItem {
@@ -173,6 +174,15 @@ model OrderItem {
   status              OrderItemStatus     @default(Pending)
   Typesetting         Typesetting[]
   updatedAt           DateTime            @updatedAt
+}
+
+model OrderPayment {
+  id            String        @id @default(uuid())
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentDate   DateTime
+  paymentMethod PaymentMethod
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id])
 }
 
 model OrderItemArtwork {

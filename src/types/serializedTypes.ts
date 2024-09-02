@@ -68,28 +68,6 @@ export interface SerializedInvoicePayment {
     invoiceId: string;
 }
 
-export interface SerializedShippingInfo {
-    id: string;
-    shippingMethod: ShippingMethod;
-    instructions: string | null;
-    shippingCost: string | null;
-    shippingDate: string | null;
-    shippingNotes: string | null;
-    shippingOther: string | null;
-    shipToSameAsBillTo: boolean;
-    estimatedDelivery: string | null;
-    numberOfPackages: number | null;
-    trackingNumber: string | null;
-    attentionTo: string | null;
-    addressId: string | null;
-    createdAt: string;
-    updatedAt: string;
-    createdById: string;
-    officeId: string;
-    Address: SerializedAddress | null;
-    ShippingPickup: SerializedShippingPickup | null;
-}
-
 export interface SerializedOrder {
     contactPersonId: string;
     calculatedSalesTax: string | null;
@@ -108,6 +86,8 @@ export interface SerializedOrder {
     status: OrderStatus;
     totalAmount: string | null;
     totalCost: string | null;
+    totalPaid: string | null;
+    balance: string | null;
     totalItemAmount: string | null;
     totalShippingAmount: string | null;
     updatedAt: string;
@@ -126,10 +106,11 @@ export interface SerializedOrder {
             name: string;
         };
     };
-    OrderItems: SerializedOrderItem[];
-    ShippingInfo: SerializedShippingInfo | null;
     Invoice: SerializedInvoice | null;
+    OrderItems: SerializedOrderItem[];
     OrderNotes: SerializedOrderNote[];
+    OrderPayments: SerializedOrderPayment[] | null;
+    ShippingInfo: SerializedShippingInfo | null;
 }
 
 export interface SerializedOrderItem {
@@ -193,6 +174,14 @@ export interface SerializedOrderNote {
     createdById: string;
 }
 
+export interface SerializedOrderPayment {
+    id: string;
+    amount: string;
+    paymentDate: string;
+    paymentMethod: PaymentMethod;
+    orderId: string;
+}
+
 export interface SerializedProcessingOptions {
     id: string;
     cutting: string | null;
@@ -213,6 +202,28 @@ export interface SerializedProcessingOptions {
     stitching: string | null;
     binderyTime: number | null;
     binding: BindingType | null;
+}
+
+export interface SerializedShippingInfo {
+    id: string;
+    shippingMethod: ShippingMethod;
+    instructions: string | null;
+    shippingCost: string | null;
+    shippingDate: string | null;
+    shippingNotes: string | null;
+    shippingOther: string | null;
+    shipToSameAsBillTo: boolean;
+    estimatedDelivery: string | null;
+    numberOfPackages: number | null;
+    trackingNumber: string | null;
+    attentionTo: string | null;
+    addressId: string | null;
+    createdAt: string;
+    updatedAt: string;
+    createdById: string;
+    officeId: string;
+    Address: SerializedAddress | null;
+    ShippingPickup: SerializedShippingPickup | null;
 }
 
 export interface SerializedShippingPickup {
