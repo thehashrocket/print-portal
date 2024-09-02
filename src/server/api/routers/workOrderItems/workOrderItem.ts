@@ -81,7 +81,6 @@ export const workOrderItemRouter = createTRPCRouter({
             cost: z.number().optional(),
             description: z.string(),
             expectedDate: z.date(),
-            inkColor: z.string(),
             other: z.string(),
             quantity: z.number(),
             size: z.string(),

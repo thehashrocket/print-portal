@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 import OrderPaymentComponent from "~/app/_components/orders/OrderPayment/OrderPaymentComponent";
+import OrderDeposit from "./OrderDeposit/orderDeposit";
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -159,7 +160,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
                                 <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
                                 <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
-                                <p><strong>Deposit:</strong> {formatCurrency(order.deposit ?? "")}</p>
+                                <OrderDeposit order={order} />
                             </div>
                         }
                     />

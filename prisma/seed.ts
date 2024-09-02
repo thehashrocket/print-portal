@@ -5,6 +5,7 @@ import {
   OrderItem,
   OrderItemStatus,
   OrderStatus,
+  PaymentMethod,
   Prisma,
   PrismaClient,
   ProofMethod,
@@ -146,7 +147,43 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
     }
   }
 
+  // Now that we created the order, and all the associated records, we can generate some demo payments.
+  await createDemoPayments(order.id);
   return order;
+}
+
+async function createDemoPayments(orderId: string) {
+  const order = await prismaClient.order.findUnique({
+    where: { id: orderId },
+    include: {
+      OrderPayments: true,
+      OrderItems: true,
+    }
+  });
+
+  if (!order) {
+    throw new Error(`Order with id ${orderId} not found`);
+  }
+
+  const totalAmount = order.OrderItems.reduce((sum, item) => sum.add(item.amount ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
+  const deposit = order.deposit ?? new Prisma.Decimal(0);
+  const remainingBalance = totalAmount.sub(deposit);
+
+  if (remainingBalance.lte(new Prisma.Decimal(0))) {
+    console.log(`No remaining balance to pay for order ${orderId}`);
+    return;
+  }
+
+  const payment = await prismaClient.orderPayment.create({
+    data: {
+      orderId,
+      amount: remainingBalance,
+      paymentDate: faker.date.recent(),
+      paymentMethod: randomElementFromArray(Object.values(PaymentMethod)),
+    }
+  });
+
+  console.log(`Payment created: ${payment.id}`);
 }
 
 async function copyProcessingOptionsToOrderItem(workOrderItem: WorkOrderItem, orderItem: OrderItem, userId: string) {
@@ -911,7 +948,6 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         cost: new Prisma.Decimal(cost),
         description: faker.commerce.productDescription(),
         expectedDate: faker.date.future(),
-        ink: faker.helpers.arrayElement(inkColors),
         other: faker.commerce.productMaterial(),
         prepTime: faker.number.int({ min: 0, max: 100 }),
         quantity: faker.number.int({ min: 1, max: 1000 }),

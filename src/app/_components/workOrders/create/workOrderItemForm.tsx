@@ -23,7 +23,6 @@ const workOrderItemSchema = z.object({
     costPerM: z.number().min(1, 'Cost Per M is required'),
     description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
-    inkColor: z.string().optional(),
     other: z.string().optional(),
     prepTime: z.number().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
@@ -72,7 +71,6 @@ const WorkOrderItemForm: React.FC = () => {
                 description: data.description, // Provide a default empty string if description is undefined
                 artwork: artworks, // Use the artworks state instead of data.artwork
                 expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
-                inkColor: data.inkColor || '',
                 other: data.other || '',
                 size: data.size || '',
                 specialInstructions: data.specialInstructions || '',
@@ -158,11 +156,6 @@ const WorkOrderItemForm: React.FC = () => {
                             <label htmlFor='expectedDate' className='block text-sm font-medium text-gray-700'>Expected Date</label>
                             <input id='expectedDate' type='date' {...register('expectedDate')} className='input input-bordered w-full' />
                             {errors.expectedDate && <p className='text-red-500'>{errors.expectedDate.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor='inkColor' className='block text-sm font-medium text-gray-700'>Ink Color</label>
-                            <input id='inkColor' {...register('inkColor')} className='input input-bordered w-full' />
-                            {errors.inkColor && <p className='text-red-500'>{errors.inkColor.message}</p>}
                         </div>
                         <div>
                             <label htmlFor='other' className='block text-sm font-medium text-gray-700'>Other</label>

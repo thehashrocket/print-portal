@@ -161,6 +161,85 @@ export const orderRouter = createTRPCRouter({
       }));
     }),
 
+  updateDeposit: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      data: z.object({
+        deposit: z.number().optional(),
+      }),
+    }))
+    .mutation(async ({ ctx, input }): Promise<SerializedOrder> => {
+      const { id, data } = input;
+      const { deposit } = data;
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id },
+        data: { deposit },
+        include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            },
+          },
+          contactPerson: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          OrderPayments: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+            },
+          },
+          OrderNotes: true,
+        },
+      });
+
+      const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
+      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
+
+      return normalizeOrder({
+        ...updatedOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalItemAmount,
+        totalCost,
+        totalShippingAmount,
+        totalPaid,
+        balance,
+      });
+    }),
+
   updateStatus: protectedProcedure
     .input(z.object({
       id: z.string(),
