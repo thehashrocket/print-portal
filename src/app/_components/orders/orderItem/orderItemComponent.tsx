@@ -26,7 +26,7 @@ const StatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: stri
         onSuccess: () => {
             utils.orders.getByID.invalidate(orderId);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error('Failed to update status:', error);
         }
     });
@@ -130,7 +130,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="rounded-lg bg-white p-6 shadow-md">
                     <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
                     <div className="grid grid-cols-2 gap-4">
-                        {orderItem?.artwork.map((artwork) => (
+                        {orderItem?.artwork.map((artwork: { id: React.Key | null | undefined; fileUrl: string; description: string | null; }) => (
                             <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
                                 <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
                             </div>
