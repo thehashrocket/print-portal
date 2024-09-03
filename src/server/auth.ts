@@ -14,6 +14,7 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import nodemailer from "nodemailer";
 import { getVerificationEmailTemplate } from "~/utils/emailTemplates";
+import { sendAdminNotification } from "~/utils/notifications";
 
 // We're augmenting the Session type to include user roles and permissions in the session object.
 // We're defining the user object to have an id, roles, and permissions.
@@ -84,6 +85,15 @@ export const authOptions: NextAuthOptions = {
         token,
         provider,
       }) => {
+        // Check if the user exists in the database
+        const existingUser = await db.user.findUnique({
+          where: { email },
+        });
+
+        if (!existingUser) {
+          // If the user doesn't exist, send a notification to the admin
+          await sendAdminNotification(`New user sign-in attempt: ${email}`);
+        }
         const transporter = nodemailer.createTransport({
           host: process.env.SENDGRID_SMTP_HOST,
           port: parseInt(process.env.SENDGRID_SMTP_PORT ?? "465"),
