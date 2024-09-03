@@ -122,6 +122,7 @@ export interface SerializedOrderItem {
     description: string;
     expectedDate: string | null;
     finishedQty: number;
+    ink: string | null;
     orderId: string;
     other: string | null;
     prepTime: number | null;
@@ -345,10 +346,9 @@ export interface SerializedWorkOrderItem {
     createdById: string;
     description: string;
     expectedDate: string;
+    ink: string | null;
     other: string | null;
-    prepTime: number | null;
     quantity: number;
-    shippingAmount: string | null;
     size: string | null;
     specialInstructions: string | null;
     status: WorkOrderItemStatus;

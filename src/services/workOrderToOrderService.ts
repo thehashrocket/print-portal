@@ -166,7 +166,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             prepTime: null,
             pressRun: '0',
             quantity: workOrderItem.quantity,
-            shippingAmount: workOrderItem.shippingAmount ? new Prisma.Decimal(workOrderItem.shippingAmount) : null,
+            shippingAmount: null,
             size: null,
             specialInstructions: null,
             createdById: "", // You'll need to set this appropriately

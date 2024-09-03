@@ -119,6 +119,10 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     title="Quantity"
                     content={orderItem.quantity}
                 />
+                <InfoCard
+                    title="Ink"
+                    content={orderItem.ink}
+                />
             </div>
             <div className="grid grid-cols-2 gap-4 mb-2">
                 <InfoCard title="Status" content={

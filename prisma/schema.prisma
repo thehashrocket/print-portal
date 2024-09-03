@@ -158,6 +158,7 @@ model OrderItem {
   expectedDate        DateTime            @default(now())
   finishedQty         Int
   id                  String              @id @default(uuid())
+  ink                 String?             @default("")
   InvoiceItems        InvoiceItem[]
   Order               Order               @relation(fields: [orderId], references: [id])
   orderId             String
@@ -457,6 +458,7 @@ model WorkOrderItem {
   description         String                 @default("")
   expectedDate        DateTime               @default(now())
   id                  String                 @id @default(uuid())
+  ink                 String?                @default("")
   other               String?
   prepTime            Int?
   ProcessingOptions   ProcessingOptions[]

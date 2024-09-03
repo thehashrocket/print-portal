@@ -139,6 +139,10 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Quantity"
                         content={workOrderItem.quantity}
                     />
+                    <InfoCard
+                        title="Ink"
+                        content={workOrderItem.ink}
+                    />
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
@@ -155,6 +159,10 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
+                    <Link className="btn btn-sm btn-primary" href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>Edit</Link>
+                </div>
+                {/* Row 4 */}
+                <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
                         <div className="grid grid-cols-2 gap-4">
@@ -170,7 +178,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         </div>
                     </div>
                 </div>
-                {/* Row 4 */}
+                {/* Row 5 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Bindery Options</h2>
