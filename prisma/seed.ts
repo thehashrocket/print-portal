@@ -74,7 +74,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
       inHandsDate: workOrder.inHandsDate,
       workOrderId,
       version: 1,
-      deposit: new Prisma.Decimal(faker.number.float({ min: 0, max: 1000, precision: 2 })),
+      deposit: new Prisma.Decimal(faker.number.float({ min: 0, max: 200, precision: 2 })),
       dateInvoiced: faker.date.recent(),
       invoicePrintEmail: workOrder.invoicePrintEmail,
     },
