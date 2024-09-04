@@ -101,76 +101,83 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/orders">Orders</Link></li>
                         <li><Link href={`/orders/${orderId}`}>Order {order.orderNumber}</Link></li>
-                        <li>Item {orderItem.id}</li>
+                        <li>Item {orderItem.orderItemNumber}</li>
                     </ul>
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <InfoCard title="Order Number" content={order.orderNumber} />
-                <InfoCard title="Company" content={order.Office?.Company.name} />
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-2">
-                <InfoCard
-                    title="Job Description"
-                    content={orderItem.description}
-                />
-                <InfoCard
-                    title="Quantity"
-                    content={orderItem.quantity}
-                />
-                <InfoCard
-                    title="Ink"
-                    content={orderItem.ink}
-                />
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-2">
-                <InfoCard title="Status" content={
-                    <StatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
-                } />
-            </div>
-            <div className="grid grid-cols-1 gap-4 mb-2">
-                {/* Render OrderItemArtwork */}
-                <div className="rounded-lg bg-white p-6 shadow-md">
-                    <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        {orderItem?.artwork.map((artwork: { id: React.Key | null | undefined; fileUrl: string; description: string | null; }) => (
-                            <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
-                                <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
-                            </div>
-                        ))}
+            <div className="rounded-lg bg-white p-6 shadow-md">
+                {/* Row 1 */}
+                <div className="grid md:grid-cols-2 gap-6 mb-2">
+                    <InfoCard title="Order Number" content={order.orderNumber} />
+                    <InfoCard title="Company" content={order.Office?.Company.name} />
+                </div>
+                {/* Row 2 */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                    <InfoCard
+                        title="Job Description"
+                        content={orderItem.description}
+                    />
+                    <InfoCard
+                        title="Job Quantity"
+                        content={orderItem.quantity}
+                    />
+                    <InfoCard
+                        title="Ink"
+                        content={orderItem.ink}
+                    />
+                </div>
+                {/* Row 3 */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                    <InfoCard title="Status" content={
+                        <StatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
+                    } />
+                </div>
+                {/* Row 4 */}
+                <div className="grid grid-cols-1 gap-4 mb-2">
+                    {/* Render OrderItemArtwork */}
+                    <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            {orderItem?.artwork.map((artwork: { id: React.Key | null | undefined; fileUrl: string; description: string | null; }) => (
+                                <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
+                                    <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="space-y-8">
-                <section>
-                    <h2 className="text-2xl font-semibold mb-4">Typesetting</h2>
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <TypesettingProvider>
-                            <TypesettingComponent
-                                workOrderItemId=""
-                                orderItemId={orderItem.id}
-                                initialTypesetting={normalizedTypesetting}
-                            />
-                        </TypesettingProvider>
-                    </div>
-                </section>
+                {/* Row 5 */}
+                <div className="space-y-8">
+                    <section>
+                        <h2 className="text-2xl font-semibold mb-4">Typesetting</h2>
+                        <div className="bg-white rounded-lg shadow-md p-6">
+                            <TypesettingProvider>
+                                <TypesettingComponent
+                                    workOrderItemId=""
+                                    orderItemId={orderItem.id}
+                                    initialTypesetting={normalizedTypesetting}
+                                />
+                            </TypesettingProvider>
+                        </div>
+                    </section>
 
-                <section>
-                    <h2 className="text-2xl font-semibold mb-4">Bindery Options</h2>
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <ProcessingOptionsProvider orderItemId={orderItem.id}>
-                            <ProcessingOptionsComponent orderItemId={orderItem.id} />
-                        </ProcessingOptionsProvider>
-                    </div>
-                </section>
-                <section>
-                    <h2 className="text-2xl font-semibold mb-4">Job Stock</h2>
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <OrderItemStockComponent orderItemId={orderItem.id} />
-                    </div>
-                </section>
+                    <section>
+                        <h2 className="text-2xl font-semibold mb-4">Bindery Options</h2>
+                        <div className="bg-white rounded-lg shadow-md p-6">
+                            <ProcessingOptionsProvider orderItemId={orderItem.id}>
+                                <ProcessingOptionsComponent orderItemId={orderItem.id} />
+                            </ProcessingOptionsProvider>
+                        </div>
+                    </section>
+                    <section>
+                        <h2 className="text-2xl font-semibold mb-4">Job Stock</h2>
+                        <div className="bg-white rounded-lg shadow-md p-6">
+                            <OrderItemStockComponent orderItemId={orderItem.id} />
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     );

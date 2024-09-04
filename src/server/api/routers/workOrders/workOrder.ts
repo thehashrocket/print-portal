@@ -39,6 +39,7 @@ export const workOrderRouter = createTRPCRouter({
               },
               ProcessingOptions: true,
               WorkOrderItemStock: true,
+              createdBy: true,
             },
           },
           WorkOrderNotes: true,
@@ -123,6 +124,7 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
+              createdBy: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -179,6 +181,7 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
+              createdBy: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -243,6 +246,7 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
+              createdBy: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -305,6 +309,7 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
+              createdBy: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -345,6 +350,52 @@ export const workOrderRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
       const convertedWorkOrder = await convertWorkOrderToOrder(input.id, input.officeId);
-      return normalizeWorkOrder(convertedWorkOrder);
+      const fullWorkOrder = await ctx.db.workOrder.findUnique({
+        where: { id: input.id },
+        include: {
+          contactPerson: true,
+          createdBy: true,
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          Order: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              createdBy: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
+        },
+      });
+      if (!fullWorkOrder) {
+        throw new Error("Work order not found");
+      }
+      return normalizeWorkOrder({
+        ...fullWorkOrder,
+        totalAmount: convertedWorkOrder.totalAmount,
+        totalCost: convertedWorkOrder.totalCost,
+        totalItemAmount: convertedWorkOrder.totalItemAmount,
+        calculatedSalesTax: convertedWorkOrder.calculatedSalesTax,
+        calculatedSubTotal: convertedWorkOrder.calculatedSubTotal,
+        totalShippingAmount: null
+      });
     }),
 });

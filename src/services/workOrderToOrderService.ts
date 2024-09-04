@@ -54,6 +54,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
             WorkOrderItems: {
                 include: {
                     artwork: true, // Add this line
+                    createdBy: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,

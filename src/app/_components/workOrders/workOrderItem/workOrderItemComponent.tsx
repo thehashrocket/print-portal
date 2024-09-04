@@ -101,16 +101,16 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     }
 
     return (
-        <div className="container mx-auto">
-            <div className="navbar bg-base-100">
-                <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Job Details</a>
+        <div className="container mx-auto px-4 py-8">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Job Details</h1>
+                <div className="text-sm breadcrumbs">
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/workOrders">Work Orders</Link></li>
                             <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Work Order {workOrder?.workOrderNumber}</Link></li>
-                            <li>Job {workOrderItem.id}</li>
+                            <li>Job {workOrderItem.workOrderItemNumber}</li>
                         </ul>
                     </div>
                 </div>
@@ -118,6 +118,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Work Order</Link>
                 </div>
             </div>
+
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
@@ -126,29 +127,26 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         content={workOrder?.workOrderNumber ?? 'N/A'}
                     />
                     <InfoCard
-                        title="Job Number"
-                        content={workOrderItem.workOrderItemNumber ?? 'N/A'}
-                    />
-                    <InfoCard
-                        title="Office Name"
-                        content={workOrder?.Office?.name ?? 'N/A'}
-                    />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                    <InfoCard
-                        title="Job Description"
-                        content={workOrderItem.description}
-                    />
-                    <InfoCard
-                        title="Quantity"
-                        content={workOrderItem.quantity}
-                    />
-                    <InfoCard
-                        title="Ink"
-                        content={workOrderItem.ink}
+                        title="Company"
+                        content={workOrder?.Office?.Company.name ?? 'N/A'}
                     />
                 </div>
                 {/* Row 2 */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                    <InfoCard
+                        title="Job Description"
+                        content={workOrderItem.description ?? 'N/A'}
+                    />
+                    <InfoCard
+                        title="Job Quantity"
+                        content={workOrderItem.quantity ?? 'N/A'}
+                    />
+                    <InfoCard
+                        title="Ink"
+                        content={workOrderItem.ink ?? 'N/A'}
+                    />
+                </div>
+                {/* Row 3 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <InfoCard
                         title="Status"
@@ -161,11 +159,11 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         }
                     />
                 </div>
-                {/* Row 3 */}
+                {/* Row 4 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <Link className="btn btn-sm btn-primary" href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>Edit</Link>
                 </div>
-                {/* Row 4 */}
+                {/* Row 5 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
@@ -182,7 +180,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         </div>
                     </div>
                 </div>
-                {/* Row 5 */}
+                {/* Row 6 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Bindery Options</h2>

@@ -20,11 +20,16 @@ export const workOrderItemRouter = createTRPCRouter({
                 where: { id: input },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
                         }
                     },
                     WorkOrderItemStock: true,
@@ -37,11 +42,16 @@ export const workOrderItemRouter = createTRPCRouter({
         const workOrderItems = await ctx.db.workOrderItem.findMany({
             include: {
                 artwork: true,
+                createdBy: true,
                 ProcessingOptions: true,
                 Typesetting: {
                     include: {
                         TypesettingOptions: true,
-                        TypesettingProofs: true,
+                        TypesettingProofs: {
+                            include: {
+                                artwork: true,
+                            }
+                        },
                     }
                 },
                 WorkOrderItemStock: true,
@@ -85,11 +95,16 @@ export const workOrderItemRouter = createTRPCRouter({
                 },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
                         }
                     },
                     WorkOrderItemStock: true,
@@ -109,11 +124,16 @@ export const workOrderItemRouter = createTRPCRouter({
                 data: { status: input.status },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
                         }
                     },
                     WorkOrderItemStock: true,
@@ -156,6 +176,7 @@ export const workOrderItemRouter = createTRPCRouter({
                 },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
@@ -182,11 +203,16 @@ export const workOrderItemRouter = createTRPCRouter({
                 where: { workOrderId: input.workOrderId },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
                         }
                     },
                     WorkOrderItemStock: true,
@@ -217,11 +243,16 @@ export const workOrderItemRouter = createTRPCRouter({
                 },
                 include: {
                     artwork: true,
+                    createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
-                            TypesettingProofs: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
                         }
                     },
                     WorkOrderItemStock: true,

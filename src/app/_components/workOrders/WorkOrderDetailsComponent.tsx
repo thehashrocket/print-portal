@@ -163,21 +163,36 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         content={<p>{formatDate(workOrder.inHandsDate)}</p>}
                     />
                 </div>
+                <section>
+                    <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <InfoSection
+                            title="Recipient"
+                            content={
+                                <div>
+                                    <p className="font-semibold mb-2">{workOrder.Office.Company.name}</p>
+                                    <p>{workOrder.ShippingInfo?.Address?.line1}</p>
+                                    {workOrder.ShippingInfo?.Address?.line2 && <p>{workOrder.ShippingInfo.Address.line2}</p>}
+                                    <p>{workOrder.ShippingInfo?.Address?.city}, {workOrder.ShippingInfo?.Address?.state} {workOrder.ShippingInfo?.Address?.zipCode}</p>
+                                    <p>{workOrder.ShippingInfo?.Address?.country}</p>
+                                    <p className="mt-2"><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>
+                                    <p><strong>Telephone:</strong> {workOrder.ShippingInfo?.Address?.telephoneNumber}</p>
+                                </div>
+                            }
+                        />
+                        <InfoSection
+                            title="Shipping Details"
+                            content={
+                                <div>
+                                    <p><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>
+                                    <p><strong>Shipping Cost:</strong> {formatCurrency(workOrder.totalShippingAmount ?? 0)}</p>
+                                </div>
+                            }
+                        />
+                    </div>
+                </section>
 
-                <InfoSection
-                    title="Shipping Information"
-                    content={
-                        <div>
-                            <p className="font-semibold mb-2">{workOrder.Office.Company.name}</p>
-                            <p>{workOrder.ShippingInfo?.Address?.line1}</p>
-                            {workOrder.ShippingInfo?.Address?.line2 && <p>{workOrder.ShippingInfo.Address.line2}</p>}
-                            <p>{workOrder.ShippingInfo?.Address?.city}, {workOrder.ShippingInfo?.Address?.state} {workOrder.ShippingInfo?.Address?.zipCode}</p>
-                            <p>{workOrder.ShippingInfo?.Address?.country}</p>
-                            <p className="mt-2"><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>
-                            <p><strong>Telephone:</strong> {workOrder.ShippingInfo?.Address?.telephoneNumber}</p>
-                        </div>
-                    }
-                />
+
 
                 <section>
                     <div className="flex justify-between items-center mb-4">

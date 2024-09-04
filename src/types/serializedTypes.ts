@@ -360,6 +360,10 @@ export interface SerializedWorkOrderItem {
     Typesetting: SerializedTypesetting[];
     workOrderItemNumber: number;
     WorkOrderItemStock: SerializedWorkOrderItemStock[];
+    createdBy: {
+        id: string;
+        name: string | null;
+    };
 }
 
 export interface SerializedWorkOrderItemArtwork {

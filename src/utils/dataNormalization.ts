@@ -407,6 +407,10 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         })[];
         ProcessingOptions: ProcessingOptions[];
         WorkOrderItemStock: WorkOrderItemStock[];
+        createdBy: {
+            id: string;
+            name: string | null
+        };
     })[];
     WorkOrderNotes: WorkOrderNote[];
     WorkOrderVersions: WorkOrderVersion[];
@@ -464,6 +468,10 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         TypesettingProofs: TypesettingProof[];
     })[];
     WorkOrderItemStock: WorkOrderItemStock[];
+    createdBy: {
+        id: string;
+        name: string | null
+    };
 }): SerializedWorkOrderItem {
     return {
         id: item.id,
@@ -471,6 +479,10 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         cost: item.cost?.toString() ?? null,
         createdAt: item.createdAt.toISOString(),
         createdById: item.createdById,
+        createdBy: {
+            id: item.createdBy.id,
+            name: item.createdBy.name ?? null
+        },
         description: item.description,
         ink: item.ink,
         expectedDate: item.expectedDate.toISOString(),
