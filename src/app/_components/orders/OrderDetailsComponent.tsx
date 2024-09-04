@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Order, OrderStatus, OrderPayment, ShippingMethod } from "@prisma/client";
-import OrderItemsTable from "../../_components/orders/orderItem/orderItemsTable";
+import OrderItemsTable from "../../_components/orders/OrderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";

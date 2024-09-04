@@ -10,10 +10,9 @@
 "use server";
 import React from "react";
 import NoPermission from "~/app/_components/noPermission/noPremission";
-import OrderItemComponent from "~/app/_components/orders/orderItem/orderItemComponent";
+import OrderItemComponent from "~/app/_components/orders/OrderItem/orderItemComponent";
 
 import { getServerAuthSession } from "~/server/auth";
-
 
 export default async function OrderItemPage({
     params: { id, orderItemId },
