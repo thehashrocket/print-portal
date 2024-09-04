@@ -124,6 +124,7 @@ export interface SerializedOrderItem {
     finishedQty: number;
     ink: string | null;
     orderId: string;
+    orderItemNumber: number;
     other: string | null;
     prepTime: number | null;
     pressRun: string;
@@ -357,6 +358,7 @@ export interface SerializedWorkOrderItem {
     artwork: SerializedWorkOrderItemArtwork[];
     ProcessingOptions: SerializedProcessingOptions[];
     Typesetting: SerializedTypesetting[];
+    workOrderItemNumber: number;
     WorkOrderItemStock: SerializedWorkOrderItemStock[];
 }
 

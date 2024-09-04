@@ -68,6 +68,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     };
 
     const columnDefs: ColDef[] = [
+        { headerName: "Job #", field: "orderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 100 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },

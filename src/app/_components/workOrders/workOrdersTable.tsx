@@ -59,9 +59,9 @@ const WorkOrdersTable: React.FC = () => {
     };
 
     const columnDefs: ColDef[] = [
-        { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
         { headerName: "Work Order #", field: "workOrderNumber", filter: true, width: 150 },
+        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
+        { headerName: "Status", field: "status", filter: true, width: 120 },
         { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
         { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },

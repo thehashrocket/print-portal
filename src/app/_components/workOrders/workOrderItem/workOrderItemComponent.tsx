@@ -104,7 +104,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Work Job Details</a>
+                    <a className="btn btn-ghost text-xl">Job Details</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
@@ -124,6 +124,10 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <InfoCard
                         title="Work Order Number"
                         content={workOrder?.workOrderNumber ?? 'N/A'}
+                    />
+                    <InfoCard
+                        title="Job Number"
+                        content={workOrderItem.workOrderItemNumber ?? 'N/A'}
                     />
                     <InfoCard
                         title="Office Name"

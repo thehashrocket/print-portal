@@ -91,6 +91,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
         description: workOrderItem.description,
         expectedDate: workOrderItem.expectedDate,
         finishedQty: 0,
+        ink: workOrderItem.ink,
         orderId: order.id,
         prepTime: workOrderItem.prepTime,
         pressRun: '0',
@@ -268,6 +269,12 @@ async function copyTypesettingsToOrderItem(workOrderItem: WorkOrderItem, orderIt
           proofCount: proof.proofCount,
           proofMethod: proof.proofMethod,
           createdById: userId,
+          artwork: {
+            create: {
+              fileUrl: 'https://placedog.net/500?random.jpg',
+              description: faker.lorem.sentence(),
+            },
+          },
         }
       });
     }
@@ -830,6 +837,12 @@ async function createTypesettingProof(typesettingId: string, proofNumber: number
       notes: faker.lorem.sentence(),
       approved: faker.datatype.boolean(),
       createdById: userId,
+      artwork: {
+        create: {
+          fileUrl: "https://placedog.net/500?random.jpg",
+          description: faker.lorem.sentence(),
+        },
+      },
     },
   });
   console.log(`Typesetting Proof created.`);
@@ -948,6 +961,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         cost: new Prisma.Decimal(cost),
         description: faker.commerce.productDescription(),
         expectedDate: faker.date.future(),
+        ink: faker.commerce.productMaterial(),
         other: faker.commerce.productMaterial(),
         prepTime: faker.number.int({ min: 0, max: 100 }),
         quantity: faker.number.int({ min: 1, max: 1000 }),

@@ -172,6 +172,7 @@ export function normalizeOrderItem(item: OrderItem & {
         finishedQty: item.finishedQty,
         ink: item.ink,
         orderId: item.orderId,
+        orderItemNumber: item.orderItemNumber,
         other: item.other,
         prepTime: item.prepTime,
         pressRun: item.pressRun,
@@ -483,6 +484,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
         ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
         Typesetting: item.Typesetting.map(normalizeTypesetting),
+        workOrderItemNumber: item.workOrderItemNumber,
         WorkOrderItemStock: item.WorkOrderItemStock.map(normalizeWorkOrderItemStock),
     };
 }

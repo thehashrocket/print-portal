@@ -162,6 +162,7 @@ model OrderItem {
   InvoiceItems        InvoiceItem[]
   Order               Order               @relation(fields: [orderId], references: [id])
   orderId             String
+  orderItemNumber     Int                 @default(autoincrement())
   OrderItemStock      OrderItemStock[]
   other               String?
   prepTime            Int?
@@ -471,6 +472,7 @@ model WorkOrderItem {
   updatedAt           DateTime               @updatedAt
   WorkOrder           WorkOrder?             @relation(fields: [workOrderId], references: [id])
   workOrderId         String?
+  workOrderItemNumber Int                    @default(autoincrement())
   WorkOrderItemStock  WorkOrderItemStock[]
 }
 
