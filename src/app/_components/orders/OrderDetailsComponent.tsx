@@ -64,10 +64,10 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
     );
 };
 
-const InfoSection = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">{title}</h2>
-        <div>{content}</div>
+const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
+    <section className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
+        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
     </section>
 );
 
@@ -129,56 +129,55 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
             <main className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-6">
-                    <InfoSection
+                    <InfoCard
                         title="Order Number"
                         content={<p className="text-2xl font-bold">{order.orderNumber}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Company"
                         content={<p className="text-xl">{order.Office?.Company.name}</p>}
                     />
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <div className="grid grid-rows-2 gap-6">
-                        <InfoSection
-                            title="Status"
-                            content={<StatusBadge
-                                id={order.id}
-                                status={order.status}
-                                orderId={order.id}
-                            />}
+                    <InfoCard
+                        title="Status"
+                        content={<StatusBadge
+                            id={order.id}
+                            status={order.status}
+                            orderId={order.id}
+                        />}
+                    />
+                    <div className="grid-flow-dense">
+                        <InfoCard
+                            title="Order Price Details"
+                            content={
+                                <div>
+                                    <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
+                                    <p><strong>Shipping Amount:</strong> {formatCurrency(order.totalShippingAmount ?? "")}</p>
+                                    <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
+                                    <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
+                                    <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
+                                    <OrderDeposit order={order} />
+                                </div>
+                            }
                         />
                         <OrderPaymentComponent order={order} />
-
                     </div>
-                    <InfoSection
-                        title="Order Price Details"
-                        content={
-                            <div>
-                                <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
-                                <p><strong>Shipping Amount:</strong> {formatCurrency(order.totalShippingAmount ?? "")}</p>
-                                <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
-                                <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
-                                <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
-                                <OrderDeposit order={order} />
-                            </div>
-                        }
-                    />
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <InfoSection
+                    <InfoCard
                         title="Created By"
                         content={<p>{order.createdBy?.name}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Created At"
                         content={<p>{formatDate(order.createdAt ?? "")}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Contact Person"
                         content={<p>{order.contactPerson?.name}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="In Hands Date"
                         content={<p>{formatDate(order.inHandsDate ?? "")}</p>}
                     />
@@ -187,7 +186,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <InfoSection
+                        <InfoCard
                             title="Recipient"
                             content={
                                 <>
@@ -199,7 +198,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 </>
                             }
                         />
-                        <InfoSection
+                        <InfoCard
                             title="Shipping Details"
                             content={
                                 <>
@@ -216,7 +215,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     </div>
                     {order.ShippingInfo?.ShippingPickup && (
                         <div className="mt-4">
-                            <InfoSection
+                            <InfoCard
                                 title="Pickup Information"
                                 content={
                                     <>

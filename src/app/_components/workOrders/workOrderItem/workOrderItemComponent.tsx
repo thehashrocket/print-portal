@@ -59,10 +59,10 @@ type WorkOrderItemPageProps = {
 };
 
 const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title, content }) => (
-    <div className="rounded-lg bg-white p-4 shadow-md">
-        <h3 className="mb-2 text-gray-600 text-lg font-semibold">{title}</h3>
-        <div className="text-gray-800">{content}</div>
-    </div>
+    <section className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
+        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
+    </section>
 );
 
 const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
