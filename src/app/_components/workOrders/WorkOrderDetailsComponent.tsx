@@ -59,7 +59,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
     );
 };
 
-const InfoSection = ({ title, content }: { title: string; content: React.ReactNode }) => (
+const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
     <section className="mb-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
         <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
@@ -107,7 +107,9 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-bold">Work Order Details</h1>
                     <div className="space-x-2">
-                        <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
+                        {workOrder.Order === null && (
+                            <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
+                        )}
                         <Link className="btn btn-primary" href="/workOrders/create">Create a Work Order</Link>
                     </div>
                 </div>
@@ -122,19 +124,19 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
 
             <main className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-6">
-                    <InfoSection
+                    <InfoCard
                         title="Work Order Number"
                         content={<p className="text-2xl font-bold">{workOrder.workOrderNumber}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Office Name"
                         content={<p className="text-2xl">{workOrder.Office.Company.name}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Work Order Status"
                         content={<StatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Work Order Price Details"
                         content={
                             <div>
@@ -146,19 +148,19 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             </div>
                         }
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Created By"
                         content={<p>{workOrder.createdBy?.name}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Created At"
                         content={<p>{formatDate(workOrder.createdAt)}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="Contact Person"
                         content={<p>{workOrder.contactPerson?.name}</p>}
                     />
-                    <InfoSection
+                    <InfoCard
                         title="In Hands Date"
                         content={<p>{formatDate(workOrder.inHandsDate)}</p>}
                     />
@@ -166,7 +168,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <InfoSection
+                        <InfoCard
                             title="Recipient"
                             content={
                                 <div>
@@ -180,7 +182,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                                 </div>
                             }
                         />
-                        <InfoSection
+                        <InfoCard
                             title="Shipping Details"
                             content={
                                 <div>
