@@ -39,7 +39,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     onSuccess,
     onCancel
 }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<WorkOrderItemStockFormData>({
+    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
         resolver: zodResolver(workOrderItemStockSchema),
         defaultValues: {
             workOrderItemId,
@@ -48,6 +48,9 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         },
     });
 
+    console.log("Form errors:", errors);
+    console.log("Is form submitting?", isSubmitting);
+
     const { data: existingStock } = api.workOrderItemStocks.getByID.useQuery(
         stockId as string,
         { enabled: !!stockId }
@@ -55,15 +58,23 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
 
     const createStock = api.workOrderItemStocks.create.useMutation({
         onSuccess: () => {
+            console.log("Stock created successfully");
             onSuccess();
             reset();
         },
+        onError: (error) => {
+            console.error("Error creating stock:", error);
+        }
     });
 
     const updateStock = api.workOrderItemStocks.update.useMutation({
         onSuccess: () => {
+            console.log("Stock updated successfully");
             onSuccess();
         },
+        onError: (error) => {
+            console.error("Error updating stock:", error);
+        }
     });
 
     useEffect(() => {
@@ -86,6 +97,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     }, [existingStock, reset]);
 
     const onSubmit = (data: WorkOrderItemStockFormData) => {
+        console.log("Form submitted with data:", data);
         const formattedData = {
             ...data,
             expectedDate: data.expectedDate ? new Date(data.expectedDate) : undefined,
@@ -107,7 +119,12 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            console.log("Form native submit event triggered");
+            handleSubmit(onSubmit)(e);
+        }} className="space-y-4">
+
             <div>
                 <label className="label">
                     <span className="label-text">Quantity</span>
@@ -120,7 +137,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 <label className="label">
                     <span className="label-text">Cost Per M</span>
                 </label>
-                <input type="number" step="0.01" {...register('costPerM')} className="input input-bordered w-full" />
+                <input type="number" step="0.01" {...register('costPerM', { valueAsNumber: true })} className="input input-bordered w-full" />
                 {errors.costPerM && <p className="text-red-500">{errors.costPerM.message}</p>}
             </div>
 
@@ -146,14 +163,14 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 <label className="label">
                     <span className="label-text">Expected Date</span>
                 </label>
-                <input type="date" {...register('expectedDate', { valueAsDate: true })} className="input input-bordered w-full" />
+                <input type="date" {...register('expectedDate')} className="input input-bordered w-full" />
             </div>
 
             <div>
                 <label className="label">
                     <span className="label-text">Ordered Date</span>
                 </label>
-                <input type="date" {...register('orderedDate', { valueAsDate: true })} className="input input-bordered w-full" />
+                <input type="date" {...register('orderedDate')} className="input input-bordered w-full" />
             </div>
 
             <div>
@@ -167,7 +184,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 <label className="label">
                     <span className="label-text">Received Date</span>
                 </label>
-                <input type="date" {...register('receivedDate', { valueAsDate: true })} className="input input-bordered w-full" />
+                <input type="date" {...register('receivedDate')} className="input input-bordered w-full" />
             </div>
 
             <div>

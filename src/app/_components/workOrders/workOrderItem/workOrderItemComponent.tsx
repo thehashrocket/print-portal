@@ -11,6 +11,7 @@ import { SerializedWorkOrderItem, SerializedTypesetting } from "~/types/serializ
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
+import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -197,6 +198,10 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                 initialTypesetting={serializedTypesettingData}
                             />
                         </TypesettingProvider>
+                    </div>
+                    <div className="rounded-lg bg-white p-6 shadow-md">
+                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Job Stock</h2>
+                        <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
                     </div>
                 </div>
             </div>
