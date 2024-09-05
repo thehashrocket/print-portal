@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, OrderStatus, OrderItemStatus } from "@prisma/client";
+import { PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
@@ -148,19 +148,20 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
 async function createOrderItems(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, orderId: string) {
 
     for (const workOrderItem of workOrder.WorkOrderItems) {
-        const orderItem = await createOrderItem(tx, workOrderItem, orderId);
+        const orderItem = await createOrderItem(tx, workOrderItem, orderId, workOrderItem.createdById);
         await updateTypesetting(tx, workOrderItem.id, orderItem.id);
         await createProcessingOptions(tx, workOrderItem.id, orderItem.id);
         await createOrderItemStock(tx, workOrderItem.id, orderItem.id);
     }
 }
 
-async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: SerializedWorkOrderItem, orderId: string) {
+async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: SerializedWorkOrderItem, orderId: string, createdById: string) {
     const orderItem = await tx.orderItem.create({
         data: {
             orderId,
             amount: workOrderItem.amount ? new Prisma.Decimal(workOrderItem.amount) : null,
             cost: workOrderItem.cost ? new Prisma.Decimal(workOrderItem.cost) : null,
+            createdById: createdById,
             description: workOrderItem.description,
             expectedDate: new Date(workOrderItem.expectedDate),
             finishedQty: 0,
@@ -170,7 +171,6 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             shippingAmount: null,
             size: null,
             specialInstructions: null,
-            createdById: "", // You'll need to set this appropriately
             status: OrderItemStatus.Pending,
         },
     });
@@ -248,7 +248,12 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
 async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string, orderId: string) {
     return await tx.workOrder.update({
         where: { id: workOrderId },
-        data: { Order: { connect: { id: orderId } } },
+        data: {
+            status: WorkOrderStatus.Approved,
+            Order: {
+                connect: { id: orderId }
+            }
+        },
         include: {
             // Include all necessary relations here
             contactPerson: true,

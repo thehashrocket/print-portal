@@ -190,17 +190,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
                     <div className="rounded-lg bg-white p-6 shadow-md">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
-                        {serializedTypesettingData.length > 0 ? (
-                            <TypesettingProvider>
-                                <TypesettingComponent
-                                    workOrderItemId={workOrderItem.id}
-                                    orderItemId=""
-                                    initialTypesetting={serializedTypesettingData}
-                                />
-                            </TypesettingProvider>
-                        ) : (
-                            <p>No typesetting data available</p>
-                        )}
+                        <TypesettingProvider>
+                            <TypesettingComponent
+                                workOrderItemId={workOrderItem.id}
+                                orderItemId=""
+                                initialTypesetting={serializedTypesettingData}
+                            />
+                        </TypesettingProvider>
                     </div>
                 </div>
             </div>
