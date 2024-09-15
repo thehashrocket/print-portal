@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { WorkOrderContext } from '~/app/contexts/workOrderContext';
-import { AddressType, ShippingMethod } from '@prisma/client';
+import { AddressType, ShippingMethod, ShippingInfo, Address } from '@prisma/client';
+import { SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod),
     instructions: z.string().optional(),
     addressId: z.string().optional(),
     shippingCost: z.number().optional(),
-    shippingDate: z.date().optional(),
+    shippingDate: z.string().optional(), // Changed to string
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
-    // ShippingPickup fields
     pickupDate: z.string().optional(),
     pickupTime: z.string().optional(),
     pickupContactName: z.string().optional(),
@@ -37,23 +36,32 @@ const addressSchema = z.object({
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
 type AddressFormData = z.infer<typeof addressSchema>;
 
-const WorkOrderShippingInfoForm: React.FC = () => {
+interface ShippingInfoEditorProps {
+    orderId: string;
+    currentShippingInfo: SerializedShippingInfo | null;
+    officeId: string;
+    onUpdate: () => void;
+}
+
+const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, currentShippingInfo, officeId, onUpdate }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [isCreatingNewAddress, setIsCreatingNewAddress] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
         defaultValues: {
-            shippingMethod: ShippingMethod.Courier,
+            shippingMethod: currentShippingInfo?.shippingMethod ?? ShippingMethod.Courier,
+            instructions: currentShippingInfo?.instructions ?? undefined,
+            addressId: currentShippingInfo?.addressId ?? undefined,
+            shippingCost: currentShippingInfo?.shippingCost ? parseFloat(currentShippingInfo.shippingCost) : undefined,
+            shippingDate: currentShippingInfo?.shippingDate ?? undefined,
+            shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
+            shippingOther: currentShippingInfo?.shippingOther ?? undefined,
+            shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
         },
     });
-    const { workOrder, setWorkOrder, setCurrentStep } = useContext(WorkOrderContext);
-    const [addresses, setAddresses] = useState<any[]>([]);
-    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-    const [isCreatingNewAddress, setIsCreatingNewAddress] = useState(false);
-    const createShippingInfoMutation = api.shippingInfo.create.useMutation();
-    const addShippingInfoToWorkOrderMutation = api.workOrders.addShippingInfo.useMutation();
-    const createAddressMutation = api.addresses.create.useMutation();
-    const { data: officeData } = api.offices.getById.useQuery(workOrder.officeId, { enabled: !!workOrder.officeId });
-
-    const shippingMethod = watch('shippingMethod');
 
     const {
         register: registerAddress,
@@ -64,63 +72,35 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         resolver: zodResolver(addressSchema),
     });
 
+    const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
+    const updateShippingInfoMutation = api.orders.updateShippingInfo.useMutation();
+    const createAddressMutation = api.addresses.create.useMutation();
+
+    const shippingMethod = watch('shippingMethod');
+
     useEffect(() => {
         if (officeData && officeData.Addresses) {
             setAddresses(officeData.Addresses);
         }
     }, [officeData]);
 
-    useEffect(() => {
-        // Reset irrelevant fields when shipping method changes
-        if (shippingMethod === ShippingMethod.Pickup || shippingMethod === ShippingMethod.Other) {
-            setValue('addressId', undefined);
-            setSelectedAddress(null);
-            setIsCreatingNewAddress(false);
-        } else {
-            setValue('pickupDate', undefined);
-            setValue('pickupTime', undefined);
-        }
-    }, [shippingMethod, setValue]);
-
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
+        setIsSubmitting(true);
         try {
-            const shippingInfoData: any = {
-                shippingMethod: data.shippingMethod,
-                instructions: data.instructions,
-                officeId: workOrder.officeId,
-                shippingCost: data.shippingCost,
-                shippingDate: data.shippingDate,
-                shippingNotes: data.shippingNotes,
-                shippingOther: data.shippingOther,
-                shipToSameAsBillTo: data.shipToSameAsBillTo,
-            };
-
-            if (data.shippingMethod === ShippingMethod.Pickup) {
-                shippingInfoData.shippingPickup = {
-                    pickupDate: data.pickupDate ? new Date(data.pickupDate) : undefined,
-                    pickupTime: data.pickupTime,
-                    contactPhone: data.pickupContactPhone,
-                    notes: data.pickupNotes,
-                };
-            } else if (data.shippingMethod !== ShippingMethod.Other) {
-                shippingInfoData.addressId = data.addressId;
-            }
-
-            const newShippingInfo = await createShippingInfoMutation.mutateAsync(shippingInfoData);
-
-            await addShippingInfoToWorkOrderMutation.mutateAsync({
-                id: workOrder.id,
-                shippingInfoId: newShippingInfo.id,
+            await updateShippingInfoMutation.mutateAsync({
+                orderId,
+                shippingInfo: {
+                    ...data,
+                    shippingCost: data.shippingCost ?? undefined,
+                    shippingDate: data.shippingDate ? new Date(data.shippingDate) : undefined,
+                },
             });
-
-            setWorkOrder({
-                ...workOrder,
-                shippingInfoId: newShippingInfo.id,
-            });
-
-            setCurrentStep(prev => prev + 1);
+            setIsEditing(false);
+            onUpdate();
         } catch (error) {
-            console.error("Error creating shipping info:", error);
+            console.error("Error updating shipping info:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -128,10 +108,9 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         try {
             const newAddress = await createAddressMutation.mutateAsync({
                 ...data,
-                officeId: workOrder.officeId,
+                officeId,
             });
             setAddresses(prev => [...prev, newAddress]);
-            setSelectedAddress(newAddress.id);
             setValue('addressId', newAddress.id);
             setIsCreatingNewAddress(false);
             resetAddressForm();
@@ -140,10 +119,26 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         }
     };
 
-    const needsAddress = shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other;
+    if (!isEditing) {
+        return (
+            <div>
+                <h3 className="text-lg font-semibold mb-2">Shipping Information</h3>
+                {currentShippingInfo ? (
+                    <>
+                        <p>Method: {currentShippingInfo.shippingMethod}</p>
+                        <p>Address: {currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.city}</p>
+                        <button onClick={() => setIsEditing(true)} className="btn btn-primary mt-2">Edit Shipping Info</button>
+                    </>
+                ) : (
+                    <button onClick={() => setIsEditing(true)} className="btn btn-primary">Add Shipping Information</button>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
+            <h3 className="text-lg font-semibold mb-2">Edit Shipping Information</h3>
             <form onSubmit={handleSubmit(handleShippingInfoSubmit)} className="space-y-4">
                 <div>
                     <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
@@ -161,7 +156,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                     {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
                 </div>
 
-                {needsAddress && (
+                {shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other && (
                     <div>
                         <label htmlFor="addressId" className="block text-sm font-medium text-gray-700">Select Address</label>
                         <select
@@ -171,7 +166,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                                 if (e.target.value === 'new') {
                                     setIsCreatingNewAddress(true);
                                 } else {
-                                    setSelectedAddress(e.target.value);
                                     setIsCreatingNewAddress(false);
                                 }
                             }}
@@ -224,13 +218,40 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                     {errors.instructions && <p className="text-red-500">{errors.instructions.message}</p>}
                 </div>
 
-                <button type="submit" className="btn btn-primary">Submit and Next Step</button>
+                <div>
+                    <label htmlFor="shippingCost" className="block text-sm font-medium text-gray-700">Shipping Cost</label>
+                    <input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
+                    {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
+                </div>
+
+                <div>
+                    <label htmlFor="shippingDate" className="block text-sm font-medium text-gray-700">Shipping Date</label>
+                    <input
+                        type="date"
+                        {...register('shippingDate')}
+                        className="input input-bordered w-full"
+                        defaultValue={currentShippingInfo?.shippingDate ? new Date(currentShippingInfo.shippingDate).toISOString().split('T')[0] : undefined}
+                    />
+                    {errors.shippingDate && <p className="text-red-500">{errors.shippingDate.message}</p>}
+                </div>
+
+                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <>
+                            <span className="loading loading-spinner"></span>
+                            Updating...
+                        </>
+                    ) : (
+                        'Update Shipping Info'
+                    )}
+                </button>
             </form>
 
-            {needsAddress && isCreatingNewAddress && (
+            {isCreatingNewAddress && (
                 <div className="mt-6">
                     <h3 className="text-lg font-medium text-gray-900">Create New Address</h3>
                     <form onSubmit={handleSubmitAddress(handleAddressSubmit)} className="space-y-4 mt-4">
+                        {/* Address form fields */}
                         <div>
                             <label htmlFor="line1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
                             <input {...registerAddress('line1')} className="input input-bordered w-full" />
@@ -274,10 +295,8 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                             </select>
                             {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
                         </div>
-                        <div className="flex justify-between">
-                            <button type="submit" className="btn btn-primary">Add Address</button>
-                            <button type="button" onClick={() => setIsCreatingNewAddress(false)} className="btn btn-secondary">Cancel</button>
-                        </div>
+                        <button type="submit" className="btn btn-primary">Add Address</button>
+                        <button type="button" onClick={() => setIsCreatingNewAddress(false)} className="btn btn-secondary ml-2">Cancel</button>
                     </form>
                 </div>
             )}
@@ -285,4 +304,4 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     );
 };
 
-export default WorkOrderShippingInfoForm;
+export default ShippingInfoEditor;

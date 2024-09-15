@@ -20,6 +20,14 @@ export const addressRouter = createTRPCRouter({
         });
     }),
 
+    getByOfficeId: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+        return ctx.db.address.findMany({
+            where: {
+                officeId: input,
+            },
+        });
+    }),
+
     getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.address.findMany();
     }),

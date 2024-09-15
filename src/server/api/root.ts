@@ -28,7 +28,7 @@ import { workOrderRouter } from "./routers/workOrders/workOrder";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  address: addressRouter,
+  addresses: addressRouter,
   companies: companyRouter,
   invoices: invoiceRouter,
   offices: officeRouter,

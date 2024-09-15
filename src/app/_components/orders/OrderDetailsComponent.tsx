@@ -3,13 +3,15 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Order, OrderStatus, OrderPayment, ShippingMethod } from "@prisma/client";
+import { Order, OrderStatus, OrderPayment, ShippingMethod, Address, ShippingInfo } from "@prisma/client";
 import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 import OrderPaymentComponent from "~/app/_components/orders/OrderPayment/OrderPaymentComponent";
 import OrderDeposit from "./OrderDeposit/orderDeposit";
+import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor";
+
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -71,10 +73,6 @@ const InfoCard = ({ title, content }: { title: string; content: React.ReactNode 
     </section>
 );
 
-const formatShippingMethod = (method: ShippingMethod) => {
-    return method.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-};
-
 interface OrderDetailsProps {
     initialOrder: SerializedOrder | null; // Replace 'any' with the correct type for your order object
     orderId: string;
@@ -83,6 +81,7 @@ interface OrderDetailsProps {
 export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProps) {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
+    const utils = api.useContext();
 
     const { data: order, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
@@ -185,53 +184,16 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <InfoCard
-                            title="Recipient"
-                            content={
-                                <>
-                                    <p className="font-semibold">{order.ShippingInfo?.attentionTo || order.Office?.Company.name}</p>
-                                    <p>{order.ShippingInfo?.Address?.line1}</p>
-                                    {order.ShippingInfo?.Address?.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
-                                    <p>{order.ShippingInfo?.Address?.city}, {order.ShippingInfo?.Address?.state} {order.ShippingInfo?.Address?.zipCode}</p>
-                                    <p>{order.ShippingInfo?.Address?.country}</p>
-                                </>
-                            }
-                        />
-                        <InfoCard
-                            title="Shipping Details"
-                            content={
-                                <>
-                                    <p><strong>Method:</strong> {order.ShippingInfo ? formatShippingMethod(order.ShippingInfo.shippingMethod) : 'N/A'}</p>
-                                    <p><strong>Phone:</strong> {order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
-                                    <p><strong>Cost:</strong> {formatCurrency(order.ShippingInfo?.shippingCost ?? "")}</p>
-                                    <p><strong>Date:</strong> {formatDate(order.ShippingInfo?.shippingDate ?? "")}</p>
-                                    <p><strong>Estimated Delivery:</strong> {formatDate(order.ShippingInfo?.estimatedDelivery ?? "")}</p>
-                                    <p><strong>Number of Packages:</strong> {order.ShippingInfo?.numberOfPackages || 'N/A'}</p>
-                                    <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber || 'N/A'}</p>
-                                </>
-                            }
-                        />
-                    </div>
-                    {order.ShippingInfo?.ShippingPickup && (
-                        <div className="mt-4">
-                            <InfoCard
-                                title="Pickup Information"
-                                content={
-                                    <>
-                                        <p><strong>Date:</strong> {order.ShippingInfo.ShippingPickup.pickupDate ? formatDate(order.ShippingInfo.ShippingPickup.pickupDate) : null}</p>
-                                        <p><strong>Time:</strong> {order.ShippingInfo.ShippingPickup.pickupTime}</p>
-                                        <p><strong>Contact:</strong> {order.ShippingInfo.ShippingPickup.contactName}</p>
-                                        <p><strong>Phone:</strong> {order.ShippingInfo.ShippingPickup.contactPhone}</p>
-                                        {order.ShippingInfo.ShippingPickup.notes && (
-                                            <p><strong>Notes:</strong> {order.ShippingInfo.ShippingPickup.notes}</p>
-                                        )}
-                                    </>
-                                }
-                            />
-                        </div>
-                    )}
+                    <ShippingInfoEditor
+                        orderId={order.id}
+                        currentShippingInfo={order.ShippingInfo}
+                        officeId={order.officeId}
+                        onUpdate={() => {
+                            utils.orders.getByID.invalidate(orderId);
+                        }}
+                    />
                 </section>
+
                 <section>
                     <h2 className="text-2xl font-semibold mb-4">Order Jobs</h2>
                     <div className="bg-white p-4 rounded-lg shadow-md">

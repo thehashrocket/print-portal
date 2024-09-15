@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, Prisma } from "@prisma/client";
+import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 
@@ -237,6 +237,127 @@ export const orderRouter = createTRPCRouter({
         totalShippingAmount,
         totalPaid,
         balance,
+      });
+    }),
+
+  updateShippingInfo: protectedProcedure
+    .input(z.object({
+      orderId: z.string(),
+      shippingInfo: z.object({
+        addressId: z.string().optional(),
+        shippingCost: z.number().optional(),
+        shippingDate: z.date().optional(),
+        shippingNotes: z.string().optional(),
+        shippingMethod: z.string(), // Add this field
+      }),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { orderId, shippingInfo } = input;
+
+      const order = await ctx.db.order.findUnique({
+        where: { id: orderId },
+        select: { officeId: true },
+      });
+
+      if (!order) throw new Error("Order not found");
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: orderId },
+        data: {
+          ShippingInfo: {
+            upsert: {
+              create: {
+                ...shippingInfo,
+                createdById: ctx.session.user.id,
+                officeId: order.officeId,
+                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+              },
+              update: {
+                addressId: shippingInfo.addressId,
+                shippingCost: shippingInfo.shippingCost,
+                shippingDate: shippingInfo.shippingDate,
+                shippingNotes: shippingInfo.shippingNotes,
+                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+              },
+            },
+          },
+        },
+        include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+            },
+          },
+          contactPerson: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          OrderPayments: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+            },
+          },
+          OrderNotes: true,
+        },
+      });
+
+      const nonCancelledOrderItems = updatedOrder.OrderItems?.filter((item) => item.status !== 'Cancelled') ?? [];
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = updatedOrder.OrderPayments?.map(normalizeOrderPayment) ?? [];
+      const totalPaid = totalOrderPayments.reduce((sum: Prisma.Decimal, payment: { amount: string | number }) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
+
+      return normalizeOrder({
+        ...updatedOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalItemAmount,
+        totalCost,
+        totalShippingAmount,
+        totalPaid,
+        balance,
+        OrderPayments: null,
+        Office: {
+          Company: {
+            name: ""
+          }
+        },
+        contactPerson: {
+          id: "",
+          name: null
+        },
+        createdBy: {
+          id: "",
+          name: null
+        }
       });
     }),
 
