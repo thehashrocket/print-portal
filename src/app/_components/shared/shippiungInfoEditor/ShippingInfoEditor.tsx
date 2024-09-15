@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { AddressType, ShippingMethod, ShippingInfo, Address } from '@prisma/client';
 import { SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
+import { formatCurrency, formatDate } from '~/utils/formatters';
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod),
@@ -84,6 +85,12 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         }
     }, [officeData]);
 
+    useEffect(() => {
+        if (isEditing && currentShippingInfo?.shippingDate) {
+            setValue('shippingDate', new Date(currentShippingInfo.shippingDate).toISOString().split('T')[0]);
+        }
+    }, [isEditing, currentShippingInfo, setValue]);
+
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
         setIsSubmitting(true);
         try {
@@ -119,6 +126,11 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         }
     };
 
+    const handleCancel = () => {
+        setIsEditing(false);
+        reset(); // This resets the form to its default values
+    };
+
     if (!isEditing) {
         return (
             <div>
@@ -127,6 +139,10 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                     <>
                         <p>Method: {currentShippingInfo.shippingMethod}</p>
                         <p>Address: {currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.city}</p>
+                        <p>Cost: {currentShippingInfo.shippingCost ? formatCurrency(currentShippingInfo.shippingCost) : 'N/A'}</p>
+                        <p>Date: {currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</p>
+                        <p>Notes: {currentShippingInfo.shippingNotes}</p>
+                        <p>Other: {currentShippingInfo.shippingOther}</p>
                         <button onClick={() => setIsEditing(true)} className="btn btn-primary mt-2">Edit Shipping Info</button>
                     </>
                 ) : (
@@ -230,21 +246,25 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         type="date"
                         {...register('shippingDate')}
                         className="input input-bordered w-full"
-                        defaultValue={currentShippingInfo?.shippingDate ? new Date(currentShippingInfo.shippingDate).toISOString().split('T')[0] : undefined}
                     />
                     {errors.shippingDate && <p className="text-red-500">{errors.shippingDate.message}</p>}
                 </div>
 
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                        <>
-                            <span className="loading loading-spinner"></span>
-                            Updating...
-                        </>
-                    ) : (
-                        'Update Shipping Info'
-                    )}
-                </button>
+                <div className="flex justify-end gap-2">
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <span className="loading loading-spinner"></span>
+                                Updating...
+                            </>
+                        ) : (
+                            'Update Shipping Info'
+                        )}
+                    </button>
+                    <button type="button" onClick={handleCancel} className="btn btn-secondary">
+                        Cancel
+                    </button>
+                </div>
             </form>
 
             {isCreatingNewAddress && (
