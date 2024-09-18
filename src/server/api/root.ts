@@ -10,6 +10,7 @@ import { orderRouter } from "./routers/orders/order";
 import { postRouter } from "~/server/api/routers/post";
 import { rolesRouter } from "./routers/roles/roles";
 import { orderItemStockRouter } from "./routers/orderItemStocks/orderItemStock";
+import { quickbooksRouter } from "./routers/quickbooks/quickbooks";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
 import { shippingInfoRouter } from "./routers/shared/shippingInfo";
 import { shippingPickupRouter } from "./routers/shared/shippingPickup";
@@ -39,6 +40,7 @@ export const appRouter = createTRPCRouter({
   orderPayments: orderPaymentRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
+  quickbooks: quickbooksRouter,
   roles: rolesRouter,
   shippingInfo: shippingInfoRouter,
   shippingPickups: shippingPickupRouter,

@@ -1,6 +1,7 @@
 // ~/src/app/page.tsx
 import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
+import QuickbooksAuth from "~/app/_components/quickbooks/QuickbooksAuth";
 import { api } from "~/trpc/server";
 
 export default async function Home() {
@@ -22,7 +23,7 @@ export default async function Home() {
             <p className="text-center text-2xl text-white">
               {session && <span>Logged in as {session.user?.name}</span>}
             </p>
-            <p className="text-center text-2xl text-white">
+            <div className="text-center text-2xl text-white">
               {session && (
                 <Link className="btn btn-primary" href="/dashboard">
                   Go to dashboard
@@ -39,7 +40,10 @@ export default async function Home() {
                   Go to orders
                 </Link>
               )}
-            </p>
+              {session && (
+                <QuickbooksAuth />
+              )}
+            </div>
             <Link
               href={session ? "/api/auth/signout" : "/api/auth/signin"}
               className="btn btn-primary"

@@ -3,6 +3,7 @@ import NavBar from "./_components/navBar"; // Fix the casing of the file name
 
 import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
+import { Providers } from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
         <NavBar />
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <Providers>{children}</Providers>
+        </TRPCReactProvider>
       </body>
     </html>
   );
