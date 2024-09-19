@@ -413,6 +413,10 @@ model User {
   ContactPersonOrders     Order[]              @relation("OrderContactPerson")
   ContactPersonWorkOrders WorkOrder[]          @relation("WorkOrderContactPerson")
   ShippingPickup          ShippingPickup[]
+  quickbooksAccessToken   String?
+  quickbooksRefreshToken  String?
+  quickbooksTokenExpiry   DateTime?
+  quickbooksRealmId       String?
 }
 
 model VerificationToken {

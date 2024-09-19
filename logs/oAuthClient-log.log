@@ -1,0 +1,132 @@
+2024-09-19T14:21:42.976Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T14:50:26.335Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T14:52:20.760Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:01:37.493Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:02:32.234Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:05:35.393Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:05:43.276Z error: Create Token () threw an exception : {
+  "message": "Request failed with status code 400",
+  "name": "AxiosError",
+  "stack": "AxiosError: Request failed with status code 400\n    at settle (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:2019:12)\n    at IncomingMessage.handleStreamEnd (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:3135:11)\n    at IncomingMessage.emit (node:events:532:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:4287:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async eval (webpack-internal:///(rsc)/./src/server/api/routers/quickbooks/quickbooks.ts:40:34)\n    at async resolveMiddleware (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:110:30)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async procedure (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:190:24)\n    at async eval (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/router.mjs:136:28)\n    at async GET (webpack-internal:///(rsc)/./src/app/api/quickbooks/callback/route.ts:33:9)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55759\n    at async eO.execute (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46527)\n    at async eO.handle (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57093)\n    at async doRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1345:42)\n    at async cacheEntry.responseCache.get.routeKind (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1567:28)\n    at async DevServer.renderToResponseWithComponentsImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1475:28)\n    at async DevServer.renderPageComponent (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1901:24)\n    at async DevServer.renderToResponseImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1939:32)\n    at async DevServer.pipeImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:914:25)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/next-server.js:272:17)\n    at async DevServer.handleRequestImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:810:17)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n    at async Span.traceAsyncFn (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/trace/trace.js:154:20)\n    at async DevServer.handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n    at async invokeRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:173:21)\n    at async handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:350:24)\n    at async requestHandlerImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:374:13)\n    at async Server.requestListener (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/start-server.js:141:13)",
+  "config": {
+    "transitional": {
+      "silentJSONParsing": true,
+      "forcedJSONParsing": true,
+      "clarifyTimeoutError": false
+    },
+    "adapter": [
+      "xhr",
+      "http",
+      "fetch"
+    ],
+    "transformRequest": [
+      null
+    ],
+    "transformResponse": [
+      null
+    ],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1,
+    "env": {},
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Basic QUJoR2w0REVzQzVoSFJCNU15eTFKNDRzZEU1dWJ6emROSVJnTkdUMFQxa1Z1V3MzOEQ6Q084UHk2Y3JuSHZhSFZGbWNleVZuSjc4a01KSDVtTTJHRWpuY29mRw==",
+      "User-Agent": "Intuit-OAuthClient-JS_4.1.2_Darwin_23.6.0_darwin",
+      "Accept-Encoding": "gzip, compress, deflate, br"
+    },
+    "url": "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+    "data": "",
+    "method": "post"
+  },
+  "code": "ERR_BAD_REQUEST",
+  "status": 400
+}
+2024-09-19T15:08:24.253Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:08:30.449Z error: Create Token () threw an exception : {
+  "message": "Request failed with status code 400",
+  "name": "AxiosError",
+  "stack": "AxiosError: Request failed with status code 400\n    at settle (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:2019:12)\n    at IncomingMessage.handleStreamEnd (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:3135:11)\n    at IncomingMessage.emit (node:events:532:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:4287:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async eval (webpack-internal:///(rsc)/./src/server/api/routers/quickbooks/quickbooks.ts:40:34)\n    at async resolveMiddleware (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:110:30)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async procedure (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:190:24)\n    at async eval (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/router.mjs:136:28)\n    at async GET (webpack-internal:///(rsc)/./src/app/api/quickbooks/callback/route.ts:33:9)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55759\n    at async eO.execute (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46527)\n    at async eO.handle (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57093)\n    at async doRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1345:42)\n    at async cacheEntry.responseCache.get.routeKind (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1567:28)\n    at async DevServer.renderToResponseWithComponentsImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1475:28)\n    at async DevServer.renderPageComponent (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1901:24)\n    at async DevServer.renderToResponseImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1939:32)\n    at async DevServer.pipeImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:914:25)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/next-server.js:272:17)\n    at async DevServer.handleRequestImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:810:17)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n    at async Span.traceAsyncFn (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/trace/trace.js:154:20)\n    at async DevServer.handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n    at async invokeRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:173:21)\n    at async handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:350:24)\n    at async requestHandlerImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:374:13)\n    at async Server.requestListener (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/start-server.js:141:13)",
+  "config": {
+    "transitional": {
+      "silentJSONParsing": true,
+      "forcedJSONParsing": true,
+      "clarifyTimeoutError": false
+    },
+    "adapter": [
+      "xhr",
+      "http",
+      "fetch"
+    ],
+    "transformRequest": [
+      null
+    ],
+    "transformResponse": [
+      null
+    ],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1,
+    "env": {},
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Basic QUJoR2w0REVzQzVoSFJCNU15eTFKNDRzZEU1dWJ6emROSVJnTkdUMFQxa1Z1V3MzOEQ6Q084UHk2Y3JuSHZhSFZGbWNleVZuSjc4a01KSDVtTTJHRWpuY29mRw==",
+      "User-Agent": "Intuit-OAuthClient-JS_4.1.2_Darwin_23.6.0_darwin",
+      "Accept-Encoding": "gzip, compress, deflate, br"
+    },
+    "url": "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+    "data": "",
+    "method": "post"
+  },
+  "code": "ERR_BAD_REQUEST",
+  "status": 400
+}
+2024-09-19T15:17:54.548Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T15:18:00.599Z error: Create Token () threw an exception : {
+  "message": "Request failed with status code 400",
+  "name": "AxiosError",
+  "stack": "AxiosError: Request failed with status code 400\n    at settle (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:2019:12)\n    at IncomingMessage.handleStreamEnd (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:3135:11)\n    at IncomingMessage.emit (node:events:532:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (webpack-internal:///(rsc)/./node_modules/axios/dist/node/axios.cjs:4287:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async eval (webpack-internal:///(rsc)/./src/server/api/routers/quickbooks/quickbooks.ts:40:34)\n    at async resolveMiddleware (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:110:30)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async callRecursive (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:160:32)\n    at async procedure (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/procedureBuilder.mjs:190:24)\n    at async eval (webpack-internal:///(rsc)/./node_modules/@trpc/server/dist/unstable-core-do-not-import/router.mjs:136:28)\n    at async GET (webpack-internal:///(rsc)/./src/app/api/quickbooks/callback/route.ts:33:9)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55759\n    at async eO.execute (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46527)\n    at async eO.handle (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57093)\n    at async doRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1345:42)\n    at async cacheEntry.responseCache.get.routeKind (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1567:28)\n    at async DevServer.renderToResponseWithComponentsImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1475:28)\n    at async DevServer.renderPageComponent (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1901:24)\n    at async DevServer.renderToResponseImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:1939:32)\n    at async DevServer.pipeImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:914:25)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/next-server.js:272:17)\n    at async DevServer.handleRequestImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/base-server.js:810:17)\n    at async /Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n    at async Span.traceAsyncFn (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/trace/trace.js:154:20)\n    at async DevServer.handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n    at async invokeRender (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:173:21)\n    at async handleRequest (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:350:24)\n    at async requestHandlerImpl (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/router-server.js:374:13)\n    at async Server.requestListener (/Users/jasonshultz/Projects/print-shop/thomson-print-portal/node_modules/next/dist/server/lib/start-server.js:141:13)",
+  "config": {
+    "transitional": {
+      "silentJSONParsing": true,
+      "forcedJSONParsing": true,
+      "clarifyTimeoutError": false
+    },
+    "adapter": [
+      "xhr",
+      "http",
+      "fetch"
+    ],
+    "transformRequest": [
+      null
+    ],
+    "transformResponse": [
+      null
+    ],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1,
+    "env": {},
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": "Basic QUJoR2w0REVzQzVoSFJCNU15eTFKNDRzZEU1dWJ6emROSVJnTkdUMFQxa1Z1V3MzOEQ6Q084UHk2Y3JuSHZhSFZGbWNleVZuSjc4a01KSDVtTTJHRWpuY29mRw==",
+      "User-Agent": "Intuit-OAuthClient-JS_4.1.2_Darwin_23.6.0_darwin",
+      "Accept-Encoding": "gzip, compress, deflate, br"
+    },
+    "url": "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+    "data": "",
+    "method": "post"
+  },
+  "code": "ERR_BAD_REQUEST",
+  "status": 400
+}
+2024-09-19T15:37:40.627Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
