@@ -8,8 +8,27 @@ export async function GET(req: NextRequest) {
     const code = searchParams.get('code');
     const realmId = searchParams.get('realmId');
     const state = searchParams.get('state');
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+
+    console.log('QuickBooks Callback Received', {
+        code,
+        realmId,
+        state,
+        error,
+        errorDescription,
+        fullUrl: req.url,
+        headers: Object.fromEntries(req.headers.entries()),
+    });
+
+    if (error) {
+        console.error('Error in QuickBooks callback:', error, errorDescription);
+        const baseUrl = process.env.NEXTAUTH_URL || `https://${req.headers.get('host')}`;
+        return NextResponse.redirect(`${baseUrl}/dashboard?quickbooks=error&error=${error}&description=${errorDescription}`);
+    }
 
     if (!code || !realmId || !state) {
+        console.error('Missing required parameters in QuickBooks callback');
         return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
@@ -21,14 +40,21 @@ export async function GET(req: NextRequest) {
 
         await api.quickbooks.handleCallback({ code, realmId, state });
 
-        // Use an absolute URL for redirection
         const baseUrl = process.env.NEXTAUTH_URL || `https://${req.headers.get('host')}`;
-        return NextResponse.redirect(`${baseUrl}/dashboard?quickbooks=success`);
-    } catch (error) {
-        console.error('Error in Quickbooks callback:', error);
+        return NextResponse.redirect(`${baseUrl}/?quickbooks=success`);
+    } catch (error: any) {
+        console.error('Detailed error in Quickbooks callback:', {
+            error: error,
+            message: error.message,
+            stack: error.stack,
+            request: {
+                url: req.url,
+                headers: Object.fromEntries(req.headers.entries()),
+            }
+        });
 
         // Use an absolute URL for redirection
         const baseUrl = process.env.NEXTAUTH_URL || `https://${req.headers.get('host')}`;
-        return NextResponse.redirect(`${baseUrl}/dashboard?quickbooks=error`);
+        return NextResponse.redirect(`${baseUrl}/?quickbooks=error`);
     }
 }
