@@ -138,6 +138,9 @@ export const companyRouter = createTRPCRouter({
             return {
                 id: company.id,
                 name: company.name,
+                quickbooksId: company.quickbooksId || "",
+                createdAt: company.createdAt,
+                updatedAt: company.updatedAt,
                 workOrderTotalPending: Number(workOrderTotalPending._sum.amount) || 0,
                 orderTotalPending: Number(orderTotalPending._sum.amount) || 0,
                 orderTotalCompleted: Number(orderTotalCompleted._sum.amount) || 0,

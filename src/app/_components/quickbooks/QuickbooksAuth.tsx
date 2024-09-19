@@ -11,11 +11,22 @@ const QuickBooksAuth: React.FC = () => {
     const [isQuickbooksAuthenticated, setIsQuickbooksAuthenticated] = useState(false);
     const [companyInfo, setCompanyInfo] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [syncResult, setSyncResult] = useState<string | null>(null);
 
     const { data: authStatus, refetch: refetchAuthStatus, error: authStatusError } = api.quickbooks.checkQuickbooksAuthStatus.useQuery(
         undefined,
         { enabled: !!session }
     );
+
+    const { data: customersData, refetch: syncCustomers, isLoading: isSyncingCustomers, error: syncCustomersError } = api.quickbooks.getCustomers.useQuery(
+        {
+            lastSyncTime: undefined, // You can add a state variable to track last sync time
+            pageSize: 100, // You can make this configurable if needed
+        },
+        { enabled: false }
+    );
+
 
     const { mutate: initiateAuth } = api.quickbooks.initiateAuth.useMutation({
         onSuccess: (data) => {
@@ -67,6 +78,17 @@ const QuickBooksAuth: React.FC = () => {
         }
     }, [companyInfoData, companyInfoError]);
 
+    useEffect(() => {
+        if (syncCustomersError) {
+            console.error('Error syncing customers:', syncCustomersError);
+            setError('Failed to sync customers from QuickBooks.');
+            setIsSyncing(false);
+        } else if (customersData) {
+            setSyncResult(`Successfully synced ${customersData.totalCustomers} customers from QuickBooks.`);
+            setIsSyncing(false);
+        }
+    }, [customersData, syncCustomersError]);
+
     const handleAuth = async () => {
         setError(null);
         if (isQuickbooksAuthenticated) {
@@ -87,11 +109,16 @@ const QuickBooksAuth: React.FC = () => {
         getCompanyInfo();
     };
 
+    const handleSyncCustomers = () => {
+        setError(null);
+        setSyncResult(null);
+        setIsSyncing(true);
+        syncCustomers();
+    };
+
     if (!session) {
         return null; // Don't show Quickbooks auth if user is not logged in
     }
-
-
 
     return (
         <div className="p-4 bg-white shadow rounded-lg">
@@ -106,18 +133,27 @@ const QuickBooksAuth: React.FC = () => {
             {isQuickbooksAuthenticated && (
                 <>
                     <p className="mt-2 text-green-600">Connected to QuickBooks</p>
-                    <button
-                        onClick={handleRefreshToken}
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors mt-2"
-                    >
-                        Refresh Token
-                    </button>
-                    <button
-                        onClick={handleGetCompanyInfo}
-                        className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors mt-2 ml-2"
-                    >
-                        Get Company Info
-                    </button>
+                    <div className="mt-2 flex flex-row gap-2">
+                        <button
+                            onClick={handleRefreshToken}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                        >
+                            Refresh Token
+                        </button>
+                        <button
+                            onClick={handleGetCompanyInfo}
+                            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors ml-2"
+                        >
+                            Get Company Info
+                        </button>
+                        <button
+                            onClick={handleSyncCustomers}
+                            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors mt-2 ml-2"
+                            disabled={isSyncing || isSyncingCustomers}
+                        >
+                            {isSyncing || isSyncingCustomers ? 'Syncing...' : 'Sync Customers'}
+                        </button>
+                    </div>
                     {companyInfo && (
                         <QuickBooksCompanyInfo companyInfo={companyInfo} />
                     )}

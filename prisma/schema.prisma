@@ -56,9 +56,14 @@ model Address {
 }
 
 model Company {
-  id      String   @id @default(uuid())
-  name    String
-  Offices Office[]
+  id           String   @id @default(uuid())
+  name         String
+  quickbooksId String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  Offices      Office[]
+
+  @@unique([name, quickbooksId])
 }
 
 model Invoice {
@@ -104,19 +109,20 @@ model InvoicePayment {
 }
 
 model Office {
-  id           String         @id @default(uuid())
-  companyId    String
-  name         String
-  createdAt    DateTime       @default(now())
-  createdById  String
-  updatedAt    DateTime       @updatedAt
-  Addresses    Address[]
-  Company      Company        @relation(fields: [companyId], references: [id])
-  createdBy    User           @relation("CreatedBy", fields: [createdById], references: [id])
-  Orders       Order[]
-  ShippingInfo ShippingInfo[]
-  Users        User[]
-  WorkOrders   WorkOrder[]
+  id                   String         @id @default(uuid())
+  companyId            String
+  name                 String
+  createdAt            DateTime       @default(now())
+  createdById          String
+  updatedAt            DateTime       @default(now()) @updatedAt
+  quickbooksCustomerId String?        @unique
+  Addresses            Address[]
+  Company              Company        @relation(fields: [companyId], references: [id])
+  createdBy            User           @relation("CreatedBy", fields: [createdById], references: [id])
+  Orders               Order[]
+  ShippingInfo         ShippingInfo[]
+  Users                User[]
+  WorkOrders           WorkOrder[]
 }
 
 model Order {

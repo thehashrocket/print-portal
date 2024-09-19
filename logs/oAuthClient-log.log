@@ -2644,3 +2644,6 @@
   },
   "time": "2024-09-19T12:47:58.876-07:00"
 }
+2024-09-19T20:30:41.647Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T22:30:16.807Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-19T23:43:06.847Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
