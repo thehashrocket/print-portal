@@ -42,8 +42,8 @@ async function refreshTokenIfNeeded(ctx: any) {
     const currentTime = new Date();
     const tokenExpiryTime = new Date(user.quickbooksTokenExpiry);
 
-    // If token is expired or will expire in the next 5 minutes, refresh it
-    if (tokenExpiryTime <= new Date(currentTime.getTime() + 5 * 60 * 1000)) {
+    // If token is expired or will expire in the next 30 minutes, refresh it
+    if (tokenExpiryTime <= new Date(currentTime.getTime() + 30 * 60 * 1000)) {
         try {
             oauthClient.setToken({
                 access_token: user.quickbooksAccessToken!,
