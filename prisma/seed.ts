@@ -74,7 +74,7 @@ async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
       inHandsDate: workOrder.inHandsDate,
       workOrderId,
       version: 1,
-      deposit: new Prisma.Decimal(faker.number.float({ min: 0, max: 200, precision: 2 })),
+      deposit: new Prisma.Decimal(faker.number.float({ min: 0, max: 200 })),
       dateInvoiced: faker.date.recent(),
       invoicePrintEmail: workOrder.invoicePrintEmail,
     },
@@ -755,12 +755,12 @@ async function createShippingInfo(officeId: string, userId: string) {
 
   const shippingInfo = await prismaClient.shippingInfo.create({
     data: {
-      numberOfPackages: faker.datatype.number({ min: 1, max: 10 }),
+      numberOfPackages: faker.number.int({ min: 1, max: 10 }),
       instructions: faker.lorem.sentence(),
       shippingOther: faker.lorem.sentence(),
       shippingDate: faker.date.future(),
-      shippingMethod,
-      shippingCost: faker.number.float({ min: 10, max: 100, precision: 2 }),
+      shippingMethod: shippingMethod,
+      shippingCost: faker.number.float({ min: 10, max: 100 }),
       officeId,
       shippingNotes: faker.lorem.sentence(),
       shipToSameAsBillTo: faker.datatype.boolean(),
@@ -796,7 +796,7 @@ async function createTypesetting(workOrderItemId: string, userId: string) {
   const typesetting = await prismaClient.typesetting.create({
     data: {
       approved: faker.datatype.boolean(),
-      cost: faker.number.float({ min: 50, max: 200, precision: 2 }),
+      cost: faker.number.float({ min: 50, max: 200 }),
       dateIn: faker.date.past(),
       followUpNotes: faker.lorem.sentence(),
       plateRan: faker.word.sample(),
@@ -951,7 +951,7 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
 // Create work order items
 async function createWorkOrderItems(workOrderId: string, itemCount: number, userId: string) {
   for (let i = 0; i < itemCount; i++) {
-    const cost = faker.number.float({ min: 50, max: 200, precision: 2 });
+    const cost = faker.number.float({ min: 50, max: 200 });
     const amount = cost * 1.3;
 
     const workOrderItem = await prismaClient.workOrderItem.create({
@@ -965,7 +965,7 @@ async function createWorkOrderItems(workOrderId: string, itemCount: number, user
         other: faker.commerce.productMaterial(),
         prepTime: faker.number.int({ min: 0, max: 100 }),
         quantity: faker.number.int({ min: 1, max: 1000 }),
-        shippingAmount: faker.number.float({ min: 10, max: 100, precision: 2 }),
+        shippingAmount: faker.number.float({ min: 10, max: 100 }),
         size: faker.helpers.arrayElement(sizes),
         specialInstructions: faker.lorem.sentence(),
         status: faker.helpers.arrayElement(workOrderItemStatuses),
@@ -1031,7 +1031,7 @@ async function createWorkOrderNotes(workOrderId: string, noteCount: number, user
 // Create a WorkOrderStock record
 async function createWorkOrderStock(workOrderItemId: string, userId: string) {
   const stockQty = faker.number.int({ min: 1, max: 1000 });
-  const costPerM = faker.number.float({ min: 50, max: 200, precision: 2 });
+  const costPerM = faker.number.float({ min: 50, max: 200 });
   const totalCost = stockQty * costPerM;
   console.log('workOrderItemId', workOrderItemId)
   return await prismaClient.workOrderItemStock.create({
