@@ -15,12 +15,6 @@ const oauthClient = new OAuthClient({
     logging: true
 });
 
-// const parser = new XMLParser({
-//     ignoreAttributes: false,
-//     attributeNamePrefix: "",
-//     parseAttributeValue: true
-// });
-
 async function refreshTokenIfNeeded(ctx: any) {
     const user = await ctx.db.user.findUnique({
         where: { id: ctx.session.user.id },
