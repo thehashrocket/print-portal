@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { api } from "~/trpc/react";
 import { useRouter } from 'next/navigation';
 import QuickBooksCompanyInfo from './QuickbooksCompanyInfo';
+
 const QuickBooksAuth: React.FC = () => {
     const { data: session } = useSession();
     const router = useRouter();
@@ -14,12 +15,12 @@ const QuickBooksAuth: React.FC = () => {
     const [isSyncing, setIsSyncing] = useState(false);
     const [syncResult, setSyncResult] = useState<string | null>(null);
 
-    const { data: authStatus, refetch: refetchAuthStatus, error: authStatusError } = api.quickbooks.checkQuickbooksAuthStatus.useQuery(
+    const { data: authStatus, refetch: refetchAuthStatus, error: authStatusError } = api.qbAuth.checkQuickbooksAuthStatus.useQuery(
         undefined,
         { enabled: !!session }
     );
 
-    const { data: customersData, refetch: syncCustomers, isLoading: isSyncingCustomers, error: syncCustomersError } = api.quickbooks.getCustomers.useQuery(
+    const { data: customersData, refetch: syncCustomers, isLoading: isSyncingCustomers, error: syncCustomersError } = api.qbSyncCustomers.getCustomers.useQuery(
         {
             lastSyncTime: undefined, // You can add a state variable to track last sync time
             pageSize: 100, // You can make this configurable if needed
@@ -28,20 +29,20 @@ const QuickBooksAuth: React.FC = () => {
     );
 
 
-    const { mutate: initiateAuth } = api.quickbooks.initiateAuth.useMutation({
+    const { mutate: initiateAuth } = api.qbAuth.initiateAuth.useMutation({
         onSuccess: (data) => {
             router.push(data.authUri);
         },
     });
 
-    const { mutate: refreshToken, error: refreshTokenError } = api.quickbooks.refreshToken.useMutation({
+    const { mutate: refreshToken, error: refreshTokenError } = api.qbAuth.refreshToken.useMutation({
         onSuccess: () => {
             alert('Token refreshed successfully');
             refetchAuthStatus();
         },
     });
 
-    const { data: companyInfoData, refetch: getCompanyInfo, error: companyInfoError } = api.quickbooks.getCompanyInfo.useQuery(
+    const { data: companyInfoData, refetch: getCompanyInfo, error: companyInfoError } = api.qbCompany.getCompanyInfo.useQuery(
         undefined,
         { enabled: false }
     );

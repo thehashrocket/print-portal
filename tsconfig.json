@@ -44,7 +44,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/server/api/routers/quickbooks"
   ],
   "exclude": [
     "node_modules"

@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await api.quickbooks.handleCallback({ code, realmId, state });
+        await api.qbAuth.handleCallback({ code, realmId, state });
 
         const baseUrl = process.env.NEXTAUTH_URL || `https://${req.headers.get('host')}`;
         return NextResponse.redirect(`${baseUrl}/?quickbooks=success`);

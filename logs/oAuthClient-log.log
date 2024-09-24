@@ -2647,3 +2647,107 @@
 2024-09-19T20:30:41.647Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
 2024-09-19T22:30:16.807Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
 2024-09-19T23:43:06.847Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:16:18.762Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:34:41.957Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:35:51.153Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:39:48.918Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:43:37.758Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:44:33.108Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T01:48:11.827Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T06:01:22.747Z info: The Authorize Uri is :https://appcenter.intuit.com/connect/oauth2?client_id=ABhGl4DEsC5hHRB5Myy1J44sdE5ubzzdNIRgNGT0T1kVuWs38D&redirect_uri=https%3A%2F%2Fclient-frontend.ngrok.io%2Fapi%2Fquickbooks%2Fcallback&response_type=code&scope=com.intuit.quickbooks.accounting&state=intuit-test
+2024-09-24T06:01:51.142Z info: The makeAPICall () response is : {
+  "CompanyInfo": {
+    "CompanyName": "Sandbox Company_US_1",
+    "LegalName": "Sandbox Company_US_1",
+    "CompanyAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "LegalAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationEmailAddr": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "PrimaryPhone": {},
+    "CompanyStartDate": "2024-09-18",
+    "FiscalYearStartMonth": "January",
+    "Country": "US",
+    "Email": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "WebAddr": {},
+    "SupportedLanguages": "en",
+    "NameValue": [
+      {
+        "Name": "NeoEnabled",
+        "Value": "true"
+      },
+      {
+        "Name": "IsQbdtMigrated",
+        "Value": "false"
+      },
+      {
+        "Name": "CompanyType",
+        "Value": "Other"
+      },
+      {
+        "Name": "SubscriptionStatus",
+        "Value": "SUBSCRIBED"
+      },
+      {
+        "Name": "OfferingSku",
+        "Value": "QuickBooks Online Plus"
+      },
+      {
+        "Name": "PayrollFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "AccountantFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "QBOIndustryType",
+        "Value": "Landscaping Services"
+      },
+      {
+        "Name": "ItemCategoriesFeature",
+        "Value": "true"
+      },
+      {
+        "Name": "AssignedTime",
+        "Value": "2024-09-18T13:20:51-07:00"
+      }
+    ],
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "1",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2024-09-18T12:20:51-07:00",
+      "LastUpdatedTime": "2024-09-18T12:20:51-07:00"
+    }
+  },
+  "time": "2024-09-23T23:01:50.960-07:00"
+}
