@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import QuickbooksStatus from "~/app/_components/quickbooks/QuickbooksStatus";
 import { getServerAuthSession } from "~/server/auth";
 
 const NavBar = async () => {
@@ -36,6 +37,14 @@ const NavBar = async () => {
               <Link href={`/users/${session.user.id}`}>
                 <span className="text-white hover:text-gray-300">Profile</span>
               </Link>
+            )}
+            {session?.user && (
+              <>
+                <Link href={`/users/${session.user.id}`}>
+                  <span className="text-white hover:text-gray-300">Profile</span>
+                </Link>
+                <QuickbooksStatus />
+              </>
             )}
             {/* Add additional elements like logout button, etc. */}
           </div>

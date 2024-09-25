@@ -9,10 +9,12 @@ import QuickBooksCompanyInfo from './QuickbooksCompanyInfo';
 const QuickBooksAuth: React.FC = () => {
     const { data: session } = useSession();
     const router = useRouter();
+    const initializeAuthMutation = api.qbAuth.initializeAuth.useMutation();
     const [isQuickbooksAuthenticated, setIsQuickbooksAuthenticated] = useState(false);
     const [companyInfo, setCompanyInfo] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isSyncingInvoices, setIsSyncingInvoices] = useState(false);
     const [syncResult, setSyncResult] = useState<string | null>(null);
 
     const { data: authStatus, refetch: refetchAuthStatus, error: authStatusError } = api.qbAuth.checkQuickbooksAuthStatus.useQuery(
@@ -29,12 +31,6 @@ const QuickBooksAuth: React.FC = () => {
     );
 
 
-    const { mutate: initiateAuth } = api.qbAuth.initiateAuth.useMutation({
-        onSuccess: (data) => {
-            router.push(data.authUri);
-        },
-    });
-
     const { mutate: refreshToken, error: refreshTokenError } = api.qbAuth.refreshToken.useMutation({
         onSuccess: () => {
             alert('Token refreshed successfully');
@@ -43,6 +39,11 @@ const QuickBooksAuth: React.FC = () => {
     });
 
     const { data: companyInfoData, refetch: getCompanyInfo, error: companyInfoError } = api.qbCompany.getCompanyInfo.useQuery(
+        undefined,
+        { enabled: false }
+    );
+
+    const { data: invoicesData, refetch: syncInvoices, error: syncInvoicesError } = api.qbInvoices.getInvoices.useQuery(
         undefined,
         { enabled: false }
     );
@@ -90,13 +91,30 @@ const QuickBooksAuth: React.FC = () => {
         }
     }, [customersData, syncCustomersError]);
 
-    const handleAuth = async () => {
-        setError(null);
-        if (isQuickbooksAuthenticated) {
-            // Implement disconnect logic if needed
-            console.log("Disconnect not implemented");
-        } else {
-            initiateAuth();
+    useEffect(() => {
+        if (syncInvoicesError) {
+            console.error('Error syncing invoices:', syncInvoicesError);
+            setError('Failed to sync invoices from QuickBooks.');
+            setIsSyncingInvoices(false);
+        } else if (invoicesData) {
+            setSyncResult(`Successfully synced ${invoicesData.totalInvoices} invoices from QuickBooks.`);
+            setIsSyncingInvoices(false);
+        }
+    }, [invoicesData, syncInvoicesError]);
+
+    const handleConnectClick = async () => {
+        try {
+            setError(null);
+            const result = await initializeAuthMutation.mutateAsync();
+            if (result.authorizationUrl) {
+                console.log('Authorization URL:', result.authorizationUrl);
+                window.location.href = result.authorizationUrl;
+            } else {
+                setError('Failed to get authorization URL');
+            }
+        } catch (error) {
+            console.error('Error initializing QuickBooks auth:', error);
+            setError('An error occurred while connecting to QuickBooks');
         }
     };
 
@@ -117,6 +135,13 @@ const QuickBooksAuth: React.FC = () => {
         syncCustomers();
     };
 
+    const handleSyncInvoices = () => {
+        setError(null);
+        setSyncResult(null);
+        setIsSyncingInvoices(true);
+        syncInvoices();
+    };
+
     if (!session) {
         return null; // Don't show Quickbooks auth if user is not logged in
     }
@@ -125,12 +150,6 @@ const QuickBooksAuth: React.FC = () => {
         <div className="p-4 bg-white shadow rounded-lg">
             <h2 className="text-xl font-bold mb-4">QuickBooks Integration</h2>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            <button
-                onClick={handleAuth}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mb-2"
-            >
-                {isQuickbooksAuthenticated ? 'Disconnect QuickBooks' : 'Connect to QuickBooks'}
-            </button>
             {isQuickbooksAuthenticated && (
                 <>
                     <p className="mt-2 text-green-600">Connected to QuickBooks</p>
@@ -154,11 +173,33 @@ const QuickBooksAuth: React.FC = () => {
                         >
                             {isSyncing || isSyncingCustomers ? 'Syncing...' : 'Sync Customers'}
                         </button>
+                        <button
+                            onClick={handleSyncInvoices}
+                            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors mt-2 ml-2"
+                            disabled={isSyncing || isSyncingInvoices}
+                        >
+                            {isSyncing || isSyncingInvoices ? 'Syncing...' : 'Sync Invoices'}
+                        </button>
                     </div>
                     {companyInfo && (
                         <QuickBooksCompanyInfo companyInfo={companyInfo} />
                     )}
                 </>
+            )}
+
+            {!isQuickbooksAuthenticated && (
+
+                <div>
+                    <button
+                        onClick={handleConnectClick}
+                        className="btn btn-primary"
+                        disabled={initializeAuthMutation.isPending}
+                    >
+                        {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
+                    </button>
+                    {error && <p className="text-red-500 mt-2">{error}</p>}
+                </div>
+
             )}
         </div>
     );

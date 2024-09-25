@@ -4,8 +4,6 @@ import OAuthClient from 'intuit-oauth';
 import { TRPCError } from "@trpc/server";
 import axios from 'axios';
 import querystring from 'querystring';
-import { XMLParser } from 'fast-xml-parser';
-import { AddressType, RoleName } from "@prisma/client";
 
 const oauthClient = new OAuthClient({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
@@ -23,7 +21,7 @@ export const qbAuthRouter = createTRPCRouter({
                 where: { id: ctx.session.user.id },
                 select: { quickbooksAccessToken: true, quickbooksTokenExpiry: true },
             });
-
+            console.log('User:', user);
             // Check if the token is expired
             const isTokenExpired = user?.quickbooksTokenExpiry && new Date() > user.quickbooksTokenExpiry;
             // If the token is expired, set quickbooksAccessToken, quickbooksRealmId, quickbooksRefreshToken, and quickbooksTokenExpiry to null
@@ -35,10 +33,11 @@ export const qbAuthRouter = createTRPCRouter({
                         quickbooksRealmId: null,
                         quickbooksRefreshToken: null,
                         quickbooksTokenExpiry: null,
+                        updatedAt: new Date(),
                     }
                 });
             }
-
+            console.log('User after update:', user);
             return {
                 isAuthenticated: !!user?.quickbooksAccessToken && new Date() < user.quickbooksTokenExpiry!,
             };
@@ -63,16 +62,33 @@ export const qbAuthRouter = createTRPCRouter({
                         quickbooksAccessToken: accessToken,
                         quickbooksRefreshToken: refreshToken,
                         quickbooksTokenExpiry: new Date(Date.now() + expiresIn * 1000),
-                        quickbooksRealmId: realmId
+                        quickbooksRealmId: realmId,
+                        updatedAt: new Date(),
                     }
                 });
-
+                console.log('User authenticated with QuickBooks');
                 return { success: true, message: 'User authenticated with QuickBooks' };
             } catch (error) {
                 console.error('Error authenticating user with QuickBooks:', error);
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: 'Failed to authenticate user with QuickBooks'
+                });
+            }
+        }),
+
+    getUserInfo: protectedProcedure
+        .mutation(async ({ ctx }) => {
+            const { user } = ctx.session;
+
+            try {
+                const userInfoResponse = await oauthClient.getUserInfo(user.quickbooksAccessToken);
+                return { success: true, message: 'User info retrieved', userInfo: userInfoResponse };
+            } catch (error) {
+                console.error('Error retrieving user info:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to retrieve user info'
                 });
             }
         }),
@@ -113,6 +129,7 @@ export const qbAuthRouter = createTRPCRouter({
                         quickbooksRefreshToken: tokenJson.refresh_token,
                         quickbooksTokenExpiry: new Date(Date.now() + tokenJson.expires_in * 1000),
                         quickbooksRealmId: input.realmId,
+                        updatedAt: new Date(),
                     },
                 });
 
@@ -129,15 +146,32 @@ export const qbAuthRouter = createTRPCRouter({
             }
         }),
 
-    initiateAuth: protectedProcedure
-        .mutation(async () => {
-            console.log('Initiating Quickbooks auth');
-            const authUri = oauthClient.authorizeUri({
-                scope: [OAuthClient.scopes.Accounting],
-                state: 'intuit-test',
+    initializeAuth: protectedProcedure
+        .mutation(async ({ ctx }) => {
+            console.log('Initializing QuickBooks auth');
+            console.log('QUICKBOOKS_CLIENT_ID:', process.env.QUICKBOOKS_CLIENT_ID);
+            console.log('QUICKBOOKS_CLIENT_SECRET:', process.env.QUICKBOOKS_CLIENT_SECRET ? '[REDACTED]' : 'Not set');
+            console.log('QUICKBOOKS_ENVIRONMENT:', process.env.QUICKBOOKS_ENVIRONMENT);
+            console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+
+            const redirectUri = `${process.env.NEXTAUTH_URL}/api/quickbooks/callback`;
+            console.log('Redirect URI:', redirectUri);
+
+            const oauthClient = new OAuthClient({
+                clientId: process.env.QUICKBOOKS_CLIENT_ID,
+                clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET,
+                environment: process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production',
+                redirectUri: redirectUri,
             });
-            console.log('Auth URI:', authUri);
-            return { authUri };
+
+            const authUri = oauthClient.authorizeUri({
+                scope: [OAuthClient.scopes.Accounting, OAuthClient.scopes.OpenId],
+                state: 'teststate', // Consider generating a unique state for each request
+            });
+
+            console.log('Generated authorization URL:', authUri);
+
+            return { authorizationUrl: authUri };
         }),
 
     refreshToken: protectedProcedure
@@ -180,7 +214,8 @@ export const qbAuthRouter = createTRPCRouter({
                         quickbooksAccessToken: null,
                         quickbooksRefreshToken: null,
                         quickbooksTokenExpiry: null,
-                        quickbooksRealmId: null
+                        quickbooksRealmId: null,
+                        updatedAt: new Date(),
                     }
                 });
 
@@ -194,19 +229,5 @@ export const qbAuthRouter = createTRPCRouter({
             }
         }),
 
-    getUserInfo: protectedProcedure
-        .mutation(async ({ ctx }) => {
-            const { user } = ctx.session;
 
-            try {
-                const userInfoResponse = await oauthClient.getUserInfo(user.quickbooksAccessToken);
-                return { success: true, message: 'User info retrieved', userInfo: userInfoResponse };
-            } catch (error) {
-                console.error('Error retrieving user info:', error);
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to retrieve user info'
-                });
-            }
-        }),
 });

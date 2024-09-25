@@ -12,6 +12,7 @@ import { rolesRouter } from "./routers/roles/roles";
 import { orderItemStockRouter } from "./routers/orderItemStocks/orderItemStock";
 import { qbAuthRouter } from "./routers/quickbooks/qbAuth";
 import { qbCompanyRouter } from "./routers/quickbooks/qbCompany";
+import { qbInvoiceRouter } from "./routers/quickbooks/qbInvoice";
 import { qbSyncCustomerRouter } from "./routers/quickbooks/qbSyncCustomer";
 import { processingOptionsRouter } from "./routers/shared/processingOptions";
 import { shippingInfoRouter } from "./routers/shared/shippingInfo";
@@ -44,6 +45,7 @@ export const appRouter = createTRPCRouter({
   processingOptions: processingOptionsRouter,
   qbAuth: qbAuthRouter,
   qbCompany: qbCompanyRouter,
+  qbInvoices: qbInvoiceRouter,
   qbSyncCustomers: qbSyncCustomerRouter,
   roles: rolesRouter,
   shippingInfo: shippingInfoRouter,
