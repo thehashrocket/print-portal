@@ -4,7 +4,7 @@ import OAuthClient from 'intuit-oauth';
 import { TRPCError } from "@trpc/server";
 import axios from 'axios';
 import querystring from 'querystring';
-
+import crypto from 'crypto';
 const oauthClient = new OAuthClient({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
     clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET!,
@@ -75,6 +75,30 @@ export const qbAuthRouter = createTRPCRouter({
                     message: 'Failed to authenticate user with QuickBooks'
                 });
             }
+        }),
+
+    getIntuitSignInUrl: protectedProcedure
+        .mutation(async ({ ctx }) => {
+            console.log('Getting Intuit sign-in URL');
+
+            // https://appcenter.intuit.com/connect/oauth2?
+            // client_id = <Client ID from developer portal >&
+            // response_type=code &
+            // redirect_uri=<redirect URI for your app >&
+            // scope= com.intuit.quickbooks.accounting &
+            // state= security_token % 3D138r5719ru3e1
+
+            // Generate a URI with the above parameters
+            const redirectUri = `${process.env.NEXTAUTH_URL}/api/quickbooks/callback`;
+            const state = crypto.randomBytes(16).toString('hex');
+            const clientId = process.env.QUICKBOOKS_CLIENT_ID;
+            const scope = 'com.intuit.quickbooks.accounting';
+
+            const authUri = `https://appcenter.intuit.com/connect/oauth2?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+            console.log('Generated Intuit sign-in URL:', authUri);
+
+            return { signInUrl: authUri };
         }),
 
     getUserInfo: protectedProcedure
@@ -166,7 +190,7 @@ export const qbAuthRouter = createTRPCRouter({
 
             const authUri = oauthClient.authorizeUri({
                 scope: [OAuthClient.scopes.Accounting, OAuthClient.scopes.OpenId],
-                state: 'teststate', // Consider generating a unique state for each request
+                state: crypto.randomBytes(16).toString('hex'), // Consider generating a unique state for each request
             });
 
             console.log('Generated authorization URL:', authUri);

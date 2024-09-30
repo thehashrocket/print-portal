@@ -5,6 +5,7 @@ import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { AddressType, RoleName } from "@prisma/client";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
+import stringSimilarity from 'string-similarity';
 
 async function fetchCustomers(ctx: any, accessToken: string, companyID: string, pageSize: number, lastSyncTime?: string) {
     const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
@@ -111,144 +112,130 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
     return allCustomers;
 }
 
-async function processAndSaveCustomer(ctx: any, customer: any) {
-    const {
-        Id,
-        DisplayName,
-        CompanyName,
-        GivenName,
-        FamilyName,
-        PrimaryEmailAddr,
-        PrimaryPhone,
-        BillAddr,
-    } = customer;
+async function handleAddress(ctx: any, officeId: string, addr: any, type: AddressType, phone: string | undefined) {
+    const addressData = {
+        officeId,
+        addressType: type,
+        line1: addr.Line1 || "",
+        line2: addr.Line2 || null,
+        city: addr.City || "",
+        state: addr.CountrySubDivisionCode || "",
+        zipCode: String(addr.PostalCode) || "",
+        country: addr.Country || "",
+        telephoneNumber: phone || "",
+        quickbooksId: addr.Id.toString(),
+    };
 
-    const companyName = CompanyName || DisplayName;
-    const quickbooksId = Id.toString(); // Ensure this is a string
-
-    // Create or update the Company
-    const company = await ctx.db.company.upsert({
+    // Try to find an existing address
+    let existingAddress = await ctx.db.address.findFirst({
         where: {
-            name_quickbooksId: {
-                name: companyName,
-                quickbooksId: quickbooksId,
-            },
-        },
-        update: {
-            name: companyName,
-            quickbooksId: quickbooksId,
-        },
-        create: {
-            name: companyName,
-            quickbooksId: quickbooksId,
+            officeId,
+            addressType: type,
+            quickbooksId: addr.Id.toString(),
         },
     });
+
+    if (existingAddress) {
+        // Update existing address
+        await ctx.db.address.update({
+            where: { id: existingAddress.id },
+            data: addressData,
+        });
+    } else {
+        // Create new address
+        await ctx.db.address.create({
+            data: addressData,
+        });
+    }
+}
+
+async function handleUser(ctx: any, email: string, firstName: string, lastName: string, displayName: string, officeId: string) {
+    const userData = {
+        name: `${firstName} ${lastName}`.trim() || displayName,
+        officeId,
+    };
+
+    await ctx.db.user.upsert({
+        where: { email },
+        update: userData,
+        create: {
+            ...userData,
+            email,
+            Roles: { connect: { name: 'Customer' } },
+        },
+    });
+}
+
+async function processAndSaveCustomer(ctx: any, customer: any) {
+    const {
+        Id: quickbooksId,
+        FullyQualifiedName,
+        CompanyName,
+        DisplayName,
+        BillAddr,
+        ShipAddr,
+        PrimaryPhone,
+        PrimaryEmailAddr,
+        GivenName,
+        FamilyName,
+    } = customer;
+
+    const isSubLocation = FullyQualifiedName.includes(':');
+    let companyName, officeName;
+
+    if (isSubLocation) {
+        [companyName, officeName] = FullyQualifiedName.split(':').map((s: string) => s.trim());
+    } else {
+        companyName = FullyQualifiedName;
+        officeName = DisplayName;
+    }
+
+    // Find or create the Company
+    let company = await ctx.db.company.findFirst({ where: { name: companyName } });
+    if (!company) {
+        company = await ctx.db.company.create({
+            data: {
+                name: companyName,
+                quickbooksId: isSubLocation ? null : String(quickbooksId),
+            }
+        });
+    }
 
     console.log('company', company);
 
     // Create or update the Office
     const office = await ctx.db.office.upsert({
-        where: {
-            quickbooksCustomerId: quickbooksId,
-        },
+        where: { quickbooksCustomerId: String(quickbooksId) },
         update: {
-            name: `QuickBooks Office - ${DisplayName}`,
-            quickbooksCustomerId: quickbooksId,
+            name: officeName,
+            companyId: company.id,
         },
         create: {
+            name: officeName,
             companyId: company.id,
-            name: `QuickBooks Office - ${DisplayName}`,
-            quickbooksCustomerId: quickbooksId,
+            quickbooksCustomerId: String(quickbooksId),
             createdById: ctx.session.user.id,
         },
     });
 
     console.log('office', office);
 
-    // Create or update the User
-    const userEmail = PrimaryEmailAddr?.Address;
-    console.log('userEmail', userEmail);
-    if (userEmail) {
-        console.log('userEmail', userEmail);
-        const existingUser = await ctx.db.user.findUnique({
-            where: { email: userEmail },
-        });
-
-        if (existingUser) {
-            // Update existing user
-            const updatedUser = await ctx.db.user.update({
-                where: { id: existingUser.id },
-                data: {
-                    name: `${GivenName} ${FamilyName}`.trim() || DisplayName,
-                    Office: { connect: { id: office.id } },
-                    updatedAt: new Date(),
-                },
-            });
-            console.log('updatedUser', updatedUser);
-        } else {
-            // Create new user
-            const newUser = await ctx.db.user.create({
-                data: {
-                    email: userEmail,
-                    name: `${GivenName} ${FamilyName}`.trim() || DisplayName,
-                    Office: { connect: { id: office.id } },
-                    Roles: {
-                        connect: { name: RoleName.Customer }, // Assuming we want to assign the Customer role
-                    },
-                },
-            });
-            console.log('newUser', newUser);
-            // You might want to trigger some kind of welcome email or onboarding process here
-        }
-    }
-
-    // Create or update the Address
+    // Handle Billing Address
     if (BillAddr) {
-        console.log('BillAddr:', BillAddr);
-        // Check if an identical address already exists
-        const existingAddress = await ctx.db.address.findFirst({
-            where: {
-                officeId: office.id,
-                addressType: AddressType.Billing,
-                line1: BillAddr.Line1,
-                city: BillAddr.City,
-                state: BillAddr.CountrySubDivisionCode,
-                zipCode: String(BillAddr.PostalCode),
-            }
-        });
-
-        if (existingAddress) {
-            // Update the existing address
-            await ctx.db.address.update({
-                where: { id: existingAddress.id },
-                data: {
-                    line1: BillAddr.Line1,
-                    line2: BillAddr.Line2 || null,
-                    city: BillAddr.City,
-                    state: BillAddr.CountrySubDivisionCode,
-                    zipCode: String(BillAddr.PostalCode),
-                    country: BillAddr.Country || "",
-                    telephoneNumber: PrimaryPhone?.FreeFormNumber || "",
-                    updatedAt: new Date(),
-                }
-            });
-        } else {
-            // Create a new address
-            await ctx.db.address.create({
-                data: {
-                    officeId: office.id,
-                    addressType: AddressType.Billing,
-                    line1: BillAddr.Line1 || "",
-                    line2: BillAddr.Line2 || null,
-                    city: BillAddr.City || "",
-                    state: BillAddr.CountrySubDivisionCode || "",
-                    zipCode: String(BillAddr.PostalCode) || "",
-                    country: BillAddr.Country || "",
-                    telephoneNumber: PrimaryPhone?.FreeFormNumber || "",
-                }
-            });
-        }
+        await handleAddress(ctx, office.id, BillAddr, AddressType.Billing, PrimaryPhone?.FreeFormNumber);
     }
+
+    // Handle Shipping Address
+    if (ShipAddr && JSON.stringify(ShipAddr) !== JSON.stringify(BillAddr)) {
+        await handleAddress(ctx, office.id, ShipAddr, AddressType.Shipping, PrimaryPhone?.FreeFormNumber);
+    }
+
+    // Handle User
+    if (PrimaryEmailAddr?.Address) {
+        await handleUser(ctx, PrimaryEmailAddr.Address, GivenName, FamilyName, DisplayName, office.id);
+    }
+
+    return office;
 }
 
 export const qbSyncCustomerRouter = createTRPCRouter({

@@ -52,7 +52,10 @@ model Address {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   Office          Office         @relation(fields: [officeId], references: [id])
+  quickbooksId    String?
   ShippingInfo    ShippingInfo[]
+
+  @@index([officeId, addressType, quickbooksId])
 }
 
 model Company {
@@ -123,6 +126,8 @@ model Office {
   ShippingInfo         ShippingInfo[]
   Users                User[]
   WorkOrders           WorkOrder[]
+
+  @@index([companyId, quickbooksCustomerId])
 }
 
 model Order {
@@ -419,6 +424,7 @@ model User {
   ContactPersonOrders     Order[]              @relation("OrderContactPerson")
   ContactPersonWorkOrders WorkOrder[]          @relation("WorkOrderContactPerson")
   ShippingPickup          ShippingPickup[]
+  quickbooksAuthState     String?
   quickbooksAccessToken   String?
   quickbooksRefreshToken  String?
   quickbooksTokenExpiry   DateTime?

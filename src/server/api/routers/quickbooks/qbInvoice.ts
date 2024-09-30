@@ -2,7 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { TRPCError } from "@trpc/server";
 import axios from 'axios';
-
+import { z } from 'zod';
 async function fetchInvoices(ctx: any, accessToken: string, companyID: string) {
     const response = await axios.get(`https://quickbooks.api.intuit.com/v3/company/${companyID}/invoice`, {
         headers: {
@@ -29,6 +29,14 @@ export const qbInvoiceRouter = createTRPCRouter({
             }
 
             const invoices = await fetchInvoices(ctx, accessToken, user.quickbooksRealmId);
+            return invoices;
+        }),
+    // Get Invoice by Company ID
+    getInvoiceByCompanyId: protectedProcedure
+        .input(z.object({ companyId: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const invoices = await fetchInvoices(ctx, accessToken, input.companyId);
             return invoices;
         }),
 });

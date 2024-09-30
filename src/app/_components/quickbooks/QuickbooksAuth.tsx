@@ -30,7 +30,6 @@ const QuickBooksAuth: React.FC = () => {
         { enabled: false }
     );
 
-
     const { mutate: refreshToken, error: refreshTokenError } = api.qbAuth.refreshToken.useMutation({
         onSuccess: () => {
             alert('Token refreshed successfully');
@@ -47,6 +46,21 @@ const QuickBooksAuth: React.FC = () => {
         undefined,
         { enabled: false }
     );
+
+    const getIntuitSignInUrlMutation = api.qbAuth.getIntuitSignInUrl.useMutation({
+        onSuccess: (data) => {
+            if (data.signInUrl) {
+                console.log('Intuit Sign-In URL:', data.signInUrl);
+                window.location.href = data.signInUrl;
+            } else {
+                setError('Failed to get Intuit sign-in URL');
+            }
+        },
+        onError: (error) => {
+            console.error('Error getting Intuit sign-in URL:', error);
+            setError('An error occurred while trying to sign in to Intuit');
+        }
+    });
 
     useEffect(() => {
         if (authStatusError) {
@@ -142,6 +156,11 @@ const QuickBooksAuth: React.FC = () => {
         syncInvoices();
     };
 
+    const handleSignInToIntuit = () => {
+        setError(null);
+        getIntuitSignInUrlMutation.mutate();
+    };
+
     if (!session) {
         return null; // Don't show Quickbooks auth if user is not logged in
     }
@@ -189,16 +208,28 @@ const QuickBooksAuth: React.FC = () => {
 
             {!isQuickbooksAuthenticated && (
 
-                <div>
-                    <button
-                        onClick={handleConnectClick}
-                        className="btn btn-primary"
-                        disabled={initializeAuthMutation.isPending}
-                    >
-                        {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
-                    </button>
-                    {error && <p className="text-red-500 mt-2">{error}</p>}
-                </div>
+                <>
+                    <div>
+                        <button
+                            onClick={handleSignInToIntuit}
+                            className="btn btn-secondary mr-2"
+                            disabled={getIntuitSignInUrlMutation.isPending}
+                        >
+                            {getIntuitSignInUrlMutation.isPending ? 'Signing In...' : 'Sign In to Intuit'}
+                        </button>
+                    </div>
+
+                    <div>
+                        <button
+                            onClick={handleConnectClick}
+                            className="btn btn-primary"
+                            disabled={initializeAuthMutation.isPending}
+                        >
+                            {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
+                        </button>
+                        {error && <p className="text-red-500 mt-2">{error}</p>}
+                    </div>
+                </>
 
             )}
         </div>
