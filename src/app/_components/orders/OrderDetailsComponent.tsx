@@ -73,6 +73,8 @@ const InfoCard = ({ title, content }: { title: string; content: React.ReactNode 
     </section>
 );
 
+
+
 interface OrderDetailsProps {
     initialOrder: SerializedOrder | null; // Replace 'any' with the correct type for your order object
     orderId: string;
@@ -86,6 +88,19 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const { data: order, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
     });
+
+    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createInvoice.useMutation({
+        onSuccess: (invoice) => {
+            console.log('Quickbooks invoice created:', invoice);
+        },
+        onError: (error) => {
+            console.error('Failed to create Quickbooks invoice:', error);
+        }
+    });
+
+    const handleCreateQuickbooksInvoice = (orderId: string) => {
+        createQuickbooksInvoice({ orderId: orderId });
+    };
 
     useEffect(() => {
         if (order) {
@@ -156,6 +171,13 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
                                     <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
                                     <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
+                                    <p>{!order.quickbooksInvoiceId &&
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => handleCreateQuickbooksInvoice(order.id)}>
+                                            Create Quickbooks Invoice
+                                        </button>}</p>
+                                    <p>{order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}</p>
                                     <OrderDeposit order={order} />
                                 </div>
                             }

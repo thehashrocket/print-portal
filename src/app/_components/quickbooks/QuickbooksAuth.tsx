@@ -42,7 +42,7 @@ const QuickBooksAuth: React.FC = () => {
         { enabled: false }
     );
 
-    const { data: invoicesData, refetch: syncInvoices, error: syncInvoicesError } = api.qbInvoices.getInvoices.useQuery(
+    const { data: invoicesData, refetch: syncInvoices, error: syncInvoicesError } = api.qbInvoices.syncInvoices.useQuery(
         undefined,
         { enabled: false }
     );
@@ -111,7 +111,7 @@ const QuickBooksAuth: React.FC = () => {
             setError('Failed to sync invoices from QuickBooks.');
             setIsSyncingInvoices(false);
         } else if (invoicesData) {
-            setSyncResult(`Successfully synced ${invoicesData.totalInvoices} invoices from QuickBooks.`);
+            setSyncResult(`Successfully synced ${invoicesData.length} invoices from QuickBooks.`);
             setIsSyncingInvoices(false);
         }
     }, [invoicesData, syncInvoicesError]);

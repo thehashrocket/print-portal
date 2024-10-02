@@ -62,6 +62,7 @@ model Company {
   id           String   @id @default(uuid())
   name         String
   quickbooksId String?  @unique
+  syncToken    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
   Offices      Office[]
@@ -117,8 +118,10 @@ model Office {
   name                 String
   createdAt            DateTime       @default(now())
   createdById          String
+  fullyQualifiedName   String?
   updatedAt            DateTime       @default(now()) @updatedAt
   quickbooksCustomerId String?        @unique
+  syncToken            String?
   Addresses            Address[]
   Company              Company        @relation(fields: [companyId], references: [id])
   createdBy            User           @relation("CreatedBy", fields: [createdById], references: [id])
@@ -131,31 +134,33 @@ model Office {
 }
 
 model Order {
-  contactPerson     User                     @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
-  contactPersonId   String
-  createdAt         DateTime                 @default(now())
-  createdBy         User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
-  createdById       String
-  dateInvoiced      DateTime?
-  deposit           Decimal                  @default(0) @db.Decimal(10, 2)
-  id                String                   @id @default(uuid())
-  inHandsDate       DateTime?
-  Invoice           Invoice?
-  invoicePrintEmail InvoicePrintEmailOptions @default(Both)
-  Office            Office                   @relation(fields: [officeId], references: [id])
-  officeId          String
-  OrderItems        OrderItem[]
-  OrderNotes        OrderNote[]
-  orderNumber       Int                      @default(autoincrement())
-  pressRun          String?                  @default("")
-  ShippingInfo      ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  shippingInfoId    String?
-  status            OrderStatus              @default(Pending)
-  updatedAt         DateTime                 @updatedAt
-  version           Int                      @default(1)
-  WorkOrder         WorkOrder                @relation(fields: [workOrderId], references: [id])
-  workOrderId       String                   @unique
-  OrderPayments     OrderPayment[]
+  contactPerson       User                     @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
+  contactPersonId     String
+  createdAt           DateTime                 @default(now())
+  createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  createdById         String
+  dateInvoiced        DateTime?
+  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
+  id                  String                   @id @default(uuid())
+  inHandsDate         DateTime?
+  Invoice             Invoice?
+  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  Office              Office                   @relation(fields: [officeId], references: [id])
+  officeId            String
+  OrderItems          OrderItem[]
+  OrderNotes          OrderNote[]
+  orderNumber         Int                      @default(autoincrement())
+  pressRun            String?                  @default("")
+  quickbooksInvoiceId String?                  @unique
+  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId      String?
+  status              OrderStatus              @default(Pending)
+  syncToken           String?
+  updatedAt           DateTime                 @updatedAt
+  version             Int                      @default(1)
+  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+  workOrderId         String                   @unique
+  OrderPayments       OrderPayment[]
 }
 
 model OrderItem {

@@ -69,9 +69,10 @@ export interface SerializedInvoicePayment {
 }
 
 export interface SerializedOrder {
-    contactPersonId: string;
+    balance: string | null;
     calculatedSalesTax: string | null;
     calculatedSubTotal: string | null;
+    contactPersonId: string;
     createdAt: string;
     createdById: string;
     dateInvoiced: string | null;
@@ -82,13 +83,14 @@ export interface SerializedOrder {
     officeId: string;
     orderNumber: number;
     pressRun: string | null;
+    quickbooksInvoiceId: string | null;
     shippingInfoId: string | null;
     status: OrderStatus;
+    syncToken: string | null;
     totalAmount: string | null;
     totalCost: string | null;
-    totalPaid: string | null;
-    balance: string | null;
     totalItemAmount: string | null;
+    totalPaid: string | null;
     totalShippingAmount: string | null;
     updatedAt: string;
     version: number;
