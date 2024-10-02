@@ -41,10 +41,10 @@
   dependencies:
     prop-types "^15.8.1"
 
-"@ag-grid-community/styles@32.2.0":
-  version "32.2.0"
-  resolved "https://registry.yarnpkg.com/@ag-grid-community/styles/-/styles-32.2.0.tgz#979ffb67d6fdad0183c0f597db529657f3528ba0"
-  integrity sha512-OYk8PRqv3WEiYGTamQ4G85hjI7gjmQzY51MtN2nuqlEqC/+lAeRavgPpQ3QCS2hDyRj0pjdaDgBMVMMz6SpDuw==
+"@ag-grid-community/styles@32.2.1":
+  version "32.2.1"
+  resolved "https://registry.yarnpkg.com/@ag-grid-community/styles/-/styles-32.2.1.tgz#ab9f692ee4dbcab1980c1c75f07f6e312587c07a"
+  integrity sha512-b3gkiM33ef1W/Mopq2/lWNigqw/4N4sKoghLl6MfZ6l8YcwOeopKuYJ65RCim6pOJlV7F3tiBmvmOFwEG8cccg==
 
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
