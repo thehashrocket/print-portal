@@ -7,6 +7,7 @@ export type CompanyDashboardData = {
     orderTotalPending: number;
     orderTotalCompleted: number;
     quickbooksId: string;
+    syncToken: string;
     createdAt: Date;
     updatedAt: Date;
 };

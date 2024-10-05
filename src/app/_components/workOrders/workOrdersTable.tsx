@@ -7,14 +7,14 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     ModuleRegistry,
-    ColDef,
-    GridReadyEvent,
-    FilterChangedEvent,
-    RowClassParams
+    type ColDef,
+    type GridReadyEvent,
+    type FilterChangedEvent,
+    type RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
-import { SerializedWorkOrder } from "~/types/serializedTypes";
+import { type SerializedWorkOrder } from "~/types/serializedTypes";
 import { api } from "~/trpc/react";
 import { formatNumberAsCurrencyInTable, formatDateInTable } from "~/utils/formatters";
 

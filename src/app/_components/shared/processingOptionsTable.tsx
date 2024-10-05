@@ -4,8 +4,8 @@ import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
-import { BindingType, ProcessingOptions } from "@prisma/client";
-import { ColDef } from "@ag-grid-community/core";
+import { type BindingType, type ProcessingOptions } from "@prisma/client";
+import { type ColDef } from "@ag-grid-community/core";
 
 type ProcessingOptionsProps = {
     processingOptions: ProcessingOptions[];

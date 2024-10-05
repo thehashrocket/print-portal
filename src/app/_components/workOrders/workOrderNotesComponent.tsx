@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { WorkOrder, WorkOrderNote, User } from '@prisma/client';
+import { type WorkOrder, type WorkOrderNote, type User } from '@prisma/client';
 import { api } from "~/trpc/react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
@@ -11,8 +11,8 @@ import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
 
 import {
-    ColDef,
-    GridReadyEvent,
+    type ColDef,
+    type GridReadyEvent,
 } from "@ag-grid-community/core";
 
 type WorkOrderWithNotes = WorkOrder & {

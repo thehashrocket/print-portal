@@ -1,7 +1,7 @@
 // ~/src/utils/formatters.ts
 
 import {
-    ValueFormatterParams,
+    type ValueFormatterParams,
 } from "@ag-grid-community/core";
 
 export const formatCurrency = (amount: number | string): string => {

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
 import { useTypesettingContext } from '~/app/contexts/TypesettingContext';
-import { SerializedTypesettingOption } from '~/types/serializedTypes';
+import { type SerializedTypesettingOption } from '~/types/serializedTypes';
 import { normalizeTypesettingOption } from '~/utils/dataNormalization';
 
 const typesettingOptionsSchema = z.object({

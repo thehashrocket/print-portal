@@ -1,8 +1,8 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
+import { OrderStatus, Prisma, type ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
-import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
+import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 
 const SALES_TAX = 0.07;
 

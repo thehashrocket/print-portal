@@ -1,7 +1,7 @@
 // ~/app/_components/workOrders/create/existing_work_order_items_list.tsx
 "use client";
 import React from 'react';
-import { SerializedWorkOrderItem } from '~/types/serializedTypes';
+import { type SerializedWorkOrderItem } from '~/types/serializedTypes';
 
 interface ExistingWorkOrderItemsListProps {
     items: SerializedWorkOrderItem[];

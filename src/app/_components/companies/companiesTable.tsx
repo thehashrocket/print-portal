@@ -8,8 +8,8 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     ModuleRegistry,
-    ColDef,
-    GridReadyEvent,
+    type ColDef,
+    type GridReadyEvent,
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";

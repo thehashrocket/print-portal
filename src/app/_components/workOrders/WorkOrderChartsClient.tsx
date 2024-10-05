@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { SerializedWorkOrder } from '~/types/serializedTypes';
+import { type SerializedWorkOrder } from '~/types/serializedTypes';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 

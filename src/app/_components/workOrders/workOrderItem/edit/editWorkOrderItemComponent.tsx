@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
-import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { WorkOrderItemStatus } from "@prisma/client";
 
 interface EditWorkOrderItemProps {

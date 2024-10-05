@@ -3,7 +3,7 @@ import { z } from "zod";
 import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
-import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { type SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const SALES_TAX = 0.07;
 

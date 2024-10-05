@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { api } from "~/trpc/react";
-import { ProcessingOptions } from "@prisma/client";
+import { type ProcessingOptions } from "@prisma/client";
 
 // Define the context type
 interface ProcessingOptionsContextType {

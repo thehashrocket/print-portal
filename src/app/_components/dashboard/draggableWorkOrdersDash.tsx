@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { WorkOrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
-import { SerializedWorkOrder } from "~/types/serializedTypes";
+import { type SerializedWorkOrder } from "~/types/serializedTypes";
 
 const DraggableWorkOrdersDash: React.FC<{ initialWorkOrders: SerializedWorkOrder[] }> = ({ initialWorkOrders }) => {
     const [workOrders, setWorkOrders] = useState<SerializedWorkOrder[]>(initialWorkOrders);

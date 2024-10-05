@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import UserProfileForm from "~/app/_components/users/userProfileForm";
-import { User, Company, Office, Role } from "@prisma/client";
+import { type User, type Company, type Office, type Role } from "@prisma/client";
 
 type ExtendedUser = User & {
     Roles: Role[];

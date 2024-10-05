@@ -1,5 +1,13 @@
-const config = {
-  "rules": {
+module.exports = {
+  extends: ["next/core-web-vitals"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: "module",
+    project: "./tsconfig.json",
+  },
+  plugins: ["@typescript-eslint"],
+  rules: {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/consistent-type-imports": [
@@ -24,6 +32,5 @@ const config = {
         }
       }
     ]
-  }
-}
-module.exports = config;
+  },
+};

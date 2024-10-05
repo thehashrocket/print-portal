@@ -1,19 +1,19 @@
 // ~/types/serializedTypes.ts
 
 import {
-    AddressType,
-    BindingType,
-    InvoicePrintEmailOptions,
-    InvoiceStatus,
-    OrderStatus,
-    OrderItemStatus,
-    PaymentMethod,
-    ProofMethod,
-    ShippingMethod,
-    StockStatus,
-    TypesettingStatus,
-    WorkOrderItemStatus,
-    WorkOrderStatus,
+    type AddressType,
+    type BindingType,
+    type InvoicePrintEmailOptions,
+    type InvoiceStatus,
+    type OrderStatus,
+    type OrderItemStatus,
+    type PaymentMethod,
+    type ProofMethod,
+    type ShippingMethod,
+    type StockStatus,
+    type TypesettingStatus,
+    type WorkOrderItemStatus,
+    type WorkOrderStatus,
 } from "@prisma/client";
 
 export interface SerializedAddress {

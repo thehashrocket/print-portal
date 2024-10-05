@@ -1,7 +1,7 @@
 import React from "react";
 import OrdersTable from "~/app/_components/orders/ordersTable";
 import { api } from "~/trpc/server";
-import { SerializedOrder } from "~/types/serializedTypes";
+import { type SerializedOrder } from "~/types/serializedTypes";
 import Link from "next/link";
 
 export default async function OrdersPage() {

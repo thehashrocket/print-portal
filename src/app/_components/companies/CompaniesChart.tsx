@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { AgCharts } from 'ag-charts-react';
-import { Company } from '@prisma/client';
-import { AgChartOptions, AgBarSeriesOptions } from 'ag-charts-community';
+import { type Company } from '@prisma/client';
+import { type AgChartOptions, type AgBarSeriesOptions } from 'ag-charts-community';
 
 interface ExtendedCompany extends Company {
     workOrderTotalPending: number;

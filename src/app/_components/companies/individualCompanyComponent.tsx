@@ -4,7 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { AddressType, WorkOrderStatus, OrderStatus } from "@prisma/client";
+import { type AddressType, type WorkOrderStatus, type OrderStatus } from "@prisma/client";
 
 function convertToSnakeCase(str: string): string {
     return str.toLowerCase().replace(/\s+/g, '_');

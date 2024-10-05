@@ -1,5 +1,5 @@
 // ~/app/api/quickbooks/callback/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useTypesettingContext, TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
+import { useTypesettingContext, type TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import TypesettingForm from "./typesettingForm";
 import TypesettingProofForm from "./typesettingProofForm";
 import dayjs from 'dayjs';

@@ -1,7 +1,7 @@
 // ~/app/contexts/workOrderContext.tsx
 "use client";
-import React, { createContext, useState, ReactNode } from 'react';
-import { InvoicePrintEmailOptions, ShippingInfo, WorkOrder, WorkOrderStatus } from '@prisma/client';
+import React, { createContext, useState, type ReactNode } from 'react';
+import { InvoicePrintEmailOptions, ShippingInfo, type WorkOrder, WorkOrderStatus } from '@prisma/client';
 // import { Decimal } from '@prisma/client/runtime/library';
 import { api } from '~/trpc/react';
 
@@ -17,7 +17,7 @@ interface WorkOrderContextProps {
 
 const defaultValue: WorkOrderContextProps = {
     currentStep: 0,
-    getWorkOrder: async () => { },
+    getWorkOrder: (id: string) => { /* empty synchronous function */ },
     setCurrentStep: () => { },
     workOrder: {} as WorkOrder,
     setWorkOrder: () => { },
@@ -34,10 +34,12 @@ export const WorkOrderProvider: React.FC<{ children: ReactNode }> = ({ children 
         // Implement save logic here
     };
 
-    const getWorkOrder = async (id: string) => {
-        const workOrder = await api.workOrders.getByID.useQuery(id);
-        setWorkOrder(workOrder);
-    }
+    const getWorkOrder = (id: string) => {
+        const { data } = api.workOrders.getByID.useQuery(id);
+        if (data) {
+            setWorkOrder(data);
+        }
+    };
 
     return (
         <WorkOrderContext.Provider value={{ currentStep, getWorkOrder, setCurrentStep, workOrder, setWorkOrder, saveWorkOrder, }}>

@@ -7,7 +7,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
-import { SerializedTypesettingProof } from "~/types/serializedTypes";
+import { type SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 
 const artworkSchema = z.object({

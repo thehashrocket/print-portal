@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
-import { SerializedWorkOrder } from '~/types/serializedTypes';
+import { type SerializedWorkOrder } from '~/types/serializedTypes';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),

@@ -7,7 +7,7 @@ import { Order, OrderStatus, OrderPayment, ShippingMethod, Address, ShippingInfo
 import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
-import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
+import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import OrderPaymentComponent from "~/app/_components/orders/OrderPayment/OrderPaymentComponent";
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor";

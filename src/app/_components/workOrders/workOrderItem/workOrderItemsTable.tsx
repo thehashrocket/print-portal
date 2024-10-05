@@ -7,16 +7,16 @@ import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-    ColDef,
+    type ColDef,
     ModuleRegistry,
-    ValueFormatterParams,
-    GridReadyEvent,
-    FilterChangedEvent,
-    RowClassParams
+    type ValueFormatterParams,
+    type GridReadyEvent,
+    type FilterChangedEvent,
+    type RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
-import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 

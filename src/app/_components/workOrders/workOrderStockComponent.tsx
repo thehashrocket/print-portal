@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "~/trpc/react";
-import { WorkOrderItemStock } from "@prisma/client";
+import { type WorkOrderItemStock } from "@prisma/client";
 import { z } from "zod";
 
 type workOrderStockComponentProps = {

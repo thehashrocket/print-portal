@@ -6,7 +6,7 @@ import * as z from "zod";
 import { api } from "~/trpc/react";
 import { ProofMethod } from "@prisma/client";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
-import { SerializedTypesettingProof } from "~/types/serializedTypes";
+import { type SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 import FileUpload from "../fileUpload";
 import ArtworkComponent from "../artworkComponent/artworkComponent";

@@ -5,7 +5,7 @@ import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { WorkOrderItemStatus } from "@prisma/client";
 import { normalizeWorkOrderItem } from "~/utils/dataNormalization";
-import { SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),

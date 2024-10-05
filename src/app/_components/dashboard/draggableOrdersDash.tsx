@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { OrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
-import { SerializedOrder } from "~/types/serializedTypes";
+import { type SerializedOrder } from "~/types/serializedTypes";
 
 const DraggableOrdersDash: React.FC<{ initialOrders: SerializedOrder[] }> = ({ initialOrders }) => {
     const [orders, setOrders] = useState<SerializedOrder[]>(initialOrders);

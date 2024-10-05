@@ -2,7 +2,7 @@
 "use client";
 import React, { useState } from "react";
 import DraggableOrderItemsDash from "./draggableOrderItemsDash";
-import { SerializedOrderItem } from "~/types/serializedTypes";
+import { type SerializedOrderItem } from "~/types/serializedTypes";
 
 // Update the component props to match the actual data being passed
 interface DashboardTabsClientProps {

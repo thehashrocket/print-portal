@@ -10,7 +10,7 @@ import ExpandableWorkOrderItemDetails from './expandableWorkOrderItemDetails';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { WorkOrderItemStatus } from '@prisma/client'
 import FileUpload from '~/app/_components/shared/fileUpload';
-import { SerializedWorkOrderItem } from '~/types/serializedTypes';
+import { type SerializedWorkOrderItem } from '~/types/serializedTypes';
 import { useRouter } from 'next/navigation';
 
 const workOrderItemSchema = z.object({

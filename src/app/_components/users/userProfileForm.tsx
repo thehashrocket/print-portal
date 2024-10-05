@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "~/trpc/react";
-import { User, Company, Office, Role } from "@prisma/client";
+import { type User, type Company, type Office, type Role } from "@prisma/client";
 
 const userProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),

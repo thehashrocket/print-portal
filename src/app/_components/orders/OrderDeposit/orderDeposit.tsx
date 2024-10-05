@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/formatters";
-import { SerializedOrder } from "~/types/serializedTypes";
+import { type SerializedOrder } from "~/types/serializedTypes";
 
 interface OrderDepositProps {
     order: SerializedOrder;

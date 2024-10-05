@@ -7,7 +7,7 @@ import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import { SerializedWorkOrderItem, SerializedTypesetting } from "~/types/serializedTypes";
+import { type SerializedWorkOrderItem, type SerializedTypesetting } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";

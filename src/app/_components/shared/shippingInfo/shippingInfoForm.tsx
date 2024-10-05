@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ShippingMethod, Address } from '@prisma/client';
+import { ShippingMethod, type Address } from '@prisma/client';
 
 const addressSchema = z.object({
     id: z.string().optional(),

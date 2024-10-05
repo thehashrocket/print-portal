@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
-import { SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
 
 const prisma = new PrismaClient();
 const SALES_TAX = 0.07;
@@ -177,15 +177,15 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
 
     // Add the artwork
     if (workOrderItem.artwork) {
-        workOrderItem.artwork.forEach(async (artwork) => {
-            await tx.orderItemArtwork.create({
+        await Promise.all(workOrderItem.artwork.map(async (artwork) => {
+            return tx.orderItemArtwork.create({
                 data: {
                     fileUrl: artwork.fileUrl,
                     description: artwork.description,
                     orderItemId: orderItem.id,
                 },
             });
-        });
+        }));
     }
     return orderItem;
 }

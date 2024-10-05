@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsForm from "~/app/_components/shared/processingOptions/processingOptionsForm";
-import { ProcessingOptions } from "@prisma/client";
+import { type ProcessingOptions } from "@prisma/client";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 interface ProcessingOptionsItemProps {

@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Typesetting, TypesettingOption, TypesettingProof } from '@prisma/client';
-import { SerializedTypesetting, SerializedTypesettingOption, SerializedTypesettingProof, SerializedTypesettingProofArtwork } from '~/types/serializedTypes';
+import { type SerializedTypesetting, type SerializedTypesettingOption, SerializedTypesettingProof, type SerializedTypesettingProofArtwork } from '~/types/serializedTypes';
 
 export type TypesettingWithRelations = SerializedTypesetting & {
     TypesettingOptions: SerializedTypesettingOption[];

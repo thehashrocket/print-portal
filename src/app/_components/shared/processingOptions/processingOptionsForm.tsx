@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
-import { BindingType, ProcessingOptions } from "@prisma/client";
+import { BindingType, type ProcessingOptions } from "@prisma/client";
 
 const processingOptionsSchema = z.object({
     id: z.string().optional(),

@@ -5,9 +5,9 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
-import { Company, Office, Address, WorkOrder, WorkOrderItem, Order, OrderItem, OrderStatus, AddressType } from "@prisma/client";
-import IndividualCompanyPage, { SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
-import { Decimal } from "@prisma/client/runtime/library";
+import { type Company, type Office, type Address, type WorkOrder, type WorkOrderItem, type Order, type OrderItem, type OrderStatus, type AddressType } from "@prisma/client";
+import IndividualCompanyPage, { type SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
+import { type Decimal } from "@prisma/client/runtime/library";
 import NoPermission from "~/app/_components/noPermission/noPremission";
 
 const Header: React.FC<{ companyName: string }> = ({ companyName }) => (

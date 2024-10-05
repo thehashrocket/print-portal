@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Order, OrderPayment, PaymentMethod } from '@prisma/client';
 import { Decimal } from 'decimal.js';
 import { api } from '~/trpc/react';
-import { SerializedOrder, SerializedOrderPayment } from '~/types/serializedTypes';
+import { type SerializedOrder, type SerializedOrderPayment } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from "~/utils/formatters";
 
 interface OrderPaymentComponentProps {

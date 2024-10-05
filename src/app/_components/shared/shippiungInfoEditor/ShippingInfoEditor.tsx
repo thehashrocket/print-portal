@@ -3,8 +3,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { AddressType, ShippingMethod, ShippingInfo, Address } from '@prisma/client';
-import { SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
+import { AddressType, ShippingMethod, ShippingInfo, type Address } from '@prisma/client';
+import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 
 const shippingInfoSchema = z.object({

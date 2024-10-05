@@ -171,6 +171,13 @@ export const qbCustomerRouter = createTRPCRouter({
 
             const office = company.Offices[0]; // Assuming the first office is the primary one
 
+            if (!office) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Office not found for this company',
+                });
+            }
+
             const qbCustomerData = {
                 Id: company.quickbooksId,
                 SyncToken: company.syncToken,
@@ -225,7 +232,7 @@ export const qbCustomerRouter = createTRPCRouter({
                         name: input.officeName || office.name,
                         Addresses: {
                             update: {
-                                where: { id: office.Addresses[0].id },
+                                where: { id: office.Addresses[0]?.id },
                                 data: {
                                     line1: updatedQbCustomer.BillAddr.Line1,
                                     city: updatedQbCustomer.BillAddr.City,

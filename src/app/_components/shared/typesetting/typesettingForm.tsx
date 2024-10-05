@@ -3,10 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { TypesettingStatus, Typesetting, TypesettingOption, TypesettingProof } from "@prisma/client";
+import { TypesettingStatus, type Typesetting, type TypesettingOption, type TypesettingProof } from "@prisma/client";
 import { SerializedTypesetting, SerializedTypesettingOption, SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
-import { TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
+import { type TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import { Decimal } from "decimal.js";
 
 const typesettingFormSchema = z.object({

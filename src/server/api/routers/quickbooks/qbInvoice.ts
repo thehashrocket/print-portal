@@ -149,8 +149,6 @@ export const qbInvoiceRouter = createTRPCRouter({
                 CustomerRef: {
                     value: order.Office.quickbooksCustomerId,
                 },
-                TotalAmt: order.totalAmount?.toNumber() ?? 0,
-                DueDate: order.inHandsDate?.toISOString().split('T')[0],
                 ShipAddr: order.ShippingInfo?.Address ? {
                     Line1: order.ShippingInfo.Address.line1,
                     City: order.ShippingInfo.Address.city,
