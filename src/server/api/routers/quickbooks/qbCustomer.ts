@@ -540,10 +540,13 @@ export const qbCustomerRouter = createTRPCRouter({
                     } : undefined
                 };
                 // If ParentRef is provided, add it to the qbCustomerData object
+                // ParentRef is only used when creating a sub customer in QuickBooks
+                // Also add Job = true to the qbCustomerData object
                 if ('ParentRef' in customerData && customerData.ParentRef) {
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
+                    qbCustomerData.Job = true;
                 }
-
+                console.log('qbCustomerData: ', qbCustomerData);
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {
@@ -590,10 +593,13 @@ export const qbCustomerRouter = createTRPCRouter({
                 };
 
                 // If ParentRef is provided, add it to the qbCustomerData object
+                // ParentRef is only used when creating a sub customer in QuickBooks
+                // Also add Job = true to the qbCustomerData object
                 if ('ParentRef' in customerData && customerData.ParentRef) {
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
+                    qbCustomerData.Job = true;
                 }
-
+                console.log('qbCustomerData: ', qbCustomerData);
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {
@@ -717,7 +723,7 @@ export const qbCustomerRouter = createTRPCRouter({
                         DisplayName: office.name,
                         CompanyName: company.name,
                         ParentRef: {
-                            Value: company.quickbooksId,
+                            value: company.quickbooksId,
                             name: company.name,
                         },
                         BillAddr: {
