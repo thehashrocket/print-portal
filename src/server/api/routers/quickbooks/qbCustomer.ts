@@ -539,7 +539,11 @@ export const qbCustomerRouter = createTRPCRouter({
                         Address: customerData.PrimaryEmailAddr.Address || ""
                     } : undefined
                 };
-            
+                // If ParentRef is provided, add it to the qbCustomerData object
+                if ('ParentRef' in customerData && customerData.ParentRef) {
+                    (qbCustomerData as any).ParentRef = customerData.ParentRef;
+                }
+
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {
@@ -560,6 +564,7 @@ export const qbCustomerRouter = createTRPCRouter({
 
             // Function to update a customer in QuickBooks
             async function updateCustomerInQB(customerData: any) {
+                console.log('Updating customer in QuickBooks: ', customerData);
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
 
                 // Prepare the minimum required data for updating a customer
@@ -584,6 +589,11 @@ export const qbCustomerRouter = createTRPCRouter({
                     } : undefined
                 };
 
+                // If ParentRef is provided, add it to the qbCustomerData object
+                if ('ParentRef' in customerData && customerData.ParentRef) {
+                    (qbCustomerData as any).ParentRef = customerData.ParentRef;
+                }
+
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {
@@ -604,6 +614,7 @@ export const qbCustomerRouter = createTRPCRouter({
 
             // Sync company
             let qbCompany = await fetchCustomerFromQB(company.name);
+            console.log('qbCompany: ', qbCompany);
             // For creating a new company in QuickBooks:
             if (!qbCompany) {
                 // Customer doesn't exist in QuickBooks, create it
@@ -621,7 +632,7 @@ export const qbCustomerRouter = createTRPCRouter({
                         },
                         // Add PrimaryEmailAddr if available
                     });
-                    
+                    console.log('qbCompany created: ', qbCompany);
                     // Update local database with QuickBooks ID and SyncToken
                     await ctx.db.company.update({
                         where: { id: companyId },
@@ -630,6 +641,7 @@ export const qbCustomerRouter = createTRPCRouter({
                             syncToken: qbCompany.SyncToken,
                         },
                     });
+                    console.log('qbCompany updated in local database: ', qbCompany);
                 } catch (error) {
                     console.error('Failed to create company in QuickBooks:', error);
                     throw new TRPCError({
@@ -638,6 +650,9 @@ export const qbCustomerRouter = createTRPCRouter({
                     });
                 }
             } else if (company.updatedAt > new Date(qbCompany.MetaData.LastUpdatedTime)) {
+                console.log('company.updatedAt: ', company.updatedAt);
+                console.log('new Date(qbCompany.MetaData.LastUpdatedTime): ', new Date(qbCompany.MetaData.LastUpdatedTime));
+                console.log('qbCompany exists in QuickBooks, updating it', qbCompany.Id);
                 // Update QuickBooks
                 qbCompany = await updateCustomerInQB({
                     Id: qbCompany.Id,
@@ -656,6 +671,7 @@ export const qbCustomerRouter = createTRPCRouter({
                     },
                     // Add PrimaryEmailAddr if available
                 });
+                console.log('qbCompany updated in QuickBooks: ', qbCompany);
             }
 
             // Sync offices
@@ -665,21 +681,23 @@ export const qbCustomerRouter = createTRPCRouter({
 
                 if (qbOffice) {
                     if (new Date(qbOffice.MetaData.LastUpdatedTime) > office.updatedAt) {
+                        console.log('qbOffice exists in QuickBooks, updating it');
                         // Update local database
                         await ctx.db.office.update({
                             where: { id: office.id },
                             data: {
-                                name: qbOffice.DisplayName.split(':')[1],
+                                name: office.name,
                                 quickbooksCustomerId: qbOffice.Id,
                                 syncToken: qbOffice.SyncToken,
                             },
                         });
                     } else if (office.updatedAt > new Date(qbOffice.MetaData.LastUpdatedTime)) {
+                        console.log('qbOffice exists in QuickBooks, updating it');
                         // Update QuickBooks
                         qbOffice = await updateCustomerInQB({
                             Id: qbOffice.Id,
                             SyncToken: qbOffice.SyncToken,
-                            DisplayName: officeName,
+                            DisplayName: office.name,
                             CompanyName: company.name,
                             BillAddr: {
                                 Id: qbOffice.BillAddr.Id,
@@ -694,9 +712,14 @@ export const qbCustomerRouter = createTRPCRouter({
                     }
                 } else {
                     // Create in QuickBooks
+                    console.log('qbOffice does not exist in QuickBooks, creating it');
                     qbOffice = await createCustomerInQB({
-                        DisplayName: officeName,
+                        DisplayName: office.name,
                         CompanyName: company.name,
+                        ParentRef: {
+                            Value: company.quickbooksId,
+                            name: company.name,
+                        },
                         BillAddr: {
                             Line1: office.Addresses[0]?.line1 || "",
                             City: office.Addresses[0]?.city || "",
@@ -706,6 +729,7 @@ export const qbCustomerRouter = createTRPCRouter({
                         },
                         // Add other required fields
                     });
+                    console.log('qbOffice created: ', qbOffice);
                     await ctx.db.office.update({
                         where: { id: office.id },
                         data: {

@@ -84,7 +84,14 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
             sortable: true,
             filter: true,
         },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsCellRenderer, 
+            sortable: false, 
+            filter: false,
+            width: 250, // Adjust this value as needed
+            cellStyle: { padding: '5px' } // Add some padding
+        },
     ];
 
     const onGridReady = (params: GridReadyEvent) => {
