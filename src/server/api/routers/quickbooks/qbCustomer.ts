@@ -5,6 +5,7 @@ import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { z } from 'zod';
 import { Company, Address, Office } from '@prisma/client';
 import axios from 'axios';
+import { XMLParser } from 'fast-xml-parser';
 
 const oauthClient = new OAuthClient({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
@@ -13,6 +14,137 @@ const oauthClient = new OAuthClient({
     redirectUri: `${process.env.NEXTAUTH_URL}/api/quickbooks/callback`,
     logging: true
 });
+
+function sanitizeString(str: string): string {
+    // Remove or replace invalid characters
+    return str.replace(/[^\w\s-]/gi, '').trim();
+}
+
+async function pullFromQuickBooks(ctx, realmId, office, accessToken) {
+    try {
+        const response = await axios.get(
+            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json',
+                },
+            }
+        );
+
+        const qbCustomer = response.data.Customer;
+        return await updateOfficeWithQuickBooksData(ctx, office, qbCustomer);
+    } catch (error) {
+        console.error('Error pulling data from QuickBooks:', error);
+        throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to pull data from QuickBooks',
+        });
+    }
+}
+
+async function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {
+    try {
+        const response = await axios.get(
+            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json',
+                },
+            }
+        );
+
+        const customers = response.data.QueryResponse.Customer;
+        return customers && customers.length > 0 ? customers[0] : null;
+    } catch (error) {
+        console.error('Error searching for customer in QuickBooks:', error);
+        return null;
+    }
+}
+
+async function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {
+    const companyName = qbCustomer.CompanyName.split(':')[0];
+    const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;
+
+    const updatedCompany = await ctx.db.company.update({
+        where: { id: office.company.id },
+        data: {
+            name: companyName,
+            quickbooksId: qbCustomer.Id,
+            syncToken: qbCustomer.SyncToken,
+        },
+    });
+
+    const updatedOffice = await ctx.db.office.update({
+        where: { id: office.id },
+        data: {
+            name: officeName,
+            quickbooksCustomerId: qbCustomer.Id,
+            Addresses: {
+                upsert: {
+                    where: { id: office.Addresses[0]?.id || 'new' },
+                    create: {
+                        line1: qbCustomer.BillAddr.Line1,
+                        city: qbCustomer.BillAddr.City,
+                        state: qbCustomer.BillAddr.CountrySubDivisionCode,
+                        zipCode: qbCustomer.BillAddr.PostalCode,
+                        country: qbCustomer.BillAddr.Country,
+                        addressType: 'Billing',
+                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',
+                    },
+                    update: {
+                        line1: qbCustomer.BillAddr.Line1,
+                        city: qbCustomer.BillAddr.City,
+                        state: qbCustomer.BillAddr.CountrySubDivisionCode,
+                        zipCode: qbCustomer.BillAddr.PostalCode,
+                        country: qbCustomer.BillAddr.Country,
+                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',
+                    },
+                },
+            },
+        },
+    });
+
+    return { company: updatedCompany, office: updatedOffice };
+}
+
+async function pushToQuickBooks(ctx, realmId, office, accessToken) {
+    const qbCustomerData = {
+        DisplayName: `${office.company.name}:${office.name}`,
+        CompanyName: `${office.company.name}:${office.name}`,
+        BillAddr: {
+            Line1: office.Addresses[0]?.line1 || '',
+            City: office.Addresses[0]?.city || '',
+            Country: office.Addresses[0]?.country || '',
+            CountrySubDivisionCode: office.Addresses[0]?.state || '',
+            PostalCode: office.Addresses[0]?.zipCode || '',
+        },
+        PrimaryPhone: { FreeFormNumber: office.Addresses[0]?.telephoneNumber || '' },
+    };
+
+    try {
+        const response = await axios.post(
+            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,
+            qbCustomerData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        const createdQbCustomer = response.data.Customer;
+        return await updateOfficeWithQuickBooksData(ctx, office, createdQbCustomer);
+    } catch (error) {
+        console.error('Error pushing data to QuickBooks:', error);
+        throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to push data to QuickBooks',
+        });
+    }
+}
 
 export const qbCustomerRouter = createTRPCRouter({
     createCustomer: protectedProcedure
@@ -36,7 +168,6 @@ export const qbCustomerRouter = createTRPCRouter({
                 where: { id: ctx.session.user.id },
                 select: { quickbooksRealmId: true },
             });
-
             if (!user?.quickbooksRealmId) {
                 throw new TRPCError({
                     code: 'UNAUTHORIZED',
@@ -144,10 +275,12 @@ export const qbCustomerRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const accessToken = await refreshTokenIfNeeded(ctx);
+            console.log('accessToken: ', accessToken);
             const user = await ctx.db.user.findUnique({
                 where: { id: ctx.session.user.id },
                 select: { quickbooksRealmId: true },
             });
+            console.log('user: ', user);
 
             if (!user?.quickbooksRealmId) {
                 throw new TRPCError({
@@ -155,12 +288,13 @@ export const qbCustomerRouter = createTRPCRouter({
                     message: 'Not authenticated with QuickBooks',
                 });
             }
-
+            console.log('user: ', user);
             // Fetch the company and office from our database
             const company = await ctx.db.company.findUnique({
                 where: { id: input.companyId },
                 include: { Offices: { include: { Addresses: true } } },
             });
+            console.log('company: ', company);
 
             if (!company || !company.quickbooksId || !company.syncToken) {
                 throw new TRPCError({
@@ -262,5 +396,326 @@ export const qbCustomerRouter = createTRPCRouter({
         }))
         .query(async ({ ctx, input }) => {
             // Implementation here
+        }),
+
+    syncOffice: protectedProcedure
+        .input(z.object({
+            officeId: z.string(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { quickbooksRealmId: true },
+            });
+
+            if (!user?.quickbooksRealmId) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'Not authenticated with QuickBooks',
+                });
+            }
+
+            const office = await ctx.db.office.findUnique({
+                where: { id: input.officeId },
+                include: {
+                    Company: true,
+                    Addresses: true,
+                },
+            });
+
+            if (!office) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Office not found',
+                });
+            }
+
+            // Check if the office already has a QuickBooks Customer ID
+            if (office.quickbooksCustomerId) {
+                // Pull data from QuickBooks and update local database
+                return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);
+            } else {
+                // Check if a matching customer exists in QuickBooks
+                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);
+
+                if (existingCustomer) {
+                    // Update local database with QuickBooks data
+                    return await updateOfficeWithQuickBooksData(ctx, office, existingCustomer);
+                } else {
+                    // Push data to QuickBooks and create new customer
+                    return await pushToQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);
+                }
+            }
+        }),
+
+    syncCompany: protectedProcedure
+        .input(z.object({
+            companyId: z.string(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const { companyId } = input;
+
+            // Fetch the company and its offices from the local database
+            const company = await ctx.db.company.findUnique({
+                where: { id: companyId },
+                include: {
+                    Offices: {
+                        include: {
+                            Addresses: true
+                        }
+                    }
+                },
+            });
+
+
+            if (!company) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Company not found',
+                });
+            }
+
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { quickbooksRealmId: true },
+            });
+
+            if (!user?.quickbooksRealmId) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'Not authenticated with QuickBooks',
+                });
+            }
+
+            const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
+                ? 'https://sandbox-quickbooks.api.intuit.com'
+                : 'https://quickbooks.api.intuit.com';
+
+            // Function to fetch a customer from QuickBooks
+            async function fetchCustomerFromQB(customerName: string) {
+                const query = `SELECT * FROM Customer WHERE FullyQualifiedName = '${customerName}'`;
+                const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
+            
+                try {
+                    const response = await axios.get(url, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/json',
+                        },
+                    });
+            
+                    // Check if Customer array exists and has elements
+                    if (response.data.QueryResponse.Customer && response.data.QueryResponse.Customer.length > 0) {
+                        return response.data.QueryResponse.Customer[0];
+                    } else {
+                        return null; // Return null if no customer found
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer from QuickBooks:', error.response?.data || error.message);
+                    return null; // Return null on error
+                }
+            }
+
+            // Function to create a customer in QuickBooks
+            async function createCustomerInQB(customerData: any) {
+                const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
+            
+                // Sanitize and prepare the minimum required data for creating a customer
+                const qbCustomerData = {
+                    DisplayName: sanitizeString(customerData.DisplayName).substring(0, 100), // Limit to 100 characters
+                    BillAddr: {
+                        Line1: sanitizeString(customerData.BillAddr.Line1 || ""),
+                        City: sanitizeString(customerData.BillAddr.City || ""),
+                        Country: "USA", // Assuming USA, adjust if necessary
+                        CountrySubDivisionCode: sanitizeString(customerData.BillAddr.CountrySubDivisionCode || ""),
+                        PostalCode: sanitizeString(customerData.BillAddr.PostalCode || "")
+                    },
+                    PrimaryPhone: customerData.PrimaryPhone ? {
+                        FreeFormNumber: sanitizeString(customerData.PrimaryPhone.FreeFormNumber || "")
+                    } : undefined,
+                    PrimaryEmailAddr: customerData.PrimaryEmailAddr ? {
+                        Address: customerData.PrimaryEmailAddr.Address || ""
+                    } : undefined
+                };
+            
+                try {
+                    const response = await axios.post(url, qbCustomerData, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+            
+                    return response.data.Customer;
+                } catch (error) {
+                    console.error('Error creating customer in QuickBooks:', error.response?.data);
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to create customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
+                    });
+                }
+            }
+
+            // Function to update a customer in QuickBooks
+            async function updateCustomerInQB(customerData: any) {
+                const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
+
+                // Prepare the minimum required data for updating a customer
+                const qbCustomerData = {
+                    Id: customerData.Id,
+                    SyncToken: customerData.SyncToken,
+                    sparse: true,
+                    DisplayName: customerData.DisplayName.substring(0, 100), // Limit to 100 characters
+                    BillAddr: {
+                        Id: customerData.BillAddr.Id,
+                        Line1: customerData.BillAddr.Line1,
+                        City: customerData.BillAddr.City,
+                        Country: customerData.BillAddr.Country,
+                        CountrySubDivisionCode: customerData.BillAddr.CountrySubDivisionCode,
+                        PostalCode: customerData.BillAddr.PostalCode
+                    },
+                    PrimaryPhone: customerData.PrimaryPhone ? {
+                        FreeFormNumber: customerData.PrimaryPhone.FreeFormNumber
+                    } : undefined,
+                    PrimaryEmailAddr: customerData.PrimaryEmailAddr ? {
+                        Address: customerData.PrimaryEmailAddr.Address
+                    } : undefined
+                };
+
+                try {
+                    const response = await axios.post(url, qbCustomerData, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    return response.data.Customer;
+                } catch (error) {
+                    console.error('Error updating customer in QuickBooks:', error.response?.data);
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to update customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
+                    });
+                }
+            }
+
+            // Sync company
+            let qbCompany = await fetchCustomerFromQB(company.name);
+            // For creating a new company in QuickBooks:
+            if (!qbCompany) {
+                // Customer doesn't exist in QuickBooks, create it
+                try {
+                    qbCompany = await createCustomerInQB({
+                        DisplayName: company.name,
+                        BillAddr: {
+                            Line1: company.Offices[0]?.Addresses[0]?.line1 || "",
+                            City: company.Offices[0]?.Addresses[0]?.city || "",
+                            CountrySubDivisionCode: company.Offices[0]?.Addresses[0]?.state || "",
+                            PostalCode: company.Offices[0]?.Addresses[0]?.zipCode || "",
+                        },
+                        PrimaryPhone: {
+                            FreeFormNumber: company.Offices[0]?.Addresses[0]?.telephoneNumber || "",
+                        },
+                        // Add PrimaryEmailAddr if available
+                    });
+                    
+                    // Update local database with QuickBooks ID and SyncToken
+                    await ctx.db.company.update({
+                        where: { id: companyId },
+                        data: {
+                            quickbooksId: qbCompany.Id,
+                            syncToken: qbCompany.SyncToken,
+                        },
+                    });
+                } catch (error) {
+                    console.error('Failed to create company in QuickBooks:', error);
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to create company in QuickBooks',
+                    });
+                }
+            } else if (company.updatedAt > new Date(qbCompany.MetaData.LastUpdatedTime)) {
+                // Update QuickBooks
+                qbCompany = await updateCustomerInQB({
+                    Id: qbCompany.Id,
+                    SyncToken: qbCompany.SyncToken,
+                    DisplayName: company.name,
+                    BillAddr: {
+                        Id: qbCompany.BillAddr.Id,
+                        Line1: company.Offices[0]?.Addresses[0]?.line1 || qbCompany.BillAddr.Line1,
+                        City: company.Offices[0]?.Addresses[0]?.city || qbCompany.BillAddr.City,
+                        Country: "USA", // Assuming USA, adjust if necessary
+                        CountrySubDivisionCode: company.Offices[0]?.Addresses[0]?.state || qbCompany.BillAddr.CountrySubDivisionCode,
+                        PostalCode: company.Offices[0]?.Addresses[0]?.zipCode || qbCompany.BillAddr.PostalCode,
+                    },
+                    PrimaryPhone: {
+                        FreeFormNumber: company.Offices[0]?.Addresses[0]?.telephoneNumber || qbCompany.PrimaryPhone?.FreeFormNumber,
+                    },
+                    // Add PrimaryEmailAddr if available
+                });
+            }
+
+            // Sync offices
+            for (const office of company.Offices) {
+                const officeName = `${company.name}:${office.name}`;
+                let qbOffice = await fetchCustomerFromQB(officeName);
+
+                if (qbOffice) {
+                    if (new Date(qbOffice.MetaData.LastUpdatedTime) > office.updatedAt) {
+                        // Update local database
+                        await ctx.db.office.update({
+                            where: { id: office.id },
+                            data: {
+                                name: qbOffice.DisplayName.split(':')[1],
+                                quickbooksCustomerId: qbOffice.Id,
+                                syncToken: qbOffice.SyncToken,
+                            },
+                        });
+                    } else if (office.updatedAt > new Date(qbOffice.MetaData.LastUpdatedTime)) {
+                        // Update QuickBooks
+                        qbOffice = await updateCustomerInQB({
+                            Id: qbOffice.Id,
+                            SyncToken: qbOffice.SyncToken,
+                            DisplayName: officeName,
+                            CompanyName: company.name,
+                            BillAddr: {
+                                Id: qbOffice.BillAddr.Id,
+                                Line1: office.Addresses[0]?.line1 || "",
+                                City: office.Addresses[0]?.city || "",
+                                Country: office.Addresses[0]?.country || "",
+                                CountrySubDivisionCode: office.Addresses[0]?.state || "",
+                                PostalCode: office.Addresses[0]?.zipCode || "",
+                            },
+                            // Add other fields as needed
+                        });
+                    }
+                } else {
+                    // Create in QuickBooks
+                    qbOffice = await createCustomerInQB({
+                        DisplayName: officeName,
+                        CompanyName: company.name,
+                        BillAddr: {
+                            Line1: office.Addresses[0]?.line1 || "",
+                            City: office.Addresses[0]?.city || "",
+                            Country: office.Addresses[0]?.country || "",
+                            CountrySubDivisionCode: office.Addresses[0]?.state || "",
+                            PostalCode: office.Addresses[0]?.zipCode || "",
+                        },
+                        // Add other required fields
+                    });
+                    await ctx.db.office.update({
+                        where: { id: office.id },
+                        data: {
+                            quickbooksCustomerId: qbOffice.Id,
+                            syncToken: qbOffice.SyncToken,
+                        },
+                    });
+                }
+            }
+
+            return { message: 'Company and offices synced successfully' };
         }),
 });

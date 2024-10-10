@@ -2950,3 +2950,195 @@
   },
   "time": "2024-09-29T18:23:44.354-07:00"
 }
+2024-10-08T03:59:59.836Z info: The makeAPICall () response is : {
+  "CompanyInfo": {
+    "CompanyName": "Sandbox Company_US_1",
+    "LegalName": "Sandbox Company_US_1",
+    "CompanyAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "LegalAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationEmailAddr": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "PrimaryPhone": {},
+    "CompanyStartDate": "2024-09-18",
+    "FiscalYearStartMonth": "January",
+    "Country": "US",
+    "Email": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "WebAddr": {},
+    "SupportedLanguages": "en",
+    "NameValue": [
+      {
+        "Name": "NeoEnabled",
+        "Value": "true"
+      },
+      {
+        "Name": "IsQbdtMigrated",
+        "Value": "false"
+      },
+      {
+        "Name": "CompanyType",
+        "Value": "Other"
+      },
+      {
+        "Name": "SubscriptionStatus",
+        "Value": "SUBSCRIBED"
+      },
+      {
+        "Name": "OfferingSku",
+        "Value": "QuickBooks Online Plus"
+      },
+      {
+        "Name": "PayrollFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "AccountantFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "QBOIndustryType",
+        "Value": "Landscaping Services"
+      },
+      {
+        "Name": "ItemCategoriesFeature",
+        "Value": "true"
+      },
+      {
+        "Name": "AssignedTime",
+        "Value": "2024-09-18T13:20:51-07:00"
+      }
+    ],
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "1",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2024-09-18T12:20:51-07:00",
+      "LastUpdatedTime": "2024-09-25T07:13:53-07:00"
+    }
+  },
+  "time": "2024-10-07T20:59:59.717-07:00"
+}
+2024-10-08T05:06:46.846Z info: The makeAPICall () response is : {
+  "CompanyInfo": {
+    "CompanyName": "Sandbox Company_US_1",
+    "LegalName": "Sandbox Company_US_1",
+    "CompanyAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "LegalAddr": {
+      "Id": "1",
+      "Line1": "123 Sierra Way",
+      "City": "San Pablo",
+      "CountrySubDivisionCode": "CA",
+      "PostalCode": "87999",
+      "Lat": "36.6788345",
+      "Long": "-5.4464622"
+    },
+    "CustomerCommunicationEmailAddr": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "PrimaryPhone": {},
+    "CompanyStartDate": "2024-09-18",
+    "FiscalYearStartMonth": "January",
+    "Country": "US",
+    "Email": {
+      "Address": "noreply@quickbooks.com"
+    },
+    "WebAddr": {},
+    "SupportedLanguages": "en",
+    "NameValue": [
+      {
+        "Name": "NeoEnabled",
+        "Value": "true"
+      },
+      {
+        "Name": "IsQbdtMigrated",
+        "Value": "false"
+      },
+      {
+        "Name": "CompanyType",
+        "Value": "Other"
+      },
+      {
+        "Name": "SubscriptionStatus",
+        "Value": "SUBSCRIBED"
+      },
+      {
+        "Name": "OfferingSku",
+        "Value": "QuickBooks Online Plus"
+      },
+      {
+        "Name": "PayrollFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "AccountantFeature",
+        "Value": "false"
+      },
+      {
+        "Name": "QBOIndustryType",
+        "Value": "Landscaping Services"
+      },
+      {
+        "Name": "ItemCategoriesFeature",
+        "Value": "true"
+      },
+      {
+        "Name": "AssignedTime",
+        "Value": "2024-09-18T13:20:51-07:00"
+      }
+    ],
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "1",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2024-09-18T12:20:51-07:00",
+      "LastUpdatedTime": "2024-09-25T07:13:53-07:00"
+    }
+  },
+  "time": "2024-10-07T22:06:46.750-07:00"
+}

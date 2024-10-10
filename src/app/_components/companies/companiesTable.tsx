@@ -13,6 +13,7 @@ import {
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
+import ActionsCellRenderer from "./ActionsCellRenderer";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -22,6 +23,7 @@ type SerializedCompany = {
     workOrderTotalPending: number;
     orderTotalPending: number;
     orderTotalCompleted: number;
+    quickbooksId: string | null;
 };
 
 interface CompaniesTableProps {
@@ -40,9 +42,12 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
     };
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
-        <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
-            View Company
-        </Link>
+        <div className="flex justify-center items-center space-x-2 px-2">
+            <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
+                View Company
+            </Link>
+            <ActionsCellRenderer params={{ row: props.data }} />
+        </div>
     );
 
     const formatNumberAsCurrency = (params: { value: number }) => {
@@ -50,11 +55,36 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
     };
 
     const columnDefs: ColDef[] = [
-        { headerName: "Name", field: "name", flex: 1 },
-        { headerName: "Pending Work Orders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency, flex: 1 },
-        { headerName: "Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency, flex: 1 },
-        { headerName: "Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency, flex: 1 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 150, sortable: false, filter: false },
+        { headerName: "Name", field: "name" },
+        { headerName: "Pending Work Orders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
+        { headerName: "Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency },
+        { headerName: "Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency },
+        {
+            headerName: "QuickBooks Status",
+            field: "quickbooksId",
+            cellRenderer: (params: { value: string | null }) => (
+                <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
+                    {params.value ? (
+                        <>
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Synced
+                        </>
+                    ) : (
+                        <>
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                            Not Synced
+                        </>
+                    )}
+                </div>
+            ),
+            sortable: true,
+            filter: true,
+        },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false },
     ];
 
     const onGridReady = (params: GridReadyEvent) => {
@@ -68,7 +98,7 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
+            <div className="flex items-center h-64">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
             </div>
         );

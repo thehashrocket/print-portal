@@ -21,6 +21,16 @@ const QuickbooksStatus: React.FC = () => {
         }
     }, [checkAuthStatus.data]);
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            const refreshInterval = setInterval(() => {
+                handleRefreshToken();
+            }, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+            return () => clearInterval(refreshInterval);
+        }
+    }, [isAuthenticated]);
+
     const handleConnectClick = async () => {
         try {
             const result = await initializeAuthMutation.mutateAsync();
