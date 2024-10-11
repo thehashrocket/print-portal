@@ -3,19 +3,11 @@ import OAuthClient from 'intuit-oauth';
 import { TRPCError } from "@trpc/server";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { z } from 'zod';
-import { Company, Address, Office, $Enums, PrismaClient } from '@prisma/client';
+import { $Enums, PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { DefaultArgs } from "@prisma/client/runtime/library";
 import { ISODateString } from "next-auth";
-
-const oauthClient = new OAuthClient({
-    clientId: process.env.QUICKBOOKS_CLIENT_ID!,
-    clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET!,
-    environment: process.env.QUICKBOOKS_ENVIRONMENT as 'sandbox' | 'production',
-    redirectUri: `${process.env.NEXTAUTH_URL}/api/quickbooks/callback`,
-    logging: true
-});
 
 function sanitizeString(str: string): string {
     // Remove or replace invalid characters
@@ -45,7 +37,66 @@ async function pullFromQuickBooks(ctx: { session: { user: any; expires: ISODateS
     }
 }
 
-async function findMatchingCustomerInQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
+type Context = {
+    session: { user: any; expires: ISODateString; };
+    headers: Headers;
+    db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>;
+};
+
+type Office = {
+    Company: {
+        quickbooksId: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        syncToken: string | null;
+    };
+    Addresses: {
+        quickbooksId: string | null;
+        city: string;
+        country: string;
+        line1: string;
+        line2: string | null;
+        officeId: string;
+        telephoneNumber: string;
+        zipCode: string;
+        state: string;
+        addressType: $Enums.AddressType;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[];
+    companyId: string;
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    name: string;
+    syncToken: string | null;
+    createdById: string;
+    fullyQualifiedName: string | null;
+    quickbooksCustomerId: string | null;
+};
+
+type QbCustomer = {
+    CompanyName: string;
+    Id: any;
+    SyncToken: any;
+    BillAddr: {
+        Line1: any;
+        City: any;
+        CountrySubDivisionCode: any;
+        PostalCode: any;
+        Country: any;
+    };
+    PrimaryPhone: { FreeFormNumber: any; };
+}
+
+async function findMatchingCustomerInQuickBooks(
+    realmId: string,
+    office: Office,
+    accessToken: any
+) {
     try {
         const response = await axios.get(
             `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.Company.name}:${office.name}' or CompanyName = '${office.Company.name}'`,
@@ -65,7 +116,11 @@ async function findMatchingCustomerInQuickBooks(ctx: { session: { user: any; exp
     }
 }
 
-async function updateOfficeWithQuickBooksData(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, qbCustomer: { CompanyName: string; Id: any; SyncToken: any; BillAddr: { Line1: any; City: any; CountrySubDivisionCode: any; PostalCode: any; Country: any; }; PrimaryPhone: { FreeFormNumber: any; }; }) {
+async function updateOfficeWithQuickBooksData(
+    ctx: Context,
+    office: Office,
+    qbCustomer: QbCustomer
+) {
     const companyName = qbCustomer.CompanyName.split(':')[0];
     const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;
 
@@ -439,7 +494,7 @@ export const qbCustomerRouter = createTRPCRouter({
                 return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);
             } else {
                 // Check if a matching customer exists in QuickBooks
-                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);
+                const existingCustomer = await findMatchingCustomerInQuickBooks(user.quickbooksRealmId, office, accessToken);
 
                 if (existingCustomer) {
                     // Update local database with QuickBooks data
