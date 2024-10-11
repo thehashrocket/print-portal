@@ -1,8 +1,12 @@
+// ~/app/_components/quickbooks/QuickbooksStatus.tsx
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { api } from "~/trpc/react";
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
+import { toast } from 'react-hot-toast';
+
 const QuickbooksStatus: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +43,11 @@ const QuickbooksStatus: React.FC = () => {
                 window.location.href = result.authorizationUrl;
             }
         } catch (error) {
+            if (error instanceof Error) {
+                toast.error(`Error syncing with QuickBooks: ${error.message}`);
+            } else {
+                toast.error('An unknown error occurred while connecting to QuickBooks');
+            }
             console.error('Error initializing QuickBooks auth:', error);
         }
     };
@@ -48,6 +57,11 @@ const QuickbooksStatus: React.FC = () => {
             await refreshTokenMutation.mutateAsync();
             await checkAuthStatus.refetch();
         } catch (error) {
+            if (error instanceof Error) {
+                toast.error(`Error refreshing token: ${error.message}`);
+            } else {
+                toast.error('An unknown error occurred while refreshing the QuickBooks token');
+            }
             console.error('Error refreshing token:', error);
         }
     };

@@ -15,7 +15,7 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import Link from "next/link";
 import ActionsCellRenderer from "./ActionsCellRenderer";
 import { api } from "~/trpc/react";
-
+import { type CompanyDashboardData } from "~/types/company";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedCompany = {
@@ -25,6 +25,9 @@ type SerializedCompany = {
     orderTotalPending: number;
     orderTotalCompleted: number;
     quickbooksId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    syncToken: string | null;
 };
 
 interface CompaniesTableProps {
@@ -42,10 +45,10 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         filter: true,
     };
 
-    const {data: updatedCompanies, refetch} = api.companies.getAll.useQuery(
+    const {data: updatedCompanies, refetch} = api.companies.companyDashboard.useQuery(
         undefined,
         {
-            initialData: initialCompanies, enabled: false,
+            initialData: initialCompanies as CompanyDashboardData[], enabled: false,
         }
     );
 
@@ -55,7 +58,13 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
 
     useEffect(() => {
         if (updatedCompanies) {
-            setRowData(updatedCompanies);
+            const completeCompanies = updatedCompanies.map(company => ({
+                ...company,
+                workOrderTotalPending: typeof company.workOrderTotalPending === 'number' ? company.workOrderTotalPending : 0,
+                orderTotalPending: typeof company.orderTotalPending === 'number' ? company.orderTotalPending : 0,
+                orderTotalCompleted: typeof company.orderTotalCompleted === 'number' ? company.orderTotalCompleted : 0,
+            }));
+            setRowData(completeCompanies);
         }
     }, [updatedCompanies]);
 

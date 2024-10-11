@@ -25,6 +25,11 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
             await syncCompanyMutation.mutateAsync({ companyId });
         } catch (error) {
             console.error('Error syncing company:', error);
+            if (error instanceof Error) {
+                toast.error(`Error syncing with QuickBooks: ${error.message}`);
+            } else {
+                toast.error('An unknown error occurred while syncing with QuickBooks');
+            }
         }
     };
 

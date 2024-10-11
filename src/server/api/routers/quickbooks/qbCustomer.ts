@@ -3,9 +3,11 @@ import OAuthClient from 'intuit-oauth';
 import { TRPCError } from "@trpc/server";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { z } from 'zod';
-import { Company, Address, Office } from '@prisma/client';
+import { Company, Address, Office, $Enums, PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
+import { DefaultArgs } from "@prisma/client/runtime/library";
+import { ISODateString } from "next-auth";
 
 const oauthClient = new OAuthClient({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
@@ -20,7 +22,7 @@ function sanitizeString(str: string): string {
     return str.replace(/[^\w\s-]/gi, '').trim();
 }
 
-async function pullFromQuickBooks(ctx, realmId, office, accessToken) {
+async function pullFromQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
     try {
         const response = await axios.get(
             `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,
@@ -43,10 +45,10 @@ async function pullFromQuickBooks(ctx, realmId, office, accessToken) {
     }
 }
 
-async function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {
+async function findMatchingCustomerInQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
     try {
         const response = await axios.get(
-            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,
+            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.Company.name}:${office.name}' or CompanyName = '${office.Company.name}'`,
             {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -63,12 +65,12 @@ async function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToke
     }
 }
 
-async function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {
+async function updateOfficeWithQuickBooksData(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, qbCustomer: { CompanyName: string; Id: any; SyncToken: any; BillAddr: { Line1: any; City: any; CountrySubDivisionCode: any; PostalCode: any; Country: any; }; PrimaryPhone: { FreeFormNumber: any; }; }) {
     const companyName = qbCustomer.CompanyName.split(':')[0];
     const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;
 
     const updatedCompany = await ctx.db.company.update({
-        where: { id: office.company.id },
+        where: { id: office.Company.id },
         data: {
             name: companyName,
             quickbooksId: qbCustomer.Id,
@@ -109,10 +111,10 @@ async function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {
     return { company: updatedCompany, office: updatedOffice };
 }
 
-async function pushToQuickBooks(ctx, realmId, office, accessToken) {
+async function pushToQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
     const qbCustomerData = {
-        DisplayName: `${office.company.name}:${office.name}`,
-        CompanyName: `${office.company.name}:${office.name}`,
+        DisplayName: `${office.Company.name}:${office.name}`,
+        CompanyName: `${office.Company.name}:${office.name}`,
         BillAddr: {
             Line1: office.Addresses[0]?.line1 || '',
             City: office.Addresses[0]?.city || '',
@@ -495,6 +497,12 @@ export const qbCustomerRouter = createTRPCRouter({
 
             // Function to fetch a customer from QuickBooks
             async function fetchCustomerFromQB(customerName: string) {
+                if (!user) {
+                    throw new TRPCError({
+                        code: 'UNAUTHORIZED',
+                        message: 'User not found',
+                    });
+                }
                 const query = `SELECT * FROM Customer WHERE FullyQualifiedName = '${customerName}'`;
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
 
@@ -512,14 +520,24 @@ export const qbCustomerRouter = createTRPCRouter({
                     } else {
                         return null; // Return null if no customer found
                     }
-                } catch (error) {
-                    console.error('Error fetching customer from QuickBooks:', error.response?.data || error.message);
+                } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                        console.error('Error fetching customer from QuickBooks:', error.response?.data || error.message);
+                    } else {
+                        console.error('Unexpected error fetching customer from QuickBooks:', error);
+                    }
                     return null; // Return null on error
                 }
             }
 
             // Function to create a customer in QuickBooks
             async function createCustomerInQB(customerData: any) {
+                if (!user) {
+                    throw new TRPCError({
+                        code: 'UNAUTHORIZED',
+                        message: 'User not found',
+                    });
+                }
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
 
                 // Sanitize and prepare the minimum required data for creating a customer
@@ -544,7 +562,7 @@ export const qbCustomerRouter = createTRPCRouter({
                 // Also add Job = true to the qbCustomerData object
                 if ('ParentRef' in customerData && customerData.ParentRef) {
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
-                    qbCustomerData.Job = true;
+                    (qbCustomerData as any).Job = true;
                 }
                 console.log('qbCustomerData: ', qbCustomerData);
                 try {
@@ -556,18 +574,32 @@ export const qbCustomerRouter = createTRPCRouter({
                     });
 
                     return response.data.Customer;
-                } catch (error) {
-                    console.error('Error creating customer in QuickBooks:', error.response?.data);
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'Failed to create customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
-                    });
+                } catch (error: unknown) {
+                    if (axios.isAxiosError(error)) {
+                        console.error('Error creating customer in QuickBooks:', error.response?.data || error.message);
+                        throw new TRPCError({
+                            code: 'INTERNAL_SERVER_ERROR',
+                            message: 'Failed to create customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
+                        });
+                    } else {
+                        console.error('Unexpected error creating customer in QuickBooks:', error);
+                        throw new TRPCError({
+                            code: 'INTERNAL_SERVER_ERROR',
+                            message: 'Failed to create customer in QuickBooks: ' + error,
+                        });
+                    }
                 }
             }
 
             // Function to update a customer in QuickBooks
             async function updateCustomerInQB(customerData: any) {
                 console.log('Updating customer in QuickBooks: ', customerData);
+                if (!user) {
+                    throw new TRPCError({
+                        code: 'UNAUTHORIZED',
+                        message: 'User is not authenticated',
+                    });
+                }
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
 
                 // Prepare the minimum required data for updating a customer
@@ -597,7 +629,7 @@ export const qbCustomerRouter = createTRPCRouter({
                 // Also add Job = true to the qbCustomerData object
                 if ('ParentRef' in customerData && customerData.ParentRef) {
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
-                    qbCustomerData.Job = true;
+                    (qbCustomerData as any).Job = true;
                 }
                 console.log('qbCustomerData: ', qbCustomerData);
                 try {
@@ -610,11 +642,19 @@ export const qbCustomerRouter = createTRPCRouter({
 
                     return response.data.Customer;
                 } catch (error) {
-                    console.error('Error updating customer in QuickBooks:', error.response?.data);
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'Failed to update customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
-                    });
+                    if (axios.isAxiosError(error)) {
+                        console.error('Error updating customer in QuickBooks:', error.response?.data);
+                        throw new TRPCError({
+                            code: 'INTERNAL_SERVER_ERROR',
+                            message: 'Failed to update customer in QuickBooks: ' + (error.response?.data?.Fault?.Error?.[0]?.Message || error.message),
+                        });
+                    } else {
+                        console.error('Unexpected error updating customer in QuickBooks:', error);
+                        throw new TRPCError({
+                            code: 'INTERNAL_SERVER_ERROR',
+                            message: 'Failed to update customer in QuickBooks: ' + error,
+                        });
+                    }
                 }
             }
 

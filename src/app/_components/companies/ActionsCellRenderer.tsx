@@ -26,6 +26,11 @@ const ActionsCellRenderer: React.FC<{ params: any; onSyncSuccess: () => void }> 
             console.log('companyId', params.row.id);
             await syncCompanyMutation.mutateAsync({ companyId: params.row.id });
         } catch (error) {
+            if (error instanceof Error) {
+                toast.error(`Error syncing with QuickBooks: ${error.message}`);
+            } else {
+                toast.error('An unknown error occurred while syncing with QuickBooks');
+            }
             console.error('Error syncing office:', error);
         }
     };
