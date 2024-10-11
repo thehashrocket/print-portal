@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 
 const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
     const router = useRouter();
+    const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
         onSuccess: () => {
             toast.success('Company synced with QuickBooks successfully');
@@ -50,11 +52,11 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
             </div>
             <div className="flex-none gap-2">
                 <button
-                    className={`btn btn-sm btn-outline ${syncCompanyMutation.isLoading ? 'loading' : ''}`}
+                    className={`btn btn-sm btn-outline ${syncCompanyMutation.isPending ? 'loading' : ''}`}
                     onClick={handleSyncCompany}
-                    disabled={syncCompanyMutation.isLoading}
+                    disabled={syncCompanyMutation.isPending || !isAuthenticated}
                 >
-                    {!syncCompanyMutation.isLoading && (
+                    {!syncCompanyMutation.isPending && (
                         <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         className="h-4 w-4" 
@@ -63,7 +65,7 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                     )}
-                    {syncCompanyMutation.isLoading ? 'Syncing...' : 'Sync with QuickBooks'}
+                    {syncCompanyMutation.isPending ? 'Syncing...' : 'Sync with QuickBooks'}
                 </button>
                 <Link href="/companies/create" className="btn btn-primary">Create Company</Link>
             </div>

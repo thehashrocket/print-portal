@@ -11,17 +11,6 @@ import { type Decimal } from "@prisma/client/runtime/library";
 import NoPermission from "~/app/_components/noPermission/noPremission";
 import HeaderClient from "~/app/_components/companies/HeaderClient";
 
-const Header: React.FC<{ companyName: string }> = ({ companyName }) => (
-    <div className="navbar bg-base-100 shadow-lg rounded-box mb-4">
-        <div className="flex-1">
-            <h1 className="text-2xl font-bold">{companyName}</h1>
-        </div>
-        <div className="flex-none">
-            <Link href="/companies/create" className="btn btn-primary">Create Company</Link>
-        </div>
-    </div>
-);
-
 const Breadcrumbs: React.FC = () => (
     <div className="text-sm breadcrumbs mb-4">
         <ul>
@@ -30,16 +19,6 @@ const Breadcrumbs: React.FC = () => (
         </ul>
     </div>
 );
-
-type ExtendedOrder = Order & {
-    OrderItems: OrderItem[];
-    totalCost: Decimal | null;
-};
-
-type ExtendedWorkOrder = WorkOrder & {
-    WorkOrderItems: WorkOrderItem[];
-    totalCost: Decimal | null;
-};
 
 function serializeCompany(company: Company & {
     Offices: (Office & {

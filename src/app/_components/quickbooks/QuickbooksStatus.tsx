@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { api } from "~/trpc/react";
-
+import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 const QuickbooksStatus: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -18,6 +18,7 @@ const QuickbooksStatus: React.FC = () => {
         if (checkAuthStatus.data) {
             setIsAuthenticated(checkAuthStatus.data.isAuthenticated);
             setIsLoading(false);
+            useQuickbooksStore.setState({ isAuthenticated: checkAuthStatus.data.isAuthenticated });
         }
     }, [checkAuthStatus.data]);
 
