@@ -9,6 +9,7 @@ import { type Company, type Office, type Address, type WorkOrder, type WorkOrder
 import IndividualCompanyPage, { type SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
 import { type Decimal } from "@prisma/client/runtime/library";
 import NoPermission from "~/app/_components/noPermission/noPremission";
+import HeaderClient from "~/app/_components/companies/HeaderClient";
 
 const Header: React.FC<{ companyName: string }> = ({ companyName }) => (
     <div className="navbar bg-base-100 shadow-lg rounded-box mb-4">
@@ -56,6 +57,7 @@ function serializeCompany(company: Company & {
     return {
         id: company.id,
         name: company.name,
+        quickbooksId: company.quickbooksId,
         Offices: company.Offices.map(office => ({
             id: office.id,
             createdAt: office.createdAt.toISOString(),
@@ -63,6 +65,7 @@ function serializeCompany(company: Company & {
             createdById: office.createdById,
             companyId: office.companyId,
             name: office.name,
+            quickbooksCustomerId: office.quickbooksCustomerId,
             Addresses: office.Addresses.map(address => ({
                 ...address,
                 createdAt: address.createdAt.toISOString(),
@@ -123,7 +126,11 @@ export default async function CompanyPage(
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Header companyName={serializedCompany.name || "Company"} />
+            <HeaderClient 
+                companyName={serializedCompany.name || "Company"} 
+                companyId={id}
+                quickbooksId={serializedCompany.quickbooksId}
+            />
             <Breadcrumbs />
             <IndividualCompanyPage company={serializedCompany} />
         </div>
