@@ -497,7 +497,7 @@ export const qbCustomerRouter = createTRPCRouter({
             async function fetchCustomerFromQB(customerName: string) {
                 const query = `SELECT * FROM Customer WHERE FullyQualifiedName = '${customerName}'`;
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
-            
+
                 try {
                     const response = await axios.get(url, {
                         headers: {
@@ -505,7 +505,7 @@ export const qbCustomerRouter = createTRPCRouter({
                             'Accept': 'application/json',
                         },
                     });
-            
+
                     // Check if Customer array exists and has elements
                     if (response.data.QueryResponse.Customer && response.data.QueryResponse.Customer.length > 0) {
                         return response.data.QueryResponse.Customer[0];
@@ -521,7 +521,7 @@ export const qbCustomerRouter = createTRPCRouter({
             // Function to create a customer in QuickBooks
             async function createCustomerInQB(customerData: any) {
                 const url = `${baseUrl}/v3/company/${user.quickbooksRealmId}/customer`;
-            
+
                 // Sanitize and prepare the minimum required data for creating a customer
                 const qbCustomerData = {
                     DisplayName: sanitizeString(customerData.DisplayName).substring(0, 100), // Limit to 100 characters
@@ -554,7 +554,7 @@ export const qbCustomerRouter = createTRPCRouter({
                             'Content-Type': 'application/json',
                         },
                     });
-            
+
                     return response.data.Customer;
                 } catch (error) {
                     console.error('Error creating customer in QuickBooks:', error.response?.data);
@@ -620,7 +620,6 @@ export const qbCustomerRouter = createTRPCRouter({
 
             // Sync company
             let qbCompany = await fetchCustomerFromQB(company.name);
-            console.log('qbCompany: ', qbCompany);
             // For creating a new company in QuickBooks:
             if (!qbCompany) {
                 // Customer doesn't exist in QuickBooks, create it
@@ -638,7 +637,6 @@ export const qbCustomerRouter = createTRPCRouter({
                         },
                         // Add PrimaryEmailAddr if available
                     });
-                    console.log('qbCompany created: ', qbCompany);
                     // Update local database with QuickBooks ID and SyncToken
                     await ctx.db.company.update({
                         where: { id: companyId },
@@ -647,7 +645,6 @@ export const qbCustomerRouter = createTRPCRouter({
                             syncToken: qbCompany.SyncToken,
                         },
                     });
-                    console.log('qbCompany updated in local database: ', qbCompany);
                 } catch (error) {
                     console.error('Failed to create company in QuickBooks:', error);
                     throw new TRPCError({
@@ -656,9 +653,6 @@ export const qbCustomerRouter = createTRPCRouter({
                     });
                 }
             } else if (company.updatedAt > new Date(qbCompany.MetaData.LastUpdatedTime)) {
-                console.log('company.updatedAt: ', company.updatedAt);
-                console.log('new Date(qbCompany.MetaData.LastUpdatedTime): ', new Date(qbCompany.MetaData.LastUpdatedTime));
-                console.log('qbCompany exists in QuickBooks, updating it', qbCompany.Id);
                 // Update QuickBooks
                 qbCompany = await updateCustomerInQB({
                     Id: qbCompany.Id,
@@ -677,7 +671,6 @@ export const qbCustomerRouter = createTRPCRouter({
                     },
                     // Add PrimaryEmailAddr if available
                 });
-                console.log('qbCompany updated in QuickBooks: ', qbCompany);
             }
 
             // Sync offices
@@ -687,7 +680,6 @@ export const qbCustomerRouter = createTRPCRouter({
 
                 if (qbOffice) {
                     if (new Date(qbOffice.MetaData.LastUpdatedTime) > office.updatedAt) {
-                        console.log('qbOffice exists in QuickBooks, updating it');
                         // Update local database
                         await ctx.db.office.update({
                             where: { id: office.id },
@@ -698,7 +690,6 @@ export const qbCustomerRouter = createTRPCRouter({
                             },
                         });
                     } else if (office.updatedAt > new Date(qbOffice.MetaData.LastUpdatedTime)) {
-                        console.log('qbOffice exists in QuickBooks, updating it');
                         // Update QuickBooks
                         qbOffice = await updateCustomerInQB({
                             Id: qbOffice.Id,
@@ -718,7 +709,6 @@ export const qbCustomerRouter = createTRPCRouter({
                     }
                 } else {
                     // Create in QuickBooks
-                    console.log('qbOffice does not exist in QuickBooks, creating it');
                     qbOffice = await createCustomerInQB({
                         DisplayName: office.name,
                         CompanyName: company.name,
@@ -735,7 +725,6 @@ export const qbCustomerRouter = createTRPCRouter({
                         },
                         // Add other required fields
                     });
-                    console.log('qbOffice created: ', qbOffice);
                     await ctx.db.office.update({
                         where: { id: office.id },
                         data: {

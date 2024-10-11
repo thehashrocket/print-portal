@@ -3,10 +3,11 @@ import React from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 
-const ActionsCellRenderer: React.FC<{ params: any }> = ({ params }) => {
+const ActionsCellRenderer: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
         onSuccess: () => {
             toast.success('Company synced with QuickBooks successfully');
+            onSyncSuccess();
             // Optionally, you can refetch the office data here
         },
         onError: (error) => {

@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
@@ -14,6 +14,7 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import ActionsCellRenderer from "./ActionsCellRenderer";
+import { api } from "~/trpc/react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -30,9 +31,9 @@ interface CompaniesTableProps {
     companies: SerializedCompany[];
 }
 
-const CompaniesTable = ({ companies }: CompaniesTableProps) => {
+const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) => {
     const gridRef = useRef(null);
-    const [rowData, setRowData] = useState<SerializedCompany[]>([]);
+    const [rowData, setRowData] = useState<SerializedCompany[]>(initialCompanies);
     const [loading, setLoading] = useState(true);
 
     const defaultColDef = {
@@ -41,16 +42,34 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
         filter: true,
     };
 
+    const {data: updatedCompanies, refetch} = api.companies.getAll.useQuery(
+        undefined,
+        {
+            initialData: initialCompanies, enabled: false,
+        }
+    );
+
+    const handleSyncSuccess = useCallback(() => {
+        void refetch();
+    }, [refetch]);
+
+    useEffect(() => {
+        if (updatedCompanies) {
+            setRowData(updatedCompanies);
+        }
+    }, [updatedCompanies]);
+
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
         <div className="flex justify-center items-center space-x-2 px-2">
             <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
                 View Company
             </Link>
-            <ActionsCellRenderer params={{ row: props.data }} />
+            <ActionsCellRenderer params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
         </div>
     );
 
-    const formatNumberAsCurrency = (params: { value: number }) => {
+    const formatNumberAsCurrency = (params: { value: number | null | undefined }) => {
+        if (params.value == null) return '$0.00';
         return `$${parseFloat(params.value.toString()).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
     };
 
@@ -99,9 +118,9 @@ const CompaniesTable = ({ companies }: CompaniesTableProps) => {
     };
 
     useEffect(() => {
-        setRowData(companies);
+        setRowData(initialCompanies);
         setLoading(false);
-    }, [companies]);
+    }, [initialCompanies]);
 
     if (loading) {
         return (
