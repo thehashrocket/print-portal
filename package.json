@@ -51,7 +51,7 @@
     "formidable": "^3.5.1",
     "iconv-lite": "^0.6.3",
     "intuit-oauth": "^4.1.2",
-    "lucide-react": "^0.446.0",
+    "lucide-react": "^0.452.0",
     "next": "^14.2.15",
     "next-auth": "^4.24.8",
     "nodemailer": "^6.9.15",
