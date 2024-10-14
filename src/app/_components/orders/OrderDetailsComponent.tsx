@@ -85,7 +85,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
     const utils = api.useContext();
 
-    const { data: order, isLoading, isError } = api.orders.getByID.useQuery(orderId, {
+    const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
     });
 
@@ -112,7 +112,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
+                    <svg className="w-16 h-16" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
+                    </svg>
+                </div>
             </div>
         );
     }
@@ -120,7 +124,10 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     if (isError || !order) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="text-red-500 text-xl">Error loading order. Please try again.</div>
+                <div className="text-red-500 text-xl">
+                <p>Error loading order. Please try again.</p>
+                <p>{isError && error instanceof Error ? error.message : "Unknown error"}</p>
+                </div>
             </div>
         );
     }
@@ -171,13 +178,15 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
                                     <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
                                     <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
-                                    <p>{!order.quickbooksInvoiceId &&
-                                        <button
+                                    <p>
+                                        {!order.quickbooksInvoiceId &&
+                                            <button
                                             className="btn btn-primary"
                                             onClick={() => handleCreateQuickbooksInvoice(order.id)}>
                                             Create Quickbooks Invoice
-                                        </button>}</p>
-                                    <p>{order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}</p>
+                                        </button>}
+                                    </p>
+                                    {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
                                     <OrderDeposit order={order} />
                                 </div>
                             }

@@ -98,8 +98,12 @@ async function findMatchingCustomerInQuickBooks(
     accessToken: any
 ) {
     try {
+        const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
+                ? 'https://sandbox-quickbooks.api.intuit.com'
+                : 'https://quickbooks.api.intuit.com';
+
         const response = await axios.get(
-            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.Company.name}:${office.name}' or CompanyName = '${office.Company.name}'`,
+            `${baseUrl}/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.Company.name}:${office.name}' or CompanyName = '${office.Company.name}'`,
             {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -181,8 +185,12 @@ async function pushToQuickBooks(ctx: { session: { user: any; expires: ISODateStr
     };
 
     try {
+        const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
+                ? 'https://sandbox-quickbooks.api.intuit.com'
+                : 'https://quickbooks.api.intuit.com';
+
         const response = await axios.post(
-            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,
+            `${baseUrl}/v3/company/${realmId}/customer`,
             qbCustomerData,
             {
                 headers: {

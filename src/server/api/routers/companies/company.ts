@@ -24,7 +24,7 @@ export const companyRouter = createTRPCRouter({
                                     OrderItems: true, // Include the OrderItems associated with the Order
                                 }
                             }
-                        }, // Include the Offices associated with the Company
+                        },
                     },
                 },
             })

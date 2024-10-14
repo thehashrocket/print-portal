@@ -4,8 +4,6 @@ import { TRPCError } from "@trpc/server";
 import { XMLParser } from 'fast-xml-parser';
 import axios from 'axios';
 import { z } from 'zod';
-import { Order, OrderItem, User } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 
 async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId: string, customerId: string) {
     let query = `SELECT * from Invoice`;
@@ -45,6 +43,10 @@ function formatItemDescription(item: any): string {
     if (item.Typesetting && item.Typesetting.length > 0) {
         const typesetting = item.Typesetting[0];
         description += ` | Typesetting: ${typesetting.description || 'N/A'}`;
+    }
+
+    if (item.quantity) {
+        description += ` | Quantity: ${item.quantity}`;
     }
 
     return description;
@@ -135,19 +137,22 @@ export const qbInvoiceRouter = createTRPCRouter({
             const invoiceData = {
                 Line: [
                     ...order.OrderItems.map(item => ({
-                        DetailType: "DescriptionOnly",
+                        DetailType: "SalesItemLineDetail",
                         Description: formatItemDescription(item),
                         Amount: item.amount?.toNumber() ?? 0,
-                        LineDetail: {
-                            TaxInclusiveAmt: item.amount?.toNumber() ?? 0,
+                        SalesItemLineDetail: {
                             Qty: item.quantity,
                             UnitPrice: (item.amount?.toNumber() ?? 0) / (item.quantity || 1),
                         }
                     })),
                     ...(order.ShippingInfo ? [{
-                        DetailType: "DescriptionOnly",
+                        DetailType: "SalesItemLineDetail",
                         Description: "Shipping",
                         Amount: order.ShippingInfo.shippingCost?.toNumber() ?? 0,
+                        SalesItemLineDetail: {
+                            Qty: 1,
+                            UnitPrice: order.ShippingInfo.shippingCost?.toNumber() ?? 0,
+                        }
                     }] : []),
                 ],
                 CustomerRef: {
@@ -177,7 +182,6 @@ export const qbInvoiceRouter = createTRPCRouter({
                         },
                     }
                 );
-
                 // Update the order with the QuickBooks Invoice ID
                 await ctx.db.order.update({
                     where: { id: order.id },

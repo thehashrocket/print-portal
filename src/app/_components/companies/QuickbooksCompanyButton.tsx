@@ -38,12 +38,12 @@ const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void
     };
 
     const syncButtonText = params.row.quickbooksCustomerId
-        ? 'Sync with QuickBooks'
-        : 'Add to QuickBooks';
+        ? 'Sync with QB'
+        : 'Add to QB';
 
     return (
         <button
-            className={`btn btn-sm btn-outline ${syncCompanyMutation.isPending ? 'loading' : ''}`}
+            className={`btn btn-xs btn-outline ${syncCompanyMutation.isPending ? 'loading' : ''}`}
             onClick={handleSyncCompany}
             disabled={syncCompanyMutation.isPending || !isAuthenticated}
         >
