@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ag-grid-community/client-side-row-model':
-        specifier: 32.1.0
-        version: 32.1.0
+        specifier: 32.2.2
+        version: 32.2.2
       '@ag-grid-community/core':
         specifier: 32.1.0
         version: 32.1.0
@@ -222,14 +222,17 @@ importers:
 
 packages:
 
-  '@ag-grid-community/client-side-row-model@32.1.0':
-    resolution: {integrity: sha512-R/IA3chA/w9fy6/EeZhi42PTwVnb6bNjGMah1GWGvuNDTvfbPO4X9r4nhOMj6YH483bO+C7pPb4EoLECx0dfRQ==}
+  '@ag-grid-community/client-side-row-model@32.2.2':
+    resolution: {integrity: sha512-BenXaVRISOAlMwl59BWGAJ/RBRsc0eHR3i/pGRmjQc8eGgdTqjrePL4kDL7UXDAKoqqNsoGKK5TGHjCHAs1cHA==}
 
   '@ag-grid-community/core@32.1.0':
     resolution: {integrity: sha512-fHpgSZa/aBjg2DdOzooDxILFZqxmxP8vsjRfeZVtqby19mTKwNAclE7Z6rWzOA0GYjgN9s8JwLFcNA5pvfswMg==}
 
   '@ag-grid-community/core@32.2.1':
     resolution: {integrity: sha512-60tz1DfCd3B/U9BkzOWwpaGZEQwvZIvwpf5n/GDP0yzxjNhCcUusQhllqqA3fmGKKke9O1anUdSQot4PfTTrOQ==}
+
+  '@ag-grid-community/core@32.2.2':
+    resolution: {integrity: sha512-8w++Q5DKbFKhee7ZZ3HCx6KkMTHVwtV+xNwN/RJZneQ3WkXJYvsnkgVWmiwtglEo1iuMArxTz6pqOz/p23TBxA==}
 
   '@ag-grid-community/csv-export@32.1.0':
     resolution: {integrity: sha512-rtHY+MvfmzlRq3dH8prvoNPOmNrvSxZNDmxSYEGC/y12d6ucoAH+Q1cTksMx5d/LKrUXGCrd/jKoPEi9FSdkNA==}
@@ -2857,9 +2860,9 @@ packages:
 
 snapshots:
 
-  '@ag-grid-community/client-side-row-model@32.1.0':
+  '@ag-grid-community/client-side-row-model@32.2.2':
     dependencies:
-      '@ag-grid-community/core': 32.1.0
+      '@ag-grid-community/core': 32.2.2
       tslib: 2.7.0
 
   '@ag-grid-community/core@32.1.0':
@@ -2868,6 +2871,11 @@ snapshots:
       tslib: 2.7.0
 
   '@ag-grid-community/core@32.2.1':
+    dependencies:
+      ag-charts-types: 10.2.0
+      tslib: 2.7.0
+
+  '@ag-grid-community/core@32.2.2':
     dependencies:
       ag-charts-types: 10.2.0
       tslib: 2.7.0
