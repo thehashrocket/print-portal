@@ -20,7 +20,7 @@ import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/format
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 interface OrdersTableProps {
   orders: SerializedOrder[];
 }
@@ -40,7 +40,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   const handleSyncSuccess = () => {
     // Refresh the grid data
     // You can use the gridRef to refresh the data
-    router.reload();
+    router.refresh();
   };
 
   const actionsCellRenderer = (props: { data: SerializedOrder }) => (
