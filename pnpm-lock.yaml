@@ -24,8 +24,8 @@ importers:
         specifier: 32.1.0
         version: 32.1.0(@ag-grid-community/core@32.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ag-grid-community/styles':
-        specifier: 32.2.1
-        version: 32.2.1
+        specifier: 32.2.2
+        version: 32.2.2
       '@auth/prisma-adapter':
         specifier: ^2.7.0
         version: 2.7.0(@prisma/client@5.20.0(prisma@5.20.0))(nodemailer@6.9.15)
@@ -244,8 +244,8 @@ packages:
       react: ^16.3.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
 
-  '@ag-grid-community/styles@32.2.1':
-    resolution: {integrity: sha512-b3gkiM33ef1W/Mopq2/lWNigqw/4N4sKoghLl6MfZ6l8YcwOeopKuYJ65RCim6pOJlV7F3tiBmvmOFwEG8cccg==}
+  '@ag-grid-community/styles@32.2.2':
+    resolution: {integrity: sha512-YQm+Tb0yPUxxFmExrYtic+gMOU+00/brLZNVE8sB8/6SuxIKla6Vk7sC1aljtMtwaxO0H4gOL7vx4wYB4FtwBA==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -2889,7 +2889,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@ag-grid-community/styles@32.2.1': {}
+  '@ag-grid-community/styles@32.2.2': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
