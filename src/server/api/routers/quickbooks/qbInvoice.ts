@@ -50,8 +50,6 @@ function formatItemDescription(item: any): string {
     return description;
 }
 
-
-
 export const qbInvoiceRouter = createTRPCRouter({
     syncInvoices: protectedProcedure
         .query(async ({ ctx }) => {
@@ -76,6 +74,12 @@ export const qbInvoiceRouter = createTRPCRouter({
             }));
 
             return invoices;
+        }),
+
+    syncInvoice: protectedProcedure
+        .input(z.object({ orderId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+
         }),
 
     // Create Invoice for an Order

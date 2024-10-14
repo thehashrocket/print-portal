@@ -13,7 +13,7 @@ import {
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
-import ActionsCellRenderer from "./ActionsCellRenderer";
+import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
 import { type CompanyDashboardData } from "~/types/company";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -73,7 +73,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             <Link className="btn btn-sm btn-primary" href={`/companies/${props.data.id}`}>
                 View Company
             </Link>
-            <ActionsCellRenderer params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
+            <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
         </div>
     );
 

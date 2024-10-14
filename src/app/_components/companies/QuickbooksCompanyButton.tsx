@@ -1,10 +1,12 @@
-// ~/app/_components/companies/ActionsCellRenderer.tsx
+// ~/app/_components/companies/QuickbooksCompanyButton.tsx
+"use client";
+
 import React from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 
-const ActionsCellRenderer: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
+const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
         onSuccess: () => {
@@ -59,4 +61,4 @@ const ActionsCellRenderer: React.FC<{ params: any; onSyncSuccess: () => void }> 
     );
 };
 
-export default ActionsCellRenderer;
+export default QuickbooksCompanyButton;

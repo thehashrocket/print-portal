@@ -18,6 +18,8 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import Link from "next/link";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/formatters";
+import { useQuickbooksStore } from "~/store/useQuickbooksStore";
+import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface OrdersTableProps {
@@ -28,12 +30,19 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   const gridRef = useRef<AgGridReact>(null);
   const [rowData, setRowData] = useState<SerializedOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
 
   const defaultColDef = useMemo(() => ({
     resizable: true,
     sortable: true,
     filter: true,
   }), []);
+
+  const handleSyncSuccess = () => {
+    // Refresh the grid data
+    // You can use the gridRef to refresh the data
+    gridRef.current?.api.refreshInfiniteCache();
+  };
 
   const actionsCellRenderer = (props: { data: SerializedOrder }) => (
     <div className="flex gap-2">
@@ -42,9 +51,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
       </Link>
       {props.data.workOrderId && (
         <Link className="btn btn-xs btn-secondary" href={`/workOrders/${props.data.workOrderId}`}>
-          View Work Order
+          View W/O
         </Link>
       )}
+      <QuickbooksInvoiceButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
     </div>
   );
 
@@ -62,11 +72,36 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   const columnDefs: ColDef[] = [
     { headerName: "Order #", field: "orderNumber", filter: true, width: 90 },
     { headerName: "Status", field: "status", filter: true, width: 120 },
-    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 150, sort: "asc" },
-    { headerName: "Deposit", field: "deposit", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-    { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDateInTable, width: 120 },
+    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
+    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 90 },
+    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 90 },
+    { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDateInTable, width: 80 },
+    {
+      headerName: "QuickBooks Status",
+      field: "quickbooksInvoiceId",
+      cellRenderer: (params: { value: string | null }) => (
+          <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
+              {params.value ? (
+                  <>
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Synced
+                  </>
+              ) : (
+                  <>
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      Not Synced
+                  </>
+              )}
+          </div>
+      ),
+      sortable: true,
+      filter: true,
+      width: 120
+  },
     { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },
   ];
 
