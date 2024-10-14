@@ -42,7 +42,7 @@
     "@trpc/server": "11.0.0-rc.567",
     "ag-charts-community": "^10.2.0",
     "ag-charts-react": "^10.2.0",
-    "ag-grid-community": "32.2.1",
+    "ag-grid-community": "32.2.2",
     "axios": "^1.7.7",
     "bcryptjs": "2.4.3",
     "dayjs": "^1.11.13",
