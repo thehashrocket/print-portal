@@ -12,7 +12,7 @@ interface OrderDepositProps {
 const OrderDeposit: React.FC<OrderDepositProps> = ({ order }) => {
     const [deposit, setDeposit] = useState(order.deposit ?? "");
     const [isEditing, setIsEditing] = useState(false);
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const { mutate: updateDeposit, isPending } = api.orders.updateDeposit.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(order.id);

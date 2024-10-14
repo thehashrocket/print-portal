@@ -21,7 +21,7 @@ type OrderItemPageProps = {
 
 const StatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.orderItems.updateStatus.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(orderId);

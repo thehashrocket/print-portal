@@ -15,7 +15,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/Shi
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.orders.updateStatus.useMutation({
         onSuccess: (udpatedOrder) => {
             utils.orders.getAll.invalidate();
@@ -83,7 +83,7 @@ interface OrderDetailsProps {
 export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProps) {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
-    const utils = api.useContext();
+    const utils = api.useUtils();
 
     const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
@@ -92,6 +92,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createInvoice.useMutation({
         onSuccess: (invoice) => {
             console.log('Quickbooks invoice created:', invoice);
+            utils.orders.getByID.invalidate(orderId);
         },
         onError: (error) => {
             console.error('Failed to create Quickbooks invoice:', error);

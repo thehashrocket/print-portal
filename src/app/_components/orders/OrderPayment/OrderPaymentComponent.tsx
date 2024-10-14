@@ -15,7 +15,7 @@ const OrderPaymentComponent: React.FC<OrderPaymentComponentProps> = ({ order }) 
     const [amount, setAmount] = useState<string>('');
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CreditCard);
 
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const addPaymentMutation = api.orderPayments.create.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(order.id);

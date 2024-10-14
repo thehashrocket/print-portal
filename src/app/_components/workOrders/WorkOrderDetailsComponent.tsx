@@ -12,7 +12,7 @@ import { api } from "~/trpc/react";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
         onSuccess: (updatedWorkOrder) => {
             utils.workOrders.getAll.invalidate();

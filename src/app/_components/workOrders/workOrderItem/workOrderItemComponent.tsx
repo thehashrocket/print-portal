@@ -15,7 +15,7 @@ import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderI
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    const utils = api.useContext();
+    const utils = api.useUtils();
     const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation({
         onSuccess: () => {
             utils.workOrders.getByID.invalidate(workOrderId);
