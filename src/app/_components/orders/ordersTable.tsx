@@ -119,6 +119,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
     params.api.sizeColumnsToFit();
   };
 
+  const rowSelection = {
+    mode: 'single',
+    checkboxes: false,
+    enableClickSelection: true,
+  };
+
   const onFilterChanged = (event: FilterChangedEvent) => {
     const filteredRowCount = event.api.getDisplayedRowCount();
     // You can update a state here to show the filtered row count if desired
