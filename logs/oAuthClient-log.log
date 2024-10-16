@@ -3142,3 +3142,20 @@
   },
   "time": "2024-10-07T22:06:46.750-07:00"
 }
+2024-10-15T20:06:49.219Z error: Refresh Token () threw an exception : {}
+2024-10-16T14:48:51.364Z error: Refresh Token () threw an exception : {}
+2024-10-16T15:13:32.163Z error: Refresh Token () threw an exception : {}
+2024-10-16T15:35:21.953Z info: Refresh usingToken () response is : {
+  "x_refresh_token_expires_in": 8725497,
+  "refresh_token": "AB11737818418xYQvaPWBQUPLfzqWl53p04brO9rS9Tcf9tP2Y",
+  "access_token": "eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..y7eK-5iUJ_VG_3AWZnxYrw.YpU3mU0ibThkWKlLy-xEZTdTqIPyEvINau-cWmsPiEFma-mZdvUZLcfrt4ZLMQ8XVAkH3C7LZU_NMmOyhsjAUbQ83SNtwtgxBtpKsgoof0_I8Jv7hmyiNkWHvS-v-Jxk41nRgg8LWEmxjXpZ0J6fluMvwbOyrLYImk6nrz44YcotVQTCPyz8snIc1ieWm-8ftPZa8YYQoqYx4Tbs9-AGr_FVlGTDOWwD6bwMWZRU8aKCaLzzKe8v8cXT2vr9PC9nFh1YexO3FIBDhKJkDxEZUAByuAD3I7JABrS5i1rVr7i2hRN79GKoAQJWKtvlPs2ZhgXytA5mQGm7EfjzDND-lM51G_73Bj9ur6CImECb1wADKcbdY-SxEGf0cOJSA5-Nz5s6YL2NefinaDMmwp4Qw1_2glfLsHwLHdhZ_2hpBoom2YSpcDuPvOsNXZoJ8bADOaV0XF10XsWkH9GmdsYifYS8236cO0fTwvsQ-7kPFVpgpavoPPvvAXaelhasXvx-E67MWrwDgS7dCT2hOV-NaeEULs8X0iGQ_LM1UFc__TfAvsmMwu2prYjk344VPs3CVj5VwFh-sbnutNZe2h6odp5iPXDzisd3Ird7fKYzYtHubbAHbYMLXIdorRsR9v8PKomaVkUVoMLCaGIAKHBTBGbFTb-t0tV4eDATkgryfxTDP7VNwHRKevo7HCcDN_su-WdNkEp3UJ3nfB70B5Q2rBxb4391XCg56NT0ymhhy0prNSkTsKAeA_WdBxFOmKURFc9NojdHDqzzA8dgMb_4PkKmz6Egikhe-BnqZFtsanIT5MhG7m0CUBozZz0mfUYdnl-rdzaqeuFVtITAx5Tz-Q.O867MwfGOzPJCJ-HqqVFZw",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
+2024-10-16T16:00:53.965Z info: Refresh usingToken () response is : {
+  "x_refresh_token_expires_in": 8725239,
+  "refresh_token": "AB11737819692mGplfH2eMfS5TjcRpB36Y4qkkPMpt6cauCH2h",
+  "access_token": "eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..GgqJ8NRtdD1fTnyMuxq8Ew.WX9XUFL-3d2eKRo3CpLMwUXvG3crx7n51zOEDYp195p2EDdbvHdhYmbspi5uwAysSMtycoZQ-35dNyYwNfKSHe3_WmeD3q4pabfa7rR2G71nk_xyor_Sa1vUecQX_-cPy9ej4MPUyyCEhVyaETAvSPOnytmTAHApx8joBBw35wJcKivlxptSm-hufCEU56VBLIksHXTjAUQJLrIrGIeK_Ut6Ugg7TCG2ELnGo0NvUqppNQX_JdEDnVVSfe6-ZhP4QiMPYbuW5JOy8KsKkpD3b522UDzgxYdLLJdZn9Y2aVmC3TR0woQEcOvT4W0mJqOtxiWkINLeKdY74W8W9I9XcYJ-LZem_MJpg0RPH-QWbz9W9EPg1PmwxXkapJbg1wsGGfTewdFZBBk4Gt5fpYcC0mXtEcSfIDh8NTDg2iRpQ8D-c8Iu6pd1IY2wmlbMfOKC-43ZoGJ7HKAHmRabjvs5D6BNLc3ss0IVCNlDY_9G4LdpY6rXvtm8TLUr59JLLmCSLv3icSxquKK4BH5k2WlhyEZ2IfAQy9efhJ9L1EzeWYfYetTBOQBtFIEDWsz3DYx3xjui3x1nIEbDOOfpA7qBDLQbXoDEE7CAD9SFpBpoTMpsqBzJkhoGt13ST3hkGGWbxlUaastFgXFnM3pjbMSQ17wXA44AWqsEjVqDd7giyWG8PEmk0OLzGlGG7TDScYYqlXx0e8xrxzjPtJKm2T8Jj5JPbaIZbfc-25s4n_ZViO9bTHGS5JxoVLdfsgBMQoY6MazuHEtoqYEGB3KjaD0Ef96GY9pKOgNw9Ok1Qwz0tE5-5I_c2rcq7ulgt-fpGLYaC8ZRAgy9BHnoTdWw2R9eTw.ldxlHkgFZe0AG6X28BLtEQ",
+  "token_type": "bearer",
+  "expires_in": 3600
+}

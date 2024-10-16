@@ -200,27 +200,53 @@ export const qbAuthRouter = createTRPCRouter({
 
     refreshToken: protectedProcedure
         .mutation(async ({ ctx }) => {
-            const { user } = ctx.session;
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { 
+                    quickbooksAccessToken: true, 
+                    quickbooksRefreshToken: true, 
+                    quickbooksTokenExpiry: true 
+                },
+            });
 
-            try {
-                const refreshTokenResponse = await oauthClient.refreshToken(user.quickbooksRefreshToken);
-                const accessToken = refreshTokenResponse.access_token;
-                const expiresIn = refreshTokenResponse.expires_in;
-
-                await ctx.db.user.update({
-                    where: { id: user.id },
-                    data: {
-                        quickbooksAccessToken: accessToken,
-                        quickbooksTokenExpiry: new Date(Date.now() + expiresIn * 1000),
-                    }
-                });
-
-                return { success: true, message: 'Token refreshed' };
-            } catch (error) {
-                console.error('Error refreshing token:', error);
+            if (!user) {
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to refresh token'
+                    message: 'User not found'
+                });
+            }
+            let refreshToken = '';
+            let accessToken = '';
+            let expiresIn = 0;
+
+            try {
+                oauthClient
+                .refreshUsingToken(user.quickbooksRefreshToken)
+                .then(async function (authResponse: { json: any; }) {
+                    console.log('TOKENS REFRESHED: ' + JSON.stringify(authResponse.json));
+                    refreshToken = authResponse.json.refresh_token;
+                    accessToken = authResponse.json.access_token;
+                    expiresIn = authResponse.json.expires_in;
+                    await ctx.db.user.update({
+                        where: { id: ctx.session.user.id },
+                        data: {
+                            quickbooksAccessToken: accessToken,
+                            quickbooksRefreshToken: refreshToken,
+                            quickbooksTokenExpiry: new Date(Date.now() + expiresIn * 1000),
+                        },
+                    });
+                })
+                .catch(function (e: { originalMessage: string; intuit_tid: any; }) {
+                    console.error('THE ERROR MESSAGE IS :' + e.originalMessage);
+                    console.error(e.intuit_tid);
+                });
+
+                return { success: true, message: 'Access token refreshed' };
+            } catch (error) {
+                console.error('Error refreshing access token:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to refresh access token'
                 });
             }
         }),

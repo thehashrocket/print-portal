@@ -167,6 +167,7 @@ async function handleUser(ctx: any, email: string, firstName: string, lastName: 
 }
 
 async function processAndSaveCustomer(ctx: any, customer: any) {
+
     const {
         Id: quickbooksId,
         FullyQualifiedName,
@@ -178,7 +179,9 @@ async function processAndSaveCustomer(ctx: any, customer: any) {
         PrimaryEmailAddr,
         GivenName,
         FamilyName,
+        SyncToken
     } = customer;
+
 
     const isSubLocation = FullyQualifiedName.includes(':');
     let companyName, officeName;
@@ -192,16 +195,38 @@ async function processAndSaveCustomer(ctx: any, customer: any) {
 
     // Find or create the Company
     let company = await ctx.db.company.findFirst({ where: { name: companyName } });
-    if (!company) {
-        company = await ctx.db.company.create({
-            data: {
-                name: companyName,
-                quickbooksId: isSubLocation ? null : String(quickbooksId),
+
+    if (!isSubLocation) {
+        // Find by company name or QuickbooksId
+        company = await ctx.db.company.findFirst({
+            where: {
+                OR: [
+                    { name: companyName },
+                    { quickbooksId: String(quickbooksId) }
+                ]
             }
         });
+        // If no company was found, create a new one
+        if (!company) {
+            company = await ctx.db.company.create({
+                data: {
+                    name: companyName,
+                    quickbooksId: String(quickbooksId),
+                    syncToken: String(SyncToken),
+                }
+            });
+        } else {
+            // Update the company's syncToken
+            await ctx.db.company.update({
+                where: { id: company.id },
+                data: {
+                    name: companyName,
+                    syncToken: String(SyncToken),
+                    quickbooksId: String(quickbooksId),
+                }
+            });
+        }
     }
-
-    console.log('company', company);
 
     // Create or update the Office
     const office = await ctx.db.office.upsert({
@@ -209,16 +234,16 @@ async function processAndSaveCustomer(ctx: any, customer: any) {
         update: {
             name: officeName,
             companyId: company.id,
+            syncToken: String(SyncToken),
         },
         create: {
             name: officeName,
             companyId: company.id,
             quickbooksCustomerId: String(quickbooksId),
             createdById: ctx.session.user.id,
+            syncToken: String(SyncToken),
         },
     });
-
-    console.log('office', office);
 
     // Handle Billing Address
     if (BillAddr) {

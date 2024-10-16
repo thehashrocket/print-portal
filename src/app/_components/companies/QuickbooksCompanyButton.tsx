@@ -37,7 +37,7 @@ const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void
         }
     };
 
-    const syncButtonText = params.row.quickbooksCustomerId
+    const syncButtonText = params.row.quickbooksCustomerId || params.row.quickbooksId
         ? 'Sync with QB'
         : 'Add to QB';
 
