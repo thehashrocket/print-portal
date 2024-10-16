@@ -27,6 +27,35 @@ async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId
     return response.data;
 };
 
+async function fetchInvoicesForOffice(ctx: any, accessToken: string, quickbooksRealmId: string, customerId: string) {
+    let query = `SELECT * from Invoice WHERE CustomerRef = '${customerId}'`;
+
+    const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
+        ? 'https://sandbox-quickbooks.api.intuit.com'
+        : 'https://quickbooks.api.intuit.com';
+
+        const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: "",
+            parseAttributeValue: true
+        }); 
+
+    const queryUrl = `${baseUrl}/v3/company/${quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
+
+    const response = await axios.get(queryUrl, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/xml',
+        }
+    });
+    const result = parser.parse(response.data);
+    const totalCount = result.IntuitResponse.QueryResponse.totalCount;
+    const invoices = result.IntuitResponse.QueryResponse.Invoice;
+    
+    console.log('invoices', invoices);
+    return invoices;
+}
+
 function formatItemDescription(item: any): string {
     let description = item.description || '';
 
@@ -53,6 +82,7 @@ function formatItemDescription(item: any): string {
 }
 
 export const qbInvoiceRouter = createTRPCRouter({
+    // Fetch all invoices for all offices
     syncInvoices: protectedProcedure
         .query(async ({ ctx }) => {
             const accessToken = await refreshTokenIfNeeded(ctx);
@@ -78,10 +108,80 @@ export const qbInvoiceRouter = createTRPCRouter({
             return invoices;
         }),
 
+    // Sync a Single Invoice for an Office
     syncInvoice: protectedProcedure
         .input(z.object({ orderId: z.string() }))
         .mutation(async ({ ctx, input }) => {
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { quickbooksRealmId: true },
+            });
 
+            if (!user?.quickbooksRealmId) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'Not authenticated with QuickBooks',
+                });
+            }
+
+            const order = await ctx.db.order.findUnique({
+                where: { id: input.orderId },
+                include: {
+                    Office: true,
+                },
+            });
+
+            if (!order) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Order not found',
+                });
+            }
+
+            if (!order.Office.quickbooksCustomerId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Office does not have a QuickBooks Customer ID',
+                });
+            }
+
+            const invoices = await fetchInvoicesForOffice(ctx, accessToken, user.quickbooksRealmId, order.Office.quickbooksCustomerId);
+            return invoices;
+
+        }),
+
+    // Sync Invoices for an Office
+    syncInvoicesForOffice: protectedProcedure
+        .input(z.object({ officeId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { quickbooksRealmId: true },
+            });
+
+            if (!user?.quickbooksRealmId) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'Not authenticated with QuickBooks',
+                });
+            }
+
+            const office = await ctx.db.office.findUnique({
+                where: { id: input.officeId },
+                select: { quickbooksCustomerId: true },
+            });
+
+            if (!office?.quickbooksCustomerId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Office does not have a QuickBooks Customer ID',
+                });
+            }
+
+            const invoices = await fetchInvoicesForOffice(ctx, accessToken, user.quickbooksRealmId, office.quickbooksCustomerId);
+            return invoices;
         }),
 
     // Create Invoice for an Order

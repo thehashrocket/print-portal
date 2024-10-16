@@ -223,7 +223,6 @@ export const qbAuthRouter = createTRPCRouter({
                 oauthClient
                 .refreshUsingToken(user.quickbooksRefreshToken)
                 .then(async function (authResponse: { json: any; }) {
-                    console.log('TOKENS REFRESHED: ' + JSON.stringify(authResponse.json));
                     refreshToken = authResponse.json.refresh_token;
                     accessToken = authResponse.json.access_token;
                     expiresIn = authResponse.json.expires_in;

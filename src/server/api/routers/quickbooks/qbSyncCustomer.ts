@@ -5,7 +5,6 @@ import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { AddressType, RoleName } from "@prisma/client";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
-import stringSimilarity from 'string-similarity';
 
 async function fetchCustomers(ctx: any, accessToken: string, companyID: string, pageSize: number, lastSyncTime?: string) {
     const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'

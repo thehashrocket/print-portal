@@ -84,6 +84,8 @@ model Invoice {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   orderId         String           @unique
+  quickbooksId    String?          @unique
+  syncToken       String?
   createdById     String
   createdBy       User             @relation(fields: [createdById], references: [id])
   Order           Order            @relation(fields: [orderId], references: [id])
@@ -99,6 +101,8 @@ model InvoiceItem {
   total       Decimal    @db.Decimal(10, 2)
   invoiceId   String
   orderItemId String?
+  quickbooksId String?
+  syncToken String?
   invoice     Invoice    @relation(fields: [invoiceId], references: [id])
   orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
 }
