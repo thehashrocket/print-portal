@@ -9,6 +9,8 @@ import { InvoiceStatus, OrderStatus, PaymentMethod, Order, Invoice } from "@pris
 import { sendInvoiceEmail } from "~/utils/sengrid"
 import { generateInvoicePDF } from "~/utils/pdfGenerator"
 import { TRPCError } from "@trpc/server";
+import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
+import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
@@ -66,6 +68,21 @@ export const invoiceRouter = createTRPCRouter({
             })),
         }))
         .mutation(async ({ ctx, input }) => {
+
+            const order = await ctx.db.order.findUnique({
+                where: { id: input.orderId },
+                include: {
+                    OrderItems: true,
+                },
+            });
+
+            if (!order) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Order not found',
+                });
+            }
+
             const invoice = await ctx.db.invoice.create({
                 data: {
                     invoiceNumber: await generateInvoiceNumber(ctx),

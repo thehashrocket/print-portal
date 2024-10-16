@@ -8,7 +8,6 @@ import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable"
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
-import OrderPaymentComponent from "~/app/_components/orders/OrderPayment/OrderPaymentComponent";
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor";
 
@@ -73,7 +72,36 @@ const InfoCard = ({ title, content }: { title: string; content: React.ReactNode 
     </section>
 );
 
+const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
+    const { mutate: createInvoice } = api.invoices.create.useMutation();
 
+    const handleCreateInvoice = () => {
+        createInvoice({ orderId: order.id,
+            dateIssued: new Date(),
+            dateDue: new Date(new Date().setDate(new Date().getDate() + 14)),
+            subtotal: Number(order.calculatedSubTotal),
+            taxRate: Number(0.07),
+            taxAmount: Number(order.calculatedSalesTax),
+            total: Number(order.totalAmount),
+            status: "Draft",
+            items: order.OrderItems.map((item) => ({
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: Number((Number(item.amount) / Number(item.quantity)).toFixed(2)),
+                total: Number(item.amount),
+                orderItemId: item.id,
+            })),
+        });
+    };
+
+    const isInvoiceCreated = order.Invoice !== null;
+
+    const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
+
+    return (
+        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText}</button>
+    );
+};
 
 interface OrderDetailsProps {
     initialOrder: SerializedOrder | null; // Replace 'any' with the correct type for your order object
@@ -179,6 +207,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
                                     <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
                                     <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
+                                    {order.Invoice === null && <CreateInvoiceButton order={order} />}
+                                    {order.Invoice !== null && <Link className="btn btn-primary btn-sm" href={`/invoices/${order.Invoice.id}`}>View Invoice</Link>}
                                     <p>
                                         {!order.quickbooksInvoiceId &&
                                             <button
@@ -187,12 +217,12 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                             Create Quickbooks Invoice
                                         </button>}
                                     </p>
+
                                     {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
                                     <OrderDeposit order={order} />
                                 </div>
                             }
                         />
-                        <OrderPaymentComponent order={order} />
                     </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">

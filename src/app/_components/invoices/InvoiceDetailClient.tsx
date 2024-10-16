@@ -1,5 +1,4 @@
 // ~/src/app/_components/invoices/InvoiceDetailClient.tsx
-// ~/src/app/_components/invoices/InvoiceDetailClient.tsx
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -14,15 +13,39 @@ type ExtendedInvoice = Invoice & {
     Order: Order & {
         Office: {
             Company: {
-                name: string;
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                quickbooksId: string | null;
+                name: string;
+                syncToken: string | null;
+                fullyQualifiedName: string | null;
+                quickbooksCustomerId: string | null;
             };
-            name: string;
+            createdBy: {
+                officeId: string | null;
+                id: string;
+                name: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                email: string | null;
+                emailVerified: Date | null;
+                image: string | null;
+                quickbooksRealmId: string | null;
+                quickbooksAuthState: string | null;
+                quickbooksAccessToken: string | null;
+                quickbooksRefreshToken: string | null;
+                quickbooksTokenExpiry: Date | null;
+            };
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             createdById: string;
             companyId: string;
+            syncToken: string | null;
+            fullyQualifiedName: string | null;
+            quickbooksCustomerId: string | null;
         };
     };
     createdBy: User;
@@ -40,7 +63,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     const [isSending, setIsSending] = useState(false);
     const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
 
-    const { data: invoiceData, refetch } = api.invoices.getById.useQuery(initialInvoice.id, {
+    const { data: invoiceData, refetch } = api.invoices.getById.useQuery<ExtendedInvoice>(initialInvoice.id, {
         initialData: initialInvoice,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
@@ -52,7 +75,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
 
     useEffect(() => {
         if (invoiceData) {
-            setInvoice(invoiceData as ExtendedInvoice);
+            setInvoice(invoiceData as unknown as ExtendedInvoice);
         }
     }, [invoiceData]);
 
@@ -71,9 +94,11 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     const handleSendInvoice = async () => {
         setIsSending(true);
         try {
+            // Assuming you have access to the User object associated with createdById
+            const recipientEmail = invoice.createdBy.email || ''; // Use the email from the User object
             await sendInvoiceMutation.mutateAsync({
                 invoiceId: invoice.id,
-                recipientEmail: invoice.Order.createdBy.email || '', // Assuming email might be optional
+                recipientEmail: recipientEmail,
             });
             alert('Invoice sent successfully');
             refetch();
@@ -86,7 +111,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     };
 
     if (isPrinting) {
-        return <PrintableInvoice invoice={invoice} />;
+        // return <PrintableInvoice invoice={invoice} />;
     }
 
     return (
@@ -120,10 +145,10 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                             <p><strong>Status:</strong> {invoice.status}</p>
                             <p><strong>Date Issued:</strong> {formatDate(invoice.dateIssued)}</p>
                             <p><strong>Due Date:</strong> {formatDate(invoice.dateDue)}</p>
-                            <p><strong>Subtotal:</strong> {formatCurrency(invoice.subtotal.toNumber())}</p>
-                            <p><strong>Tax Rate:</strong> {formatTaxRate(invoice.taxRate.toNumber())}%</p>
-                            <p><strong>Tax Amount:</strong> {formatCurrency(invoice.taxAmount.toNumber())}</p>
-                            <p><strong>Total:</strong> {formatCurrency(invoice.total.toNumber())}</p>
+                            <p><strong>Subtotal:</strong> {formatCurrency(Number(invoice.subtotal))}</p>
+                            <p><strong>Tax Rate:</strong> {formatTaxRate(Number(invoice.taxRate))}%</p>
+                            <p><strong>Tax Amount:</strong> {formatCurrency(Number(invoice.taxAmount))}</p>
+                            <p><strong>Total:</strong> {formatCurrency(Number(invoice.total))}</p>
                         </div>
                     </div>
 
@@ -156,8 +181,8 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                     <tr key={item.id}>
                                         <td>{item.description}</td>
                                         <td>{item.quantity}</td>
-                                        <td>{formatCurrency(item.unitPrice.toNumber())}</td>
-                                        <td>{formatCurrency(item.total.toNumber())}</td>
+                                        <td>{formatCurrency(Number(item.unitPrice))}</td>
+                                        <td>{formatCurrency(Number(item.total))}</td>
                                     </tr>
                                 ))}
                             </tbody>

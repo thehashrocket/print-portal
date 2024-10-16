@@ -1,0 +1,1600 @@
+{
+  "panelChats": [],
+  "inlineChats": [],
+  "schemaVersion": "1.0",
+  "deletedChats": {
+    "deletedMessageIDs": [],
+    "deletedPanelChatIDs": []
+  },
+  "kv_store": {
+    "unique_matched_lines_count": 0,
+    "total_repo_line_count": 31018,
+    "best_prompt_response": null,
+    "file_statistics": [
+      {
+        "file": ".env-e",
+        "total_lines": 19,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": ".env.example",
+        "total_lines": 39,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": ".eslintrc.cjs",
+        "total_lines": 36,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": ".nvmrc",
+        "total_lines": 1,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": ".vscode/settings.json",
+        "total_lines": 1,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "README.md",
+        "total_lines": 18,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "envConfig.ts",
+        "total_lines": 4,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "logs/oAuthClient-log.log",
+        "total_lines": 3323,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "next.config.js",
+        "total_lines": 17,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "package.json",
+        "total_lines": 104,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "total_lines": 5627,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "postcss.config.cjs",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prettier.config.js",
+        "total_lines": 7,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319192245_added_enums/migration.sql",
+        "total_lines": 117,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319192800_updated_user_added_role_table/migration.sql",
+        "total_lines": 34,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319192958_added_permission_table/migration.sql",
+        "total_lines": 18,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319193222_add_address_table/migration.sql",
+        "total_lines": 16,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319193304_add_company_table/migration.sql",
+        "total_lines": 8,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319193503_add_office_and_shipping_info/migration.sql",
+        "total_lines": 46,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319210310_add_work_orders_updated_relations/migration.sql",
+        "total_lines": 42,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319210553_added_work_order_items/migration.sql",
+        "total_lines": 24,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319210741_added_work_order_stock_and_work_order_versions/migration.sql",
+        "total_lines": 37,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319211002_add_typesetting_and_relations/migration.sql",
+        "total_lines": 49,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319211152_add_processing_options_and_relations/migration.sql",
+        "total_lines": 26,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240319211517_add_order_and_order_items/migration.sql",
+        "total_lines": 67,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240321162912_added_relation_between_order_and_office/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240321211728_change_permissions_relation_to_roles/migration.sql",
+        "total_lines": 21,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240321231312_create_work_order_notes/migration.sql",
+        "total_lines": 18,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240322163407_remove_permission_id_from_roles/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240324153035_remove_company_relationship_from_work_order_and_order/migration.sql",
+        "total_lines": 19,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240325191342_add_worker_order_number_description_and_order_number/migration.sql",
+        "total_lines": 23,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240326211011_changed_field_types_and_relationship_names/migration.sql",
+        "total_lines": 21,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240327221450_add_address_id_to_shipping_info/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240327224631_updated_relations_on_orders_work_orders_shipping_info/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328174843_fixing_relation_between_orders_and_shipping_info_two/migration.sql",
+        "total_lines": 36,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328175154_renamed_shipping_info_id_to_shipping_info_id_on_work_order/migration.sql",
+        "total_lines": 16,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328200221_tweaked_relations_on_order_and_workorder/migration.sql",
+        "total_lines": 31,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328204802_added_quantity_to_work_order_item_and_order_item/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328215246_synced_more_items_from_work_order_to_order/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240328235314_added_more_associated_fields_to_orders/migration.sql",
+        "total_lines": 41,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240329002116_repairing_relations_on_processing_options/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240401221128_added_created_at_and_updated_at_to_processing_options/migration.sql",
+        "total_lines": 10,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240402010105_removed_unique_constraint_on_processing_options/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240422222141_update_enums/migration.sql",
+        "total_lines": 37,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240424205930_add_name_to_office/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240426203631_updated_schema_with_new_requirements/migration.sql",
+        "total_lines": 188,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240426212345_removed_unnecessary_join/migration.sql",
+        "total_lines": 12,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240426220212_removed_press_run_from_order_and_work_order/migration.sql",
+        "total_lines": 13,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240426222012_moved_elements_to_items/migration.sql",
+        "total_lines": 25,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240429175308_add_order_item_status/migration.sql",
+        "total_lines": 11,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240429175309_add_order_item_status_2/migration.sql",
+        "total_lines": 25,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240429175310_add_order_item_status_3/migration.sql",
+        "total_lines": 25,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240429213418_tweaked_relation_on_office_and_user/migration.sql",
+        "total_lines": 166,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240501214739_add_description_to_work_order_item/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240501215402_add_description_to_order_item/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240502204127_add_expected_date_to_order_item_and_work_order_item/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240529150730_move_fields_from_order_to_order_item/migration.sql",
+        "total_lines": 49,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240529152352_move_fields_to_typesetting_proof/migration.sql",
+        "total_lines": 17,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240529175816_allow_null_on_shipping_info_on_work_orders/migration.sql",
+        "total_lines": 1,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240612223510_make_shipping_info_id_optional/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240627165333_make_shipping_info_id_optional_on_orders/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703170358_updates_to_typesetting_and_typesetting_options/migration.sql",
+        "total_lines": 24,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703172712_renamed_cs_to_customer_supplied_stock/migration.sql",
+        "total_lines": 15,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703202543_added_fields_to_processing_options_and_shipping_info/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703202911_added_shipping_notes_to_shipping_info/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703203820_added_binding_type_enum_and_changed_binding_time_to_int/migration.sql",
+        "total_lines": 16,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240703204358_added_estimated_delivery_and_tracking_number_to_shipping_info/migration.sql",
+        "total_lines": 4,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240710171019_removed_duplicate_field_on_work_order_item_and_order_item/migration.sql",
+        "total_lines": 13,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240714190252_add_invoicing_to_project/migration.sql",
+        "total_lines": 77,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240805192013_update_default_values_for_some_fields/migration.sql",
+        "total_lines": 64,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240805202223_set_default_values_on_order/migration.sql",
+        "total_lines": 13,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240805211516_set_default_values_on_work_orders/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240805212532_removed_optional_fields_from_work_orders/migration.sql",
+        "total_lines": 13,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240821213527_removed_fields_from_orders_and_work_orders/migration.sql",
+        "total_lines": 27,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240823172741_added_relation_between_work_order_and_user/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240823183453_cleaned_up_relations_between_orders_work_orders_and_users/migration.sql",
+        "total_lines": 22,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240823201448_add_shipping_method_type/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240823202336_add_shipping_pickup_model/migration.sql",
+        "total_lines": 22,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240823230149_address_id_on_shipping_info_should_be_optional_and_deliver_should_be_delivery/migration.sql",
+        "total_lines": 15,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240824160308_add_work_order_item_artwork/migration.sql",
+        "total_lines": 24,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240824182145_add_order_item_artwork/migration.sql",
+        "total_lines": 24,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240824214211_remove_unneeded_fields_from_work_order_item/migration.sql",
+        "total_lines": 15,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240827012807_updated_fields_on_work_order_item_work_order_item_stock_and_processing_options/migration.sql",
+        "total_lines": 34,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240827012846_updated_fields_on_work_order_item_work_order_item_stock_and_processing_options/migration.sql",
+        "total_lines": 1,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240827030256_bringing_orders_and_order_items_in_sync_with_work_orders_etc/migration.sql",
+        "total_lines": 34,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240827165701_add_shipping_cost_to_work_order_item_and_order_item/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240827171835_removing_shipping_cost_and_adding_shipping_amont/migration.sql",
+        "total_lines": 15,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240828023822_drop_work_order_item_id_from_order_item_stock/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240828214400_add_quantiy_to_work_order_item_and_order_item/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240830015724_add_typesetting_proof_artworks_to_typesetting_proof/migration.sql",
+        "total_lines": 28,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240902193005_add_order_payemnts_model/migration.sql",
+        "total_lines": 14,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240902212252_remove_ink_from_work_order_item/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240902212706_remove_ink_from_order_item/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240903195534_add_ink_to_work_order_item_and_order_item/migration.sql",
+        "total_lines": 6,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240904024237_add_item_numbers/migration.sql",
+        "total_lines": 11,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240919141953_add_quickbooks_fields_to_user/migration.sql",
+        "total_lines": 12,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240919202053_add_quickbooks_fields_to_office_and_company/migration.sql",
+        "total_lines": 22,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240919212848_add_unqiue_constraint_to_company/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240925175208_add_quickbooks_auth_to_user/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240929223632_add_quickbooks_id_to_address/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240929233016_quickbooks_customer_id_should_not_be_unqique_on_office/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240929233109_add_index_on_office/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240930000320_update_company_office_address_relations/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20240930001915_update_index_on_address/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20241001140015_add_quickbooks_invoice_id_to_order/migration.sql",
+        "total_lines": 12,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20241001172935_add_synctoken_to_models/migration.sql",
+        "total_lines": 9,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20241001175321_add_synctoken_to_models_two/migration.sql",
+        "total_lines": 12,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20241001210739_add_fully_qualified_name_to_office/migration.sql",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/20241016215420_add_quickbooks_ids_to_invoices/migration.sql",
+        "total_lines": 17,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/migrations/migration_lock.toml",
+        "total_lines": 3,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/schema.prisma",
+        "total_lines": 744,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "prisma/seed.ts",
+        "total_lines": 1153,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/CompaniesChart.tsx",
+        "total_lines": 65,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/CompanyCharts.tsx",
+        "total_lines": 264,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/HeaderClient.tsx",
+        "total_lines": 81,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/QuickbooksCompanyButton.tsx",
+        "total_lines": 64,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/QuickbooksSyncOrdersButton.tsx",
+        "total_lines": 59,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/companiesTable.tsx",
+        "total_lines": 161,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/createCompanyComponent.tsx",
+        "total_lines": 156,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/companies/individualCompanyComponent.tsx",
+        "total_lines": 193,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/create-post.tsx",
+        "total_lines": 44,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/dashboard/dashboardTabsClient.tsx",
+        "total_lines": 32,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/dashboard/draggableOrderItemsDash.tsx",
+        "total_lines": 107,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/dashboard/draggableOrdersDash.tsx",
+        "total_lines": 114,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/dashboard/draggableWorkOrdersDash.tsx",
+        "total_lines": 101,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/invoices/AddPaymentForm.tsx",
+        "total_lines": 84,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/invoices/InvoiceDetailClient.tsx",
+        "total_lines": 207,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/invoices/PrintableInvoice.tsx",
+        "total_lines": 104,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/invoices/invoiceForm.tsx",
+        "total_lines": 244,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/invoices/invoicesTable.tsx",
+        "total_lines": 106,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/navBar.tsx",
+        "total_lines": 60,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/noPermission/noPremission.tsx",
+        "total_lines": 25,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/OrderDeposit/orderDeposit.tsx",
+        "total_lines": 79,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/OrderDetailsComponent.tsx",
+        "total_lines": 271,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/OrderItemStock/orderItemStockComponent.tsx",
+        "total_lines": 101,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/OrderItemStock/orderItemStockForm.tsx",
+        "total_lines": 187,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/OrderPayment/OrderPaymentComponent.tsx",
+        "total_lines": 110,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+        "total_lines": 45,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/orderItem/orderItemComponent.tsx",
+        "total_lines": 186,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/orderItem/orderItemsTable.tsx",
+        "total_lines": 122,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/orderNotesComponent.tsx",
+        "total_lines": 111,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/orders/ordersTable.tsx",
+        "total_lines": 160,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/quickbooks/QuickbooksAuth.tsx",
+        "total_lines": 239,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/quickbooks/QuickbooksCompanyInfo.tsx",
+        "total_lines": 123,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/quickbooks/QuickbooksStatus.tsx",
+        "total_lines": 96,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/artworkComponent/artworkComponent.tsx",
+        "total_lines": 55,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/fileUpload.tsx",
+        "total_lines": 186,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/processingOptions/processingOptionsComponent.tsx",
+        "total_lines": 47,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/processingOptions/processingOptionsForm.tsx",
+        "total_lines": 245,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/processingOptions/processingOptionsItem.tsx",
+        "total_lines": 90,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/processingOptionsTable.tsx",
+        "total_lines": 292,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/shippingInfo/shippingInfoForm.tsx",
+        "total_lines": 219,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor.tsx",
+        "total_lines": 327,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/typesetting/typesettingComponent.tsx",
+        "total_lines": 198,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/typesetting/typesettingForm.tsx",
+        "total_lines": 220,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/typesetting/typesettingOptionsComponent.tsx",
+        "total_lines": 97,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/shared/typesetting/typesettingProofForm.tsx",
+        "total_lines": 193,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/users/editUserRolesModal.tsx",
+        "total_lines": 75,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/users/userManagementTable.tsx",
+        "total_lines": 152,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/users/userProfile.tsx",
+        "total_lines": 78,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/users/userProfileForm.tsx",
+        "total_lines": 192,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/WorkOrderCharts.tsx",
+        "total_lines": 21,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/WorkOrderChartsClient.tsx",
+        "total_lines": 112,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/WorkOrderDetailsComponent.tsx",
+        "total_lines": 211,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent.tsx",
+        "total_lines": 95,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockForm.tsx",
+        "total_lines": 209,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/convertWorkOrderToOrderButton.tsx",
+        "total_lines": 39,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/createWorkOrderComponent.tsx",
+        "total_lines": 20,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/existingWorkOrderItemsList.tsx",
+        "total_lines": 56,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/expandableWorkOrderItemDetails.tsx",
+        "total_lines": 75,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/workOrderForm.tsx",
+        "total_lines": 182,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/workOrderItemForm.tsx",
+        "total_lines": 214,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/workOrderShippingInfoForm.tsx",
+        "total_lines": 288,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/create/workOrderWizard.tsx",
+        "total_lines": 92,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrderItem/edit/editWorkOrderItemComponent.tsx",
+        "total_lines": 210,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrderItem/workOrderItemComponent.tsx",
+        "total_lines": 212,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx",
+        "total_lines": 111,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrderNotesComponent.tsx",
+        "total_lines": 118,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrderStockComponent.tsx",
+        "total_lines": 33,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrdersClientComponent.tsx",
+        "total_lines": 59,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/_components/workOrders/workOrdersTable.tsx",
+        "total_lines": 118,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/api/auth/[...nextauth]/route.ts",
+        "total_lines": 8,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/api/quickbooks/callback/route.ts",
+        "total_lines": 60,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/api/trpc/[trpc]/route.ts",
+        "total_lines": 35,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/api/upload/route.ts",
+        "total_lines": 47,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/companies/[id]/page.tsx",
+        "total_lines": 117,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/companies/create/page.tsx",
+        "total_lines": 45,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/companies/loading.tsx",
+        "total_lines": 7,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/companies/page.tsx",
+        "total_lines": 80,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/contexts/ProcessingOptionsContext.tsx",
+        "total_lines": 100,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/contexts/TypesettingContext.tsx",
+        "total_lines": 38,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/contexts/workOrderContext.tsx",
+        "total_lines": 50,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/dashboard/page.tsx",
+        "total_lines": 69,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/invoices/[id]/page.tsx",
+        "total_lines": 48,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/invoices/create/page.tsx",
+        "total_lines": 26,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/invoices/page.tsx",
+        "total_lines": 61,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/layout.tsx",
+        "total_lines": 37,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/orders/[id]/orderItem/[orderItemId]/page.tsx",
+        "total_lines": 38,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/orders/[id]/page.tsx",
+        "total_lines": 30,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/orders/page.tsx",
+        "total_lines": 21,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/page.tsx",
+        "total_lines": 58,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/providers.tsx",
+        "total_lines": 7,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/users/[id]/page.tsx",
+        "total_lines": 17,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/users/page.tsx",
+        "total_lines": 37,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/[id]/page.tsx",
+        "total_lines": 29,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/[id]/workOrderItem/[workOrderItemId]/edit/page.tsx",
+        "total_lines": 22,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/[id]/workOrderItem/[workOrderItemId]/page.tsx",
+        "total_lines": 30,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/create/[id]/page.tsx",
+        "total_lines": 33,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/create/page.tsx",
+        "total_lines": 58,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/app/workOrders/page.tsx",
+        "total_lines": 43,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/env.js",
+        "total_lines": 107,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/intuit-oauth.d.ts",
+        "total_lines": 1,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/root.ts",
+        "total_lines": 77,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/companies/company.ts",
+        "total_lines": 153,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/invoices/invoice.ts",
+        "total_lines": 258,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/offices/office.ts",
+        "total_lines": 162,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/orderItemStocks/orderItemStock.tsx",
+        "total_lines": 73,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/orderItems/orderItem.ts",
+        "total_lines": 88,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/orderPayments/orderPayment.tsx",
+        "total_lines": 34,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/orders/order.ts",
+        "total_lines": 469,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/orders/orderNotes.ts",
+        "total_lines": 69,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/post.ts",
+        "total_lines": 43,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/quickbooks/qbAuth.ts",
+        "total_lines": 283,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/quickbooks/qbCompany.ts",
+        "total_lines": 64,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/quickbooks/qbCustomer.ts",
+        "total_lines": 841,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/quickbooks/qbInvoice.ts",
+        "total_lines": 303,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/quickbooks/qbSyncCustomer.ts",
+        "total_lines": 296,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/roles/roles.ts",
+        "total_lines": 23,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/address.ts",
+        "total_lines": 90,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/processingOptions.ts",
+        "total_lines": 144,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/shippingInfo.ts",
+        "total_lines": 143,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/shippingPickup.ts",
+        "total_lines": 77,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/typesetting/typesetting.ts",
+        "total_lines": 159,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/typesetting/typesettingOptions.ts",
+        "total_lines": 68,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/shared/typesetting/typesettingProofs.ts",
+        "total_lines": 102,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/user.ts",
+        "total_lines": 51,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/userManagement/userManagement.ts",
+        "total_lines": 126,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/workOrderItemStocks/workOrderItemStock.tsx",
+        "total_lines": 73,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/workOrderItems/workOrderItem.ts",
+        "total_lines": 275,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/workOrders/workOrder.ts",
+        "total_lines": 401,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/routers/workOrders/workOrderNote.ts",
+        "total_lines": 73,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/api/trpc.ts",
+        "total_lines": 109,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/auth.ts",
+        "total_lines": 145,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/auth/quickbooksProvider.ts",
+        "total_lines": 46,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/server/db.ts",
+        "total_lines": 18,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/services/quickbooksService.ts",
+        "total_lines": 87,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/services/workOrderToOrderService.ts",
+        "total_lines": 290,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/store/useQuickbooksStore.ts",
+        "total_lines": 14,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/styles/globals.css",
+        "total_lines": 4,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/trpc/react.tsx",
+        "total_lines": 63,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/trpc/server.ts",
+        "total_lines": 23,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/types/company.ts",
+        "total_lines": 13,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/types/next-auth.d.ts",
+        "total_lines": 12,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/types/serializedTypes.ts",
+        "total_lines": 414,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/types/user.ts",
+        "total_lines": 28,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/dataNormalization.ts",
+        "total_lines": 581,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/emailTemplates.ts",
+        "total_lines": 28,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/formatters.ts",
+        "total_lines": 96,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/notifications.ts",
+        "total_lines": 35,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/pdfGenerator.ts",
+        "total_lines": 49,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "src/utils/sengrid.ts",
+        "total_lines": 30,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "start-database.sh",
+        "total_lines": 48,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "tailwind.config.ts",
+        "total_lines": 15,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
+        "file": "tsconfig.json",
+        "total_lines": 53,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      }
+    ]
+  }
+}
