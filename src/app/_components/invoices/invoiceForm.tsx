@@ -6,8 +6,10 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { InvoiceStatus, Order, OrderItem } from '@prisma/client';
+import { InvoiceStatus, Order, OrderItem, Office } from '@prisma/client';
+import { SerializedOrder, SerializedOrderItem } from '~/types/serializedTypes';
 import { formatCurrency } from '~/utils/formatters';
+import { Decimal } from 'decimal.js';
 
 const invoiceItemSchema = z.object({
     description: z.string().min(1, 'Description is required'),
@@ -56,7 +58,7 @@ const InvoiceForm: React.FC = () => {
         name: "items",
     });
 
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<SerializedOrder | null>(null);
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
     const createInvoice = api.invoices.create.useMutation();
@@ -68,6 +70,10 @@ const InvoiceForm: React.FC = () => {
             enabled: !!selectedOrderId,
         }
     );
+
+    const { data: office } = api.offices.getById.useQuery(selectedOrder?.officeId ?? '', {
+        enabled: !!selectedOrder?.officeId,
+    });
 
     const onSubmit = async (data: InvoiceFormData) => {
         try {
@@ -112,7 +118,21 @@ const InvoiceForm: React.FC = () => {
         setValue('orderId', orderId);
         setSelectedOrderId(orderId);
         const order = orders?.find(o => o.id === orderId);
-        setSelectedOrder(order || null);
+        if (order) {
+            setSelectedOrder({
+                ...order,
+                createdAt: new Date(order.createdAt).toISOString(),
+                updatedAt: new Date(order.updatedAt).toISOString(),
+                dateInvoiced: order.dateInvoiced ? new Date(order.dateInvoiced).toISOString() : null,
+                deposit: order.deposit ? order.deposit.toString() : '',
+                inHandsDate: order.inHandsDate ? new Date(order.inHandsDate).toISOString() : null,
+                // Remove totalCost from here
+            });
+            const totalCost = Number(order.totalCost) || 0; // Handle totalCost separately
+            // Use totalCost as needed
+        } else {
+            setSelectedOrder(null);
+        }
     };
 
     return (

@@ -15,23 +15,9 @@ import {
 } from "@ag-grid-community/core";
 import Link from "next/link";
 import { Invoice, InvoicePayment, InvoiceStatus } from "@prisma/client";
+import { SerializedInvoice } from "~/types/serializedTypes";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-
-type SerializedInvoice = Omit<Invoice, 'dateIssued' | 'dateDue' | 'createdAt' | 'updatedAt' | 'subtotal' | 'taxRate' | 'taxAmount' | 'total'> & {
-    dateIssued: string;
-    dateDue: string;
-    createdAt: string;
-    updatedAt: string;
-    subtotal: string;
-    taxRate: string;
-    taxAmount: string;
-    total: string;
-    InvoicePayments: Array<Omit<InvoicePayment, 'amount' | 'paymentDate'> & {
-        amount: number;
-        paymentDate: string;
-    }>;
-};
 
 interface InvoicesTableProps {
     invoices: SerializedInvoice[];

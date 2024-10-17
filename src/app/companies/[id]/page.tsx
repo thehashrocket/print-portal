@@ -42,6 +42,8 @@ function serializeCompany(company: Company & {
             createdAt: office.createdAt.toISOString(),
             updatedAt: office.updatedAt.toISOString(),
             createdById: office.createdById,
+            fullyQualifiedName: office.fullyQualifiedName,
+            syncToken: office.syncToken,
             companyId: office.companyId,
             name: office.name,
             quickbooksCustomerId: office.quickbooksCustomerId,

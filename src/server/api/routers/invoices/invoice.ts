@@ -15,6 +15,7 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
         .query(async ({ ctx }) => {
+            // Ensure the invoices match the SerializedInvoice type
             return ctx.db.invoice.findMany({
                 include: {
                     Order: true,

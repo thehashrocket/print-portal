@@ -4,6 +4,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import Link from "next/link";
 import InvoicesTable from "../_components/invoices/invoicesTable";
+import { SerializedInvoice, SerializedInvoiceItem } from "~/types/serializedTypes";
 
 export default async function InvoicesPage() {
     const session = await getServerAuthSession();
@@ -12,33 +13,29 @@ export default async function InvoicesPage() {
         return <div className="alert alert-error">You do not have permission to view this page.</div>;
     }
 
-    const invoices = await api.invoices.getAll();
-    const serializedInvoices = invoices.map(invoice => ({
+    // Ensure the invoices match the SerializedInvoice type
+    const rawInvoices = await api.invoices.getAll();
+    const invoices = rawInvoices.map(invoice => ({
         ...invoice,
-        dateIssued: invoice.dateIssued.toISOString(),
-        dateDue: invoice.dateDue.toISOString(),
-        createdAt: invoice.createdAt.toISOString(),
-        updatedAt: invoice.updatedAt.toISOString(),
-        subtotal: invoice.subtotal.toString(),
-        taxRate: invoice.taxRate.toString(),
-        taxAmount: invoice.taxAmount.toString(),
-        total: invoice.total.toString(),
-        order: invoice.order ? {
-            ...invoice.order,
-            deposit: invoice.order.deposit?.toString(),
-            totalCost: invoice.order.totalCost?.toString(),
-        } : null,
+        dateIssued: invoice.dateIssued.toISOString(), // Convert Date to string
+        dateDue: invoice.dateDue.toISOString(), // Convert Date to string
+        subtotal: invoice.subtotal.toString(), // Convert Decimal to string
+        taxRate: invoice.taxRate.toString(), // Convert Decimal to string
+        taxAmount: invoice.taxAmount.toString(), // Convert Decimal to string
+        total: invoice.total.toString(), // Convert Decimal to string
+        createdAt: invoice.createdAt.toISOString(), // Convert Date to string
+        updatedAt: invoice.updatedAt.toISOString(), // Convert Date to string
         InvoiceItems: invoice.InvoiceItems.map(item => ({
             ...item,
-            unitPrice: item.unitPrice.toString(),
-            total: item.total.toString(),
+            unitPrice: item.unitPrice.toString(), // Convert Decimal to string
+            total: item.total.toString(), // Convert Decimal to string
         })),
         InvoicePayments: invoice.InvoicePayments.map(payment => ({
             ...payment,
-            amount: payment.amount.toNumber(),
-            paymentDate: payment.paymentDate.toISOString()
+            amount: payment.amount.toString(), // Convert Decimal to string
+            paymentDate: payment.paymentDate.toISOString(), // Convert Date to string
         }))
-    }));
+    })) as SerializedInvoice[];
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -55,7 +52,7 @@ export default async function InvoicesPage() {
                     className="input input-bordered w-full max-w-xs"
                 />
             </div>
-            <InvoicesTable invoices={serializedInvoices} />
+            <InvoicesTable invoices={invoices} />
         </div>
     );
 }
