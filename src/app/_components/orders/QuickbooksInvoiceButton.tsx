@@ -8,7 +8,7 @@ import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 
 const QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
-    const syncMutation = api.qbInvoices.createInvoice.useMutation({
+    const syncMutation = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
         onSuccess: () => {
             onSyncSuccess();
         },

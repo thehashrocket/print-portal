@@ -10,6 +10,7 @@ import { api } from "~/trpc/react";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor";
+import { toast } from "react-hot-toast";
 
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
@@ -73,7 +74,17 @@ const InfoCard = ({ title, content }: { title: string; content: React.ReactNode 
 );
 
 const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
-    const { mutate: createInvoice } = api.invoices.create.useMutation();
+    const utils = api.useUtils();
+    const { mutate: createInvoice } = api.invoices.create.useMutation({
+        onSuccess: () => {
+            utils.orders.getByID.invalidate(order.id);
+            toast.success('Invoice created');
+        },
+        onError: (error) => {
+            console.error('Failed to create invoice:', error);
+            toast.error('Failed to create invoice');
+        }
+    });
 
     const handleCreateInvoice = () => {
         createInvoice({

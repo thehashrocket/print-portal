@@ -7,34 +7,42 @@ import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
 import PrintableInvoice from './PrintableInvoice';
-import { Invoice, InvoiceStatus, Order, OrderStatus, InvoicePayment, InvoiceItem, PaymentMethod, User, ShippingMethod } from '@prisma/client';
+import { InvoiceStatus, ShippingMethod } from '@prisma/client';
 import { SerializedAddress, SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
+import { toast } from 'react-hot-toast';
 
 interface InvoiceDetailClientProps {
-    initialInvoice: SerializedInvoice;
+    initialInvoice: SerializedInvoice | null;
+    invoiceId: string;
 }
 
-const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice }) => {
-    const [invoice, setInvoice] = useState<SerializedInvoice>(initialInvoice);
-    const [order, setOrder] = useState<SerializedOrder>();
+const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice, invoiceId }) => {
+    console.log('Invoice ID:', invoiceId);
+    const [invoice, setInvoice] = useState<SerializedInvoice | null>(initialInvoice);
+    const [order, setOrder] = useState<SerializedOrder | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
     const utils = api.useUtils();
 
     // When the order is updated, update the local state
-    const { data: invoiceData, refetch } = api.invoices.getById.useQuery<SerializedInvoice>(initialInvoice.id, {
-        initialData: initialInvoice,
-        refetchOnMount: false,
-        refetchOnWindowFocus: false,
+    const { data: invoiceData, isLoading, isError, error } = api.invoices.getById.useQuery<SerializedInvoice>(invoiceId, {
+        initialData: initialInvoice || undefined
     });
+
+    if (error || !invoice) {
+        return <div className="alert alert-error">Invoice not found.</div>;
+    }
 
     const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
         onSuccess: (invoice) => {
             console.log('Quickbooks invoice created:', invoice);
+            toast.success('Quickbooks invoice created');
+            utils.invoices.getById.invalidate(invoiceId);
         },
         onError: (error) => {
             console.error('Failed to create Quickbooks invoice:', error);
+            toast.error('Failed to create Quickbooks invoice');
         }
     });
     const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(invoice.orderId, {
@@ -64,7 +72,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     }, [invoiceData, orderData]);
 
     const handlePaymentAdded = () => {
-        refetch();
+        utils.invoices.getById.invalidate(invoiceId);
     };
 
     const handlePrint = () => {
@@ -85,7 +93,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                 recipientEmail: recipientEmail,
             });
             alert('Invoice sent successfully');
-            refetch();
+            utils.invoices.getById.invalidate(invoiceId);
         } catch (error) {
             console.error('Failed to send invoice:', error);
             alert('Failed to send invoice. Please try again.');
@@ -142,6 +150,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                             <p><strong>Company:</strong> {order?.Office?.Company.name}</p>
                             <p><strong>Order Number:</strong> {order?.orderNumber}</p>
                             <p><strong>Order Status:</strong> {order?.status}</p>
+                            <p><strong>Quickbooks ID:</strong> {invoice.quickbooksId}</p>
                             <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2">
                                 View Order
                             </Link>
@@ -151,6 +160,12 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                         className="btn btn-primary btn-sm mt-2 mb-2"
                                         onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
                                         Create Quickbooks Invoice
+                                    </button>}
+                                {invoice.quickbooksId &&
+                                    <button
+                                        className="btn btn-primary btn-sm mt-2 mb-2"
+                                        onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
+                                        Update Quickbooks Invoice
                                     </button>}
                             </p>
                         </div>

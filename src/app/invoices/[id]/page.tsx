@@ -43,6 +43,6 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
     const serializedInvoice = serializeDecimal(invoice);
 
     return (
-        <InvoiceDetailClient initialInvoice={serializedInvoice} />
+        <InvoiceDetailClient initialInvoice={serializedInvoice} invoiceId={params.id} />
     );
 }

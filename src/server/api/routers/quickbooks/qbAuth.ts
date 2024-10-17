@@ -30,7 +30,6 @@ export const qbAuthRouter = createTRPCRouter({
                     where: { id: ctx.session.user.id },
                     data: {
                         quickbooksAccessToken: null,
-                        quickbooksRealmId: null,
                         quickbooksRefreshToken: null,
                         quickbooksTokenExpiry: null,
                         updatedAt: new Date(),
@@ -144,6 +143,8 @@ export const qbAuthRouter = createTRPCRouter({
 
                 const response = await axios.post(tokenEndpoint, data, config);
                 const tokenJson = response.data;
+
+                console.log('Token JSON:', tokenJson);
 
                 // Save tokens to your database here
                 await ctx.db.user.update({
