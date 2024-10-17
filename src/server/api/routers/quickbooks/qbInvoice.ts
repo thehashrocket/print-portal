@@ -12,7 +12,11 @@ async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId
         ? 'https://sandbox-quickbooks.api.intuit.com'
         : 'https://quickbooks.api.intuit.com';
 
-    const parser = new XMLParser();
+        const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: "",
+            parseAttributeValue: true
+        }); 
 
     const queryUrl = `${baseUrl}/v3/company/${quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
 
@@ -185,7 +189,7 @@ export const qbInvoiceRouter = createTRPCRouter({
         }),
 
     // Create Invoice for an Order
-    createInvoice: protectedProcedure
+    createQbInvoiceFromOrder: protectedProcedure
         .input(z.object({ orderId: z.string() }))
         .mutation(async ({ ctx, input }) => {
             const accessToken = await refreshTokenIfNeeded(ctx);
@@ -287,6 +291,115 @@ export const qbInvoiceRouter = createTRPCRouter({
                     where: { id: order.id },
                     data: {
                         quickbooksInvoiceId: response.data.Invoice.Id,
+                    },
+                });
+
+                return response.data;
+            } catch (error) {
+                console.error('Error creating invoice in QuickBooks:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to create invoice in QuickBooks',
+                });
+            }
+        }),
+    
+    createQbInvoiceFromInvoice: protectedProcedure
+        .input(z.object({ invoiceId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const accessToken = await refreshTokenIfNeeded(ctx);
+            const user = await ctx.db.user.findUnique({
+                where: { id: ctx.session.user.id },
+                select: { quickbooksRealmId: true },
+            });
+            if (!user?.quickbooksRealmId) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'Not authenticated with QuickBooks',
+                });
+            }
+
+            const invoice = await ctx.db.invoice.findUnique({
+                where: { id: input.invoiceId },
+                include: {
+                    InvoiceItems: true,
+                    Order: {
+                        include: {
+                            Office: true,
+                            ShippingInfo: {
+                                include: {
+                                    Address: true,
+                                }
+                            },
+                        }
+                    }
+                },
+            });
+
+            if (!invoice) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Invoice not found',
+                });
+            }   
+
+            if (!invoice.Order.Office.quickbooksCustomerId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Office does not have a QuickBooks Customer ID',
+                });
+            }
+
+            const invoiceData = {
+                Line: [
+                    ...invoice.InvoiceItems.map(item => ({
+                        DetailType: "SalesItemLineDetail",
+                        Description: formatItemDescription(item),
+                        Amount: item.total?.toNumber() ?? 0,
+                        SalesItemLineDetail: {
+                            Qty: item.quantity,
+                            UnitPrice: (item.total?.toNumber() ?? 0) / (item.quantity || 1),
+                        }
+                    })),
+                    ...(invoice.Order.ShippingInfo ? [{
+                        DetailType: "SalesItemLineDetail",
+                        Description: "Shipping",
+                        Amount: invoice.Order.ShippingInfo.shippingCost?.toNumber() ?? 0,
+                        SalesItemLineDetail: {
+                            Qty: 1,
+                            UnitPrice: invoice.Order.ShippingInfo.shippingCost?.toNumber() ?? 0,
+                        }   
+                    }] : []),
+                ],
+                CustomerRef: {
+                    value: invoice.Order.Office.quickbooksCustomerId,
+                },
+                ShipAddr: invoice.Order.ShippingInfo?.Address ? {
+                    Line1: invoice.Order.ShippingInfo.Address.line1,
+                    City: invoice.Order.ShippingInfo.Address.city,
+                    } : undefined,
+            };
+
+            const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
+                ? 'https://sandbox-quickbooks.api.intuit.com'
+                : 'https://quickbooks.api.intuit.com';
+
+            try {
+                const response = await axios.post(
+                    `${baseUrl}/v3/company/${user.quickbooksRealmId}/invoice`,
+                    invoiceData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                // Update the invoice with the QuickBooks Invoice ID
+                await ctx.db.invoice.update({
+                    where: { id: invoice.id },
+                    data: {
+                        quickbooksId: response.data.Invoice.Id,
                     },
                 });
 

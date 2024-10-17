@@ -20,6 +20,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     const [isPrinting, setIsPrinting] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
+    const utils = api.useUtils();
 
     // When the order is updated, update the local state
     const { data: invoiceData, refetch } = api.invoices.getById.useQuery<SerializedInvoice>(initialInvoice.id, {
@@ -28,6 +29,14 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         refetchOnWindowFocus: false,
     });
 
+    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
+        onSuccess: (invoice) => {
+            console.log('Quickbooks invoice created:', invoice);
+        },
+        onError: (error) => {
+            console.error('Failed to create Quickbooks invoice:', error);
+        }
+    });
     const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(invoice.orderId, {
         enabled: !!invoice.orderId,
         refetchOnMount: false,
@@ -37,6 +46,10 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
 
     const formatTaxRate = (taxRate: number) => {
         return taxRate.toFixed(2);
+    };
+
+    const handleCreateQuickbooksInvoice = (invoiceId: string) => {
+        createQuickbooksInvoice({ invoiceId: invoiceId });
     };
 
     useEffect(() => {
@@ -132,6 +145,14 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                             <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2">
                                 View Order
                             </Link>
+                            <p>
+                                {!invoice.quickbooksId &&
+                                    <button
+                                        className="btn btn-primary btn-sm mt-2 mb-2"
+                                        onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
+                                        Create Quickbooks Invoice
+                                    </button>}
+                            </p>
                         </div>
                     </div>
                     <div className="card bg-base-100 shadow-xl">

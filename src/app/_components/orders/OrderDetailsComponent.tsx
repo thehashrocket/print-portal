@@ -76,7 +76,8 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const { mutate: createInvoice } = api.invoices.create.useMutation();
 
     const handleCreateInvoice = () => {
-        createInvoice({ orderId: order.id,
+        createInvoice({
+            orderId: order.id,
             dateIssued: new Date(),
             dateDue: new Date(new Date().setDate(new Date().getDate() + 14)),
             subtotal: Number(order.calculatedSubTotal),
@@ -117,7 +118,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         initialData: initialOrder,
     });
 
-    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createInvoice.useMutation({
+    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
         onSuccess: (invoice) => {
             console.log('Quickbooks invoice created:', invoice);
             utils.orders.getByID.invalidate(orderId);
@@ -154,8 +155,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="text-red-500 text-xl">
-                <p>Error loading order. Please try again.</p>
-                <p>{isError && error instanceof Error ? error.message : "Unknown error"}</p>
+                    <p>Error loading order. Please try again.</p>
+                    <p>{isError && error instanceof Error ? error.message : "Unknown error"}</p>
                 </div>
             </div>
         );
@@ -212,12 +213,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     <p>
                                         {!order.quickbooksInvoiceId &&
                                             <button
-                                            className="btn btn-primary"
-                                            onClick={() => handleCreateQuickbooksInvoice(order.id)}>
-                                            Create Quickbooks Invoice
-                                        </button>}
+                                                className="btn btn-primary btn-sm mt-2 mb-2"
+                                                onClick={() => handleCreateQuickbooksInvoice(order.id)}>
+                                                Create Quickbooks Invoice
+                                            </button>}
                                     </p>
-
                                     {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
                                     <OrderDeposit order={order} />
                                 </div>
