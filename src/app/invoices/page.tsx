@@ -4,7 +4,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import Link from "next/link";
 import InvoicesTable from "../_components/invoices/invoicesTable";
-import { SerializedInvoice, SerializedInvoiceItem } from "~/types/serializedTypes";
+import { SerializedInvoice, SerializedInvoiceItem, SerializedInvoicePayment } from "~/types/serializedTypes";
 
 export default async function InvoicesPage() {
     const session = await getServerAuthSession();
@@ -14,29 +14,8 @@ export default async function InvoicesPage() {
     }
 
     // Ensure the invoices match the SerializedInvoice type
-    const rawInvoices = await api.invoices.getAll();
-    const invoices = rawInvoices.map(invoice => ({
-        ...invoice,
-        dateIssued: invoice.dateIssued.toISOString(), // Convert Date to string
-        dateDue: invoice.dateDue.toISOString(), // Convert Date to string
-        subtotal: invoice.subtotal.toString(), // Convert Decimal to string
-        taxRate: invoice.taxRate.toString(), // Convert Decimal to string
-        taxAmount: invoice.taxAmount.toString(), // Convert Decimal to string
-        total: invoice.total.toString(), // Convert Decimal to string
-        createdAt: invoice.createdAt.toISOString(), // Convert Date to string
-        updatedAt: invoice.updatedAt.toISOString(), // Convert Date to string
-        InvoiceItems: invoice.InvoiceItems.map(item => ({
-            ...item,
-            unitPrice: item.unitPrice.toString(), // Convert Decimal to string
-            total: item.total.toString(), // Convert Decimal to string
-        })),
-        InvoicePayments: invoice.InvoicePayments.map(payment => ({
-            ...payment,
-            amount: payment.amount.toString(), // Convert Decimal to string
-            paymentDate: payment.paymentDate.toISOString(), // Convert Date to string
-        }))
-    })) as SerializedInvoice[];
-
+    const invoices = await api.invoices.getAll();
+    
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">

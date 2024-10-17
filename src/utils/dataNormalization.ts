@@ -25,7 +25,9 @@ import {
     type OrderNote,
     type WorkOrderNote,
     type WorkOrderVersion,
-    type Prisma
+    type Prisma,
+    User,
+    OrderStatus
 } from "@prisma/client";
 
 import {
@@ -53,6 +55,42 @@ import {
     type SerializedWorkOrderNote,
     type SerializedWorkOrderVersion
 } from "~/types/serializedTypes";
+
+export function normalizeInvoice(invoice: Invoice & {
+    InvoiceItems: InvoiceItem[];
+    InvoicePayments: InvoicePayment[];
+    createdBy: {
+        id: string;
+        name: string | null;
+        email: string | null;
+    };
+}): SerializedInvoice {
+    return {
+        createdAt: invoice.createdAt.toISOString(),
+        createdById: invoice.createdById,
+        createdBy: {
+            id: invoice.createdBy.id,
+            name: invoice.createdBy.name,
+            email: invoice.createdBy.email
+        },
+        dateDue: invoice.dateDue.toISOString(),
+        dateIssued: invoice.dateIssued.toISOString(),
+        id: invoice.id,
+        InvoiceItems: invoice.InvoiceItems.map(normalizeInvoiceItem),
+        invoiceNumber: invoice.invoiceNumber,
+        InvoicePayments: invoice.InvoicePayments.map(normalizeInvoicePayment),
+        notes: invoice.notes,
+        orderId: invoice.orderId,
+        quickbooksId: invoice.quickbooksId ?? null,
+        syncToken: invoice.syncToken ?? null,
+        status: invoice.status,
+        subtotal: invoice.subtotal.toString(),
+        taxAmount: invoice.taxAmount.toString(),
+        taxRate: invoice.taxRate.toString(),
+        total: invoice.total.toString(),
+        updatedAt: invoice.updatedAt.toISOString(),
+    };
+}
 
 export function normalizeInvoiceItem(item: InvoiceItem): SerializedInvoiceItem {
     return {
@@ -108,6 +146,11 @@ export function normalizeOrder(order: Order & {
     Invoice?: (Invoice & {
         InvoiceItems: InvoiceItem[];
         InvoicePayments: InvoicePayment[];
+        createdBy: {
+            id: string;
+            name: string | null;
+            email: string | null;
+        };
     }) | null;
     OrderNotes?: OrderNote[];
 }): SerializedOrder {
@@ -152,10 +195,10 @@ export function normalizeOrder(order: Order & {
             }
         },
         OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
-        OrderPayments: order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : null,
+        OrderPayments: order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [],
         ShippingInfo: order.ShippingInfo ? normalizeShippingInfo(order.ShippingInfo) : null,
         Invoice: order.Invoice ? normalizeInvoice(order.Invoice) : null,
-        OrderNotes: order.OrderNotes ? order.OrderNotes.map(normalizeOrderNote) : []
+        OrderNotes: order.OrderNotes ? order.OrderNotes.map(normalizeOrderNote) : [],
     };
 }
 
@@ -279,6 +322,7 @@ export function normalizeAddress(address: Address): SerializedAddress {
         line1: address.line1,
         line2: address.line2,
         city: address.city,
+        quickbooksId: address.quickbooksId,
         state: address.state,
         zipCode: address.zipCode,
         country: address.country,
@@ -553,29 +597,5 @@ export function normalizeWorkOrderVersion(version: WorkOrderVersion): Serialized
         version: version.version,
         createdBy: version.createdBy,
         createdAt: version.createdAt.toISOString()
-    };
-}
-
-export function normalizeInvoice(invoice: Invoice & {
-    InvoiceItems: InvoiceItem[];
-    InvoicePayments: InvoicePayment[];
-}): SerializedInvoice {
-    return {
-        id: invoice.id,
-        invoiceNumber: invoice.invoiceNumber,
-        dateIssued: invoice.dateIssued.toISOString(),
-        dateDue: invoice.dateDue.toISOString(),
-        subtotal: invoice.subtotal.toString(),
-        taxRate: invoice.taxRate.toString(),
-        taxAmount: invoice.taxAmount.toString(),
-        total: invoice.total.toString(),
-        status: invoice.status,
-        notes: invoice.notes,
-        createdAt: invoice.createdAt.toISOString(),
-        updatedAt: invoice.updatedAt.toISOString(),
-        orderId: invoice.orderId,
-        createdById: invoice.createdById,
-        InvoiceItems: invoice.InvoiceItems.map(normalizeInvoiceItem),
-        InvoicePayments: invoice.InvoicePayments.map(normalizeInvoicePayment),
     };
 }

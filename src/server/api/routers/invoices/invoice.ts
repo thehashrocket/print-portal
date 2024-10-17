@@ -9,14 +9,14 @@ import { InvoiceStatus, OrderStatus, PaymentMethod, Order, Invoice } from "@pris
 import { sendInvoiceEmail } from "~/utils/sengrid"
 import { generateInvoicePDF } from "~/utils/pdfGenerator"
 import { TRPCError } from "@trpc/server";
-import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
+import { normalizeInvoice, normalizeInvoiceItem, normalizeInvoicePayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
         .query(async ({ ctx }) => {
             // Ensure the invoices match the SerializedInvoice type
-            return ctx.db.invoice.findMany({
+            const rawInvoices = await ctx.db.invoice.findMany({
                 include: {
                     Order: true,
                     createdBy: true,
@@ -24,12 +24,13 @@ export const invoiceRouter = createTRPCRouter({
                     InvoicePayments: true,
                 },
             });
+            return rawInvoices.map(normalizeInvoice);
         }),
 
     getById: protectedProcedure
         .input(z.string())
         .query(async ({ ctx, input }) => {
-            return ctx.db.invoice.findUnique({
+            const rawInvoice = await ctx.db.invoice.findUnique({
                 where: { id: input },
                 include: {
                     Order: {
@@ -43,10 +44,19 @@ export const invoiceRouter = createTRPCRouter({
                         }
                     },
                     createdBy: true,
-                    InvoiceItems: true,
-                    InvoicePayments: true,
+                    InvoiceItems: true, // Ensure InvoiceItems are included
+                    InvoicePayments: true, // Ensure InvoicePayments are included
                 },
             });
+
+            if (!rawInvoice) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Invoice not found',
+                });
+            }
+
+            return normalizeInvoice(rawInvoice);
         }),
 
     create: protectedProcedure
@@ -109,6 +119,9 @@ export const invoiceRouter = createTRPCRouter({
                 },
                 include: {
                     InvoiceItems: true,
+                    InvoicePayments: true,
+                    Order: true,
+                    createdBy: true,
                 },
             });
 
@@ -118,7 +131,7 @@ export const invoiceRouter = createTRPCRouter({
                 data: { status: OrderStatus.Invoicing },
             });
 
-            return invoice;
+            return normalizeInvoice(invoice);
         }),
 
     update: protectedProcedure
@@ -134,10 +147,25 @@ export const invoiceRouter = createTRPCRouter({
             notes: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.invoice.update({
+            const rawInvoice = await ctx.db.invoice.update({
                 where: { id: input.id },
                 data: input,
+                include: { // Ensure these are included
+                    InvoiceItems: true,
+                    InvoicePayments: true,
+                    Order: true,
+                    createdBy: true,
+                },
             });
+
+            if (!rawInvoice) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Invoice not found',
+                });
+            }
+
+            return normalizeInvoice(rawInvoice);
         }),
 
     delete: protectedProcedure
@@ -175,7 +203,7 @@ export const invoiceRouter = createTRPCRouter({
                 });
             }
 
-            return payment;
+            return normalizeInvoicePayment(payment);
         }),
     sendInvoiceEmail: protectedProcedure
         .input(z.object({

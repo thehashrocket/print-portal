@@ -47,6 +47,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
+              createdBy: true
             },
           },
           OrderNotes: true,
@@ -129,6 +130,13 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                },
+              },
             },
           },
           OrderNotes: true,
@@ -157,6 +165,10 @@ export const orderRouter = createTRPCRouter({
           totalShippingAmount,
           totalPaid,
           balance,
+          createdBy: {
+            id: order.createdBy.id,
+            name: order.createdBy.name,
+          },
         });
       }));
     }),
@@ -210,6 +222,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
+              createdBy: true,
             },
           },
           OrderNotes: true,
@@ -317,6 +330,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
+              createdBy: true,
             },
           },
           OrderNotes: true,
@@ -405,6 +419,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
+              createdBy: true,
             },
           },
           OrderNotes: true,

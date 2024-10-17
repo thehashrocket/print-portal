@@ -17,37 +17,45 @@ import {
 } from "@prisma/client";
 
 export interface SerializedAddress {
+    addressType: AddressType;
+    city: string;
+    country: string;
+    createdAt: string;
     id: string;
-    officeId: string;
     line1: string;
     line2: string | null;
-    city: string;
+    officeId: string;
+    quickbooksId: string | null;
     state: string;
-    zipCode: string;
-    country: string;
     telephoneNumber: string;
-    addressType: AddressType;
-    createdAt: string;
     updatedAt: string;
+    zipCode: string;
 }
 
 export interface SerializedInvoice {
-    id: string;
-    invoiceNumber: string;
-    dateIssued: string;
-    dateDue: string;
-    subtotal: string;
-    taxRate: string;
-    taxAmount: string;
-    total: string;
-    status: InvoiceStatus;
-    notes: string | null;
     createdAt: string;
-    updatedAt: string;
-    orderId: string;
     createdById: string;
+    createdBy: {
+        id: string;
+        name: string | null;
+        email: string | null;
+    };
+    dateDue: string;
+    dateIssued: string;
+    id: string;
     InvoiceItems: SerializedInvoiceItem[];
+    invoiceNumber: string;
     InvoicePayments: SerializedInvoicePayment[];
+    notes: string | null;
+    orderId: string;
+    quickbooksId: string | null;
+    syncToken: string | null;
+    status: InvoiceStatus;
+    subtotal: string;
+    taxAmount: string;
+    taxRate: string;
+    total: string;
+    updatedAt: string;
 }
 
 export interface SerializedInvoiceItem {

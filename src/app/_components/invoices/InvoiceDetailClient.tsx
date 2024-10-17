@@ -7,67 +7,33 @@ import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
 import PrintableInvoice from './PrintableInvoice';
-import { Invoice, InvoiceStatus, Order, OrderStatus, InvoicePayment, InvoiceItem, PaymentMethod, User } from '@prisma/client';
-
-type ExtendedInvoice = Invoice & {
-    Order: Order & {
-        Office: {
-            Company: {
-                id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                quickbooksId: string | null;
-                name: string;
-                syncToken: string | null;
-                fullyQualifiedName: string | null;
-                quickbooksCustomerId: string | null;
-            };
-            createdBy: {
-                officeId: string | null;
-                id: string;
-                name: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                email: string | null;
-                emailVerified: Date | null;
-                image: string | null;
-                quickbooksRealmId: string | null;
-                quickbooksAuthState: string | null;
-                quickbooksAccessToken: string | null;
-                quickbooksRefreshToken: string | null;
-                quickbooksTokenExpiry: Date | null;
-            };
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            name: string;
-            createdById: string;
-            companyId: string;
-            syncToken: string | null;
-            fullyQualifiedName: string | null;
-            quickbooksCustomerId: string | null;
-        };
-    };
-    createdBy: User;
-    InvoiceItems: InvoiceItem[];
-    InvoicePayments: InvoicePayment[];
-};
+import { Invoice, InvoiceStatus, Order, OrderStatus, InvoicePayment, InvoiceItem, PaymentMethod, User, ShippingMethod } from '@prisma/client';
+import { SerializedAddress, SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
 
 interface InvoiceDetailClientProps {
-    initialInvoice: ExtendedInvoice;
+    initialInvoice: SerializedInvoice;
 }
 
 const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice }) => {
-    const [invoice, setInvoice] = useState<ExtendedInvoice>(initialInvoice);
+    const [invoice, setInvoice] = useState<SerializedInvoice>(initialInvoice);
+    const [order, setOrder] = useState<SerializedOrder>();
     const [isPrinting, setIsPrinting] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
 
-    const { data: invoiceData, refetch } = api.invoices.getById.useQuery<ExtendedInvoice>(initialInvoice.id, {
+    // When the order is updated, update the local state
+    const { data: invoiceData, refetch } = api.invoices.getById.useQuery<SerializedInvoice>(initialInvoice.id, {
         initialData: initialInvoice,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
     });
+
+    const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(invoice.orderId, {
+        enabled: !!invoice.orderId,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    });
+
 
     const formatTaxRate = (taxRate: number) => {
         return taxRate.toFixed(2);
@@ -75,9 +41,14 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
 
     useEffect(() => {
         if (invoiceData) {
-            setInvoice(invoiceData as unknown as ExtendedInvoice);
+            setInvoice(invoiceData as SerializedInvoice);
+            refetchOrder();
+            
         }
-    }, [invoiceData]);
+        if (orderData) {
+            setOrder(orderData as SerializedOrder);
+        }
+    }, [invoiceData, orderData]);
 
     const handlePaymentAdded = () => {
         refetch();
@@ -155,11 +126,52 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                     <div className="card bg-base-100 shadow-xl">
                         <div className="card-body">
                             <h2 className="card-title">Order Information</h2>
-                            <p><strong>Order Number:</strong> {invoice.Order.orderNumber}</p>
-                            <p><strong>Order Status:</strong> {invoice.Order.status}</p>
-                            <Link href={`/orders/${invoice.Order.id}`} className="btn btn-sm btn-outline mt-2">
+                            <p><strong>Company:</strong> {order?.Office?.Company.name}</p>
+                            <p><strong>Order Number:</strong> {order?.orderNumber}</p>
+                            <p><strong>Order Status:</strong> {order?.status}</p>
+                            <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2">
                                 View Order
                             </Link>
+                        </div>
+                    </div>
+                    <div className="card bg-base-100 shadow-xl">
+                        <div className="card-body">
+                            <h2 className="card-title">Shipping Address</h2>
+                            {order?.ShippingInfo && (
+                                <div>
+                                    <strong>Address:</strong> <br />
+                                    Shipping Method: {order?.ShippingInfo?.shippingMethod}<br />
+                                    {order?.ShippingInfo?.shippingMethod === ShippingMethod.Other && (
+                                        <>
+                                            <strong>Instructions:</strong> {order?.ShippingInfo?.shippingNotes}<br />
+                                            <strong>Estimated Delivery:</strong> {formatDate(order?.ShippingInfo?.estimatedDelivery ?? "")}<br />
+                                        </>
+                                    )}
+                                    {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup && (
+                                        <>
+                                            <strong>Pickup Location:</strong> {order?.ShippingInfo?.shippingNotes}<br />
+                                            <strong>Pickup Date:</strong> {formatDate(order?.ShippingInfo?.estimatedDelivery ?? "")}<br />
+                                        </>
+                                    )}
+                                    {order?.ShippingInfo?.shippingMethod === ShippingMethod.Delivery && (
+                                        <>
+                                            <strong>Delivery Location:</strong> {order?.ShippingInfo?.Address?.line1}<br />
+                                            {order?.ShippingInfo?.Address?.line2}<br />
+                                            {order?.ShippingInfo?.Address?.city}, {order?.ShippingInfo?.Address?.state} {order?.ShippingInfo?.Address?.zipCode}
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="card bg-base-100 shadow-xl">
+                        <div className="card-body">
+                            <h2 className="card-title">Contact Person</h2>
+                            {order?.contactPerson && (
+                                <div>
+                                    <p><strong>Name:</strong> {order?.contactPerson?.name}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -206,7 +218,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                     {invoice.InvoicePayments.map((payment) => (
                                         <tr key={payment.id}>
                                             <td>{formatDate(payment.paymentDate)}</td>
-                                            <td>{formatCurrency(payment.amount.toNumber())}</td>
+                                            <td>{formatCurrency(payment.amount)}</td>
                                             <td>{payment.paymentMethod}</td>
                                         </tr>
                                     ))}
