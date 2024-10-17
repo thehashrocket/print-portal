@@ -12,6 +12,32 @@ import { TRPCError } from "@trpc/server";
 import { normalizeInvoice, normalizeInvoiceItem, normalizeInvoicePayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 
+
+function formatItemDescription(item: any): string {
+    let description = item.description || '';
+
+    if (item.OrderItemStock && item.OrderItemStock.length > 0) {
+        const stock = item.OrderItemStock[0];
+        description += ` | Paper: ${stock.description || 'N/A'}`;
+    }
+
+    if (item.ProcessingOptions && item.ProcessingOptions.length > 0) {
+        const options = item.ProcessingOptions[0];
+        description += ` | Processing: ${options.description || 'N/A'}`;
+    }
+
+    if (item.Typesetting && item.Typesetting.length > 0) {
+        const typesetting = item.Typesetting[0];
+        description += ` | Typesetting: ${typesetting.description || 'N/A'}`;
+    }
+
+    if (item.quantity) {
+        description += ` | Quantity: ${item.quantity}`;
+    }
+
+    return description;
+}
+
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
         .query(async ({ ctx }) => {
@@ -108,12 +134,12 @@ export const invoiceRouter = createTRPCRouter({
                     Order: { connect: { id: input.orderId } },
                     createdBy: { connect: { id: ctx.session.user.id } },
                     InvoiceItems: {
-                        create: input.items.map(item => ({
-                            description: item.description,
+                        create: order.OrderItems.map(item => ({
+                            description: formatItemDescription(item),
                             quantity: item.quantity,
-                            unitPrice: item.unitPrice,
-                            total: item.total,
-                            orderItem: item.orderItemId ? { connect: { id: item.orderItemId } } : undefined,
+                            unitPrice: (item.amount?.toNumber() ?? 0) / (item.quantity || 1),
+                            total: item.amount?.toNumber() ?? 0,
+                            orderItem: item.id ? { connect: { id: item.id } } : undefined,
                         })),
                     },
                 },
