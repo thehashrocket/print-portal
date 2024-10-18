@@ -64,7 +64,6 @@ export const env = createEnv({
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_ID: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_SECRET: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_ENVIRONMENT: z.string(),
-    NEXT_PUBLIC_OPENAI_MODEL: z.string(),
   },
 
   /**
@@ -97,7 +96,6 @@ export const env = createEnv({
     SENDGRID_SMTP_PORT: process.env.SENDGRID_SMTP_PORT,
     SENDGRID_EMAIL_FROM: process.env.SENDGRID_EMAIL_FROM,
     WEBSITE_URL: process.env.WEBSITE_URL,
-    NEXT_PUBLIC_OPENAI_MODEL: undefined
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
