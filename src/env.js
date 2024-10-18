@@ -39,7 +39,6 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     PUBLIC_BASE_URL: z.string(),
     OPENAI_API_KEY: z.string(),
-    OPENAI_MODEL: z.string(),
     QUICKBOOKS_CLIENT_ID: z.string(),
     QUICKBOOKS_CLIENT_SECRET: z.string(),
     QUICKBOOKS_ENVIRONMENT: z.enum(["sandbox", "production"]),
@@ -59,12 +58,12 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_OPENAI_API_KEY: z.string(),
     NEXT_PUBLIC_PUSHER_KEY: z.string(),
     NEXT_PUBLIC_PUSHER_CLUSTER: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_ID: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_SECRET: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_ENVIRONMENT: z.string(),
-    NEXT_PUBLIC_OPENAI_API_KEY: z.string(),
     NEXT_PUBLIC_OPENAI_MODEL: z.string(),
   },
 
@@ -80,16 +79,14 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    OPENAI_MODEL: process.env.OPENAI_MODEL,
+    NEXT_PUBLIC_OPENAI_API_KEY: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     NEXT_PUBLIC_PUSHER_KEY: process.env.NEXT_PUBLIC_PUSHER_KEY,
     NEXT_PUBLIC_PUSHER_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_ID: process.env.NEXT_PUBLIC_QUICKBOOKS_CLIENT_ID,
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_SECRET: process.env.NEXT_PUBLIC_QUICKBOOKS_CLIENT_SECRET,
     NEXT_PUBLIC_QUICKBOOKS_ENVIRONMENT: process.env.NEXT_PUBLIC_QUICKBOOKS_ENVIRONMENT,
-    NEXT_PUBLIC_OPENAI_API_KEY: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    NEXT_PUBLIC_OPENAI_MODEL: process.env.NEXT_PUBLIC_OPENAI_MODEL,
+    PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL,
     QUICKBOOKS_CLIENT_ID: process.env.QUICKBOOKS_CLIENT_ID,
     QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
     QUICKBOOKS_ENVIRONMENT: process.env.QUICKBOOKS_ENVIRONMENT,
@@ -100,6 +97,7 @@ export const env = createEnv({
     SENDGRID_SMTP_PORT: process.env.SENDGRID_SMTP_PORT,
     SENDGRID_EMAIL_FROM: process.env.SENDGRID_EMAIL_FROM,
     WEBSITE_URL: process.env.WEBSITE_URL,
+    NEXT_PUBLIC_OPENAI_MODEL: undefined
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
