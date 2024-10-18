@@ -11,6 +11,8 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
@@ -129,6 +131,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         initialData: initialOrder,
     });
 
+    useCopilotReadable({
+        description: "The current order that is being viewed.",
+        value: order,
+    });
+
     const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
         onSuccess: (invoice) => {
             console.log('Quickbooks invoice created:', invoice);
@@ -152,13 +159,16 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
-                    <svg className="w-16 h-16" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
-                    </svg>
+            <>
+                <div className="flex justify-center items-center h-screen">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
+                        <svg className="w-16 h-16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
+                        </svg>
+                    </div>
                 </div>
-            </div>
+
+            </>
         );
     }
 
@@ -174,112 +184,121 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <header className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-3xl font-bold">Order Details</h1>
-                    <Link className="btn btn-primary" href="/orders/create">Create Order</Link>
-                </div>
-                <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
-                    <ul>
-                        <li><Link href="/">Home</Link></li>
-                        <li><Link href="/orders">Orders</Link></li>
-                        <li>Order {order.orderNumber}</li>
-                    </ul>
-                </nav>
-            </header>
+        <>
+            <div className="container mx-auto px-4 py-8">
+                <header className="mb-8">
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-3xl font-bold">Order Details</h1>
+                        <Link className="btn btn-primary" href="/orders/create">Create Order</Link>
+                    </div>
+                    <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
+                        <ul>
+                            <li><Link href="/">Home</Link></li>
+                            <li><Link href="/orders">Orders</Link></li>
+                            <li>Order {order.orderNumber}</li>
+                        </ul>
+                    </nav>
+                </header>
 
-            <main className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-6">
-                    <InfoCard
-                        title="Order Number"
-                        content={<p className="text-2xl font-bold">{order.orderNumber}</p>}
-                    />
-                    <InfoCard
-                        title="Company"
-                        content={<p className="text-xl">{order.Office?.Company.name}</p>}
-                    />
-                </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <InfoCard
-                        title="Status"
-                        content={<StatusBadge
-                            id={order.id}
-                            status={order.status}
-                            orderId={order.id}
-                        />}
-                    />
-                    <div className="grid-flow-dense">
+                <main className="space-y-8">
+                    <div className="grid md:grid-cols-2 gap-6">
                         <InfoCard
-                            title="Order Price Details"
-                            content={
-                                <div>
-                                    <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
-                                    <p><strong>Shipping Amount:</strong> {formatCurrency(order.totalShippingAmount ?? "")}</p>
-                                    <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
-                                    <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
-                                    <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
-                                    {order.Invoice === null && <CreateInvoiceButton order={order} />}
-                                    {order.Invoice !== null && <Link className="btn btn-primary btn-sm" href={`/invoices/${order.Invoice.id}`}>View Invoice</Link>}
-                                    <p>
-                                        {!order.quickbooksInvoiceId &&
-                                            <button
-                                                className="btn btn-primary btn-sm mt-2 mb-2"
-                                                onClick={() => handleCreateQuickbooksInvoice(order.id)}>
-                                                Create Quickbooks Invoice
-                                            </button>}
-                                    </p>
-                                    {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
-                                    <OrderDeposit order={order} />
-                                </div>
-                            }
+                            title="Order Number"
+                            content={<p className="text-2xl font-bold">{order.orderNumber}</p>}
+                        />
+                        <InfoCard
+                            title="Company"
+                            content={<p className="text-xl">{order.Office?.Company.name}</p>}
                         />
                     </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <InfoCard
-                        title="Created By"
-                        content={<p>{order.createdBy?.name}</p>}
-                    />
-                    <InfoCard
-                        title="Created At"
-                        content={<p>{formatDate(order.createdAt ?? "")}</p>}
-                    />
-                    <InfoCard
-                        title="Contact Person"
-                        content={<p>{order.contactPerson?.name}</p>}
-                    />
-                    <InfoCard
-                        title="In Hands Date"
-                        content={<p>{formatDate(order.inHandsDate ?? "")}</p>}
-                    />
-                </div>
-
-                <section>
-                    <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-                    <ShippingInfoEditor
-                        orderId={order.id}
-                        currentShippingInfo={order.ShippingInfo}
-                        officeId={order.officeId}
-                        onUpdate={() => {
-                            utils.orders.getByID.invalidate(orderId);
-                        }}
-                    />
-                </section>
-
-                <section>
-                    <h2 className="text-2xl font-semibold mb-4">Order Jobs</h2>
-                    <div className="bg-white p-4 rounded-lg shadow-md">
-                        {isOrderItemsLoading ? (
-                            <div className="flex justify-center items-center h-64">
-                                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
-                            </div>
-                        ) : (
-                            <OrderItemsTable orderItems={orderItems} />
-                        )}
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <InfoCard
+                            title="Status"
+                            content={<StatusBadge
+                                id={order.id}
+                                status={order.status}
+                                orderId={order.id}
+                            />}
+                        />
+                        <div className="grid-flow-dense">
+                            <InfoCard
+                                title="Order Price Details"
+                                content={
+                                    <div>
+                                        <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
+                                        <p><strong>Shipping Amount:</strong> {formatCurrency(order.totalShippingAmount ?? "")}</p>
+                                        <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
+                                        <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
+                                        <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
+                                        {order.Invoice === null && <CreateInvoiceButton order={order} />}
+                                        {order.Invoice !== null && <Link className="btn btn-primary btn-sm" href={`/invoices/${order.Invoice.id}`}>View Invoice</Link>}
+                                        <p>
+                                            {!order.quickbooksInvoiceId &&
+                                                <button
+                                                    className="btn btn-primary btn-sm mt-2 mb-2"
+                                                    onClick={() => handleCreateQuickbooksInvoice(order.id)}>
+                                                    Create Quickbooks Invoice
+                                                </button>}
+                                        </p>
+                                        {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
+                                        <OrderDeposit order={order} />
+                                    </div>
+                                }
+                            />
+                        </div>
                     </div>
-                </section>
-            </main>
-        </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <InfoCard
+                            title="Created By"
+                            content={<p>{order.createdBy?.name}</p>}
+                        />
+                        <InfoCard
+                            title="Created At"
+                            content={<p>{formatDate(order.createdAt ?? "")}</p>}
+                        />
+                        <InfoCard
+                            title="Contact Person"
+                            content={<p>{order.contactPerson?.name}</p>}
+                        />
+                        <InfoCard
+                            title="In Hands Date"
+                            content={<p>{formatDate(order.inHandsDate ?? "")}</p>}
+                        />
+                    </div>
+
+                    <section>
+                        <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
+                        <ShippingInfoEditor
+                            orderId={order.id}
+                            currentShippingInfo={order.ShippingInfo}
+                            officeId={order.officeId}
+                            onUpdate={() => {
+                                utils.orders.getByID.invalidate(orderId);
+                            }}
+                        />
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-semibold mb-4">Order Jobs</h2>
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            {isOrderItemsLoading ? (
+                                <div className="flex justify-center items-center h-64">
+                                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+                                </div>
+                            ) : (
+                                <OrderItemsTable orderItems={orderItems} />
+                            )}
+                        </div>
+                    </section>
+                </main>
+            </div>
+            <CopilotPopup
+                instructions={"You are assisting the user as best as you can. Ansewr in the best way possible given the data you have."}
+                labels={{
+                    title: "Order Details Assistant",
+                    initial: "Need any help?",
+                }}
+            />
+        </>
     );
 }

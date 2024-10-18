@@ -26,5 +26,9 @@ export default async function OrderPage({
     notFound();
   }
 
-  return <OrderDetails initialOrder={order || null} orderId={id} />;
+  return (
+    <>
+      <OrderDetails initialOrder={order || null} orderId={id} />
+    </>
+  );
 }

@@ -8,6 +8,7 @@ import { OrderItemStatus } from '@prisma/client';
 import type { SerializedOrderItem } from "~/types/serializedTypes";
 import { formatDate } from "~/utils/formatters";
 
+import { useCopilotReadable } from "@copilotkit/react-core"; 
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>(initialOrderItems);
@@ -20,6 +21,11 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
     ];
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
+
+    useCopilotReadable({
+        description: "The current order items that are to be worked on.",
+        value: orderItems,
+      });
 
     const isWithinAWeek = (dateString: string): boolean => {
         const targetDate = new Date(dateString);

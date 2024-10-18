@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 import NavBar from "./_components/navBar"; // Fix the casing of the file name
-
+import { CopilotKit } from "@copilotkit/react-core"; 
+import "@copilotkit/react-ui/styles.css";
 import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
@@ -24,12 +25,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
-        <TRPCReactProvider>
-          <Providers>
-            <NavBar />
-            {children}
-          </Providers>
-        </TRPCReactProvider>
+        <CopilotKit runtimeUrl="/api/copilotkit">
+          <TRPCReactProvider>
+            <Providers>
+              <NavBar />
+              {children}
+            </Providers>
+          </TRPCReactProvider>
+        </CopilotKit>
       </body>
     </html>
   );
