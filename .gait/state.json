@@ -1710,8 +1710,8 @@
     "deletedPanelChatIDs": []
   },
   "kv_store": {
-    "unique_matched_lines_count": 1825,
-    "total_repo_line_count": 31061,
+    "unique_matched_lines_count": 1998,
+    "total_repo_line_count": 31805,
     "best_prompt_response": {
       "prompt": "1. yes. If there isn't a quickbooksCustomerId on the office, then it should provoide a way to sync the data with Quickbooks. It should check to see whether the customer exists in quickbooks and either pull the data from quickbooks or push the new data to quickbooks.\n2. It should check to see whether the data exists in quickbooks and update the local database or push the data to quickbooks and create a customer. \n3. We should check to see if the customer (including the office) exists in quickbooks and either create it or pull it from quickbooks.\n4. Great question, and one that I have been struggling with. Here is the ideal scenario: When a user first creates an account, it should pull all the data from quickbooks and create Company and Offices. After that point, the ideal (happy path) is that users create companies and offices within the app and when they do, that data is pushed to quickbooks. The unhappy path is that they create companies and offices within quickbooks and then we have to sync that data into the application I don't have a solution for that at this point.\n5. Yes, we should. \n6. I don't know at this point, but I am open to your suggetsions.",
       "response": "Thank you for the detailed responses. Based on your answers, I'll provide a solution that addresses these requirements. Let's start by modifying the `qbCustomerRouter` to include a new procedure for syncing an office with QuickBooks.\n\n```typescript:src/server/api/routers/quickbooks/qbCustomer.ts\nimport { createTRPCRouter, protectedProcedure } from \"~/server/api/trpc\";\nimport OAuthClient from 'intuit-oauth';\nimport { TRPCError } from \"@trpc/server\";\nimport { refreshTokenIfNeeded } from \"~/services/quickbooksService\";\nimport { z } from 'zod';\nimport axios from 'axios';\n\n// ... existing imports and oauthClient setup ...\n\nexport const qbCustomerRouter = createTRPCRouter({\n    // ... existing procedures ...\n\n    syncOffice: protectedProcedure\n        .input(z.object({\n            officeId: z.string(),\n        }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const office = await ctx.db.office.findUnique({\n                where: { id: input.officeId },\n                include: { \n                    company: true,\n                    Addresses: true,\n                },\n            });\n\n            if (!office) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Office not found',\n                });\n            }\n\n            // Check if the office already has a QuickBooks Customer ID\n            if (office.quickbooksCustomerId) {\n                // Pull data from QuickBooks and update local database\n                return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n            } else {\n                // Check if a matching customer exists in QuickBooks\n                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                \n                if (existingCustomer) {\n                    // Update local database with QuickBooks data\n                    return await updateOfficeWithQuickBooksData(ctx, office, existingCustomer);\n                } else {\n                    // Push data to QuickBooks and create new customer\n                    return await pushToQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                }\n            }\n        }),\n});\n\nasync function pullFromQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const qbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, qbCustomer);\n    } catch (error) {\n        console.error('Error pulling data from QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to pull data from QuickBooks',\n        });\n    }\n}\n\nasync function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const customers = response.data.QueryResponse.Customer;\n        return customers && customers.length > 0 ? customers[0] : null;\n    } catch (error) {\n        console.error('Error searching for customer in QuickBooks:', error);\n        return null;\n    }\n}\n\nasync function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {\n    const companyName = qbCustomer.CompanyName.split(':')[0];\n    const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;\n\n    const updatedCompany = await ctx.db.company.update({\n        where: { id: office.company.id },\n        data: {\n            name: companyName,\n            quickbooksId: qbCustomer.Id,\n            syncToken: qbCustomer.SyncToken,\n        },\n    });\n\n    const updatedOffice = await ctx.db.office.update({\n        where: { id: office.id },\n        data: {\n            name: officeName,\n            quickbooksCustomerId: qbCustomer.Id,\n            Addresses: {\n                upsert: {\n                    where: { id: office.Addresses[0]?.id || 'new' },\n                    create: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        addressType: 'Billing',\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                    update: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                },\n            },\n        },\n    });\n\n    return { company: updatedCompany, office: updatedOffice };\n}\n\nasync function pushToQuickBooks(ctx, realmId, office, accessToken) {\n    const qbCustomerData = {\n        DisplayName: `${office.company.name}:${office.name}`,\n        CompanyName: `${office.company.name}:${office.name}`,\n        BillAddr: {\n            Line1: office.Addresses[0]?.line1 || '',\n            City: office.Addresses[0]?.city || '',\n            Country: office.Addresses[0]?.country || '',\n            CountrySubDivisionCode: office.Addresses[0]?.state || '',\n            PostalCode: office.Addresses[0]?.zipCode || '',\n        },\n        PrimaryPhone: { FreeFormNumber: office.Addresses[0]?.telephoneNumber || '' },\n    };\n\n    try {\n        const response = await axios.post(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,\n            qbCustomerData,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Content-Type': 'application/json',\n                },\n            }\n        );\n\n        const createdQbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, createdQbCustomer);\n    } catch (error) {\n        console.error('Error pushing data to QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to push data to QuickBooks',\n        });\n    }\n}\n```\n\nNow, for the `actionsCellRenderer`, you can add a button that calls this new `syncOffice` procedure. Here's an example of how you might implement this in your React component:\n\n```typescript:src/components/OfficeTable.tsx\nimport { api } from \"~/utils/api\";\n\n// ... other imports and component setup ...\n\nconst actionsCellRenderer = (params: any) => {\n    const syncOfficeMutation = api.qbCustomer.syncOffice.useMutation();\n\n    const",
@@ -1762,12 +1762,6 @@
         "ai_generated_percentage": 0
       },
       {
-        "file": "logs/oAuthClient-log.log",
-        "total_lines": 3337,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
-      },
-      {
         "file": "next.config.js",
         "total_lines": 17,
         "ai_generated_lines": 12,
@@ -1775,13 +1769,13 @@
       },
       {
         "file": "package.json",
-        "total_lines": 104,
+        "total_lines": 108,
         "ai_generated_lines": 2,
-        "ai_generated_percentage": 1.9230769230769231
+        "ai_generated_percentage": 1.8518518518518516
       },
       {
         "file": "pnpm-lock.yaml",
-        "total_lines": 5627,
+        "total_lines": 9354,
         "ai_generated_lines": 0,
         "ai_generated_percentage": 0
       },
@@ -2388,8 +2382,8 @@
       {
         "file": "prisma/seed.ts",
         "total_lines": 1153,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 2,
+        "ai_generated_percentage": 0.17346053772766695
       },
       {
         "file": "src/app/_components/companies/CompaniesChart.tsx",
@@ -2424,8 +2418,8 @@
       {
         "file": "src/app/_components/companies/companiesTable.tsx",
         "total_lines": 161,
-        "ai_generated_lines": 65,
-        "ai_generated_percentage": 40.37267080745342
+        "ai_generated_lines": 80,
+        "ai_generated_percentage": 49.68944099378882
       },
       {
         "file": "src/app/_components/companies/createCompanyComponent.tsx",
@@ -2436,8 +2430,8 @@
       {
         "file": "src/app/_components/companies/individualCompanyComponent.tsx",
         "total_lines": 193,
-        "ai_generated_lines": 28,
-        "ai_generated_percentage": 14.507772020725387
+        "ai_generated_lines": 60,
+        "ai_generated_percentage": 31.088082901554404
       },
       {
         "file": "src/app/_components/create-post.tsx",
@@ -2453,9 +2447,9 @@
       },
       {
         "file": "src/app/_components/dashboard/draggableOrderItemsDash.tsx",
-        "total_lines": 107,
+        "total_lines": 113,
         "ai_generated_lines": 6,
-        "ai_generated_percentage": 5.607476635514018
+        "ai_generated_percentage": 5.3097345132743365
       },
       {
         "file": "src/app/_components/dashboard/draggableOrdersDash.tsx",
@@ -2465,9 +2459,9 @@
       },
       {
         "file": "src/app/_components/dashboard/draggableWorkOrdersDash.tsx",
-        "total_lines": 101,
+        "total_lines": 104,
         "ai_generated_lines": 10,
-        "ai_generated_percentage": 9.900990099009901
+        "ai_generated_percentage": 9.615384615384617
       },
       {
         "file": "src/app/_components/invoices/AddPaymentForm.tsx",
@@ -2477,9 +2471,9 @@
       },
       {
         "file": "src/app/_components/invoices/InvoiceDetailClient.tsx",
-        "total_lines": 233,
-        "ai_generated_lines": 87,
-        "ai_generated_percentage": 37.33905579399141
+        "total_lines": 297,
+        "ai_generated_lines": 43,
+        "ai_generated_percentage": 14.47811447811448
       },
       {
         "file": "src/app/_components/invoices/PrintableInvoice.tsx",
@@ -2489,15 +2483,15 @@
       },
       {
         "file": "src/app/_components/invoices/invoiceForm.tsx",
-        "total_lines": 244,
-        "ai_generated_lines": 18,
-        "ai_generated_percentage": 7.377049180327869
+        "total_lines": 265,
+        "ai_generated_lines": 19,
+        "ai_generated_percentage": 7.169811320754717
       },
       {
         "file": "src/app/_components/invoices/invoicesTable.tsx",
-        "total_lines": 106,
+        "total_lines": 92,
         "ai_generated_lines": 3,
-        "ai_generated_percentage": 2.8301886792452833
+        "ai_generated_percentage": 3.260869565217391
       },
       {
         "file": "src/app/_components/navBar.tsx",
@@ -2519,9 +2513,9 @@
       },
       {
         "file": "src/app/_components/orders/OrderDetailsComponent.tsx",
-        "total_lines": 274,
-        "ai_generated_lines": 28,
-        "ai_generated_percentage": 10.218978102189782
+        "total_lines": 304,
+        "ai_generated_lines": 26,
+        "ai_generated_percentage": 8.552631578947368
       },
       {
         "file": "src/app/_components/orders/OrderItemStock/orderItemStockComponent.tsx",
@@ -2550,8 +2544,8 @@
       {
         "file": "src/app/_components/orders/orderItem/orderItemComponent.tsx",
         "total_lines": 186,
-        "ai_generated_lines": 16,
-        "ai_generated_percentage": 8.60215053763441
+        "ai_generated_lines": 17,
+        "ai_generated_percentage": 9.13978494623656
       },
       {
         "file": "src/app/_components/orders/orderItem/orderItemsTable.tsx",
@@ -2699,9 +2693,9 @@
       },
       {
         "file": "src/app/_components/workOrders/WorkOrderDetailsComponent.tsx",
-        "total_lines": 211,
+        "total_lines": 227,
         "ai_generated_lines": 15,
-        "ai_generated_percentage": 7.109004739336493
+        "ai_generated_percentage": 6.607929515418502
       },
       {
         "file": "src/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent.tsx",
@@ -2760,20 +2754,20 @@
       {
         "file": "src/app/_components/workOrders/create/workOrderWizard.tsx",
         "total_lines": 92,
-        "ai_generated_lines": 12,
-        "ai_generated_percentage": 13.043478260869565
+        "ai_generated_lines": 13,
+        "ai_generated_percentage": 14.130434782608695
       },
       {
         "file": "src/app/_components/workOrders/workOrderItem/edit/editWorkOrderItemComponent.tsx",
         "total_lines": 210,
-        "ai_generated_lines": 23,
-        "ai_generated_percentage": 10.952380952380953
+        "ai_generated_lines": 24,
+        "ai_generated_percentage": 11.428571428571429
       },
       {
         "file": "src/app/_components/workOrders/workOrderItem/workOrderItemComponent.tsx",
         "total_lines": 212,
-        "ai_generated_lines": 18,
-        "ai_generated_percentage": 8.49056603773585
+        "ai_generated_lines": 19,
+        "ai_generated_percentage": 8.962264150943396
       },
       {
         "file": "src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx",
@@ -2812,6 +2806,12 @@
         "ai_generated_percentage": 0
       },
       {
+        "file": "src/app/api/copilotkit/route.ts",
+        "total_lines": 21,
+        "ai_generated_lines": 0,
+        "ai_generated_percentage": 0
+      },
+      {
         "file": "src/app/api/quickbooks/callback/route.ts",
         "total_lines": 60,
         "ai_generated_lines": 0,
@@ -2831,9 +2831,9 @@
       },
       {
         "file": "src/app/companies/[id]/page.tsx",
-        "total_lines": 117,
+        "total_lines": 119,
         "ai_generated_lines": 24,
-        "ai_generated_percentage": 20.51282051282051
+        "ai_generated_percentage": 20.168067226890756
       },
       {
         "file": "src/app/companies/create/page.tsx",
@@ -2856,8 +2856,8 @@
       {
         "file": "src/app/contexts/ProcessingOptionsContext.tsx",
         "total_lines": 100,
-        "ai_generated_lines": 2,
-        "ai_generated_percentage": 2
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 3
       },
       {
         "file": "src/app/contexts/TypesettingContext.tsx",
@@ -2868,8 +2868,8 @@
       {
         "file": "src/app/contexts/workOrderContext.tsx",
         "total_lines": 50,
-        "ai_generated_lines": 1,
-        "ai_generated_percentage": 2
+        "ai_generated_lines": 17,
+        "ai_generated_percentage": 34
       },
       {
         "file": "src/app/dashboard/page.tsx",
@@ -2891,15 +2891,15 @@
       },
       {
         "file": "src/app/invoices/page.tsx",
-        "total_lines": 61,
+        "total_lines": 38,
         "ai_generated_lines": 3,
-        "ai_generated_percentage": 4.918032786885246
+        "ai_generated_percentage": 7.894736842105263
       },
       {
         "file": "src/app/layout.tsx",
-        "total_lines": 37,
-        "ai_generated_lines": 1,
-        "ai_generated_percentage": 2.7027027027027026
+        "total_lines": 40,
+        "ai_generated_lines": 2,
+        "ai_generated_percentage": 5
       },
       {
         "file": "src/app/orders/[id]/orderItem/[orderItemId]/page.tsx",
@@ -2909,9 +2909,9 @@
       },
       {
         "file": "src/app/orders/[id]/page.tsx",
-        "total_lines": 30,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "total_lines": 34,
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 2.941176470588235
       },
       {
         "file": "src/app/orders/page.tsx",
@@ -2981,7 +2981,7 @@
       },
       {
         "file": "src/env.js",
-        "total_lines": 107,
+        "total_lines": 111,
         "ai_generated_lines": 0,
         "ai_generated_percentage": 0
       },
@@ -3005,9 +3005,9 @@
       },
       {
         "file": "src/server/api/routers/invoices/invoice.ts",
-        "total_lines": 258,
-        "ai_generated_lines": 8,
-        "ai_generated_percentage": 3.10077519379845
+        "total_lines": 314,
+        "ai_generated_lines": 12,
+        "ai_generated_percentage": 3.821656050955414
       },
       {
         "file": "src/server/api/routers/offices/office.ts",
@@ -3035,9 +3035,9 @@
       },
       {
         "file": "src/server/api/routers/orders/order.ts",
-        "total_lines": 469,
+        "total_lines": 484,
         "ai_generated_lines": 2,
-        "ai_generated_percentage": 0.42643923240938164
+        "ai_generated_percentage": 0.4132231404958678
       },
       {
         "file": "src/server/api/routers/orders/orderNotes.ts",
@@ -3053,9 +3053,9 @@
       },
       {
         "file": "src/server/api/routers/quickbooks/qbAuth.ts",
-        "total_lines": 283,
+        "total_lines": 284,
         "ai_generated_lines": 16,
-        "ai_generated_percentage": 5.6537102473498235
+        "ai_generated_percentage": 5.633802816901409
       },
       {
         "file": "src/server/api/routers/quickbooks/qbCompany.ts",
@@ -3066,14 +3066,14 @@
       {
         "file": "src/server/api/routers/quickbooks/qbCustomer.ts",
         "total_lines": 841,
-        "ai_generated_lines": 516,
-        "ai_generated_percentage": 61.35552913198573
+        "ai_generated_lines": 541,
+        "ai_generated_percentage": 64.3281807372176
       },
       {
         "file": "src/server/api/routers/quickbooks/qbInvoice.ts",
-        "total_lines": 303,
-        "ai_generated_lines": 82,
-        "ai_generated_percentage": 27.062706270627064
+        "total_lines": 416,
+        "ai_generated_lines": 106,
+        "ai_generated_percentage": 25.48076923076923
       },
       {
         "file": "src/server/api/routers/quickbooks/qbSyncCustomer.ts",
@@ -3168,8 +3168,8 @@
       {
         "file": "src/server/api/trpc.ts",
         "total_lines": 109,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 0.9174311926605505
       },
       {
         "file": "src/server/auth.ts",
@@ -3198,8 +3198,8 @@
       {
         "file": "src/services/workOrderToOrderService.ts",
         "total_lines": 290,
-        "ai_generated_lines": 2,
-        "ai_generated_percentage": 0.6896551724137931
+        "ai_generated_lines": 19,
+        "ai_generated_percentage": 6.551724137931035
       },
       {
         "file": "src/store/useQuickbooksStore.ts",
@@ -3239,9 +3239,9 @@
       },
       {
         "file": "src/types/serializedTypes.ts",
-        "total_lines": 414,
-        "ai_generated_lines": 36,
-        "ai_generated_percentage": 8.695652173913043
+        "total_lines": 422,
+        "ai_generated_lines": 97,
+        "ai_generated_percentage": 22.985781990521325
       },
       {
         "file": "src/types/user.ts",
@@ -3251,9 +3251,9 @@
       },
       {
         "file": "src/utils/dataNormalization.ts",
-        "total_lines": 581,
-        "ai_generated_lines": 22,
-        "ai_generated_percentage": 3.7865748709122204
+        "total_lines": 601,
+        "ai_generated_lines": 36,
+        "ai_generated_percentage": 5.990016638935108
       },
       {
         "file": "src/utils/emailTemplates.ts",
