@@ -114,8 +114,8 @@ importers:
         specifier: ^6.9.15
         version: 6.9.15
       openai:
-        specifier: ^4.68.0
-        version: 4.68.0(zod@3.23.8)
+        specifier: ^4.68.1
+        version: 4.68.1(zod@3.23.8)
       pdfkit:
         specifier: ^0.15.0
         version: 0.15.0
@@ -3398,8 +3398,8 @@ packages:
   one-time@1.0.0:
     resolution: {integrity: sha512-5DXOiRKwuSEcQ/l0kGCF6Q3jcADFv5tSmRaJck/OqkVFcOzutB134KRSfF0xDrL39MNnqxbHBbUUcjZIhTgb2g==}
 
-  openai@4.68.0:
-    resolution: {integrity: sha512-cVH0WMKd4cColyorwqo+Gn08lN8LQ8uKLMfWXFfvnedrLq3lCH6lRd0Rd0XJRunyfgNve/L9E7uZLAii39NBkw==}
+  openai@4.68.1:
+    resolution: {integrity: sha512-C9XmYRHgra1U1G4GGFNqRHQEjxhoOWbQYR85IibfJ0jpHUhOm4/lARiKaC/h3zThvikwH9Dx/XOKWPNVygIS3g==}
     hasBin: true
     peerDependencies:
       zod: ^3.23.8
@@ -4931,8 +4931,8 @@ snapshots:
       '@copilotkit/shared': 1.3.5
       '@google/generative-ai': 0.11.5
       '@graphql-yoga/plugin-defer-stream': 3.7.0(graphql-yoga@5.7.0(graphql@16.9.0))(graphql@16.9.0)
-      '@langchain/community': 0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.0(zod@3.23.8))
-      '@langchain/core': 0.1.63(openai@4.68.0(zod@3.23.8))
+      '@langchain/community': 0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.1(zod@3.23.8))
+      '@langchain/core': 0.1.63(openai@4.68.1(zod@3.23.8))
       '@langchain/openai': 0.0.28
       class-transformer: 0.5.1
       express: 4.21.1
@@ -4940,8 +4940,8 @@ snapshots:
       graphql-scalars: 1.23.0(graphql@16.9.0)
       graphql-yoga: 5.7.0(graphql@16.9.0)
       groq-sdk: 0.5.0
-      langchain: 0.1.37(axios@1.7.7)(fast-xml-parser@4.5.0)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.0(zod@3.23.8))
-      openai: 4.68.0(zod@3.23.8)
+      langchain: 0.1.37(axios@1.7.7)(fast-xml-parser@4.5.0)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.1(zod@3.23.8))
+      openai: 4.68.1(zod@3.23.8)
       pino: 9.5.0
       pino-pretty: 11.3.0
       reflect-metadata: 0.2.2
@@ -5354,13 +5354,13 @@ snapshots:
 
   '@kamilkisiela/fast-url-parser@1.1.4': {}
 
-  '@langchain/community@0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.0(zod@3.23.8))':
+  '@langchain/community@0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.1(zod@3.23.8))':
     dependencies:
-      '@langchain/core': 0.1.63(openai@4.68.0(zod@3.23.8))
+      '@langchain/core': 0.1.63(openai@4.68.1(zod@3.23.8))
       '@langchain/openai': 0.0.28
       expr-eval: 2.0.2
       flat: 5.0.2
-      langsmith: 0.1.66(openai@4.68.0(zod@3.23.8))
+      langsmith: 0.1.66(openai@4.68.1(zod@3.23.8))
       uuid: 9.0.1
       zod: 3.23.8
       zod-to-json-schema: 3.23.3(zod@3.23.8)
@@ -5371,13 +5371,13 @@ snapshots:
       - encoding
       - openai
 
-  '@langchain/core@0.1.63(openai@4.68.0(zod@3.23.8))':
+  '@langchain/core@0.1.63(openai@4.68.1(zod@3.23.8))':
     dependencies:
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.15
-      langsmith: 0.1.66(openai@4.68.0(zod@3.23.8))
+      langsmith: 0.1.66(openai@4.68.1(zod@3.23.8))
       ml-distance: 4.0.1
       mustache: 4.2.0
       p-queue: 6.6.2
@@ -5388,13 +5388,13 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/core@0.2.36(openai@4.68.0(zod@3.23.8))':
+  '@langchain/core@0.2.36(openai@4.68.1(zod@3.23.8))':
     dependencies:
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.15
-      langsmith: 0.1.66(openai@4.68.0(zod@3.23.8))
+      langsmith: 0.1.66(openai@4.68.1(zod@3.23.8))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -5406,17 +5406,17 @@ snapshots:
 
   '@langchain/openai@0.0.28':
     dependencies:
-      '@langchain/core': 0.1.63(openai@4.68.0(zod@3.23.8))
+      '@langchain/core': 0.1.63(openai@4.68.1(zod@3.23.8))
       js-tiktoken: 1.0.15
-      openai: 4.68.0(zod@3.23.8)
+      openai: 4.68.1(zod@3.23.8)
       zod: 3.23.8
       zod-to-json-schema: 3.23.3(zod@3.23.8)
     transitivePeerDependencies:
       - encoding
 
-  '@langchain/textsplitters@0.0.3(openai@4.68.0(zod@3.23.8))':
+  '@langchain/textsplitters@0.0.3(openai@4.68.1(zod@3.23.8))':
     dependencies:
-      '@langchain/core': 0.2.36(openai@4.68.0(zod@3.23.8))
+      '@langchain/core': 0.2.36(openai@4.68.1(zod@3.23.8))
       js-tiktoken: 1.0.15
     transitivePeerDependencies:
       - openai
@@ -7455,19 +7455,19 @@ snapshots:
 
   kuler@2.0.0: {}
 
-  langchain@0.1.37(axios@1.7.7)(fast-xml-parser@4.5.0)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.0(zod@3.23.8)):
+  langchain@0.1.37(axios@1.7.7)(fast-xml-parser@4.5.0)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.1(zod@3.23.8)):
     dependencies:
       '@anthropic-ai/sdk': 0.9.1
-      '@langchain/community': 0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.0(zod@3.23.8))
-      '@langchain/core': 0.1.63(openai@4.68.0(zod@3.23.8))
+      '@langchain/community': 0.0.53(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.68.1(zod@3.23.8))
+      '@langchain/core': 0.1.63(openai@4.68.1(zod@3.23.8))
       '@langchain/openai': 0.0.28
-      '@langchain/textsplitters': 0.0.3(openai@4.68.0(zod@3.23.8))
+      '@langchain/textsplitters': 0.0.3(openai@4.68.1(zod@3.23.8))
       binary-extensions: 2.3.0
       js-tiktoken: 1.0.15
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
       langchainhub: 0.0.11
-      langsmith: 0.1.66(openai@4.68.0(zod@3.23.8))
+      langsmith: 0.1.66(openai@4.68.1(zod@3.23.8))
       ml-distance: 4.0.1
       openapi-types: 12.1.3
       p-retry: 4.6.2
@@ -7552,7 +7552,7 @@ snapshots:
 
   langchainhub@0.0.11: {}
 
-  langsmith@0.1.66(openai@4.68.0(zod@3.23.8)):
+  langsmith@0.1.66(openai@4.68.1(zod@3.23.8)):
     dependencies:
       '@types/uuid': 10.0.0
       commander: 10.0.1
@@ -7561,7 +7561,7 @@ snapshots:
       semver: 7.6.3
       uuid: 10.0.0
     optionalDependencies:
-      openai: 4.68.0(zod@3.23.8)
+      openai: 4.68.1(zod@3.23.8)
 
   language-subtag-registry@0.3.23: {}
 
@@ -8164,7 +8164,7 @@ snapshots:
     dependencies:
       fn.name: 1.1.0
 
-  openai@4.68.0(zod@3.23.8):
+  openai@4.68.1(zod@3.23.8):
     dependencies:
       '@types/node': 18.19.56
       '@types/node-fetch': 2.6.11
