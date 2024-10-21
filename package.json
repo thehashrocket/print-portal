@@ -86,7 +86,7 @@
     "@types/string-similarity": "^4.0.2",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
-    "@typescript-eslint/parser": "^8.9.0",
+    "@typescript-eslint/parser": "^8.10.0",
     "autoprefixer": "10.4.20",
     "daisyui": "^4.12.13",
     "eslint": "^9.13.0",
