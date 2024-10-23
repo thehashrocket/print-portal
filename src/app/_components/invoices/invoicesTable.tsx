@@ -1,7 +1,7 @@
 // ~/src/app/_components/invoices/invoicesTable.tsx
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import "@ag-grid-community/styles/ag-grid.css";
@@ -25,10 +25,16 @@ interface InvoicesTableProps {
 
 const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices }) => {
     const [rowData, setRowData] = useState<SerializedInvoice[]>([]);
+    const gridRef = useRef<AgGridReact>(null);
 
     useEffect(() => {
         setRowData(invoices);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+          }
     }, [invoices]);
+
+    
 
     const formatDate = (params: ValueFormatterParams) => {
         return new Date(params.value).toLocaleDateString();

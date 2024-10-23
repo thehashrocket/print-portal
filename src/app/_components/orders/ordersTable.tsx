@@ -20,27 +20,32 @@ import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/format
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-import { useRouter } from "next/navigation";
-interface OrdersTableProps {
-  orders: SerializedOrder[];
-}
+import { api } from "~/trpc/react";
 
-const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
+
+const OrdersTable: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
   const [rowData, setRowData] = useState<SerializedOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<SerializedOrder[]>([]);
   const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
-  const router = useRouter();
+  const utils = api.useUtils();
   const defaultColDef = useMemo(() => ({
     resizable: true,
     sortable: true,
     filter: true,
   }), []);
 
+  const { data: ordersData, isLoading, error } = api.orders.getAll.useQuery();
+
   const handleSyncSuccess = () => {
     // Refresh the grid data
     // You can use the gridRef to refresh the data
-    router.refresh();
+    utils.orders.getAll.invalidate();
+
+    if (gridRef.current) {
+      gridRef.current.api.sizeColumnsToFit();
+    }
   };
 
   const actionsCellRenderer = (props: { data: SerializedOrder }) => (
@@ -59,7 +64,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
           W/O
         </Link>
       )}
-      <QuickbooksInvoiceButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
+      <QuickbooksInvoiceButton order={props.data} onSyncSuccess={handleSyncSuccess}/>
     </div>
   );
 
@@ -111,9 +116,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   ];
 
   useEffect(() => {
-    setRowData(orders);
+    setOrders(ordersData || []);
     setLoading(false);
-  }, [orders]);
+    if (gridRef.current) {
+      gridRef.current.api.sizeColumnsToFit();
+    }
+  }, [ordersData]);
 
   const onGridReady = (params: GridReadyEvent) => {
     params.api.sizeColumnsToFit();
@@ -139,21 +147,25 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
   }
 
   return (
-    <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
-      <AgGridReact
-        ref={gridRef}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        rowData={rowData}
-        rowSelection="single"
-        onGridReady={onGridReady}
-        onFilterChanged={onFilterChanged}
-        getRowStyle={getRowStyle}
-        animateRows={true}
-        pagination={true}
-        paginationPageSize={20}
-      />
-    </div>
+    (orders && (
+      <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+        <AgGridReact
+          ref={gridRef}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          rowData={orders}
+          rowSelection="single"
+          onGridReady={onGridReady}
+          onFilterChanged={onFilterChanged}
+          getRowStyle={getRowStyle}
+          animateRows={true}
+          pagination={true}
+          paginationPageSize={20}
+        />
+      </div>
+    )) || (
+      <div>No orders found</div>
+    )
   );
 };
 

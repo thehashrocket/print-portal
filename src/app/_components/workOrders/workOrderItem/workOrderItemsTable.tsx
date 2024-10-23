@@ -70,6 +70,9 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     useEffect(() => {
         setRowData(workOrderItems);
         setLoading(false);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [workOrderItems]);
 
     const onGridReady = (params: GridReadyEvent) => {

@@ -81,6 +81,9 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     useEffect(() => {
         setRowData(orderItems);
         setLoading(false);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [orderItems]);
 
     const onGridReady = (params: GridReadyEvent) => {

@@ -78,6 +78,9 @@ const WorkOrdersTable: React.FC = () => {
         if (workOrders) {
             setRowData(workOrders);
             setLoading(false);
+            if (gridRef.current) {
+                gridRef.current.api.sizeColumnsToFit();
+            }
         }
     }, [workOrders]);
 

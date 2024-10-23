@@ -1,16 +1,23 @@
 // ~/app/_components/orders/QuickbooksInvoiceButton.tsx
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
+import { SerializedOrder } from '~/types/serializedTypes';
+interface QuickbooksInvoiceButtonProps {
+    order: SerializedOrder;
+    onSyncSuccess: () => void;
+}
 
-const QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
+const QuickbooksInvoiceButton: React.FC<QuickbooksInvoiceButtonProps> = ({ order, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
+    const [orderData, setOrderData] = useState<SerializedOrder | null>(order);
 
     // Move the useQuery hook to the top level
-    const { data: orderData, error: orderError } = api.orders.getByID.useQuery(params.row.id);
+
+    
 
     const createQbInvoiceFromInvoice = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
         onSuccess: () => {
@@ -27,7 +34,7 @@ const QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void
 
     const handleSync = async () => {
         // Check if there is an error or no data
-        if (orderError || !orderData) {
+        if (!orderData) {
             toast.error('Order not found');
             return;
         }
@@ -35,7 +42,7 @@ const QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void
         if (!orderData.Invoice) {
             // Create a new invoice
             const invoice = await createInvoice.mutateAsync({
-                orderId: params.row.id,
+                orderId: orderData.id,
                 dateIssued: new Date(),
                 dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),
                 subtotal: parseFloat(orderData.calculatedSubTotal || '0'),
@@ -59,7 +66,7 @@ const QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void
         }
     };
 
-    const syncButtonText = params.row.quickbooksInvoiceId
+    const syncButtonText = orderData?.quickbooksInvoiceId
         ? 'Sync with QB'
         : 'Add to QB';
 
