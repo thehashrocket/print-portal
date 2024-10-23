@@ -828,11 +828,13 @@
           "kv_store": {
             "file_path_dict": {
               "0": "src/types/serializedTypes.ts",
+              "1": "src/app/_components/companies/companiesTable.tsx",
               "2": "src/app/_components/orders/ordersTable.tsx"
             },
             "file_paths": [
               "src/app/_components/orders/ordersTable.tsx",
-              "src/types/serializedTypes.ts"
+              "src/types/serializedTypes.ts",
+              "src/app/_components/companies/companiesTable.tsx"
             ]
           }
         },
@@ -1417,7 +1419,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/companies/companiesTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1505,7 +1514,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/companies/companiesTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1549,7 +1565,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/companies/companiesTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1593,7 +1616,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/companies/companiesTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1660,7 +1690,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/companies/companiesTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -3123,8 +3160,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/orders/ordersTable.tsx"
-            ]
+              "src/app/_components/orders/ordersTable.tsx",
+              "src/app/_components/companies/companiesTable.tsx"
+            ],
+            "file_path_dict": {
+              "0": "src/app/_components/companies/companiesTable.tsx"
+            }
           }
         }
       ],

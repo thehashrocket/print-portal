@@ -62,6 +62,9 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ workOrder }) =
                 date: note.createdAt,
             }))
         );
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [workOrder.WorkOrderNotes]);
 
     return (

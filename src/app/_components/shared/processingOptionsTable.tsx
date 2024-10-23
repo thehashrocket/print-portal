@@ -5,7 +5,7 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
 import { type BindingType, type ProcessingOptions } from "@prisma/client";
-import { type ColDef } from "@ag-grid-community/core";
+import { GridReadyEvent, type ColDef } from "@ag-grid-community/core";
 
 type ProcessingOptionsProps = {
     processingOptions: ProcessingOptions[];
@@ -197,7 +197,14 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
 
     useEffect(() => {
         setRowData(processingOptions);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [processingOptions]);
+
+    const onGridReady = (params: GridReadyEvent) => {
+        params.api.sizeColumnsToFit();
+    };
 
     return (
         <>
@@ -283,6 +290,7 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
                     ref={gridRef}
                     columnDefs={columnDefs}
                     rowData={rowData}
+                    onGridReady={onGridReady}
                 />
             </div>
         </>

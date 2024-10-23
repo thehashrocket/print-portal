@@ -56,6 +56,9 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
 
     useEffect(() => {
         setRowData(notes);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [notes]);
 
     const onGridReady = (params: GridReadyEvent) => {

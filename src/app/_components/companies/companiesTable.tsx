@@ -35,7 +35,7 @@ interface CompaniesTableProps {
 }
 
 const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) => {
-    const gridRef = useRef(null);
+    const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedCompany[]>(initialCompanies);
     const [loading, setLoading] = useState(true);
 
@@ -65,6 +65,9 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
                 orderTotalCompleted: typeof company.orderTotalCompleted === 'number' ? company.orderTotalCompleted : 0,
             }));
             setRowData(completeCompanies);
+            if (gridRef.current) {
+                gridRef.current.api.sizeColumnsToFit();
+            }
         }
     }, [updatedCompanies]);
 
@@ -132,6 +135,9 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     useEffect(() => {
         setRowData(initialCompanies);
         setLoading(false);
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [initialCompanies]);
 
     if (loading) {

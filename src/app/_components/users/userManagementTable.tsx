@@ -83,6 +83,9 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         if (updatedUsers) {
             setRowData(updatedUsers);
             setLoading(false);
+            if (gridRef.current) {
+                gridRef.current.api.sizeColumnsToFit();
+            }
         }
     }, [updatedUsers]);
 

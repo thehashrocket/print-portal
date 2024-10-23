@@ -82,6 +82,9 @@ const WorkOrdersTable: React.FC = () => {
                 gridRef.current.api.sizeColumnsToFit();
             }
         }
+        if (gridRef.current) {
+            gridRef.current.api.sizeColumnsToFit();
+        }
     }, [workOrders]);
 
     const onGridReady = (params: GridReadyEvent) => {

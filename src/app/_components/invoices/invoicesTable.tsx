@@ -31,10 +31,10 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices }) => {
         setRowData(invoices);
         if (gridRef.current) {
             gridRef.current.api.sizeColumnsToFit();
-          }
+        }
     }, [invoices]);
 
-    
+
 
     const formatDate = (params: ValueFormatterParams) => {
         return new Date(params.value).toLocaleDateString();
