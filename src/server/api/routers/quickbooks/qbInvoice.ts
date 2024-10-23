@@ -403,6 +403,13 @@ export const qbInvoiceRouter = createTRPCRouter({
                     },
                 });
 
+                await ctx.db.order.update({
+                    where: { id: invoice.Order.id },
+                    data: {
+                        quickbooksInvoiceId: response.data.Invoice.Id,
+                    },
+                });
+
                 return response.data;
             } catch (error) {
                 console.error('Error creating invoice in QuickBooks:', error);
