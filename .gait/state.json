@@ -3128,8 +3128,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
-            ]
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+              "src/app/_components/invoices/QuickbooksInvoiceButton.tsx"
+            ],
+            "file_path_dict": {
+              "0": "src/app/_components/invoices/QuickbooksInvoiceButton.tsx"
+            }
           }
         },
         {
