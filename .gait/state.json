@@ -41,8 +41,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -89,8 +93,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -233,8 +241,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -281,8 +293,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -329,8 +345,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -377,8 +397,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -473,8 +497,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            ],
+            "file_path_dict": {
+              "0": "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            }
           }
         },
         {
@@ -496,8 +524,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            ],
+            "file_path_dict": {
+              "0": "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            }
           }
         },
         {
@@ -678,7 +710,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         },
         {
           "id": "b8a4dd64-1e6d-4e49-a078-34dbaefa0036",
@@ -697,7 +736,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         },
         {
           "id": "d00f65bd-0a18-4e73-acee-0fe1322986bc",
@@ -706,7 +752,15 @@
           "model": "claude-3.5-sonnet",
           "timestamp": "2024-10-10T04:40:01.763Z",
           "context": [],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts",
+              "2": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         },
         {
           "id": "ed7e5e0e-8169-4de0-81e1-1887729bbd42",
@@ -724,7 +778,14 @@
           "model": "claude-3.5-sonnet",
           "timestamp": "2024-10-10T04:40:01.763Z",
           "context": [],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "1": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         },
         {
           "id": "d226b02e-9003-4d97-94bb-9ce8702eac47",
@@ -752,7 +813,16 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts",
+              "2": "src/app/_components/orders/ordersTable.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/orders/ordersTable.tsx",
+              "src/types/serializedTypes.ts"
+            ]
+          }
         },
         {
           "id": "e0f875c2-debd-43c8-ab91-17b66d7a05b8",
@@ -869,7 +939,14 @@
           "model": "claude-3.5-sonnet",
           "timestamp": "2024-10-09T19:13:48.642Z",
           "context": [],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         },
         {
           "id": "368b270a-c285-4d71-8187-539cec048c19",
@@ -923,7 +1000,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "1": "src/types/serializedTypes.ts"
+            },
+            "file_paths": [
+              "src/types/serializedTypes.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1018,8 +1102,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/invoices/InvoiceDetailClient.tsx"
-            ]
+              "src/app/_components/invoices/InvoiceDetailClient.tsx",
+              "src/types/serializedTypes.ts"
+            ],
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            }
           }
         }
       ],
@@ -1108,7 +1196,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            },
+            "file_paths": [
+              "src/types/serializedTypes.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -1259,7 +1354,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/types/serializedTypes.ts"
+            },
+            "file_paths": [
+              "src/types/serializedTypes.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -2049,7 +2151,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -2093,7 +2202,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -2137,7 +2253,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/server/api/routers/quickbooks/qbInvoice.ts"
+            },
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -2757,17 +2880,311 @@
         }
       ],
       "kv_store": {}
+    },
+    {
+      "ai_editor": "cursor",
+      "customTitle": "Resolving TypeScript Type Assignment Error",
+      "id": "e7af80a3-9be8-4431-af39-fc1b16b5be18",
+      "parent_id": null,
+      "created_on": "2024-10-22T00:01:43.752Z",
+      "messages": [
+        {
+          "id": "af110eaf-2a67-47b1-bfb8-6e168c40fc0a",
+          "messageText": "For the code present, we get this error:\n```\nType '{ orderId: string; }' is not assignable to type '(Without<InvoiceCreateInput, InvoiceUncheckedCreateInput> & InvoiceUncheckedCreateInput) | (Without<...> & InvoiceCreateInput)'.\n  Type '{ orderId: string; }' is not assignable to type 'Without<InvoiceCreateInput, InvoiceUncheckedCreateInput> & InvoiceUncheckedCreateInput'.\n    Type '{ orderId: string; }' is missing the following properties from type 'InvoiceUncheckedCreateInput': invoiceNumber, dateIssued, dateDue, subtotal, and 4 more.\n```\nHow can I resolve this? If you propose a fix, please make it concise.",
+          "responseText": "The error message indicates that the `InvoiceCreateInput` type requires additional fields beyond just `orderId`. To resolve this, you need to provide values for all required fields when creating a new invoice. Here's a concise fix:\n\n```typescript:src/server/api/routers/quickbooks/qbInvoice.ts\n                invoice = await ctx.db.invoice.create({\n                    data: { \n                        orderId: order.id,\n                        invoiceNumber: 'INV-001', // Example value\n                        dateIssued: new Date(),\n                        dateDue: new Date(new Date().setDate(new Date().getDate() + 30)), // Example: 30 days from now\n                        subtotal: 0, // Example value\n                        // Add other required fields with appropriate values\n                    },\n                });\n```\n\n### Explanation:\n- **invoiceNumber**: Assign a unique invoice number.\n- **dateIssued**: Set the current date as the issue date.\n- **dateDue**: Set a due date, e.g., 30 days from the issue date.\n- **subtotal**: Provide a default value, such as `0`, or calculate based on order items.\n\nEnsure you replace the example values with actual data relevant to your application logic.",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-22T00:01:43.752Z",
+          "context": [
+            {
+              "context_type": "selection",
+              "key": "31282389-dffa-4b92-9a04-08bcf7d7e5e8",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/server/api/routers/quickbooks/qbInvoice.ts",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/server/api/routers/quickbooks/qbInvoice.ts",
+                "range": {
+                  "startLine": 248,
+                  "startColumn": 1,
+                  "endLine": 251,
+                  "endColumn": 14
+                },
+                "text": "                invoice = await ctx.db.invoice.create({\n                    data: { orderId: order.id },\n                });\n            }"
+              }
+            },
+            {
+              "context_type": "file",
+              "key": "75e54818-8310-4eb3-9d75-9dc25f69a2b3",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/server/api/routers/quickbooks/qbInvoice.ts",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/server/api/routers/quickbooks/qbInvoice.ts",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/server/api/routers/quickbooks/qbInvoice.ts"
+            ]
+          }
+        }
+      ],
+      "kv_store": {}
+    },
+    {
+      "ai_editor": "cursor",
+      "customTitle": "Resolving TypeScript Object Literal Error",
+      "id": "35ca852c-7a0d-41f8-bf74-ae249722eb14",
+      "parent_id": null,
+      "created_on": "2024-10-22T00:21:03.513Z",
+      "messages": [
+        {
+          "id": "499a0f8a-ac80-4938-8ac3-b7efab18e738",
+          "messageText": "For the code present, we get this error:\n```\nObject literal may only specify known properties, and 'orderId' does not exist in type 'UseTRPCMutationOptions<{ status: \"Cancelled\" | \"Draft\" | \"Sent\" | \"Paid\" | \"Overdue\"; orderId: string; dateIssued: Date; dateDue: Date; subtotal: number; taxRate: number; taxAmount: number; total: number; items: { ...; }[]; notes?: string | undefined; }, TRPCClientErrorLike<...>, SerializedInvoice, unknown>'.\n```\nHow can I resolve this? If you propose a fix, please make it concise.",
+          "responseText": "The error message indicates that the `orderId` property is not recognized in the object passed to `useMutation`. This suggests that the `create` mutation expects a different set of properties. You need to ensure that the properties you pass match the expected type.\n\nHere's a concise fix:\n\n1. Check the expected properties for the `create` mutation.\n2. Update the mutation call to include only the recognized properties.\n\nAssuming `create` expects properties like `status`, `dateIssued`, `dateDue`, etc., you should update the mutation call accordingly:\n\n```typescript:src/app/_components/orders/QuickbooksInvoiceButton.tsx\n            api.invoices.create.useMutation({\n                status: \"Draft\", // or another appropriate status\n                dateIssued: new Date(),\n                dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),\n                // Add other required properties like subtotal, taxRate, etc.\n            });\n```\n\nMake sure to replace the placeholder values with actual data as needed. If `orderId` is necessary for your logic, you might need to handle it differently, such as by including it in the `items` array or another appropriate field.",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-22T00:21:03.513Z",
+          "context": [
+            {
+              "context_type": "selection",
+              "key": "c6c88afc-dd83-45e3-a19b-40291e6f3203",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "range": {
+                  "startLine": 23,
+                  "startColumn": 1,
+                  "endLine": 26,
+                  "endColumn": 82
+                },
+                "text": "            api.invoices.create.useMutation({\n                orderId: params.row.id,\n                dateIssued: new Date(),\n                dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),"
+              }
+            },
+            {
+              "context_type": "file",
+              "key": "ba556569-7668-483e-bb37-6d42fb60f5ad",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            ]
+          }
+        }
+      ],
+      "kv_store": {}
+    },
+    {
+      "ai_editor": "cursor",
+      "customTitle": "Resolving TypeScript Mutation Options Error",
+      "id": "67bf1547-8a21-4bba-ba76-94ab6756b15c",
+      "parent_id": null,
+      "created_on": "2024-10-22T00:30:05.378Z",
+      "messages": [
+        {
+          "id": "d34c7cd9-65a2-4dc0-9f90-f6af71bc4036",
+          "messageText": "For the code present, we get this error:\n```\nObject literal may only specify known properties, and 'orderId' does not exist in type 'UseTRPCMutationOptions<{ status: \"Cancelled\" | \"Draft\" | \"Sent\" | \"Paid\" | \"Overdue\"; orderId: string; dateIssued: Date; dateDue: Date; subtotal: number; taxRate: number; taxAmount: number; total: number; items: { ...; }[]; notes?: string | undefined; }, TRPCClientErrorLike<...>, SerializedInvoice, unknown>'.\n```\nHow can I resolve this? If you propose a fix, please make it concise.",
+          "responseText": "The error message indicates that the `orderId` property is not recognized in the object passed to `useMutation`. This suggests that the `useMutation` function does not expect an `orderId` property in its options object. To resolve this, you should ensure that the `orderId` is passed as part of the mutation variables, not as part of the options object.\n\nHere's how you can fix it:\n\n```typescript:src/app/_components/orders/QuickbooksInvoiceButton.tsx\n// ... existing code ...\nif (!order?.data?.Invoice) {\n    api.invoices.create.useMutation({\n        variables: {\n            orderId: params.row.id,\n            dateIssued: new Date(),\n            dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),\n            subtotal: order.data.calculatedSubTotal,\n            taxRate: 7.0, // Ensure this is a number, not a string\n            taxAmount: order.data.calculatedSalesTax,\n            total: order.data.totalAmount,\n            status: \"Draft\",\n            notes: \"\",\n            items: order.data.OrderItems.map((item) => ({\n                description: item.description,\n                quantity: item.quantity,\n                unitPrice: item.cost,\n                total: item.amount,\n                orderItemId: item.id,\n            })),\n        },\n    });\n}\n// ... existing code ...\n```\n\n### Explanation:\n- **Move `orderId` to `variables`:** The `orderId` should be part of the mutation variables, not the options object.\n- **Ensure `taxRate` is a number:** The error message suggests `taxRate` should be a number, so ensure it's not a string.",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-22T00:30:05.378Z",
+          "context": [
+            {
+              "context_type": "selection",
+              "key": "1a303d21-655c-4402-8443-3a595d3d13b6",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "range": {
+                  "startLine": 29,
+                  "startColumn": 1,
+                  "endLine": 32,
+                  "endColumn": 82
+                },
+                "text": "            api.invoices.create.useMutation({\n                orderId: params.row.id,\n                dateIssued: new Date(),\n                dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),"
+              }
+            },
+            {
+              "context_type": "file",
+              "key": "14610901-94fd-445d-9195-41f17ead43ec",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            ]
+          }
+        },
+        {
+          "id": "ee320298-dafe-4c0b-acf0-ea96d3ea7b0d",
+          "messageText": "Am I breaking the Rule of Hools in this component?",
+          "responseText": "The \"Rules of Hooks\" in React are guidelines to ensure that hooks are used correctly. The two main rules are:\n\n1. **Only Call Hooks at the Top Level:** Don't call hooks inside loops, conditions, or nested functions. This ensures that hooks are called in the same order on every render.\n\n2. **Only Call Hooks from React Functions:** Call hooks from React function components or custom hooks, not from regular JavaScript functions.\n\nLet's review your component to see if these rules are being followed:\n\n- **Hook Usage:** You are using hooks like `useQuickbooksStore` and `api.qbInvoices.createQbInvoiceFromInvoice.useMutation` at the top level of your component, which is correct. They are not inside any loops, conditions, or nested functions.\n\n- **React Function Component:** The hooks are being called from within a React function component (`QuickbooksInvoiceButton`), which is also correct.\n\nBased on the provided code, you are not breaking the Rules of Hooks. Your hooks are used at the top level of the component and within a React function component. If you have any specific concerns or additional code that might affect this, feel free to share!",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-23T02:36:24.762Z",
+          "context": [
+            {
+              "context_type": "file",
+              "key": "902c27a4-590b-43fc-93cb-c45d4c2378c1",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {}
+        },
+        {
+          "id": "8f4ec1b6-efb7-46c1-b775-39020966b9a5",
+          "messageText": "When I click on Add to QB I am seeing this error in the console:\n\nUncaught (in promise) Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app",
+          "responseText": "The error message you're seeing is a common one when there's a problem with how hooks are being used or with the React setup. Here are some steps to troubleshoot and resolve the issue:\n\n### 1. **Check for Mismatching Versions:**\n- Ensure that the versions of `react` and `react-dom` in your `package.json` are the same. You can check this by running:\n  ```bash\n  npm list react react-dom\n  ```\n- If they are mismatched, update them to the same version:\n  ```bash\n  npm install react@latest react-dom@latest\n  ```\n\n### 2. **Check for Multiple React Copies:**\n- Having multiple copies of React can cause this error. Run the following command to check:\n  ```bash\n  npm ls react\n  ```\n- If you see multiple versions, you might need to deduplicate them. This can often be resolved by running:\n  ```bash\n  npm dedupe\n  ```\n\n### 3. **Ensure Hooks are Used Correctly:**\n- Double-check that all hooks are being called at the top level of your component and not inside any conditions, loops, or nested functions.\n\n### 4. **Check for Third-Party Libraries:**\n- Sometimes third-party libraries can cause issues if they have their own version of React. Ensure that all libraries are compatible with your version of React.\n\n### 5. **Development Environment:**\n- Make sure your development environment is set up correctly. Sometimes, issues can arise from using different environments (e.g., local vs. production).\n\n### 6. **Reinstall Node Modules:**\n- As a last resort, try deleting your `node_modules` folder and `package-lock.json` file, then reinstalling:\n  ```bash\n  rm -rf node_modules package-lock.json\n  npm install\n  ```\n\nIf none of these steps resolve the issue, consider creating a minimal reproduction of the problem and checking if the error persists. This can help isolate whether the issue is with your code or the environment.",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-23T02:36:24.762Z",
+          "context": [
+            {
+              "context_type": "file",
+              "key": "ebcb2a1f-94c3-4554-91ff-4fa2122fb655",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {}
+        },
+        {
+          "id": "8bccc681-4292-4105-906b-9bf9855b1ac8",
+          "messageText": "The error is being triggered at line 27, which is this line here:\n\nconst order = api.orders.getByID.useQuery(params.row.id);",
+          "responseText": "The error you're encountering suggests that the `useQuery` hook is being called incorrectly. In React, hooks like `useQuery` must be called at the top level of a React function component or a custom hook, not inside any other function or conditional logic.\n\nIn your code, `useQuery` is being called inside the `handleSync` function, which is not allowed. To fix this, you should move the `useQuery` call to the top level of your component. Here's how you can refactor your code:\n\n```typescript:src/app/_components/orders/QuickbooksInvoiceButton.tsx\n// ... existing code ...\n\nconst QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {\n    const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);\n\n    // Move the useQuery hook to the top level\n    const { data: orderData, error: orderError } = api.orders.getByID.useQuery(params.row.id);\n\n    const createQbInvoiceFromInvoice = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({\n        onSuccess: () => {\n            onSyncSuccess();\n        },\n    });\n\n    const createInvoice = api.invoices.create.useMutation({\n        onSuccess: () => {\n            onSyncSuccess();\n        },\n    });\n\n    const handleSync = async () => {\n        // Check if there is an error or no data\n        if (orderError || !orderData) {\n            toast.error('Order not found');\n            return;\n        }\n\n        if (!orderData.Invoice) {\n            // Create a new invoice\n            const invoice = await createInvoice.mutateAsync({\n                orderId: params.row.id,\n                dateIssued: new Date(),\n                dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),\n                subtotal: parseFloat(orderData.calculatedSubTotal || '0'),\n                taxRate: 7.0, // Ensure this is a number, not a string\n                taxAmount: parseFloat(orderData.calculatedSalesTax || '0'),\n                total: parseFloat(orderData.totalAmount || '0'),\n                status: \"Draft\",\n                notes: \"\",\n                items: orderData.OrderItems.map((item) => ({\n                    description: item.description,\n                    quantity: item.quantity,\n                    unitPrice: parseFloat(item.cost || '0'),\n                    total: parseFloat(item.amount || '0'),\n                    orderItemId: item.id,\n                })),\n            });\n            toast.success('Invoice created successfully');\n            await createQbInvoiceFromInvoice.mutateAsync({ invoiceId: invoice.id });\n        } else {\n            await createQbInvoiceFromInvoice.mutateAsync({ invoiceId: orderData.Invoice.id });\n        }\n    };\n\n    const syncButtonText = params.row.quickbooksInvoiceId\n        ? 'Sync with QB'\n        : 'Add to QB';\n\n    return (\n        <button\n            className={`btn btn-xs btn-outline ${createQbInvoiceFromInvoice.isPending ? 'loading' : ''}`}\n            onClick={handleSync}\n            disabled={createQbInvoiceFromInvoice.isPending || !isAuthenticated}\n        >\n            {!createQbInvoiceFromInvoice.isPending && (\n                <svg\n                    xmlns=\"http://www.w3.org/2000/svg\"\n                    className=\"h-4 w-4\"\n                    fill=\"none\"\n                    viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n                    <path strokeLinecap=\"round\" strokeLinejoin=\"round\" strokeWidth={2} d=\"M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15\" />\n                </svg>\n            )}\n            {createQbInvoiceFromInvoice.isPending ? 'Syncing...' : syncButtonText}\n        </button>\n    );\n};\n\nexport default QuickbooksInvoiceButton;\n```\n\n### Key Changes:\n- **Move `useQuery` to the Top Level:** The `useQuery` hook is now called at the top level of the component, not inside the `handleSync` function.\n- **Handle Errors and Data:** Check for errors or missing data before proceeding with the rest of the logic in `handleSync`.",
+          "model": "gpt-4o",
+          "timestamp": "2024-10-23T02:36:24.762Z",
+          "context": [
+            {
+              "context_type": "file",
+              "key": "6b1b0627-1b5d-4c19-929e-98297559d606",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+            ]
+          }
+        }
+      ],
+      "kv_store": {}
     }
   ],
-  "inlineChats": [],
+  "inlineChats": [
+    {
+      "inline_chat_id": "1bb4e86c-df78-451e-87e6-31810366108c",
+      "file_diff": [
+        {
+          "file_path": "src/server/api/routers/quickbooks/qbInvoice.ts",
+          "diffs": [
+            {
+              "count": 240,
+              "added": false,
+              "removed": false,
+              "value": "import { createTRPCRouter, protectedProcedure } from \"~/server/api/trpc\";\nimport { refreshTokenIfNeeded } from \"~/services/quickbooksService\";\nimport { TRPCError } from \"@trpc/server\";\nimport { XMLParser } from 'fast-xml-parser';\nimport axios from 'axios';\nimport { z } from 'zod';\n\nasync function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId: string, customerId: string) {\n    let query = `SELECT * from Invoice`;\n\n    const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'\n        ? 'https://sandbox-quickbooks.api.intuit.com'\n        : 'https://quickbooks.api.intuit.com';\n\n        const parser = new XMLParser({\n            ignoreAttributes: false,\n            attributeNamePrefix: \"\",\n            parseAttributeValue: true\n        }); \n\n    const queryUrl = `${baseUrl}/v3/company/${quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;\n\n    const response = await axios.get(queryUrl, {\n        headers: {\n            'Authorization': `Bearer ${accessToken}`,\n            'Accept': 'application/xml',\n        }\n    });\n    console.log(response.data);\n\n    return response.data;\n};\n\nasync function fetchInvoicesForOffice(ctx: any, accessToken: string, quickbooksRealmId: string, customerId: string) {\n    let query = `SELECT * from Invoice WHERE CustomerRef = '${customerId}'`;\n\n    const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'\n        ? 'https://sandbox-quickbooks.api.intuit.com'\n        : 'https://quickbooks.api.intuit.com';\n\n        const parser = new XMLParser({\n            ignoreAttributes: false,\n            attributeNamePrefix: \"\",\n            parseAttributeValue: true\n        }); \n\n    const queryUrl = `${baseUrl}/v3/company/${quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;\n\n    const response = await axios.get(queryUrl, {\n        headers: {\n            'Authorization': `Bearer ${accessToken}`,\n            'Accept': 'application/xml',\n        }\n    });\n    const result = parser.parse(response.data);\n    const totalCount = result.IntuitResponse.QueryResponse.totalCount;\n    const invoices = result.IntuitResponse.QueryResponse.Invoice;\n    \n    console.log('invoices', invoices);\n    return invoices;\n}\n\nfunction formatItemDescription(item: any): string {\n    let description = item.description || '';\n\n    if (item.OrderItemStock && item.OrderItemStock.length > 0) {\n        const stock = item.OrderItemStock[0];\n        description += ` | Paper: ${stock.description || 'N/A'}`;\n    }\n\n    if (item.ProcessingOptions && item.ProcessingOptions.length > 0) {\n        const options = item.ProcessingOptions[0];\n        description += ` | Processing: ${options.description || 'N/A'}`;\n    }\n\n    if (item.Typesetting && item.Typesetting.length > 0) {\n        const typesetting = item.Typesetting[0];\n        description += ` | Typesetting: ${typesetting.description || 'N/A'}`;\n    }\n\n    if (item.quantity) {\n        description += ` | Quantity: ${item.quantity}`;\n    }\n\n    return description;\n}\n\nexport const qbInvoiceRouter = createTRPCRouter({\n    // Fetch all invoices for all offices\n    syncInvoices: protectedProcedure\n        .query(async ({ ctx }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            // Look through the offices and find the all that has a quickbooksCustomerId\n            const offices = await ctx.db.office.findMany({\n                where: {\n                    quickbooksCustomerId: { not: null }\n                }\n            });\n\n            // Look through the offices and get the invoices for each office\n            const invoices = await Promise.all(offices.map(async (office) => {\n                if (office.quickbooksCustomerId && user?.quickbooksRealmId) {\n                    return fetchAllInvoices(ctx, accessToken, user.quickbooksRealmId, office.quickbooksCustomerId);\n                }\n            }));\n\n            return invoices;\n        }),\n\n    // Sync a Single Invoice for an Office\n    syncInvoice: protectedProcedure\n        .input(z.object({ orderId: z.string() }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const order = await ctx.db.order.findUnique({\n                where: { id: input.orderId },\n                include: {\n                    Office: true,\n                },\n            });\n\n            if (!order) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Order not found',\n                });\n            }\n\n            if (!order.Office.quickbooksCustomerId) {\n                throw new TRPCError({\n                    code: 'BAD_REQUEST',\n                    message: 'Office does not have a QuickBooks Customer ID',\n                });\n            }\n\n            const invoices = await fetchInvoicesForOffice(ctx, accessToken, user.quickbooksRealmId, order.Office.quickbooksCustomerId);\n            return invoices;\n\n        }),\n\n    // Sync Invoices for an Office\n    syncInvoicesForOffice: protectedProcedure\n        .input(z.object({ officeId: z.string() }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const office = await ctx.db.office.findUnique({\n                where: { id: input.officeId },\n                select: { quickbooksCustomerId: true },\n            });\n\n            if (!office?.quickbooksCustomerId) {\n                throw new TRPCError({\n                    code: 'BAD_REQUEST',\n                    message: 'Office does not have a QuickBooks Customer ID',\n                });\n            }\n\n            const invoices = await fetchInvoicesForOffice(ctx, accessToken, user.quickbooksRealmId, office.quickbooksCustomerId);\n            return invoices;\n        }),\n\n    // Create Invoice for an Order\n    createQbInvoiceFromOrder: protectedProcedure\n        .input(z.object({ orderId: z.string() }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const order = await ctx.db.order.findUnique({\n                where: { id: input.orderId },\n                include: {\n                    Office: true,\n                    OrderItems: {\n                        include: {\n                            OrderItemStock: true,\n                            ProcessingOptions: true,\n                            Typesetting: true,\n                        }\n                    },\n                    ShippingInfo: {\n                        include: {\n                            Address: true,\n                        }\n                    },\n                },\n            });\n\n            if (!order) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Order not found',\n                });\n            }\n\n            if (!order.Office.quickbooksCustomerId) {\n                throw new TRPCError({\n                    code: 'BAD_REQUEST',\n                    message: 'Office does not have a QuickBooks Customer ID',\n                });\n            }\n\n"
+            },
+            {
+              "count": 12,
+              "added": true,
+              "removed": false,
+              "value": "            // Check if there is an invoice for this order\n            let invoice = await ctx.db.invoice.create({\n                data: { \n                    orderId: order.id,\n                    invoiceNumber: 'INV-001', // Example value\n                    dateIssued: new Date(),\n                    dateDue: new Date(new Date().setDate(new Date().getDate() + 30)), // Example: 30 days from now\n                    subtotal: 0, // Example value\n                    // Add other required fields with appropriate values\n                },\n            });\n\n"
+            },
+            {
+              "count": 175,
+              "added": false,
+              "removed": false,
+              "value": "            const invoiceData = {\n                Line: [\n                    ...order.OrderItems.map(item => ({\n                        DetailType: \"SalesItemLineDetail\",\n                        Description: formatItemDescription(item),\n                        Amount: item.amount?.toNumber() ?? 0,\n                        SalesItemLineDetail: {\n                            Qty: item.quantity,\n                            UnitPrice: (item.amount?.toNumber() ?? 0) / (item.quantity || 1),\n                        }\n                    })),\n                    ...(order.ShippingInfo ? [{\n                        DetailType: \"SalesItemLineDetail\",\n                        Description: \"Shipping\",\n                        Amount: order.ShippingInfo.shippingCost?.toNumber() ?? 0,\n                        SalesItemLineDetail: {\n                            Qty: 1,\n                            UnitPrice: order.ShippingInfo.shippingCost?.toNumber() ?? 0,\n                        }\n                    }] : []),\n                ],\n                CustomerRef: {\n                    value: order.Office.quickbooksCustomerId,\n                },\n                ShipAddr: order.ShippingInfo?.Address ? {\n                    Line1: order.ShippingInfo.Address.line1,\n                    City: order.ShippingInfo.Address.city,\n                    CountrySubDivisionCode: order.ShippingInfo.Address.state,\n                    PostalCode: order.ShippingInfo.Address.zipCode,\n                    Country: order.ShippingInfo.Address.country,\n                } : undefined,\n            };\n\n            const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'\n                ? 'https://sandbox-quickbooks.api.intuit.com'\n                : 'https://quickbooks.api.intuit.com';\n\n            try {\n                const response = await axios.post(\n                    `${baseUrl}/v3/company/${user.quickbooksRealmId}/invoice`,\n                    invoiceData,\n                    {\n                        headers: {\n                            'Authorization': `Bearer ${accessToken}`,\n                            'Content-Type': 'application/json',\n                        },\n                    }\n                );\n                // Update the order with the QuickBooks Invoice ID\n                await ctx.db.order.update({\n                    where: { id: order.id },\n                    data: {\n                        quickbooksInvoiceId: response.data.Invoice.Id,\n                    },\n                });\n\n                return response.data;\n            } catch (error) {\n                console.error('Error creating invoice in QuickBooks:', error);\n                throw new TRPCError({\n                    code: 'INTERNAL_SERVER_ERROR',\n                    message: 'Failed to create invoice in QuickBooks',\n                });\n            }\n        }),\n    \n    createQbInvoiceFromInvoice: protectedProcedure\n        .input(z.object({ invoiceId: z.string() }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const invoice = await ctx.db.invoice.findUnique({\n                where: { id: input.invoiceId },\n                include: {\n                    InvoiceItems: true,\n                    Order: {\n                        include: {\n                            Office: true,\n                            ShippingInfo: {\n                                include: {\n                                    Address: true,\n                                }\n                            },\n                        }\n                    }\n                },\n            });\n\n            if (!invoice) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Invoice not found',\n                });\n            }   \n\n            if (!invoice.Order.Office.quickbooksCustomerId) {\n                throw new TRPCError({\n                    code: 'BAD_REQUEST',\n                    message: 'Office does not have a QuickBooks Customer ID',\n                });\n            }\n\n            const invoiceData = {\n                Line: [\n                    ...invoice.InvoiceItems.map(item => ({\n                        DetailType: \"SalesItemLineDetail\",\n                        Description: formatItemDescription(item),\n                        Amount: item.total?.toNumber() ?? 0,\n                        SalesItemLineDetail: {\n                            Qty: item.quantity,\n                            UnitPrice: (item.total?.toNumber() ?? 0) / (item.quantity || 1),\n                        }\n                    })),\n                    ...(invoice.Order.ShippingInfo ? [{\n                        DetailType: \"SalesItemLineDetail\",\n                        Description: \"Shipping\",\n                        Amount: invoice.Order.ShippingInfo.shippingCost?.toNumber() ?? 0,\n                        SalesItemLineDetail: {\n                            Qty: 1,\n                            UnitPrice: invoice.Order.ShippingInfo.shippingCost?.toNumber() ?? 0,\n                        }   \n                    }] : []),\n                ],\n                CustomerRef: {\n                    value: invoice.Order.Office.quickbooksCustomerId,\n                },\n                ShipAddr: invoice.Order.ShippingInfo?.Address ? {\n                    Line1: invoice.Order.ShippingInfo.Address.line1,\n                    City: invoice.Order.ShippingInfo.Address.city,\n                    } : undefined,\n            };\n\n            const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'\n                ? 'https://sandbox-quickbooks.api.intuit.com'\n                : 'https://quickbooks.api.intuit.com';\n\n            try {\n                const response = await axios.post(\n                    `${baseUrl}/v3/company/${user.quickbooksRealmId}/invoice`,\n                    invoiceData,\n                    {\n                        headers: {\n                            'Authorization': `Bearer ${accessToken}`,\n                            'Content-Type': 'application/json',\n                        },\n                    }\n                );\n                // Update the invoice with the QuickBooks Invoice ID\n                await ctx.db.invoice.update({\n                    where: { id: invoice.id },\n                    data: {\n                        quickbooksId: response.data.Invoice.Id,\n                    },\n                });\n\n                return response.data;\n            } catch (error) {\n                console.error('Error creating invoice in QuickBooks:', error);\n                throw new TRPCError({\n                    code: 'INTERNAL_SERVER_ERROR',\n                    message: 'Failed to create invoice in QuickBooks',\n                });\n            }\n        }),\n});\n"
+            }
+          ]
+        }
+      ],
+      "selection": null,
+      "timestamp": "2024-10-22T00:01:57.315Z",
+      "prompt": "Please fix",
+      "parent_inline_chat_id": null
+    },
+    {
+      "inline_chat_id": "d2cbf752-6404-4a0b-8a6a-541e02200ab6",
+      "file_diff": [
+        {
+          "file_path": "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+          "diffs": [
+            {
+              "count": 16,
+              "added": false,
+              "removed": false,
+              "value": "// ~/app/_components/orders/QuickbooksInvoiceButton.tsx\n\"use client\";\n\nimport React from 'react';\nimport { api } from \"~/trpc/react\";\nimport { toast } from 'react-hot-toast';\nimport { useQuickbooksStore } from '~/store/useQuickbooksStore';\n\nconst QuickbooksInvoiceButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {\n    const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);\n    const syncMutation = api.qbInvoices.createQbInvoiceFromOrder.useMutation({\n        onSuccess: () => {\n            onSyncSuccess();\n        },\n    });\n\n"
+            },
+            {
+              "count": 6,
+              "added": true,
+              "removed": false,
+              "value": "    const createInvoice = api.invoices.create.useMutation({\n        onSuccess: () => {\n            onSyncSuccess();\n        },\n    });\n\n"
+            },
+            {
+              "count": 1,
+              "added": false,
+              "removed": false,
+              "value": "    const handleSync = async () => {\n"
+            },
+            {
+              "count": 31,
+              "added": true,
+              "removed": false,
+              "value": "\n        // Check if there is an invoice for this order\n        const order = await api.orders.getByID.useQuery(params.row.id);\n        \n        if (!order?.data) {\n            toast.error('Order not found');\n            return;\n        }\n\n        if (!order?.data?.Invoice) {\n            // Create a new invoice\n            await createInvoice.mutateAsync({\n                orderId: params.row.id,\n                dateIssued: new Date(),\n                dateDue: new Date(new Date().setDate(new Date().getDate() + 30)),\n                subtotal: parseFloat(order.data.calculatedSubTotal || '0'),\n                taxRate: 7.0, // Ensure this is a number, not a string\n                taxAmount: parseFloat(order.data.calculatedSalesTax || '0'),\n                total: parseFloat(order.data.totalAmount || '0'),\n                status: \"Draft\",\n                notes: \"\",\n                items: order.data.OrderItems.map((item) => ({\n                    description: item.description,\n                    quantity: item.quantity,\n                    unitPrice: parseFloat(item.cost || '0'),\n                    total: parseFloat(item.amount || '0'),\n                        orderItemId: item.id,\n                    })),\n                });\n        }\n\n"
+            },
+            {
+              "count": 27,
+              "added": false,
+              "removed": false,
+              "value": "        await syncMutation.mutateAsync({ orderId: params.row.id });\n    };\n\n    const syncButtonText = params.row.quickbooksInvoiceId\n        ? 'Sync with QB'\n        : 'Add to QB';\n\n    return (\n        <button\n            className={`btn btn-xs btn-outline ${syncMutation.isPending ? 'loading' : ''}`}\n            onClick={handleSync}\n            disabled={syncMutation.isPending || !isAuthenticated}\n        >\n            {!syncMutation.isPending && (\n                <svg\n                    xmlns=\"http://www.w3.org/2000/svg\"\n                    className=\"h-4 w-4\"\n                    fill=\"none\"\n                    viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n                    <path strokeLinecap=\"round\" strokeLinejoin=\"round\" strokeWidth={2} d=\"M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15\" />\n                </svg>\n            )}\n            {syncMutation.isPending ? 'Syncing...' : syncButtonText}\n        </button>\n    );\n};\n\n"
+            },
+            {
+              "count": 1,
+              "added": false,
+              "removed": true,
+              "value": "export default QuickbooksInvoiceButton;"
+            },
+            {
+              "count": 1,
+              "added": true,
+              "removed": false,
+              "value": "export default QuickbooksInvoiceButton;\n"
+            }
+          ]
+        }
+      ],
+      "selection": null,
+      "timestamp": "2024-10-23T02:24:33.661Z",
+      "prompt": "Please fix",
+      "parent_inline_chat_id": null
+    }
+  ],
   "schemaVersion": "1.0",
   "deletedChats": {
     "deletedMessageIDs": [],
     "deletedPanelChatIDs": []
   },
   "kv_store": {
-    "unique_matched_lines_count": 1998,
-    "total_repo_line_count": 31805,
+    "unique_matched_lines_count": 2313,
+    "total_repo_line_count": 31849,
     "best_prompt_response": {
       "prompt": "1. yes. If there isn't a quickbooksCustomerId on the office, then it should provoide a way to sync the data with Quickbooks. It should check to see whether the customer exists in quickbooks and either pull the data from quickbooks or push the new data to quickbooks.\n2. It should check to see whether the data exists in quickbooks and update the local database or push the data to quickbooks and create a customer. \n3. We should check to see if the customer (including the office) exists in quickbooks and either create it or pull it from quickbooks.\n4. Great question, and one that I have been struggling with. Here is the ideal scenario: When a user first creates an account, it should pull all the data from quickbooks and create Company and Offices. After that point, the ideal (happy path) is that users create companies and offices within the app and when they do, that data is pushed to quickbooks. The unhappy path is that they create companies and offices within quickbooks and then we have to sync that data into the application I don't have a solution for that at this point.\n5. Yes, we should. \n6. I don't know at this point, but I am open to your suggetsions.",
       "response": "Thank you for the detailed responses. Based on your answers, I'll provide a solution that addresses these requirements. Let's start by modifying the `qbCustomerRouter` to include a new procedure for syncing an office with QuickBooks.\n\n```typescript:src/server/api/routers/quickbooks/qbCustomer.ts\nimport { createTRPCRouter, protectedProcedure } from \"~/server/api/trpc\";\nimport OAuthClient from 'intuit-oauth';\nimport { TRPCError } from \"@trpc/server\";\nimport { refreshTokenIfNeeded } from \"~/services/quickbooksService\";\nimport { z } from 'zod';\nimport axios from 'axios';\n\n// ... existing imports and oauthClient setup ...\n\nexport const qbCustomerRouter = createTRPCRouter({\n    // ... existing procedures ...\n\n    syncOffice: protectedProcedure\n        .input(z.object({\n            officeId: z.string(),\n        }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const office = await ctx.db.office.findUnique({\n                where: { id: input.officeId },\n                include: { \n                    company: true,\n                    Addresses: true,\n                },\n            });\n\n            if (!office) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Office not found',\n                });\n            }\n\n            // Check if the office already has a QuickBooks Customer ID\n            if (office.quickbooksCustomerId) {\n                // Pull data from QuickBooks and update local database\n                return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n            } else {\n                // Check if a matching customer exists in QuickBooks\n                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                \n                if (existingCustomer) {\n                    // Update local database with QuickBooks data\n                    return await updateOfficeWithQuickBooksData(ctx, office, existingCustomer);\n                } else {\n                    // Push data to QuickBooks and create new customer\n                    return await pushToQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                }\n            }\n        }),\n});\n\nasync function pullFromQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const qbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, qbCustomer);\n    } catch (error) {\n        console.error('Error pulling data from QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to pull data from QuickBooks',\n        });\n    }\n}\n\nasync function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const customers = response.data.QueryResponse.Customer;\n        return customers && customers.length > 0 ? customers[0] : null;\n    } catch (error) {\n        console.error('Error searching for customer in QuickBooks:', error);\n        return null;\n    }\n}\n\nasync function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {\n    const companyName = qbCustomer.CompanyName.split(':')[0];\n    const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;\n\n    const updatedCompany = await ctx.db.company.update({\n        where: { id: office.company.id },\n        data: {\n            name: companyName,\n            quickbooksId: qbCustomer.Id,\n            syncToken: qbCustomer.SyncToken,\n        },\n    });\n\n    const updatedOffice = await ctx.db.office.update({\n        where: { id: office.id },\n        data: {\n            name: officeName,\n            quickbooksCustomerId: qbCustomer.Id,\n            Addresses: {\n                upsert: {\n                    where: { id: office.Addresses[0]?.id || 'new' },\n                    create: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        addressType: 'Billing',\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                    update: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                },\n            },\n        },\n    });\n\n    return { company: updatedCompany, office: updatedOffice };\n}\n\nasync function pushToQuickBooks(ctx, realmId, office, accessToken) {\n    const qbCustomerData = {\n        DisplayName: `${office.company.name}:${office.name}`,\n        CompanyName: `${office.company.name}:${office.name}`,\n        BillAddr: {\n            Line1: office.Addresses[0]?.line1 || '',\n            City: office.Addresses[0]?.city || '',\n            Country: office.Addresses[0]?.country || '',\n            CountrySubDivisionCode: office.Addresses[0]?.state || '',\n            PostalCode: office.Addresses[0]?.zipCode || '',\n        },\n        PrimaryPhone: { FreeFormNumber: office.Addresses[0]?.telephoneNumber || '' },\n    };\n\n    try {\n        const response = await axios.post(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,\n            qbCustomerData,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Content-Type': 'application/json',\n                },\n            }\n        );\n\n        const createdQbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, createdQbCustomer);\n    } catch (error) {\n        console.error('Error pushing data to QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to push data to QuickBooks',\n        });\n    }\n}\n```\n\nNow, for the `actionsCellRenderer`, you can add a button that calls this new `syncOffice` procedure. Here's an example of how you might implement this in your React component:\n\n```typescript:src/components/OfficeTable.tsx\nimport { api } from \"~/utils/api\";\n\n// ... other imports and component setup ...\n\nconst actionsCellRenderer = (params: any) => {\n    const syncOfficeMutation = api.qbCustomer.syncOffice.useMutation();\n\n    const",
@@ -3438,8 +3855,8 @@
       {
         "file": "prisma/seed.ts",
         "total_lines": 1153,
-        "ai_generated_lines": 2,
-        "ai_generated_percentage": 0.17346053772766695
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 0.26019080659150046
       },
       {
         "file": "src/app/_components/companies/CompaniesChart.tsx",
@@ -3540,8 +3957,8 @@
       {
         "file": "src/app/_components/invoices/invoiceForm.tsx",
         "total_lines": 265,
-        "ai_generated_lines": 19,
-        "ai_generated_percentage": 7.169811320754717
+        "ai_generated_lines": 50,
+        "ai_generated_percentage": 18.867924528301888
       },
       {
         "file": "src/app/_components/invoices/invoicesTable.tsx",
@@ -3570,8 +3987,8 @@
       {
         "file": "src/app/_components/orders/OrderDetailsComponent.tsx",
         "total_lines": 304,
-        "ai_generated_lines": 26,
-        "ai_generated_percentage": 8.552631578947368
+        "ai_generated_lines": 33,
+        "ai_generated_percentage": 10.855263157894738
       },
       {
         "file": "src/app/_components/orders/OrderItemStock/orderItemStockComponent.tsx",
@@ -3588,14 +4005,14 @@
       {
         "file": "src/app/_components/orders/OrderPayment/OrderPaymentComponent.tsx",
         "total_lines": 110,
-        "ai_generated_lines": 12,
-        "ai_generated_percentage": 10.909090909090908
+        "ai_generated_lines": 13,
+        "ai_generated_percentage": 11.818181818181818
       },
       {
         "file": "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
-        "total_lines": 45,
-        "ai_generated_lines": 18,
-        "ai_generated_percentage": 40
+        "total_lines": 87,
+        "ai_generated_lines": 48,
+        "ai_generated_percentage": 55.172413793103445
       },
       {
         "file": "src/app/_components/orders/orderItem/orderItemComponent.tsx",
@@ -3690,8 +4107,8 @@
       {
         "file": "src/app/_components/shared/typesetting/typesettingComponent.tsx",
         "total_lines": 198,
-        "ai_generated_lines": 12,
-        "ai_generated_percentage": 6.0606060606060606
+        "ai_generated_lines": 13,
+        "ai_generated_percentage": 6.565656565656567
       },
       {
         "file": "src/app/_components/shared/typesetting/typesettingForm.tsx",
@@ -3888,8 +4305,8 @@
       {
         "file": "src/app/companies/[id]/page.tsx",
         "total_lines": 119,
-        "ai_generated_lines": 24,
-        "ai_generated_percentage": 20.168067226890756
+        "ai_generated_lines": 25,
+        "ai_generated_percentage": 21.008403361344538
       },
       {
         "file": "src/app/companies/create/page.tsx",
@@ -3930,8 +4347,8 @@
       {
         "file": "src/app/dashboard/page.tsx",
         "total_lines": 69,
-        "ai_generated_lines": 11,
-        "ai_generated_percentage": 15.942028985507244
+        "ai_generated_lines": 12,
+        "ai_generated_percentage": 17.391304347826086
       },
       {
         "file": "src/app/invoices/[id]/page.tsx",
@@ -3948,8 +4365,8 @@
       {
         "file": "src/app/invoices/page.tsx",
         "total_lines": 38,
-        "ai_generated_lines": 3,
-        "ai_generated_percentage": 7.894736842105263
+        "ai_generated_lines": 4,
+        "ai_generated_percentage": 10.526315789473683
       },
       {
         "file": "src/app/layout.tsx",
@@ -4056,26 +4473,26 @@
       {
         "file": "src/server/api/routers/companies/company.ts",
         "total_lines": 153,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 0.6535947712418301
       },
       {
         "file": "src/server/api/routers/invoices/invoice.ts",
-        "total_lines": 314,
-        "ai_generated_lines": 12,
-        "ai_generated_percentage": 3.821656050955414
+        "total_lines": 316,
+        "ai_generated_lines": 68,
+        "ai_generated_percentage": 21.518987341772153
       },
       {
         "file": "src/server/api/routers/offices/office.ts",
         "total_lines": 162,
-        "ai_generated_lines": 4,
-        "ai_generated_percentage": 2.4691358024691357
+        "ai_generated_lines": 18,
+        "ai_generated_percentage": 11.11111111111111
       },
       {
         "file": "src/server/api/routers/orderItemStocks/orderItemStock.tsx",
         "total_lines": 73,
-        "ai_generated_lines": 1,
-        "ai_generated_percentage": 1.36986301369863
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 4.10958904109589
       },
       {
         "file": "src/server/api/routers/orderItems/orderItem.ts",
@@ -4086,26 +4503,26 @@
       {
         "file": "src/server/api/routers/orderPayments/orderPayment.tsx",
         "total_lines": 34,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 2.941176470588235
       },
       {
         "file": "src/server/api/routers/orders/order.ts",
         "total_lines": 484,
-        "ai_generated_lines": 2,
-        "ai_generated_percentage": 0.4132231404958678
+        "ai_generated_lines": 57,
+        "ai_generated_percentage": 11.776859504132231
       },
       {
         "file": "src/server/api/routers/orders/orderNotes.ts",
         "total_lines": 69,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 1.4492753623188406
       },
       {
         "file": "src/server/api/routers/post.ts",
         "total_lines": 43,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 2,
+        "ai_generated_percentage": 4.651162790697675
       },
       {
         "file": "src/server/api/routers/quickbooks/qbAuth.ts",
@@ -4122,20 +4539,20 @@
       {
         "file": "src/server/api/routers/quickbooks/qbCustomer.ts",
         "total_lines": 841,
-        "ai_generated_lines": 541,
-        "ai_generated_percentage": 64.3281807372176
+        "ai_generated_lines": 543,
+        "ai_generated_percentage": 64.56599286563615
       },
       {
         "file": "src/server/api/routers/quickbooks/qbInvoice.ts",
         "total_lines": 416,
-        "ai_generated_lines": 106,
-        "ai_generated_percentage": 25.48076923076923
+        "ai_generated_lines": 112,
+        "ai_generated_percentage": 26.923076923076923
       },
       {
         "file": "src/server/api/routers/quickbooks/qbSyncCustomer.ts",
         "total_lines": 296,
-        "ai_generated_lines": 42,
-        "ai_generated_percentage": 14.18918918918919
+        "ai_generated_lines": 43,
+        "ai_generated_percentage": 14.527027027027026
       },
       {
         "file": "src/server/api/routers/roles/roles.ts",
@@ -4146,8 +4563,8 @@
       {
         "file": "src/server/api/routers/shared/address.ts",
         "total_lines": 90,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 2,
+        "ai_generated_percentage": 2.2222222222222223
       },
       {
         "file": "src/server/api/routers/shared/processingOptions.ts",
@@ -4158,8 +4575,8 @@
       {
         "file": "src/server/api/routers/shared/shippingInfo.ts",
         "total_lines": 143,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 2.097902097902098
       },
       {
         "file": "src/server/api/routers/shared/shippingPickup.ts",
@@ -4170,8 +4587,8 @@
       {
         "file": "src/server/api/routers/shared/typesetting/typesetting.ts",
         "total_lines": 159,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 2,
+        "ai_generated_percentage": 1.257861635220126
       },
       {
         "file": "src/server/api/routers/shared/typesetting/typesettingOptions.ts",
@@ -4182,8 +4599,8 @@
       {
         "file": "src/server/api/routers/shared/typesetting/typesettingProofs.ts",
         "total_lines": 102,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 0.9803921568627451
       },
       {
         "file": "src/server/api/routers/user.ts",
@@ -4194,32 +4611,32 @@
       {
         "file": "src/server/api/routers/userManagement/userManagement.ts",
         "total_lines": 126,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 18,
+        "ai_generated_percentage": 14.285714285714285
       },
       {
         "file": "src/server/api/routers/workOrderItemStocks/workOrderItemStock.tsx",
         "total_lines": 73,
-        "ai_generated_lines": 1,
-        "ai_generated_percentage": 1.36986301369863
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 4.10958904109589
       },
       {
         "file": "src/server/api/routers/workOrderItems/workOrderItem.ts",
         "total_lines": 275,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 3,
+        "ai_generated_percentage": 1.090909090909091
       },
       {
         "file": "src/server/api/routers/workOrders/workOrder.ts",
         "total_lines": 401,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 39,
+        "ai_generated_percentage": 9.72568578553616
       },
       {
         "file": "src/server/api/routers/workOrders/workOrderNote.ts",
         "total_lines": 73,
-        "ai_generated_lines": 0,
-        "ai_generated_percentage": 0
+        "ai_generated_lines": 1,
+        "ai_generated_percentage": 1.36986301369863
       },
       {
         "file": "src/server/api/trpc.ts",
@@ -4254,8 +4671,8 @@
       {
         "file": "src/services/workOrderToOrderService.ts",
         "total_lines": 290,
-        "ai_generated_lines": 19,
-        "ai_generated_percentage": 6.551724137931035
+        "ai_generated_lines": 34,
+        "ai_generated_percentage": 11.724137931034482
       },
       {
         "file": "src/store/useQuickbooksStore.ts",
@@ -4308,8 +4725,8 @@
       {
         "file": "src/utils/dataNormalization.ts",
         "total_lines": 601,
-        "ai_generated_lines": 36,
-        "ai_generated_percentage": 5.990016638935108
+        "ai_generated_lines": 50,
+        "ai_generated_percentage": 8.319467554076539
       },
       {
         "file": "src/utils/emailTemplates.ts",

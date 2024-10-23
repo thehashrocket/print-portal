@@ -38,6 +38,28 @@ function formatItemDescription(item: any): string {
     return description;
 }
 
+async function generateInvoiceNumber(ctx: any): Promise<string> {
+    const currentYear = new Date().getFullYear();
+    const lastInvoice = await ctx.db.invoice.findFirst({
+        where: {
+            invoiceNumber: {
+                startsWith: `INV-${currentYear}-`,
+            },
+        },
+        orderBy: {
+            invoiceNumber: 'desc',
+        },
+    });
+
+    let nextNumber = 1;
+    if (lastInvoice) {
+        const lastNumber = parseInt(lastInvoice.invoiceNumber.split('-')[2], 10);
+        nextNumber = lastNumber + 1;
+    }
+
+    return `INV-${currentYear}-${nextNumber.toString().padStart(5, '0')}`;
+}
+
 export const invoiceRouter = createTRPCRouter({
     getAll: protectedProcedure
         .query(async ({ ctx }) => {
@@ -290,24 +312,4 @@ export const invoiceRouter = createTRPCRouter({
         }),
 });
 
-async function generateInvoiceNumber(ctx: any): Promise<string> {
-    const currentYear = new Date().getFullYear();
-    const lastInvoice = await ctx.db.invoice.findFirst({
-        where: {
-            invoiceNumber: {
-                startsWith: `INV-${currentYear}-`,
-            },
-        },
-        orderBy: {
-            invoiceNumber: 'desc',
-        },
-    });
 
-    let nextNumber = 1;
-    if (lastInvoice) {
-        const lastNumber = parseInt(lastInvoice.invoiceNumber.split('-')[2], 10);
-        nextNumber = lastNumber + 1;
-    }
-
-    return `INV-${currentYear}-${nextNumber.toString().padStart(5, '0')}`;
-}
