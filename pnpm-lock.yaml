@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ag-grid-community/client-side-row-model':
-        specifier: ^32.2.2
-        version: 32.2.2
+        specifier: ^32.3.0
+        version: 32.3.0
       '@ag-grid-community/core':
         specifier: ^32.2.2
         version: 32.2.2
@@ -242,11 +242,14 @@ packages:
       graphql:
         optional: true
 
-  '@ag-grid-community/client-side-row-model@32.2.2':
-    resolution: {integrity: sha512-BenXaVRISOAlMwl59BWGAJ/RBRsc0eHR3i/pGRmjQc8eGgdTqjrePL4kDL7UXDAKoqqNsoGKK5TGHjCHAs1cHA==}
+  '@ag-grid-community/client-side-row-model@32.3.0':
+    resolution: {integrity: sha512-/cVD4POG1jQ0FuVjHaL9rYPaj+fbEPLTNpXR6ElCQNnXgupLEuB3ZD8f4E3Emn4Z1Q1B2n8UBK4IannZWyH0XA==}
 
   '@ag-grid-community/core@32.2.2':
     resolution: {integrity: sha512-8w++Q5DKbFKhee7ZZ3HCx6KkMTHVwtV+xNwN/RJZneQ3WkXJYvsnkgVWmiwtglEo1iuMArxTz6pqOz/p23TBxA==}
+
+  '@ag-grid-community/core@32.3.0':
+    resolution: {integrity: sha512-Kkn2ac6f53WmPYA0k0J9EbKCWXy9864Ez0XeoXEayMSEkraAer1w10PHVpf4iDiH9ORJ+9fanVbIEqKD5Jag5w==}
 
   '@ag-grid-community/csv-export@32.2.2':
     resolution: {integrity: sha512-9ttdlJ7XOgK/qGC0QyXM1ep3f1GIjnyz1cQqIr9B2epe0fGFDt+lvK9EJBAQCG2GVJaFJ/xxBJfkQx65ganp+g==}
@@ -1479,6 +1482,9 @@ packages:
 
   ag-charts-types@10.2.0:
     resolution: {integrity: sha512-PUqH1QtugpYLnlbMdeSZVf5PpT1XZVsP69qN1JXhetLtQpVC28zaj7ikwu9CMA9N9b+dBboA9QcjUQUJZVUokQ==}
+
+  ag-charts-types@10.3.0:
+    resolution: {integrity: sha512-6nIwJmp/9JMMo4SsWZPcaYqlhN0Tzg3SmY2v+NXmfO4jjBSp8vJs3bDpPTpNtzutrmAMimGzQV31YSwq+K3bRQ==}
 
   ag-grid-community@32.2.2:
     resolution: {integrity: sha512-RQluoEXbTCkYHHwmOUzG4wGBX3yQffFH+52aWJUAFqFKNNHYKYGhjvH2iuAa2xw3CWva1hupUaDpP+Rol32Arg==}
@@ -4474,14 +4480,19 @@ snapshots:
     optionalDependencies:
       graphql: 16.9.0
 
-  '@ag-grid-community/client-side-row-model@32.2.2':
+  '@ag-grid-community/client-side-row-model@32.3.0':
     dependencies:
-      '@ag-grid-community/core': 32.2.2
+      '@ag-grid-community/core': 32.3.0
       tslib: 2.7.0
 
   '@ag-grid-community/core@32.2.2':
     dependencies:
       ag-charts-types: 10.2.0
+      tslib: 2.7.0
+
+  '@ag-grid-community/core@32.3.0':
+    dependencies:
+      ag-charts-types: 10.3.0
       tslib: 2.7.0
 
   '@ag-grid-community/csv-export@32.2.2':
@@ -6408,6 +6419,8 @@ snapshots:
       react: 18.3.1
 
   ag-charts-types@10.2.0: {}
+
+  ag-charts-types@10.3.0: {}
 
   ag-grid-community@32.2.2:
     dependencies:
