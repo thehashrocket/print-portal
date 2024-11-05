@@ -3171,6 +3171,29 @@
               "0": "src/app/_components/companies/companiesTable.tsx"
             }
           }
+        },
+        {
+          "id": "11630f9b-fafd-402e-ae1b-2ea372d5ca8c",
+          "messageText": "I need to add bugherd to this project. To do so I need to add an external script tag. That tag looks like this:\n<script type=\"text/javascript\" src=\"https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq\" async=\"true\"></script>\n\nIs this the file to do that at, or should I add it somewhere else?",
+          "responseText": "To add an external script like BugHerd to your Next.js project, you typically want to include it in a way that ensures it loads on every page. The `layout.tsx` file is a good place to add such scripts because it wraps your entire application, making it an ideal spot for global scripts.\n\nHere's how you can add the BugHerd script to your `layout.tsx` file:\n\n```typescript:src/app/layout.tsx\nimport { useEffect } from \"react\";\n// ... existing imports ...\n\nexport default function RootLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  useEffect(() => {\n    const script = document.createElement(\"script\");\n    script.src = \"https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq\";\n    script.async = true;\n    script.type = \"text/javascript\";\n    document.body.appendChild(script);\n\n    return () => {\n      document.body.removeChild(script);\n    };\n  }, []);\n\n  return (\n    <html lang=\"en\">\n      <body className={`font-sans ${inter.variable}`}>\n        <CopilotKit runtimeUrl=\"/api/copilotkit\">\n          <TRPCReactProvider>\n            <Providers>\n              <NavBar />\n              {children}\n            </Providers>\n          </TRPCReactProvider>\n        </CopilotKit>\n      </body>\n    </html>\n  );\n}\n```\n\n### Explanation:\n- **`useEffect`:** The `useEffect` hook is used to append the script to the document body when the component mounts. This ensures the script is loaded once the component is rendered.\n- **Cleanup:** The cleanup function in `useEffect` removes the script when the component unmounts, which is a good practice to prevent memory leaks, although in this case, it might not be strictly necessary since the layout component is likely to persist for the lifetime of the app.\n\nThis approach ensures that the BugHerd script is included on every page of your application. If you only need it on specific pages, you would add the script in the respective page component instead.",
+          "model": "gpt-4o",
+          "timestamp": "2024-11-05T16:16:33.282Z",
+          "context": [
+            {
+              "context_type": "file",
+              "key": "c96c03eb-4f98-4c63-8704-f96e0979f668",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/layout.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/layout.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/app/layout.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -3302,6 +3325,38 @@
       "timestamp": "2024-10-23T03:31:52.513Z",
       "prompt": "Please fix",
       "parent_inline_chat_id": null
+    },
+    {
+      "inline_chat_id": "248d6c78-5052-443d-9a47-c8d6fac95fd1",
+      "file_diff": [
+        {
+          "file_path": "src/app/layout.tsx",
+          "diffs": [
+            {
+              "count": 26,
+              "added": false,
+              "removed": false,
+              "value": "import \"~/styles/globals.css\";\nimport NavBar from \"./_components/navBar\"; // Fix the casing of the file name\nimport { CopilotKit } from \"@copilotkit/react-core\"; \nimport \"@copilotkit/react-ui/styles.css\";\nimport { Inter } from \"next/font/google\";\nimport { TRPCReactProvider } from \"~/trpc/react\";\nimport { Providers } from \"./providers\";\n\nconst inter = Inter({\n  subsets: [\"latin\"],\n  variable: \"--font-sans\",\n});\n\nexport const metadata = {\n  title: \"Thomson Printing Platform\",\n  description: \"Built by Jason Shultz\",\n  icons: [{ rel: \"icon\", url: \"/favicon.ico\" }],\n};\n\nexport default function RootLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <html lang=\"en\">\n"
+            },
+            {
+              "count": 1,
+              "added": true,
+              "removed": false,
+              "value": "      <script type=\"text/javascript\" src=\"https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq\" async></script>\n"
+            },
+            {
+              "count": 13,
+              "added": false,
+              "removed": false,
+              "value": "      <body className={`font-sans ${inter.variable}`}>\n        <CopilotKit runtimeUrl=\"/api/copilotkit\">\n          <TRPCReactProvider>\n            <Providers>\n              <NavBar />\n              {children}\n            </Providers>\n          </TRPCReactProvider>\n        </CopilotKit>\n      </body>\n    </html>\n  );\n}\n"
+            }
+          ]
+        }
+      ],
+      "selection": null,
+      "timestamp": "2024-11-05T15:53:18.870Z",
+      "prompt": "Please fix",
+      "parent_inline_chat_id": null
     }
   ],
   "schemaVersion": "1.0",
@@ -3311,7 +3366,7 @@
   },
   "kv_store": {
     "unique_matched_lines_count": 2517,
-    "total_repo_line_count": 31862,
+    "total_repo_line_count": 32260,
     "best_prompt_response": {
       "prompt": "1. yes. If there isn't a quickbooksCustomerId on the office, then it should provoide a way to sync the data with Quickbooks. It should check to see whether the customer exists in quickbooks and either pull the data from quickbooks or push the new data to quickbooks.\n2. It should check to see whether the data exists in quickbooks and update the local database or push the data to quickbooks and create a customer. \n3. We should check to see if the customer (including the office) exists in quickbooks and either create it or pull it from quickbooks.\n4. Great question, and one that I have been struggling with. Here is the ideal scenario: When a user first creates an account, it should pull all the data from quickbooks and create Company and Offices. After that point, the ideal (happy path) is that users create companies and offices within the app and when they do, that data is pushed to quickbooks. The unhappy path is that they create companies and offices within quickbooks and then we have to sync that data into the application I don't have a solution for that at this point.\n5. Yes, we should. \n6. I don't know at this point, but I am open to your suggetsions.",
       "response": "Thank you for the detailed responses. Based on your answers, I'll provide a solution that addresses these requirements. Let's start by modifying the `qbCustomerRouter` to include a new procedure for syncing an office with QuickBooks.\n\n```typescript:src/server/api/routers/quickbooks/qbCustomer.ts\nimport { createTRPCRouter, protectedProcedure } from \"~/server/api/trpc\";\nimport OAuthClient from 'intuit-oauth';\nimport { TRPCError } from \"@trpc/server\";\nimport { refreshTokenIfNeeded } from \"~/services/quickbooksService\";\nimport { z } from 'zod';\nimport axios from 'axios';\n\n// ... existing imports and oauthClient setup ...\n\nexport const qbCustomerRouter = createTRPCRouter({\n    // ... existing procedures ...\n\n    syncOffice: protectedProcedure\n        .input(z.object({\n            officeId: z.string(),\n        }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const office = await ctx.db.office.findUnique({\n                where: { id: input.officeId },\n                include: { \n                    company: true,\n                    Addresses: true,\n                },\n            });\n\n            if (!office) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Office not found',\n                });\n            }\n\n            // Check if the office already has a QuickBooks Customer ID\n            if (office.quickbooksCustomerId) {\n                // Pull data from QuickBooks and update local database\n                return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n            } else {\n                // Check if a matching customer exists in QuickBooks\n                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                \n                if (existingCustomer) {\n                    // Update local database with QuickBooks data\n                    return await updateOfficeWithQuickBooksData(ctx, office, existingCustomer);\n                } else {\n                    // Push data to QuickBooks and create new customer\n                    return await pushToQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                }\n            }\n        }),\n});\n\nasync function pullFromQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const qbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, qbCustomer);\n    } catch (error) {\n        console.error('Error pulling data from QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to pull data from QuickBooks',\n        });\n    }\n}\n\nasync function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const customers = response.data.QueryResponse.Customer;\n        return customers && customers.length > 0 ? customers[0] : null;\n    } catch (error) {\n        console.error('Error searching for customer in QuickBooks:', error);\n        return null;\n    }\n}\n\nasync function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {\n    const companyName = qbCustomer.CompanyName.split(':')[0];\n    const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;\n\n    const updatedCompany = await ctx.db.company.update({\n        where: { id: office.company.id },\n        data: {\n            name: companyName,\n            quickbooksId: qbCustomer.Id,\n            syncToken: qbCustomer.SyncToken,\n        },\n    });\n\n    const updatedOffice = await ctx.db.office.update({\n        where: { id: office.id },\n        data: {\n            name: officeName,\n            quickbooksCustomerId: qbCustomer.Id,\n            Addresses: {\n                upsert: {\n                    where: { id: office.Addresses[0]?.id || 'new' },\n                    create: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        addressType: 'Billing',\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                    update: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                },\n            },\n        },\n    });\n\n    return { company: updatedCompany, office: updatedOffice };\n}\n\nasync function pushToQuickBooks(ctx, realmId, office, accessToken) {\n    const qbCustomerData = {\n        DisplayName: `${office.company.name}:${office.name}`,\n        CompanyName: `${office.company.name}:${office.name}`,\n        BillAddr: {\n            Line1: office.Addresses[0]?.line1 || '',\n            City: office.Addresses[0]?.city || '',\n            Country: office.Addresses[0]?.country || '',\n            CountrySubDivisionCode: office.Addresses[0]?.state || '',\n            PostalCode: office.Addresses[0]?.zipCode || '',\n        },\n        PrimaryPhone: { FreeFormNumber: office.Addresses[0]?.telephoneNumber || '' },\n    };\n\n    try {\n        const response = await axios.post(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,\n            qbCustomerData,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Content-Type': 'application/json',\n                },\n            }\n        );\n\n        const createdQbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, createdQbCustomer);\n    } catch (error) {\n        console.error('Error pushing data to QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to push data to QuickBooks',\n        });\n    }\n}\n```\n\nNow, for the `actionsCellRenderer`, you can add a button that calls this new `syncOffice` procedure. Here's an example of how you might implement this in your React component:\n\n```typescript:src/components/OfficeTable.tsx\nimport { api } from \"~/utils/api\";\n\n// ... other imports and component setup ...\n\nconst actionsCellRenderer = (params: any) => {\n    const syncOfficeMutation = api.qbCustomer.syncOffice.useMutation();\n\n    const",
@@ -3375,7 +3430,7 @@
       },
       {
         "file": "pnpm-lock.yaml",
-        "total_lines": 9190,
+        "total_lines": 9588,
         "ai_generated_lines": 0,
         "ai_generated_percentage": 0
       },

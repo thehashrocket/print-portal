@@ -1,4 +1,5 @@
 import "~/styles/globals.css";
+import { useEffect } from "react";
 import NavBar from "./_components/navBar"; // Fix the casing of the file name
 import { CopilotKit } from "@copilotkit/react-core"; 
 import "@copilotkit/react-ui/styles.css";
@@ -22,6 +23,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
   return (
     <html lang="en">
       <body className={`font-sans ${inter.variable}`}>
