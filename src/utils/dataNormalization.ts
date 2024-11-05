@@ -134,6 +134,7 @@ export function normalizeOrder(order: Order & {
     contactPerson: {
         id: string;
         name: string | null;
+        email: string | null;
     };
     createdBy: {
         id: string;
@@ -183,7 +184,8 @@ export function normalizeOrder(order: Order & {
         pressRun: order.pressRun,
         contactPerson: {
             id: order.contactPerson.id,
-            name: order.contactPerson.name
+            name: order.contactPerson.name,
+            email: order.contactPerson.email
         },
         createdBy: {
             id: order.createdBy.id,

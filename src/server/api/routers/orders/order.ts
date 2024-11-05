@@ -28,6 +28,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           createdBy: {
@@ -111,6 +112,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           createdBy: {
@@ -169,6 +171,11 @@ export const orderRouter = createTRPCRouter({
             id: order.createdBy.id,
             name: order.createdBy.name,
           },
+          contactPerson: {
+            id: order.contactPerson.id,
+            name: order.contactPerson.name,
+            email: order.contactPerson.email,
+          },
         });
       }));
     }),
@@ -203,6 +210,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           createdBy: {
@@ -366,7 +374,8 @@ export const orderRouter = createTRPCRouter({
         },
         contactPerson: {
           id: "",
-          name: null
+          name: null,
+          email: null,
         },
         createdBy: {
           id: "",
@@ -400,6 +409,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           createdBy: {

@@ -106,6 +106,7 @@ export interface SerializedOrder {
     contactPerson: {
         id: string;
         name: string | null;
+        email: string | null;
     };
     createdBy: {
         id: string;

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { OrderItem, OrderItemStatus } from "@prisma/client";
+import { OrderItemStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
@@ -11,7 +11,6 @@ import ProcessingOptionsComponent from "~/app/_components/shared/processingOptio
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
-import { SerializedTypesetting } from "~/types/serializedTypes";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 
 type OrderItemPageProps = {
@@ -111,6 +110,13 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="grid md:grid-cols-2 gap-6 mb-2">
                     <InfoCard title="Order Number" content={order.orderNumber} />
                     <InfoCard title="Company" content={order.Office?.Company.name} />
+                    <InfoCard title="Contact Info" content={
+                        <div>
+                            <p>{order.contactPerson?.name}</p>
+                            <p>{order.ShippingInfo?.Address?.telephoneNumber}</p>
+                            <p>{order.contactPerson?.email}</p>
+                        </div>
+                    } />
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">

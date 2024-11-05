@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata = {
   title: "Thomson Printing Platform",
   description: "Built by Jason Shultz",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/images/favicon-196x196.png" }],
 };
 
 export default function RootLayout({
