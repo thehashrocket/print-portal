@@ -74,16 +74,20 @@ const QuickbooksStatus: React.FC = () => {
         <div className="flex items-center">
             {isAuthenticated ? (
                 <button
+                    title="Refresh QuickBooks Token"
+                    aria-label="Refresh QuickBooks Token"
                     onClick={handleRefreshToken}
-                    className="text-green-400 hover:text-green-300"
+                    className="btn btn-sm btn-primary text-white hover:text-white"
                     disabled={refreshTokenMutation.isPending}
                 >
                     {refreshTokenMutation.isPending ? 'Refreshing...' : 'Connected to QuickBooks'}
                 </button>
             ) : (
                 <button
+                    title="Connect to QuickBooks"
+                    aria-label="Connect to QuickBooks"
                     onClick={handleConnectClick}
-                    className="text-blue-400 hover:text-blue-300"
+                    className="btn btn-sm btn-primary text-white hover:text-white"
                     disabled={initializeAuthMutation.isPending}
                 >
                     {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}

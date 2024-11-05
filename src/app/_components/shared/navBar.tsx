@@ -9,7 +9,7 @@ const NavBar = async () => {
   const session = await getServerAuthSession();
 
   return (
-    <nav className="bg-gray-800 p-4">
+    <nav className="bg-[#6cab1f] p-4">
       <div className="mx-auto max-w-7xl">
         <div className="flex justify-between items-center">
           <div className="flex space-x-4">

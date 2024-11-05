@@ -1,5 +1,6 @@
 // ~/src/app/page.tsx
 import Link from "next/link";
+import Image from "next/image";
 import { getServerAuthSession } from "~/server/auth";
 import QuickbooksAuth from "~/app/_components/quickbooks/QuickbooksAuth";
 import { api } from "~/trpc/server";
@@ -9,11 +10,9 @@ export default async function Home() {
   const session = await getServerAuthSession();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#6cab1f] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Thomson Print Portal
-        </h1>
+        <Image src="/images/ThomsonLogo.png" alt="Thomson Print Portal" width={432} height={277} />
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-white">
             {hello ? 'Welcome!' : "Loading tRPC query..."}
@@ -23,7 +22,7 @@ export default async function Home() {
             <p className="text-center text-2xl text-white">
               {session && <span>Logged in as {session.user?.name}</span>}
             </p>
-            <div className="text-center text-2xl text-white">
+            {/* <div className="text-center text-2xl text-white">
               {session && (
                 <Link className="btn btn-primary" href="/dashboard">
                   Go to dashboard
@@ -43,7 +42,7 @@ export default async function Home() {
               {session && (
                 <QuickbooksAuth />
               )}
-            </div>
+            </div> */}
             <Link
               href={session ? "/api/auth/signout" : "/api/auth/signin"}
               className="btn btn-primary"
