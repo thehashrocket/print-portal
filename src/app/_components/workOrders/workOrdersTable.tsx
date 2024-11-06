@@ -103,21 +103,23 @@ const WorkOrdersTable: React.FC = () => {
     }
 
     return (
-        <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
-            <AgGridReact
-                ref={gridRef}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                rowData={rowData}
-                rowSelection="single"
-                onGridReady={onGridReady}
-                onFilterChanged={onFilterChanged}
-                getRowStyle={getRowStyle}
-                animateRows={true}
-                pagination={true}
-                paginationPageSize={20}
-            />
-        </div>
+        (rowData && (
+            <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+                <AgGridReact
+                    ref={gridRef}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                    rowData={rowData}
+                    rowSelection="single"
+                    onGridReady={onGridReady}
+                    onFilterChanged={onFilterChanged}
+                    getRowStyle={getRowStyle}
+                    animateRows={true}
+                    pagination={true}
+                    paginationPageSize={20}
+                />
+            </div>
+        )) || <div>No work orders found</div>
     );
 };
 
