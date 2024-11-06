@@ -153,9 +153,14 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     useEffect(() => {
         if (order) {
             setOrderItems(order.OrderItems);
-            setIsOrderItemsLoading(false);
         }
     }, [order]);
+
+    useEffect(() => {
+        if (orderItems) {
+            setIsOrderItemsLoading(false);
+        }
+    }, [orderItems]);
 
     if (isLoading) {
         return (
@@ -167,7 +172,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         </svg>
                     </div>
                 </div>
-
             </>
         );
     }

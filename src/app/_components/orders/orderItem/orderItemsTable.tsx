@@ -15,20 +15,10 @@ import {
     type RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { type OrderItemStatus } from "@prisma/client";
+import { type SerializedOrderItem } from "~/types/serializedTypes";
 import Link from "next/link";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
-
-type SerializedOrderItem = {
-    id: string;
-    description: string | null;
-    finishedQty: number | null;
-    orderId: string;
-    status: OrderItemStatus;
-    cost: string | null;
-    amount: string | null;
-};
 
 interface OrderItemsTableProps {
     orderItems: SerializedOrderItem[];
@@ -69,7 +59,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
 
     const columnDefs: ColDef[] = [
         { headerName: "Job #", field: "orderItemNumber", width: 120 },
-        { headerName: "Quantity", field: "quantity", width: 100 },
+        { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
         { headerName: "Status", field: "status", filter: true, width: 150 },

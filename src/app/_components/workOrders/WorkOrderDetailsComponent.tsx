@@ -75,17 +75,22 @@ interface WorkOrderDetailsProps {
 
 export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: WorkOrderDetailsProps) {
     const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
-    const [isWorkOrderItemsLoading, setIsWorkOrderItemsLoading] = useState(false);
-    const { data: workOrder, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
+    const [isWorkOrderItemsLoading, setIsWorkOrderItemsLoading] = useState(true);
+    const { data: workOrder, isLoading, isError, error } = api.workOrders.getByID.useQuery(workOrderId, {
         initialData: initialWorkOrder,
     });
 
     useEffect(() => {
         if (workOrder) {
             setWorkOrderItems(workOrder.WorkOrderItems)
-            setIsWorkOrderItemsLoading(false);
         }
     }, [workOrder]);
+
+    useEffect(() => {
+        if (workOrderItems) {
+            setIsWorkOrderItemsLoading(false);
+        }
+    }, [workOrderItems]);
 
     useCopilotReadable({
         description: "The current work order that is being viewed.",
@@ -94,16 +99,25 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-            </div>
+            <>
+                <div className="flex justify-center items-center h-screen">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
+                        <svg className="w-16 h-16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
+                        </svg>
+                    </div>
+                </div>
+            </>
         );
     }
 
     if (isError || !workOrder) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="text-red-500 text-xl">Error loading work order details. Please try again.</div>
+                <div className="text-red-500 text-xl">
+                    <p>Error loading work order details. Please try again.</p>
+                    <p>{isError && error instanceof Error ? error.message : "Unknown error"}</p>
+                </div>
             </div>
         );
     }
@@ -202,8 +216,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         </div>
                     </section>
 
-
-
                     <section>
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Work Order Jobs</h2>
@@ -211,7 +223,15 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                                 Add Work Order Job
                             </Link>
                         </div>
-                        <WorkOrderItemsTable workOrderItems={workOrder.WorkOrderItems as SerializedWorkOrderItem[]} />
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            {isWorkOrderItemsLoading ? (
+                                <div className="flex justify-center items-center h-64">
+                                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+                                </div>
+                            ) : (
+                                <WorkOrderItemsTable workOrderItems={workOrderItems} />
+                            )}
+                        </div>
                     </section>
                 </main>
             </div>

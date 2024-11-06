@@ -71,7 +71,9 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         setRowData(workOrderItems);
         setLoading(false);
         if (gridRef.current) {
-            gridRef.current.api.sizeColumnsToFit();
+            setTimeout(() => {
+                gridRef.current?.api.sizeColumnsToFit();
+            }, 0);
         }
     }, [workOrderItems]);
 

@@ -529,10 +529,12 @@
           "kv_store": {
             "file_paths": [
               "src/app/_components/invoices/InvoiceDetailClient.tsx",
-              "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+              "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+              "src/app/_components/workOrders/WorkOrderDetailsComponent.tsx"
             ],
             "file_path_dict": {
-              "0": "src/app/_components/orders/QuickbooksInvoiceButton.tsx"
+              "0": "src/app/_components/orders/QuickbooksInvoiceButton.tsx",
+              "1": "src/app/_components/workOrders/WorkOrderDetailsComponent.tsx"
             }
           }
         },
@@ -1173,7 +1175,14 @@
               }
             }
           ],
-          "kv_store": {}
+          "kv_store": {
+            "file_path_dict": {
+              "0": "src/app/_components/orders/OrderDetailsComponent.tsx"
+            },
+            "file_paths": [
+              "src/app/_components/orders/OrderDetailsComponent.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -3307,6 +3316,29 @@
               "src/server/api/routers/orders/order.ts"
             ]
           }
+        },
+        {
+          "id": "892ebe6b-4f4b-492a-a532-4749b7668e26",
+          "messageText": "The AgGridReact table initally loads full width, then it resizes to a smaller width and I'm not sure why?",
+          "responseText": "The issue you're experiencing with the `AgGridReact` table resizing unexpectedly could be due to several factors, such as CSS styles, container resizing, or the `sizeColumnsToFit` method being called at an inappropriate time. Here are a few steps you can take to troubleshoot and potentially resolve the issue:\n\n1. **Ensure Container Width**: Make sure the container of the grid (`div` with class `ag-theme-alpine`) has a fixed or responsive width that doesn't change unexpectedly. You can set a specific width or use CSS to ensure it remains consistent.\n\n2. **Check CSS Styles**: Inspect the CSS styles applied to the grid and its container. Ensure there are no conflicting styles that might cause the container to resize.\n\n3. **Use `sizeColumnsToFit` Appropriately**: The `sizeColumnsToFit` method is used to adjust the columns to fit the grid's width. Ensure it's called at the right time, such as after the grid is fully initialized and the container has its final size.\n\n4. **Debounce Resize Events**: If the grid is resizing due to window or container resize events, consider debouncing these events to prevent excessive calls to `sizeColumnsToFit`.\n\n5. **Inspect Parent Components**: Check if any parent components or layout changes might be affecting the grid's container size.\n\nHere's a potential update to ensure `sizeColumnsToFit` is called correctly:\n\n```typescript:src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx\nuseEffect(() => {\n    setRowData(workOrderItems);\n    setLoading(false);\n    if (gridRef.current) {\n        // Use a timeout to ensure the grid is fully rendered before resizing\n        setTimeout(() => {\n            gridRef.current.api.sizeColumnsToFit();\n        }, 0);\n    }\n}, [workOrderItems]);\n```\n\n### Explanation:\n- **Timeout for `sizeColumnsToFit`**: Adding a `setTimeout` with a delay of `0` ensures that the grid is fully rendered and the container has its final size before calling `sizeColumnsToFit`. This can help prevent the grid from resizing unexpectedly after initial load.\n\nIf the issue persists, consider checking the browser's developer tools to see if any styles or scripts are affecting the grid's size.",
+          "model": "gpt-4o",
+          "timestamp": "2024-11-06T04:09:36.391Z",
+          "context": [
+            {
+              "context_type": "file",
+              "key": "f8851274-617b-4ae4-81e0-1358738bb465",
+              "value": {
+                "human_readable": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx",
+                "uri": "/Users/jasonshultz/Projects/print-portal/thomson-print-portal/src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx",
+                "isCurrentFile": true
+              }
+            }
+          ],
+          "kv_store": {
+            "file_paths": [
+              "src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx"
+            ]
+          }
         }
       ],
       "kv_store": {}
@@ -3526,8 +3558,8 @@
     "deletedPanelChatIDs": []
   },
   "kv_store": {
-    "unique_matched_lines_count": 2567,
-    "total_repo_line_count": 32033,
+    "unique_matched_lines_count": 2633,
+    "total_repo_line_count": 32128,
     "best_prompt_response": {
       "prompt": "1. yes. If there isn't a quickbooksCustomerId on the office, then it should provoide a way to sync the data with Quickbooks. It should check to see whether the customer exists in quickbooks and either pull the data from quickbooks or push the new data to quickbooks.\n2. It should check to see whether the data exists in quickbooks and update the local database or push the data to quickbooks and create a customer. \n3. We should check to see if the customer (including the office) exists in quickbooks and either create it or pull it from quickbooks.\n4. Great question, and one that I have been struggling with. Here is the ideal scenario: When a user first creates an account, it should pull all the data from quickbooks and create Company and Offices. After that point, the ideal (happy path) is that users create companies and offices within the app and when they do, that data is pushed to quickbooks. The unhappy path is that they create companies and offices within quickbooks and then we have to sync that data into the application I don't have a solution for that at this point.\n5. Yes, we should. \n6. I don't know at this point, but I am open to your suggetsions.",
       "response": "Thank you for the detailed responses. Based on your answers, I'll provide a solution that addresses these requirements. Let's start by modifying the `qbCustomerRouter` to include a new procedure for syncing an office with QuickBooks.\n\n```typescript:src/server/api/routers/quickbooks/qbCustomer.ts\nimport { createTRPCRouter, protectedProcedure } from \"~/server/api/trpc\";\nimport OAuthClient from 'intuit-oauth';\nimport { TRPCError } from \"@trpc/server\";\nimport { refreshTokenIfNeeded } from \"~/services/quickbooksService\";\nimport { z } from 'zod';\nimport axios from 'axios';\n\n// ... existing imports and oauthClient setup ...\n\nexport const qbCustomerRouter = createTRPCRouter({\n    // ... existing procedures ...\n\n    syncOffice: protectedProcedure\n        .input(z.object({\n            officeId: z.string(),\n        }))\n        .mutation(async ({ ctx, input }) => {\n            const accessToken = await refreshTokenIfNeeded(ctx);\n            const user = await ctx.db.user.findUnique({\n                where: { id: ctx.session.user.id },\n                select: { quickbooksRealmId: true },\n            });\n\n            if (!user?.quickbooksRealmId) {\n                throw new TRPCError({\n                    code: 'UNAUTHORIZED',\n                    message: 'Not authenticated with QuickBooks',\n                });\n            }\n\n            const office = await ctx.db.office.findUnique({\n                where: { id: input.officeId },\n                include: { \n                    company: true,\n                    Addresses: true,\n                },\n            });\n\n            if (!office) {\n                throw new TRPCError({\n                    code: 'NOT_FOUND',\n                    message: 'Office not found',\n                });\n            }\n\n            // Check if the office already has a QuickBooks Customer ID\n            if (office.quickbooksCustomerId) {\n                // Pull data from QuickBooks and update local database\n                return await pullFromQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n            } else {\n                // Check if a matching customer exists in QuickBooks\n                const existingCustomer = await findMatchingCustomerInQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                \n                if (existingCustomer) {\n                    // Update local database with QuickBooks data\n                    return await updateOfficeWithQuickBooksData(ctx, office, existingCustomer);\n                } else {\n                    // Push data to QuickBooks and create new customer\n                    return await pushToQuickBooks(ctx, user.quickbooksRealmId, office, accessToken);\n                }\n            }\n        }),\n});\n\nasync function pullFromQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const qbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, qbCustomer);\n    } catch (error) {\n        console.error('Error pulling data from QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to pull data from QuickBooks',\n        });\n    }\n}\n\nasync function findMatchingCustomerInQuickBooks(ctx, realmId, office, accessToken) {\n    try {\n        const response = await axios.get(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select * from Customer where DisplayName = '${office.company.name}:${office.name}' or CompanyName = '${office.company.name}'`,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Accept': 'application/json',\n                },\n            }\n        );\n\n        const customers = response.data.QueryResponse.Customer;\n        return customers && customers.length > 0 ? customers[0] : null;\n    } catch (error) {\n        console.error('Error searching for customer in QuickBooks:', error);\n        return null;\n    }\n}\n\nasync function updateOfficeWithQuickBooksData(ctx, office, qbCustomer) {\n    const companyName = qbCustomer.CompanyName.split(':')[0];\n    const officeName = qbCustomer.CompanyName.includes(':') ? qbCustomer.CompanyName.split(':')[1] : office.name;\n\n    const updatedCompany = await ctx.db.company.update({\n        where: { id: office.company.id },\n        data: {\n            name: companyName,\n            quickbooksId: qbCustomer.Id,\n            syncToken: qbCustomer.SyncToken,\n        },\n    });\n\n    const updatedOffice = await ctx.db.office.update({\n        where: { id: office.id },\n        data: {\n            name: officeName,\n            quickbooksCustomerId: qbCustomer.Id,\n            Addresses: {\n                upsert: {\n                    where: { id: office.Addresses[0]?.id || 'new' },\n                    create: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        addressType: 'Billing',\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                    update: {\n                        line1: qbCustomer.BillAddr.Line1,\n                        city: qbCustomer.BillAddr.City,\n                        state: qbCustomer.BillAddr.CountrySubDivisionCode,\n                        zipCode: qbCustomer.BillAddr.PostalCode,\n                        country: qbCustomer.BillAddr.Country,\n                        telephoneNumber: qbCustomer.PrimaryPhone?.FreeFormNumber || '',\n                    },\n                },\n            },\n        },\n    });\n\n    return { company: updatedCompany, office: updatedOffice };\n}\n\nasync function pushToQuickBooks(ctx, realmId, office, accessToken) {\n    const qbCustomerData = {\n        DisplayName: `${office.company.name}:${office.name}`,\n        CompanyName: `${office.company.name}:${office.name}`,\n        BillAddr: {\n            Line1: office.Addresses[0]?.line1 || '',\n            City: office.Addresses[0]?.city || '',\n            Country: office.Addresses[0]?.country || '',\n            CountrySubDivisionCode: office.Addresses[0]?.state || '',\n            PostalCode: office.Addresses[0]?.zipCode || '',\n        },\n        PrimaryPhone: { FreeFormNumber: office.Addresses[0]?.telephoneNumber || '' },\n    };\n\n    try {\n        const response = await axios.post(\n            `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer`,\n            qbCustomerData,\n            {\n                headers: {\n                    'Authorization': `Bearer ${accessToken}`,\n                    'Content-Type': 'application/json',\n                },\n            }\n        );\n\n        const createdQbCustomer = response.data.Customer;\n        return await updateOfficeWithQuickBooksData(ctx, office, createdQbCustomer);\n    } catch (error) {\n        console.error('Error pushing data to QuickBooks:', error);\n        throw new TRPCError({\n            code: 'INTERNAL_SERVER_ERROR',\n            message: 'Failed to push data to QuickBooks',\n        });\n    }\n}\n```\n\nNow, for the `actionsCellRenderer`, you can add a button that calls this new `syncOffice` procedure. Here's an example of how you might implement this in your React component:\n\n```typescript:src/components/OfficeTable.tsx\nimport { api } from \"~/utils/api\";\n\n// ... other imports and component setup ...\n\nconst actionsCellRenderer = (params: any) => {\n    const syncOfficeMutation = api.qbCustomer.syncOffice.useMutation();\n\n    const",
@@ -4329,9 +4361,9 @@
       },
       {
         "file": "src/app/_components/orders/OrderDetailsComponent.tsx",
-        "total_lines": 304,
-        "ai_generated_lines": 33,
-        "ai_generated_percentage": 10.855263157894738
+        "total_lines": 308,
+        "ai_generated_lines": 34,
+        "ai_generated_percentage": 11.03896103896104
       },
       {
         "file": "src/app/_components/orders/OrderItemStock/orderItemStockComponent.tsx",
@@ -4365,9 +4397,9 @@
       },
       {
         "file": "src/app/_components/orders/orderItem/orderItemsTable.tsx",
-        "total_lines": 125,
-        "ai_generated_lines": 16,
-        "ai_generated_percentage": 12.8
+        "total_lines": 115,
+        "ai_generated_lines": 15,
+        "ai_generated_percentage": 13.043478260869565
       },
       {
         "file": "src/app/_components/orders/orderNotesComponent.tsx",
@@ -4377,9 +4409,9 @@
       },
       {
         "file": "src/app/_components/orders/ordersTable.tsx",
-        "total_lines": 172,
-        "ai_generated_lines": 53,
-        "ai_generated_percentage": 30.813953488372093
+        "total_lines": 174,
+        "ai_generated_lines": 54,
+        "ai_generated_percentage": 31.03448275862069
       },
       {
         "file": "src/app/_components/quickbooks/QuickbooksAuth.tsx",
@@ -4462,8 +4494,8 @@
       {
         "file": "src/app/_components/shared/typesetting/typesettingForm.tsx",
         "total_lines": 220,
-        "ai_generated_lines": 4,
-        "ai_generated_percentage": 1.8181818181818181
+        "ai_generated_lines": 5,
+        "ai_generated_percentage": 2.272727272727273
       },
       {
         "file": "src/app/_components/shared/typesetting/typesettingOptionsComponent.tsx",
@@ -4515,9 +4547,9 @@
       },
       {
         "file": "src/app/_components/workOrders/WorkOrderDetailsComponent.tsx",
-        "total_lines": 227,
-        "ai_generated_lines": 15,
-        "ai_generated_percentage": 6.607929515418502
+        "total_lines": 247,
+        "ai_generated_lines": 23,
+        "ai_generated_percentage": 9.31174089068826
       },
       {
         "file": "src/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent.tsx",
@@ -4617,9 +4649,9 @@
       },
       {
         "file": "src/app/_components/workOrders/workOrdersTable.tsx",
-        "total_lines": 124,
+        "total_lines": 126,
         "ai_generated_lines": 20,
-        "ai_generated_percentage": 16.129032258064516
+        "ai_generated_percentage": 15.873015873015872
       },
       {
         "file": "src/app/api/auth/[...nextauth]/route.ts",
@@ -4654,8 +4686,8 @@
       {
         "file": "src/app/companies/[id]/page.tsx",
         "total_lines": 119,
-        "ai_generated_lines": 25,
-        "ai_generated_percentage": 21.008403361344538
+        "ai_generated_lines": 26,
+        "ai_generated_percentage": 21.84873949579832
       },
       {
         "file": "src/app/companies/create/page.tsx",
@@ -4857,9 +4889,9 @@
       },
       {
         "file": "src/server/api/routers/orders/order.ts",
-        "total_lines": 551,
-        "ai_generated_lines": 61,
-        "ai_generated_percentage": 11.070780399274046
+        "total_lines": 629,
+        "ai_generated_lines": 99,
+        "ai_generated_percentage": 15.73926868044515
       },
       {
         "file": "src/server/api/routers/orders/orderNotes.ts",
@@ -4876,14 +4908,14 @@
       {
         "file": "src/server/api/routers/quickbooks/qbAuth.ts",
         "total_lines": 284,
-        "ai_generated_lines": 16,
-        "ai_generated_percentage": 5.633802816901409
+        "ai_generated_lines": 17,
+        "ai_generated_percentage": 5.985915492957746
       },
       {
         "file": "src/server/api/routers/quickbooks/qbCompany.ts",
         "total_lines": 64,
-        "ai_generated_lines": 5,
-        "ai_generated_percentage": 7.8125
+        "ai_generated_lines": 6,
+        "ai_generated_percentage": 9.375
       },
       {
         "file": "src/server/api/routers/quickbooks/qbCustomer.ts",
@@ -4900,8 +4932,8 @@
       {
         "file": "src/server/api/routers/quickbooks/qbSyncCustomer.ts",
         "total_lines": 296,
-        "ai_generated_lines": 43,
-        "ai_generated_percentage": 14.527027027027026
+        "ai_generated_lines": 44,
+        "ai_generated_percentage": 14.864864864864865
       },
       {
         "file": "src/server/api/routers/roles/roles.ts",
@@ -4978,8 +5010,8 @@
       {
         "file": "src/server/api/routers/workOrders/workOrder.ts",
         "total_lines": 401,
-        "ai_generated_lines": 39,
-        "ai_generated_percentage": 9.72568578553616
+        "ai_generated_lines": 50,
+        "ai_generated_percentage": 12.468827930174564
       },
       {
         "file": "src/server/api/routers/workOrders/workOrderNote.ts",
@@ -5020,8 +5052,8 @@
       {
         "file": "src/services/workOrderToOrderService.ts",
         "total_lines": 290,
-        "ai_generated_lines": 34,
-        "ai_generated_percentage": 11.724137931034482
+        "ai_generated_lines": 38,
+        "ai_generated_percentage": 13.10344827586207
       },
       {
         "file": "src/store/useQuickbooksStore.ts",
@@ -5073,9 +5105,9 @@
       },
       {
         "file": "src/utils/dataNormalization.ts",
-        "total_lines": 640,
-        "ai_generated_lines": 65,
-        "ai_generated_percentage": 10.15625
+        "total_lines": 639,
+        "ai_generated_lines": 64,
+        "ai_generated_percentage": 10.015649452269171
       },
       {
         "file": "src/utils/emailTemplates.ts",
