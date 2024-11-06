@@ -103,6 +103,9 @@ export interface SerializedOrder {
     updatedAt: string;
     version: number;
     workOrderId: string;
+    WorkOrder: {
+        purchaseOrderNumber: string;
+    };
     contactPerson: {
         id: string;
         name: string | null;
@@ -135,11 +138,13 @@ export interface SerializedOrderItem {
     finishedQty: number;
     ink: string | null;
     Order: {
-        id: string;
         Office: {
             Company: {
                 name: string;
             };
+        };
+        WorkOrder: {
+            purchaseOrderNumber: string;
         };
     };
     orderId: string;

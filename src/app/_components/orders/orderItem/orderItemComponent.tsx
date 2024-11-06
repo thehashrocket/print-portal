@@ -109,6 +109,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 {/* Row 1 */}
                 <div className="grid md:grid-cols-2 gap-6 mb-2">
                     <InfoCard title="Order Number" content={order.orderNumber} />
+                    <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
                     <InfoCard title="Company" content={order.Office?.Company.name} />
                     <InfoCard title="Contact Info" content={
                         <div>

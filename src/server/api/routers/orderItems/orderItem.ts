@@ -58,15 +58,18 @@ export const orderItemRouter = createTRPCRouter({
                 artwork: true,
                 Order: {
                     select: {
-                        id: true,
                         Office: {
                             select: {
-                                id: true,
                                 Company: {
                                     select: {
                                         name: true,
                                     }
                                 }
+                            }
+                        },
+                        WorkOrder: {
+                            select: {
+                                purchaseOrderNumber: true,
                             }
                         }
                     },

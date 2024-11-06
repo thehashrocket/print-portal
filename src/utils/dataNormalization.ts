@@ -130,11 +130,13 @@ export function normalizeOrder(order: Order & {
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
         Order: {
-            id: string;
             Office: {
                 Company: {
                     name: string;
                 };
+            };
+            WorkOrder: {
+                purchaseOrderNumber: string;
             };
         };
         OrderItemStock: OrderItemStock[];
@@ -162,6 +164,9 @@ export function normalizeOrder(order: Order & {
         };
     }) | null;
     OrderNotes?: OrderNote[];
+    WorkOrder: {
+        purchaseOrderNumber: string;
+    };
 }): SerializedOrder {
     return {
         calculatedSalesTax: order.calculatedSalesTax ? order.calculatedSalesTax.toString() : null,
@@ -170,12 +175,26 @@ export function normalizeOrder(order: Order & {
         createdAt: order.createdAt.toISOString(),
         quickbooksInvoiceId: order.quickbooksInvoiceId,
         syncToken: order.syncToken,
+        contactPerson: {
+            id: order.contactPerson.id,
+            name: order.contactPerson.name,
+            email: order.contactPerson.email
+        },
+        createdBy: {
+            id: order.createdBy.id,
+            name: order.createdBy.name
+        },
         createdById: order.createdById,
         dateInvoiced: order.dateInvoiced?.toISOString() ?? null,
         deposit: order.deposit.toString(),
         id: order.id,
         inHandsDate: order.inHandsDate?.toISOString() ?? null,
         invoicePrintEmail: order.invoicePrintEmail,
+        Office: {
+            Company: {
+                name: order.Office.Company.name
+            }
+        },
         officeId: order.officeId,
         orderNumber: order.orderNumber,
         shippingInfoId: order.shippingInfoId,
@@ -190,19 +209,8 @@ export function normalizeOrder(order: Order & {
         version: order.version,
         workOrderId: order.workOrderId,
         pressRun: order.pressRun,
-        contactPerson: {
-            id: order.contactPerson.id,
-            name: order.contactPerson.name,
-            email: order.contactPerson.email
-        },
-        createdBy: {
-            id: order.createdBy.id,
-            name: order.createdBy.name
-        },
-        Office: {
-            Company: {
-                name: order.Office.Company.name
-            }
+        WorkOrder: {
+            purchaseOrderNumber: order.WorkOrder.purchaseOrderNumber
         },
         OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
         OrderPayments: order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [],
@@ -216,11 +224,13 @@ export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
     OrderItemStock: OrderItemStock[];
     Order: {
-        id: string;
         Office: {
             Company: {
                 name: string;
             };
+        };
+        WorkOrder: {
+            purchaseOrderNumber: string;
         };
     };
 }): SerializedOrderItem {
@@ -235,11 +245,13 @@ export function normalizeOrderItem(item: OrderItem & {
         finishedQty: item.finishedQty,
         ink: item.ink,
         Order: {
-            id: item.Order.id,
             Office: {
                 Company: {
                     name: item.Order.Office.Company.name
-                }
+                },
+            },
+            WorkOrder: {
+                purchaseOrderNumber: item.Order.WorkOrder.purchaseOrderNumber
             }
         },
         orderId: item.orderId,

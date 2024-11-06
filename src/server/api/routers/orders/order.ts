@@ -22,6 +22,20 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             },
           },
           contactPerson: {
@@ -52,6 +66,11 @@ export const orderRouter = createTRPCRouter({
             },
           },
           OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
         },
       });
 
@@ -78,6 +97,13 @@ export const orderRouter = createTRPCRouter({
         totalShippingAmount,
         balance,
         totalPaid,
+        OrderItems: order.OrderItems.map(item => ({
+          ...item,
+          Order: {
+            Office: order.Office,
+            WorkOrder: order.WorkOrder,
+          },
+        })),
       });
     }),
 
@@ -106,6 +132,20 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             },
           },
           contactPerson: {
@@ -142,6 +182,11 @@ export const orderRouter = createTRPCRouter({
             },
           },
           OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
         },
       });
 
@@ -204,6 +249,20 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             },
           },
           contactPerson: {
@@ -234,6 +293,11 @@ export const orderRouter = createTRPCRouter({
             },
           },
           OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
         },
       });
 
@@ -313,12 +377,27 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             },
           },
           contactPerson: {
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           createdBy: {
@@ -342,6 +421,11 @@ export const orderRouter = createTRPCRouter({
             },
           },
           OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
         },
       });
 
@@ -375,12 +459,23 @@ export const orderRouter = createTRPCRouter({
         contactPerson: {
           id: "",
           name: null,
-          email: null,
+          email: null
         },
         createdBy: {
           id: "",
           name: null
-        }
+        },
+        WorkOrder: {
+          purchaseOrderNumber: ""
+        },
+        OrderItems: updatedOrder.OrderItems.map(item => ({
+          ...item,
+          Order: {
+            id: updatedOrder.id,
+            Office: updatedOrder.Office,
+            WorkOrder: updatedOrder.WorkOrder,
+          },
+        })),
       });
     }),
 
@@ -403,6 +498,20 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             },
           },
           contactPerson: {
@@ -433,6 +542,11 @@ export const orderRouter = createTRPCRouter({
             },
           },
           OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
         },
       });
       const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
@@ -456,6 +570,13 @@ export const orderRouter = createTRPCRouter({
         totalCost,
         totalPaid,
         balance,
+        OrderItems: updatedOrder.OrderItems.map(item => ({
+          ...item,
+          Order: {
+            Office: updatedOrder.Office,
+            WorkOrder: updatedOrder.WorkOrder,
+          },
+        })),
       });
     }),
 
@@ -467,6 +588,20 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
             }
           },
           Office: {
