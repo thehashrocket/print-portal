@@ -129,6 +129,14 @@ export function normalizeOrder(order: Order & {
     };
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
+        Order: {
+            id: string;
+            Office: {
+                Company: {
+                    name: string;
+                };
+            };
+        };
         OrderItemStock: OrderItemStock[];
     })[];
     contactPerson: {
@@ -207,6 +215,14 @@ export function normalizeOrder(order: Order & {
 export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
     OrderItemStock: OrderItemStock[];
+    Order: {
+        id: string;
+        Office: {
+            Company: {
+                name: string;
+            };
+        };
+    };
 }): SerializedOrderItem {
     return {
         id: item.id,
@@ -218,6 +234,14 @@ export function normalizeOrderItem(item: OrderItem & {
         expectedDate: item.expectedDate ? item.expectedDate.toISOString() : null,
         finishedQty: item.finishedQty,
         ink: item.ink,
+        Order: {
+            id: item.Order.id,
+            Office: {
+                Company: {
+                    name: item.Order.Office.Company.name
+                }
+            }
+        },
         orderId: item.orderId,
         orderItemNumber: item.orderItemNumber,
         other: item.other,

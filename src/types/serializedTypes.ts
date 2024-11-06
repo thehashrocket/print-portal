@@ -134,6 +134,14 @@ export interface SerializedOrderItem {
     expectedDate: string | null;
     finishedQty: number;
     ink: string | null;
+    Order: {
+        id: string;
+        Office: {
+            Company: {
+                name: string;
+            };
+        };
+    };
     orderId: string;
     orderItemNumber: number;
     other: string | null;

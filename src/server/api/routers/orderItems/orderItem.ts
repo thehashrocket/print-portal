@@ -56,6 +56,21 @@ export const orderItemRouter = createTRPCRouter({
         return ctx.db.orderItem.findMany({
             include: {
                 artwork: true,
+                Order: {
+                    select: {
+                        id: true,
+                        Office: {
+                            select: {
+                                id: true,
+                                Company: {
+                                    select: {
+                                        name: true,
+                                    }
+                                }
+                            }
+                        }
+                    },
+                },
                 Typesetting: {
                     include: {
                         TypesettingOptions: true,

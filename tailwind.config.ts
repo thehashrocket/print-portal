@@ -10,5 +10,5 @@ export default {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography"), require('daisyui')],
+  plugins: [require("@tailwindcss/typography"), require('daisyui'), require('@tailwindcss/line-clamp')],
 } satisfies Config;
