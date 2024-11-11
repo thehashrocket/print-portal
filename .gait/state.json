@@ -3336,8 +3336,12 @@
           ],
           "kv_store": {
             "file_paths": [
-              "src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx"
-            ]
+              "src/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx",
+              "src/app/_components/invoices/invoicesTable.tsx"
+            ],
+            "file_path_dict": {
+              "0": "src/app/_components/invoices/invoicesTable.tsx"
+            }
           }
         }
       ],

@@ -33,11 +33,14 @@ const InvoicesTable: React.FC= () => {
     const utils = api.useUtils();
 
     useEffect(() => {
-        setRowData(invoices);
+        if (invoicesData) {
+            setRowData(invoicesData || []);
+            setLoading(false);
         if (gridRef.current) {
-            gridRef.current.api.sizeColumnsToFit();
+                gridRef.current.api.sizeColumnsToFit();
+            }
         }
-    }, [invoices]);
+    }, [invoicesData]);
 
     const formatDate = (params: ValueFormatterParams) => {
         return new Date(params.value).toLocaleDateString();
@@ -80,11 +83,11 @@ const InvoicesTable: React.FC= () => {
     );
 
     const columnDefs: ColDef[] = [
-        { headerName: "Invoice Number", field: "invoiceNumber", filter: true, width: 90, },
-        { headerName: "Date Issued", field: "dateIssued", valueFormatter: formatDate, width: 80 },
-        { headerName: "Due Date", field: "dateDue", valueFormatter: formatDate, width: 80 },
-        { headerName: "Total", field: "total", valueFormatter: formatCurrency, width: 80 },
-        { headerName: "Status", field: "status", cellRenderer: statusCellRenderer, width: 80 },
+        { headerName: "Invoice Number", field: "invoiceNumber", filter: true, width: 150, },
+        { headerName: "Date Issued", field: "dateIssued", valueFormatter: formatDate, width: 120 },
+        { headerName: "Due Date", field: "dateDue", valueFormatter: formatDate, width: 120 },
+        { headerName: "Total", field: "total", valueFormatter: formatCurrency, width: 120 },
+        { headerName: "Status", field: "status", cellRenderer: statusCellRenderer, width: 120 },
         {
             headerName: "QB Status",
             field: "quickbooksId",
@@ -109,9 +112,9 @@ const InvoicesTable: React.FC= () => {
             ),
             sortable: true,
             filter: true,
-            width: 80
+            width: 120
         },
-        { headerName: "Actions", cellRenderer: actionCellRenderer, sortable: false, filter: false, width: 80 },
+        { headerName: "Actions", cellRenderer: actionCellRenderer, sortable: false, filter: false, width: 250 },
     ];
 
     const defaultColDef = useMemo(() => ({
@@ -140,16 +143,23 @@ const InvoicesTable: React.FC= () => {
     }
 
     return (
-        <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}>
+        (invoices && (
+            <div className="ag-theme-alpine" style={{ height: "600px", width: '100%' }}>
             <AgGridReact
-                rowData={rowData}
+                animateRows={true}
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
                 onGridReady={onGridReady}
                 pagination={true}
                 paginationPageSize={20}
-            />
-        </div>
+                ref={gridRef}
+                rowData={rowData}
+                rowSelection="single"
+                />
+            </div>
+        )) || (
+            <div>No invoices found</div>
+        )
     );
 };
 

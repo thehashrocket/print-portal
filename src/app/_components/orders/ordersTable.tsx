@@ -7,11 +7,11 @@ import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-  type ColDef,
+  ColDef,
+  FilterChangedEvent,
+  GridReadyEvent,
   ModuleRegistry,
-  type GridReadyEvent,
-  type FilterChangedEvent,
-  type RowClassParams
+  RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
@@ -152,17 +152,17 @@ const OrdersTable: React.FC = () => {
     (orders && (
       <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
         <AgGridReact
-          ref={gridRef}
+          animateRows={true}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          rowData={orders}
-          rowSelection="single"
-          onGridReady={onGridReady}
-          onFilterChanged={onFilterChanged}
           getRowStyle={getRowStyle}
-          animateRows={true}
+          onFilterChanged={onFilterChanged}
+          onGridReady={onGridReady}
           pagination={true}
           paginationPageSize={20}
+          ref={gridRef}
+          rowData={orders}
+          rowSelection="single"
         />
       </div>
     )) || (
