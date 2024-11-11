@@ -64,7 +64,7 @@ const CompanyCharts: React.FC<CompanyChartsProps> = ({ company }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
-                    <h2 className="card-title">Work Order Status Distribution</h2>
+                    <h2 className="card-title">Estimate Status Distribution</h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                             <Pie data={workOrderStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
@@ -106,7 +106,7 @@ const CompanyCharts: React.FC<CompanyChartsProps> = ({ company }) => {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="workOrders" name="Work Orders" fill="#8884d8" />
+                            <Bar dataKey="workOrders" name="Estimates" fill="#8884d8" />
                             <Bar dataKey="orders" name="Orders" fill="#82ca9d" />
                         </BarChart>
                     </ResponsiveContainer>

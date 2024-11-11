@@ -105,7 +105,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">Work Order Jobs</h2>
+            <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
 
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
@@ -119,7 +119,7 @@ const WorkOrderItemForm: React.FC = () => {
                 />
             ) : (
                 <>
-                    <h3 className="text-xl font-semibold">Add New Work Order Job</h3>
+                    <h3 className="text-xl font-semibold">Add New Estimate Job</h3>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div>
                             <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
@@ -196,7 +196,7 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                         </div>
                         <button type="submit" className="btn btn-primary">
-                            Add Work Order Job
+                            Add Estimate Job
                         </button>
                     </form>
                 </>

@@ -44,7 +44,7 @@ export default async function CompaniesPage() {
                         <div className="stat-value">{totalCompanies}</div>
                     </div>
                     <div className="stat bg-base-100 shadow">
-                        <div className="stat-title">Pending Work Orders</div>
+                        <div className="stat-title">Pending Estimates</div>
                         <div className="stat-value">${totalPendingWorkOrders.toFixed(2)}</div>
                     </div>
                     <div className="stat bg-base-100 shadow">

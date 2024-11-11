@@ -90,7 +90,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
 
     const columnDefs: ColDef[] = [
         { headerName: "Name", field: "name" },
-        { headerName: "Pending Work Orders", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
+        { headerName: "Pending Estimates", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
         { headerName: "Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency },
         { headerName: "Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency },
         {

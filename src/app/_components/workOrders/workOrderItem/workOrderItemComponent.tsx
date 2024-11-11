@@ -109,14 +109,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
-                            <li><Link href="/workOrders">Work Orders</Link></li>
-                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Work Order {workOrder?.workOrderNumber}</Link></li>
+                            <li><Link href="/workOrders">Estimates</Link></li>
+                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
                             <li>Job {workOrderItem.workOrderItemNumber}</li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Work Order</Link>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Estimate</Link>
                 </div>
             </div>
 
@@ -124,7 +124,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 {/* Row 1 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
                     <InfoCard
-                        title="Work Order Number"
+                        title="Estimate Number"
                         content={workOrder?.workOrderNumber ?? 'N/A'}
                     />
                     <InfoCard

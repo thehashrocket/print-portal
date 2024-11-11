@@ -20,21 +20,21 @@ export default async function WorkOrdersPage() {
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold">Work Orders</h1>
+          <h1 className="text-3xl font-bold">Estimates</h1>
           <Link className="btn btn-primary" href="/workOrders/create">
-            Create Work Order
+            Create Estimate
           </Link>
         </div>
         <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
           <ul>
             <li><Link href="/">Home</Link></li>
-            <li>Work Orders</li>
+            <li>Estimates</li>
           </ul>
         </nav>
       </header>
       <main>
         <section className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Work Orders List</h2>
+          <h2 className="text-xl font-semibold mb-4">Estimates List</h2>
           <WorkOrdersTable />
         </section>
       </main>

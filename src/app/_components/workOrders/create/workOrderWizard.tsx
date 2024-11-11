@@ -31,7 +31,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
             <WorkOrderShippingInfoForm />
         </>,
         <>
-            <h3 className='mb-2 text-gray-600 text-l font-semibold'>Work Order Jobs</h3>
+            <h3 className='mb-2 text-gray-600 text-l font-semibold'>Estimate Jobs</h3>
             <WorkOrderItemForm />
         </>,
     ];
@@ -56,17 +56,17 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Work Orders</a>
+                    <a className="btn btn-ghost text-xl">Estimates</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link> </li>
-                            <li><Link href="/workOrders">Work Orders</Link></li>
-                            <li><Link href="/workOrders/create">Create Work Order</Link></li>
+                            <li><Link href="/workOrders">Estimates</Link></li>
+                            <li><Link href="/workOrders/create">Create Estimate</Link></li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Estimate</Link>
                 </div>
             </div>
             <div className="flex justify-center mb-8">
@@ -78,7 +78,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                         Shipping Information
                     </div>
                     <div className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>
-                        Work Order Jobs
+                        Estimate Jobs
                     </div>
                 </div>
             </div>

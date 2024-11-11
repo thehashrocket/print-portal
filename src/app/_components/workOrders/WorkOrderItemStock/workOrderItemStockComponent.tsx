@@ -27,7 +27,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Work Order Job Stock</h3>
+            <h3 className="text-lg font-semibold">Estimate Job Stock</h3>
 
             {/* List of existing stocks */}
             {stocks && stocks.length > 0 && (

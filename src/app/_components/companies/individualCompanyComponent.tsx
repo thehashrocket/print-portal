@@ -145,10 +145,10 @@ const OfficeCard: React.FC<{ office: SerializedOffice }> = ({ office }) => (
                 <AddressList addresses={office.Addresses} />
             </div>
             <div className="flex flex-col gap-4">
-                <div className="divider">Work Orders</div>
+                <div className="divider">Estimates</div>
                 <DataTable
                     data={office.WorkOrders}
-                    columns={['Work Order Number', 'Status', 'Total Cost']}
+                    columns={['Estimate Number', 'Status', 'Total Cost']}
                     actionLink="/workOrders"
                 />
                 

@@ -21,7 +21,7 @@ export default async function WorkOrderPage({
   const workOrder = await api.workOrders.getByID(id);
 
   if (!workOrder) {
-    throw new Error("Work Order not found");
+    throw new Error("Estimate not found");
   }
 
   return <WorkOrderDetails initialWorkOrder={workOrder} workOrderId={workOrder.id} />;

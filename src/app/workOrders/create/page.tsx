@@ -25,17 +25,17 @@ export default async function CreateWorkOrderPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Work Orders</a>
+                    <a className="btn btn-ghost text-xl">Estimates</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link> </li>
-                            <li><Link href="/workOrders">Work Orders</Link></li>
-                            <li><Link href="/workOrders/create">Create Work Order</Link></li>
+                            <li><Link href="/workOrders">Estimates</Link></li>
+                            <li><Link href="/workOrders/create">Create Estimate</Link></li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Work Order</Link>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create an Estimate</Link>
                 </div>
             </div>
             <div className="flex justify-center">
@@ -47,7 +47,7 @@ export default async function CreateWorkOrderPage() {
                         Shipping Information
                     </div>
                     <div className={`step`}>
-                        Work Order Jobs
+                        Estimate Jobs
                     </div>
                 </div>
             </div>

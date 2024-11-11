@@ -10,7 +10,7 @@ const CreateWorkOrderComponent: React.FC = () => {
     return (
         <WorkOrderProvider>
             <>
-                <h3 className='mb-2 text-gray-600 text-l font-semibold'>Work Order Information</h3>
+                <h3 className='mb-2 text-gray-600 text-l font-semibold'>Estimate Information</h3>
                 <WorkOrderForm />
             </>
         </WorkOrderProvider>

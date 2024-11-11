@@ -24,14 +24,14 @@ const CompaniesChart: React.FC<CompaniesChartProps> = ({ companies }) => {
 
     const chartOptions: AgChartOptions = {
         title: {
-            text: 'Pending Work Orders and Orders by Company'
+            text: 'Pending Estimates and Orders by Company'
         },
         data: chartData,
         series: [{
             type: 'bar',
             xKey: 'name',
             yKey: 'pendingWorkOrders',
-            yName: 'Pending Work Orders'
+            yName: 'Pending Estimates'
         } as AgBarSeriesOptions, {
             type: 'bar',
             xKey: 'name',
