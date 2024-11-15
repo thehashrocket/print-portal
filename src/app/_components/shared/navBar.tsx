@@ -37,14 +37,12 @@ const NavBar = async () => {
           </div>
           <div className="flex items-center space-x-4">
             {session?.user && (
-              <Link href={`/users/${session.user.id}`}>
-                <span className="text-white hover:text-gray-300">Profile</span>
-              </Link>
-            )}
-            {session?.user && (
               <>
                 <Link href={`/users/${session.user.id}`}>
                   <span className="text-white hover:text-gray-300">Profile</span>
+                </Link>
+                <Link href="/workOrders/create">
+                  <span className="btn btn-sm btn-primary text-white hover:text-gray-300">Create Estimate</span>
                 </Link>
                 <QuickbooksStatus />
               </>

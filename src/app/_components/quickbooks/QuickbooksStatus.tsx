@@ -77,7 +77,7 @@ const QuickbooksStatus: React.FC = () => {
                     title="Refresh QuickBooks Token"
                     aria-label="Refresh QuickBooks Token"
                     onClick={handleRefreshToken}
-                    className="btn btn-sm btn-primary text-white hover:text-white"
+                    className="btn btn-sm btn-primary text-white hover:text-gray-300"
                     disabled={refreshTokenMutation.isPending}
                 >
                     {refreshTokenMutation.isPending ? 'Refreshing...' : 'Connected to QuickBooks'}
@@ -87,7 +87,7 @@ const QuickbooksStatus: React.FC = () => {
                     title="Connect to QuickBooks"
                     aria-label="Connect to QuickBooks"
                     onClick={handleConnectClick}
-                    className="btn btn-sm btn-primary text-white hover:text-white"
+                    className="btn btn-sm btn-primary text-white hover:text-gray-300"
                     disabled={initializeAuthMutation.isPending}
                 >
                     {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
