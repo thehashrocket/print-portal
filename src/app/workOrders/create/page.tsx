@@ -35,7 +35,9 @@ export default async function CreateWorkOrderPage() {
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create an Estimate</Link>
+                    {/* <Link href="/workOrders/create" className="btn btn-primary">
+                        Create New Estimate
+                    </Link> */}
                 </div>
             </div>
             <div className="flex justify-center">
