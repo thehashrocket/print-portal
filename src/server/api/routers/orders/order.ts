@@ -5,7 +5,7 @@ import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/uti
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
-
+import { sendOrderEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 
 export const orderRouter = createTRPCRouter({
@@ -64,7 +64,16 @@ export const orderRouter = createTRPCRouter({
             include: {
               InvoiceItems: true,
               InvoicePayments: true,
-              createdBy: true
+              createdBy: true,
+              Order: {
+                include: {
+                  Office: {
+                    include: {
+                      Company: true,
+                    }
+                  }
+                }
+              }
             },
           },
           OrderNotes: true,
@@ -101,10 +110,12 @@ export const orderRouter = createTRPCRouter({
         totalPaid,
         OrderItems: order.OrderItems.map(item => ({
           ...item,
+          artwork: item.artwork,
           Order: {
             Office: order.Office,
             WorkOrder: order.WorkOrder,
           },
+          OrderItemStock: item.OrderItemStock,
         })),
       });
     }),
@@ -181,6 +192,15 @@ export const orderRouter = createTRPCRouter({
                   email: true
                 },
               },
+              Order: {
+                include: {
+                  Office: {
+                    include: {
+                      Company: true,
+                    }
+                  }
+                }
+              }
             },
           },
           OrderNotes: true,
@@ -643,7 +663,30 @@ export const orderRouter = createTRPCRouter({
               Company: true,
             }
           },
-          OrderItems: true,
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
+            },
+          },
+          OrderPayments: true,
+          contactPerson: true,
+          createdBy: true,
+          WorkOrder: true,
         }
       });
 
@@ -654,6 +697,53 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
-      const pdfContent = await generateOrderPDF(order);
+      const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
+      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
+
+      const normalizedOrder = normalizeOrder({
+        ...order,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalCost,
+        totalItemAmount,
+        totalShippingAmount,
+        balance,
+        totalPaid,
+        OrderItems: order.OrderItems.map(item => ({
+          ...item,
+          artwork: item.artwork,
+          Order: {
+            Office: order.Office,
+            WorkOrder: order.WorkOrder,
+          },
+          OrderItemStock: item.OrderItemStock,
+        })),
+      });
+
+      const pdfContent = await generateOrderPDF(normalizedOrder);
+      const emailHtml = `
+        <h1>Order ${order.orderNumber}</h1>
+        <p>Please find attached the order for your recent order.</p>
+      `;
+
+      const emailSent = await sendOrderEmail(input.recipientEmail, `Order ${order.orderNumber} from ${order.Office.Company.name}`, emailHtml, pdfContent);
+
+      if (emailSent) {
+        return { success: true, message: 'Order sent successfully' };
+      } else {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to send order email',
+        });
+      }
     })
 });

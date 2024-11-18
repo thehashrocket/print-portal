@@ -64,6 +64,11 @@ export function normalizeInvoice(invoice: Invoice & {
         name: string | null;
         email: string | null;
     };
+    Order: {
+        Office: {
+            Company: { name: string };
+        };
+    }
 }): SerializedInvoice {
     return {
         createdAt: invoice.createdAt.toISOString(),
@@ -80,6 +85,11 @@ export function normalizeInvoice(invoice: Invoice & {
         invoiceNumber: invoice.invoiceNumber,
         InvoicePayments: invoice.InvoicePayments.map(normalizeInvoicePayment),
         notes: invoice.notes,
+        Order: {
+            Office: {
+                Company: { name: invoice.Order.Office.Company.name }
+            }
+        },
         orderId: invoice.orderId,
         quickbooksId: invoice.quickbooksId ?? null,
         syncToken: invoice.syncToken ?? null,

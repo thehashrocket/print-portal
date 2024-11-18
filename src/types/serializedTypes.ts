@@ -47,6 +47,11 @@ export interface SerializedInvoice {
     invoiceNumber: string;
     InvoicePayments: SerializedInvoicePayment[];
     notes: string | null;
+    Order: {
+        Office: {
+            Company: { name: string };
+        };
+    };
     orderId: string;
     quickbooksId: string | null;
     syncToken: string | null;

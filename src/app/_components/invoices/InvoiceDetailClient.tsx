@@ -12,6 +12,7 @@ import { SerializedAddress, SerializedInvoice, SerializedOrder } from '~/types/s
 import { toast } from 'react-hot-toast';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import { Send } from 'lucide-react';
 
 interface InvoiceDetailClientProps {
     initialInvoice: SerializedInvoice | null;
@@ -89,20 +90,20 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         }, 100);
     };
 
-    const handleSendInvoice = async () => {
+    const handleSendInvoice = async (invoiceId: string) => {
         setIsSending(true);
         try {
             // Assuming you have access to the User object associated with createdById
             const recipientEmail = invoice.createdBy.email || ''; // Use the email from the User object
             await sendInvoiceMutation.mutateAsync({
-                invoiceId: invoice.id,
+                invoiceId: invoiceId,
                 recipientEmail: recipientEmail,
             });
-            alert('Invoice sent successfully');
+            toast.success('Invoice sent successfully');
             utils.invoices.getById.invalidate(invoiceId);
         } catch (error) {
             console.error('Failed to send invoice:', error);
-            alert('Failed to send invoice. Please try again.');
+            toast.error('Failed to send invoice');
         } finally {
             setIsSending(false);
         }
@@ -128,11 +129,9 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                             Print Invoice
                         </button>
                         <button
-                            onClick={handleSendInvoice}
-                            className="btn btn-primary"
-                            disabled={isSending || invoice.status === InvoiceStatus.Sent}
-                        >
-                            {isSending ? 'Sending...' : 'Send Invoice'}
+                            className="btn btn-primary mr-2 mt-1"
+                            onClick={() => handleSendInvoice(invoice.id)}>
+                            <Send className="w-4 h-4" /> Email Invoice
                         </button>
                     </div>
                 </div>
@@ -154,27 +153,42 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                         <div className="card bg-base-100 shadow-xl">
                             <div className="card-body">
                                 <h2 className="card-title">Order Information</h2>
-                                <p><strong>Company:</strong> {order?.Office?.Company.name}</p>
-                                <p><strong>Order Number:</strong> {order?.orderNumber}</p>
-                                <p><strong>Order Status:</strong> {order?.status}</p>
-                                <p><strong>Quickbooks ID:</strong> {invoice.quickbooksId}</p>
-                                <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2">
-                                    View Order
-                                </Link>
-                                <p>
-                                    {!invoice.quickbooksId &&
+                                <div className="grid-cols-1 gap-4">
+                                    <div className="grid-cols-1 gap-4">
+                                        <p><strong>Company:</strong> {order?.Office?.Company.name}</p>
+                                        <p><strong>Order Number:</strong> {order?.orderNumber}</p>
+                                        <p><strong>Order Status:</strong> {order?.status}</p>
+                                        <p><strong>Quickbooks ID:</strong> {invoice.quickbooksId}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2 mr-2">
+                                            View Order
+                                        </Link>
+
                                         <button
-                                            className="btn btn-primary btn-sm mt-2 mb-2"
-                                            onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
-                                            Create Quickbooks Invoice
-                                        </button>}
-                                    {invoice.quickbooksId &&
-                                        <button
-                                            className="btn btn-primary btn-sm mt-2 mb-2"
-                                            onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
-                                            Update Quickbooks Invoice
-                                        </button>}
-                                </p>
+                                            className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
+                                            onClick={() => handleSendInvoice(invoice.id)}>
+                                            <Send className="w-4 h-4" /> Email Invoice
+                                        </button>
+                                        <>
+                                            {!invoice.quickbooksId &&
+                                                <button
+                                                    className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
+                                                    onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
+                                                    Create Quickbooks Invoice
+                                                </button>
+                                            }
+                                            {invoice.quickbooksId &&
+                                                <button
+                                                    className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
+                                                    onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
+                                                    Update Quickbooks Invoice
+                                                </button>
+                                            }
+                                        </>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="card bg-base-100 shadow-xl">

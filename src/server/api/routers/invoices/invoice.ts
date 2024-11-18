@@ -11,6 +11,7 @@ import { generateInvoicePDF } from "~/utils/pdfGenerator"
 import { TRPCError } from "@trpc/server";
 import { normalizeInvoice, normalizeInvoiceItem, normalizeInvoicePayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
+import { formatDate } from "~/utils/formatters";
 
 
 function formatItemDescription(item: any): string {
@@ -66,7 +67,15 @@ export const invoiceRouter = createTRPCRouter({
             // Ensure the invoices match the SerializedInvoice type
             const rawInvoices = await ctx.db.invoice.findMany({
                 include: {
-                    Order: true,
+                    Order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
+                        },
+                    },
                     createdBy: true,
                     InvoiceItems: true,
                     InvoicePayments: true,
@@ -168,7 +177,15 @@ export const invoiceRouter = createTRPCRouter({
                 include: {
                     InvoiceItems: true,
                     InvoicePayments: true,
-                    Order: true,
+                    Order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
+                        },
+                    },
                     createdBy: true,
                 },
             });
@@ -201,7 +218,15 @@ export const invoiceRouter = createTRPCRouter({
                 include: { // Ensure these are included
                     InvoiceItems: true,
                     InvoicePayments: true,
-                    Order: true,
+                    Order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
+                        },
+                    },
                     createdBy: true,
                 },
             });
@@ -272,6 +297,8 @@ export const invoiceRouter = createTRPCRouter({
                         },
                     },
                     InvoiceItems: true,
+                    createdBy: true,
+                    InvoicePayments: true,
                 },
             });
 
@@ -282,13 +309,13 @@ export const invoiceRouter = createTRPCRouter({
                 });
             }
 
-            const pdfContent = await generateInvoicePDF(invoice);
+            const pdfContent = await generateInvoicePDF(normalizeInvoice(invoice));
             const emailHtml = `
-        <h1>Invoice ${invoice.invoiceNumber}</h1>
-        <p>Please find attached the invoice for your recent order.</p>
-        <p>Total Amount Due: $${invoice.total}</p>
-        <p>Due Date: ${invoice.dateDue.toDateString()}</p>
-      `;
+                <h1>Invoice ${invoice.invoiceNumber}</h1>
+                <p>Please find attached the invoice for your recent order.</p>
+                <p>Total Amount Due: $${invoice.total}</p>
+                <p>Due Date: ${formatDate(invoice.dateDue)}</p>
+            `;
 
             const emailSent = await sendInvoiceEmail(
                 input.recipientEmail,

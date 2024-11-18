@@ -6,6 +6,7 @@ import "@copilotkit/react-ui/styles.css";
 import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
               <NavBar />
               {children}
             </Providers>
+            <Toaster />
           </TRPCReactProvider>
         </CopilotKit>
         <Script

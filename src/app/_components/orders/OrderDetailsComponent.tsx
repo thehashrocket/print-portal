@@ -13,7 +13,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/Shi
 import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-
+import { Send } from "lucide-react";
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -113,7 +113,7 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
 
     return (
-        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText}</button>
+        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText} <Send className="w-4 h-4" /></button>
     );
 };
 
@@ -149,6 +149,22 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const handleCreateQuickbooksInvoice = (orderId: string) => {
         createQuickbooksInvoice({ orderId: orderId });
     };
+
+    const { mutate: sendOrderEmail, error: sendOrderEmailError } = api.orders.sendOrderEmail.useMutation({
+        onSuccess: () => {
+            utils.orders.getByID.invalidate(orderId);
+        },
+        onError: (error) => {
+            console.error('Failed to send order email:', error);
+            toast.error('Failed to send order email');
+        }
+    });
+
+    const handleEmailOrder = (orderId: string) => {
+        sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
+    };
+
+    
 
     useEffect(() => {
         if (order) {
@@ -216,14 +232,20 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         />
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <InfoCard
-                            title="Status"
-                            content={<StatusBadge
-                                id={order.id}
-                                status={order.status}
-                                orderId={order.id}
-                            />}
-                        />
+                        <div className="grid-cols-1 gap-4">
+                            <InfoCard
+                                title="Status"
+                                content={<StatusBadge
+                                    id={order.id}
+                                    status={order.status}
+                                    orderId={order.id}
+                                />}
+                            />
+                            <InfoCard
+                                title="Email Order"
+                                content={<button className="btn btn-primary btn-sm" onClick={() => handleEmailOrder(order.id)}><Send className="w-4 h-4" /> Email Order</button>}
+                            />
+                        </div>
                         <div className="grid-flow-dense">
                             <InfoCard
                                 title="Order Price Details"
