@@ -3,6 +3,8 @@ import { z } from "zod";
 import { OrderStatus, Prisma, type ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
+import { TRPCError } from "@trpc/server";
+import { generateOrderPDF } from "~/utils/pdfGenerator";
 
 const SALES_TAX = 0.07;
 
@@ -626,4 +628,32 @@ export const orderRouter = createTRPCRouter({
 
       return allOrderItems;
     }),
+
+  sendOrderEmail: protectedProcedure
+    .input(z.object({
+        orderId: z.string(),
+        recipientEmail: z.string().email(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const order = await ctx.db.order.findUnique({
+        where: { id: input.orderId },
+        include: {
+          Office: {
+            include: {
+              Company: true,
+            }
+          },
+          OrderItems: true,
+        }
+      });
+
+      if (!order) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Order not found',
+        });
+      }
+
+      const pdfContent = await generateOrderPDF(order);
+    })
 });

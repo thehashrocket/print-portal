@@ -47,3 +47,28 @@ export async function generateInvoicePDF(invoice: any): Promise<string> {
         doc.end();
     });
 }
+
+export async function generateOrderPDF(order: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument();
+        let buffers: Buffer[] = [];
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => {
+            let pdfData = Buffer.concat(buffers);
+            resolve(pdfData.toString('base64'));
+        });
+
+        doc.fontSize(25).text('Order', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(15).text(`Order Number: ${order.orderNumber}`);
+        doc.text(`Date: ${order.dateIssued.toDateString()}`);
+        doc.moveDown();
+        doc.text(`Ship To: ${order.Office.Company.name}`);
+        doc.moveDown();
+        doc.text(`Order Items: ${order.OrderItems.length}`);
+        doc.moveDown();
+        
+
+        doc.end();
+    });
+}
