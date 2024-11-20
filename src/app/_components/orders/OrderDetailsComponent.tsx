@@ -25,7 +25,7 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
-            // Optionally, you can show an error message to the user here
+            toast.error('Failed to update status');
         }
     });
 
@@ -41,8 +41,12 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
         }
     };
 
-    const handleStatusChange = (newStatus: OrderStatus) => {
-        updateStatus({ id, status: newStatus });
+    const handleStatusChange = (newStatus: OrderStatus, sendEmail: boolean) => {
+        updateStatus({ 
+            id, 
+            status: newStatus,
+            sendEmail 
+        });
         setCurrentStatus(newStatus);
     };
 

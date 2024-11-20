@@ -505,6 +505,7 @@ export const orderRouter = createTRPCRouter({
     .input(z.object({
       id: z.string(),
       status: z.nativeEnum(OrderStatus),
+      sendEmail: z.boolean().default(false),
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedOrder> => {
       const updatedOrder = await ctx.db.order.update({
@@ -571,6 +572,23 @@ export const orderRouter = createTRPCRouter({
           }
         },
       });
+
+      // If sendEmail is true, send status update email
+      if (input.sendEmail && updatedOrder.contactPerson?.email) {
+        const emailHtml = `
+            <h1>Order Status Update</h1>
+            <p>Your order #${updatedOrder.orderNumber} status has been updated to: ${input.status}</p>
+            <p>If you have any questions, please contact us.</p>
+        `;
+
+        await sendOrderEmail(
+          updatedOrder.contactPerson.email,
+          `Order ${updatedOrder.orderNumber} Status Update`,
+          emailHtml,
+          '' // No attachment needed for status update
+        );
+      }
+
       const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
       const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
       const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
@@ -651,8 +669,8 @@ export const orderRouter = createTRPCRouter({
 
   sendOrderEmail: protectedProcedure
     .input(z.object({
-        orderId: z.string(),
-        recipientEmail: z.string().email(),
+      orderId: z.string(),
+      recipientEmail: z.string().email(),
     }))
     .mutation(async ({ ctx, input }) => {
       const order = await ctx.db.order.findUnique({

@@ -12,21 +12,24 @@ import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsConte
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
-
+import { toast } from "react-hot-toast";
+import { StatusBadge } from "./StatusBadge";
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
 };
 
-const StatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
+const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
-    const { mutate: updateStatus, isError } = api.orderItems.updateStatus.useMutation({
+    
+    const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(orderId);
         },
-        onError: (error: any) => {
+        onError: (error) => {
             console.error('Failed to update status:', error);
+            toast.error('Failed to update status');
         }
     });
 
@@ -39,26 +42,25 @@ const StatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: stri
         }
     };
 
-    const handleStatusChange = async (newStatus: OrderItemStatus) => {
-        updateStatus({ id, status: newStatus });
+    const handleStatusChange = (newStatus: OrderItemStatus, sendEmail: boolean) => {
+        updateStatus({ 
+            id, 
+            status: newStatus,
+            sendEmail 
+        });
         setCurrentStatus(newStatus);
     };
 
     return (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
-                {currentStatus}
-            </span>
-            <select
-                value={currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value as OrderItemStatus)}
-                className="px-2 py-1 rounded-md border border-gray-300"
-            >
-                {Object.values(OrderItemStatus).map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                ))}
-            </select>
-        </div>
+        <StatusBadge<OrderItemStatus>
+            id={id}
+            status={status}
+            currentStatus={currentStatus}
+            orderId={orderId}
+            onStatusChange={handleStatusChange}
+            getStatusColor={getStatusColor}
+            statusOptions={Object.values(OrderItemStatus)}
+        />
     );
 };
 
@@ -137,7 +139,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 {/* Row 3 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
                     <InfoCard title="Status" content={
-                        <StatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
+                        <ItemStatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
                     } />
                 </div>
                 {/* Row 4 */}

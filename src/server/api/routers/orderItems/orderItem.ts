@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderItemStatus } from "@prisma/client";
+import { sendOrderEmail } from "~/utils/sengrid";
 
 export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
@@ -92,15 +93,42 @@ export const orderItemRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             status: z.nativeEnum(OrderItemStatus),
+            sendEmail: z.boolean().default(false)
         }))
-        .mutation(({ ctx, input }) => {
-            return ctx.db.orderItem.update({
+        .mutation(async ({ ctx, input }) => {
+            const updatedItem = await ctx.db.orderItem.update({
                 where: {
                     id: input.id,
                 },
                 data: {
                     status: input.status,
                 },
+                include: {
+                    Order: {
+                        include: {
+                            contactPerson: true,
+                        },
+                    },
+                },
             });
+    
+            // If sendEmail is true and we have a contact email, send status update
+            if (input.sendEmail && updatedItem.Order?.contactPerson?.email) {
+                const emailHtml = `
+                    <h1>Order Item Status Update</h1>
+                    <p>Your order item status has been updated to: ${input.status}</p>
+                    <p>Description: ${updatedItem.description}</p>
+                    <p>If you have any questions, please contact us.</p>
+                `;
+    
+                await sendOrderEmail(
+                    updatedItem.Order.contactPerson.email,
+                    `Order Item Status Update`,
+                    emailHtml,
+                    '' // No attachment needed for status update
+                );
+            }
+    
+            return updatedItem;
         }),
 });
