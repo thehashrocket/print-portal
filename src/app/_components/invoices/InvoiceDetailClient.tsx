@@ -6,13 +6,13 @@ import { api } from "~/trpc/react";
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
-import PrintableInvoice from './PrintableInvoice';
 import { InvoiceStatus, ShippingMethod } from '@prisma/client';
 import { SerializedAddress, SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
 import { toast } from 'react-hot-toast';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { Send } from 'lucide-react';
+import { Download, Send } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 interface InvoiceDetailClientProps {
     initialInvoice: SerializedInvoice | null;
@@ -20,26 +20,48 @@ interface InvoiceDetailClientProps {
 }
 
 const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoice, invoiceId }) => {
-    console.log('Invoice ID:', invoiceId);
     const [invoice, setInvoice] = useState<SerializedInvoice | null>(initialInvoice);
     const [order, setOrder] = useState<SerializedOrder | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const sendInvoiceMutation = api.invoices.sendInvoiceEmail.useMutation();
     const utils = api.useUtils();
 
     // When the order is updated, update the local state
     const { data: invoiceData, isLoading, isError, error } = api.invoices.getById.useQuery<SerializedInvoice>(invoiceId, {
         initialData: initialInvoice || undefined
     });
-    useCopilotReadable({
-        description: "The current invoice that is being viewed.",
-        value: invoice,
-    });
 
-    if (error || !invoice) {
-        return <div className="alert alert-error">Invoice not found.</div>;
-    }
+    const { mutate: getInvoicePdfMutation, error: getInvoicePdfError } = api.qbInvoices.getInvoicePdf.useMutation({
+        onSuccess: (pdfBase64) => {
+            // Convert base64 to blob
+            const binaryString = window.atob(pdfBase64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+    
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `invoice-${invoice?.invoiceNumber}.pdf`;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            toast.success('PDF downloaded successfully');
+        },
+        onError: (error) => {
+            console.error('Failed to download PDF:', error);
+            toast.error('Failed to download PDF');
+        }
+    });
 
     const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
         onSuccess: (invoice) => {
@@ -52,12 +74,33 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
             toast.error('Failed to create Quickbooks invoice');
         }
     });
+
+    const { mutate: sendInvoiceEmailMutation, error: sendInvoiceEmailMutationError } = api.qbInvoices.sendInvoiceEmail.useMutation({
+        onSuccess: (data) => {
+            toast.success('Invoice sent successfully');
+            utils.invoices.getById.invalidate(invoiceId);
+            console.log('data', data);
+        },
+        onError: (error) => {
+            console.error('Failed to send invoice:', error);
+            toast.error('Failed to send invoice');
+        }
+    });
+
+    useCopilotReadable({
+        description: "The current invoice that is being viewed.",
+        value: invoice,
+    });
+
+    if (error || !invoice) {
+        return <div className="alert alert-error">Invoice not found.</div>;
+    }
+
     const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(invoice.orderId, {
         enabled: !!invoice.orderId,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
     });
-
 
     const formatTaxRate = (taxRate: number) => {
         return taxRate.toFixed(2);
@@ -65,6 +108,36 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
 
     const handleCreateQuickbooksInvoice = (invoiceId: string) => {
         createQuickbooksInvoice({ invoiceId: invoiceId });
+    };
+
+    const handlePaymentAdded = () => {
+        utils.invoices.getById.invalidate(invoiceId);
+    };
+
+    const handlePrint = async (quickbooksId: string) => {
+        if (!quickbooksId) {
+            toast.error('No QuickBooks invoice ID available');
+            return;
+        }
+        getInvoicePdfMutation({ quickbooksId });
+    };
+
+    const handleSendInvoiceByEmail = async (quickbooksId: string, invoiceId: string) => {
+        setIsSending(true);
+        try {
+            // Assuming you have access to the User object associated with createdById
+            const recipientEmail = invoice.createdBy.email || ''; // Use the email from the User object
+            sendInvoiceEmailMutation({
+                quickbooksId: quickbooksId,
+                recipientEmail: recipientEmail,
+            });
+            utils.invoices.getById.invalidate(invoiceId);
+        } catch (error) {
+            console.error('Failed to send invoice:', error);
+            toast.error('Failed to send invoice');
+        } finally {
+            setIsSending(false);
+        }
     };
 
     useEffect(() => {
@@ -78,40 +151,6 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         }
     }, [invoiceData, orderData]);
 
-    const handlePaymentAdded = () => {
-        utils.invoices.getById.invalidate(invoiceId);
-    };
-
-    const handlePrint = () => {
-        setIsPrinting(true);
-        setTimeout(() => {
-            window.print();
-            setIsPrinting(false);
-        }, 100);
-    };
-
-    const handleSendInvoice = async (invoiceId: string) => {
-        setIsSending(true);
-        try {
-            // Assuming you have access to the User object associated with createdById
-            const recipientEmail = invoice.createdBy.email || ''; // Use the email from the User object
-            await sendInvoiceMutation.mutateAsync({
-                invoiceId: invoiceId,
-                recipientEmail: recipientEmail,
-            });
-            toast.success('Invoice sent successfully');
-            utils.invoices.getById.invalidate(invoiceId);
-        } catch (error) {
-            console.error('Failed to send invoice:', error);
-            toast.error('Failed to send invoice');
-        } finally {
-            setIsSending(false);
-        }
-    };
-
-    if (isPrinting) {
-        // return <PrintableInvoice invoice={invoice} />;
-    }
 
     return (
         <>
@@ -125,14 +164,23 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                         <Link href={`/invoices/${invoice.id}/edit`} className="btn btn-primary mr-2">
                             Edit Invoice
                         </Link>
-                        <button onClick={handlePrint} className="btn btn-primary mr-2">
-                            Print Invoice
-                        </button>
-                        <button
-                            className="btn btn-primary mr-2 mt-1"
-                            onClick={() => handleSendInvoice(invoice.id)}>
-                            <Send className="w-4 h-4" /> Email Invoice
-                        </button>
+                        {invoice.quickbooksId &&
+                            <>
+                                <button
+                                    onClick={() => handlePrint(invoice.quickbooksId!)}
+                                    className="btn btn-primary mr-2"
+                                    disabled={isPrinting}
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    {isPrinting ? 'Downloading...' : 'Download PDF'}
+                                </button>
+                                <button
+                                    className="btn btn-primary mr-2 mt-1"
+                                    onClick={() => handleSendInvoiceByEmail(invoice.quickbooksId ?? '', invoice.id)}>
+                                    <Send className="w-4 h-4" /> Email Invoice
+                                </button>
+                            </>
+                        }
                     </div>
                 </div>
                 <div>
@@ -165,12 +213,6 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                         <Link href={`/orders/${invoice.orderId}`} className="btn btn-sm btn-outline mt-2 mr-2">
                                             View Order
                                         </Link>
-
-                                        <button
-                                            className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
-                                            onClick={() => handleSendInvoice(invoice.id)}>
-                                            <Send className="w-4 h-4" /> Email Invoice
-                                        </button>
                                         <>
                                             {!invoice.quickbooksId &&
                                                 <button
@@ -180,11 +222,19 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                                 </button>
                                             }
                                             {invoice.quickbooksId &&
-                                                <button
-                                                    className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
-                                                    onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
-                                                    Update Quickbooks Invoice
-                                                </button>
+                                                <>
+                                                    <button
+                                                        className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
+                                                        onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
+                                                        Update Quickbooks Invoice
+                                                    </button>
+
+                                                    <button
+                                                        className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
+                                                        onClick={() => handleSendInvoiceByEmail(invoice.quickbooksId ?? '', invoice.id)}>
+                                                        <Send className="w-4 h-4" /> Email Invoice
+                                                    </button>
+                                                </>
                                             }
                                         </>
                                     </div>

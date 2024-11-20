@@ -14,6 +14,7 @@ import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { Send } from "lucide-react";
+import { generateOrderPDF } from "~/utils/pdfGenerator";
 
 const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -161,10 +162,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     });
 
     const handleEmailOrder = (orderId: string) => {
-        sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
+        // sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
+        if (order) {
+            const pdfContent = generateOrderPDF(order);
+        }
     };
-
-    
 
     useEffect(() => {
         if (order) {

@@ -278,65 +278,6 @@ export const invoiceRouter = createTRPCRouter({
 
             return normalizeInvoicePayment(payment);
         }),
-    sendInvoiceEmail: protectedProcedure
-        .input(z.object({
-            invoiceId: z.string(),
-            recipientEmail: z.string().email(),
-        }))
-        .mutation(async ({ ctx, input }) => {
-            const invoice = await ctx.db.invoice.findUnique({
-                where: { id: input.invoiceId },
-                include: {
-                    Order: {
-                        include: {
-                            Office: {
-                                include: {
-                                    Company: true,
-                                },
-                            },
-                        },
-                    },
-                    InvoiceItems: true,
-                    createdBy: true,
-                    InvoicePayments: true,
-                },
-            });
-
-            if (!invoice) {
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Invoice not found',
-                });
-            }
-
-            const pdfContent = await generateInvoicePDF(normalizeInvoice(invoice));
-            const emailHtml = `
-                <h1>Invoice ${invoice.invoiceNumber}</h1>
-                <p>Please find attached the invoice for your recent order.</p>
-                <p>Total Amount Due: $${invoice.total}</p>
-                <p>Due Date: ${formatDate(invoice.dateDue)}</p>
-            `;
-
-            const emailSent = await sendInvoiceEmail(
-                input.recipientEmail,
-                `Invoice ${invoice.invoiceNumber} from ${invoice.Order.Office.Company.name}`,
-                emailHtml,
-                pdfContent
-            );
-
-            if (emailSent) {
-                await ctx.db.invoice.update({
-                    where: { id: input.invoiceId },
-                    data: { status: InvoiceStatus.Sent },
-                });
-                return { success: true, message: 'Invoice sent successfully' };
-            } else {
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to send invoice email',
-                });
-            }
-        }),
 });
 
 

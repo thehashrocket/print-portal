@@ -1,99 +1,83 @@
-import PDFDocument from 'pdfkit';
+"use client";
+
 import { SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from './formatters';
+import { jsPDF } from 'jspdf';
 
 export async function generateInvoicePDF(invoice: SerializedInvoice): Promise<string> {
     return new Promise((resolve, reject) => {
-        const doc = new PDFDocument();
-        let buffers: Buffer[] = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {
-            let pdfData = Buffer.concat(buffers);
-            resolve(pdfData.toString('base64'));
-        });
+        const doc = new jsPDF();
 
         // Add content to the PDF
-        doc.fontSize(25).text('Invoice', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(15).text(`Invoice Number: ${invoice.invoiceNumber}`);
-        doc.text(`Date: ${formatDate(invoice.updatedAt)}`);
-        doc.text(`Due Date: ${formatDate(invoice.dateDue)}`);
-        doc.moveDown();
-        doc.text(`Bill To: ${invoice.Order.Office.Company.name}`);
-        doc.moveDown();
+        doc.setFontSize(25).text('Invoice', 105, 20, { align: 'center' });
+        doc.setFontSize(15).text(`Invoice Number: ${invoice.invoiceNumber}`, 20, 40);
+        doc.text(`Date: ${formatDate(invoice.updatedAt)}`, 20, 50);
+        doc.text(`Due Date: ${formatDate(invoice.dateDue)}`, 20, 60);
+        doc.text(`Bill To: ${invoice.Order.Office.Company.name}`, 20, 70);
 
         // Add table for invoice items
-        const tableTop = 200;
-        doc.font('Helvetica-Bold');
-        doc.text('Item', 50, tableTop);
-        doc.text('Quantity', 200, tableTop);
-        doc.text('Price', 300, tableTop);
-        doc.text('Total', 400, tableTop);
+        const tableTop = 80;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Item', 20, tableTop);
+        doc.text('Quantity', 80, tableTop);
+        doc.text('Price', 140, tableTop);
+        doc.text('Total', 200, tableTop);
 
         let tableRow = 0;
         invoice.InvoiceItems.forEach((item: any) => {
-            tableRow += 20;
-            doc.font('Helvetica');
-            doc.text(item.description, 50, tableTop + tableRow);
-            doc.text(item.quantity.toString(), 200, tableTop + tableRow);
-            doc.text(formatCurrency(item.unitPrice), 300, tableTop + tableRow);
-            doc.text(formatCurrency(item.total), 400, tableTop + tableRow);
+            tableRow += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text(item.description, 20, tableTop + tableRow);
+            doc.text(item.quantity.toString(), 80, tableTop + tableRow);
+            doc.text(formatCurrency(item.unitPrice), 140, tableTop + tableRow);
+            doc.text(formatCurrency(item.total), 200, tableTop + tableRow);
         });
 
-        doc.moveDown();
-        doc.text(`Subtotal: $${invoice.subtotal}`);
-        doc.text(`Tax: $${invoice.taxAmount}`);
-        doc.font('Helvetica-Bold');
-        doc.text(`Total: $${invoice.total}`);
+        doc.text(`Subtotal: $${invoice.subtotal}`, 20, tableTop + tableRow + 20);
+        doc.text(`Tax: $${invoice.taxAmount}`, 20, tableTop + tableRow + 30);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Total: $${invoice.total}`, 20, tableTop + tableRow + 40);
 
-        doc.end();
+        const pdfData = doc.output('datauristring');
+        resolve(pdfData);
     });
 }
 
 export async function generateOrderPDF(order: SerializedOrder): Promise<string> {
     return new Promise((resolve, reject) => {
-        const doc = new PDFDocument();
-        let buffers: Buffer[] = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => {
-            let pdfData = Buffer.concat(buffers);
-            resolve(pdfData.toString('base64'));
-        });
+        const doc = new jsPDF();
+        let buffers: Uint8Array[] = [];
 
-        doc.fontSize(25).text('Order', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(15).text(`Order Number: ${order.orderNumber}`);
-        doc.text(`Date: ${formatDate(order.updatedAt)}`);
-        doc.moveDown();
-        doc.text(`Ship To: ${order.Office.Company.name}`);
-        doc.moveDown();
-        doc.text(`Order Items: ${order.OrderItems.length}`);
-        doc.moveDown();
+        // Add content to the PDF
+        doc.setFontSize(25).text('Order', 105, 20, { align: 'center' });
+        doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, 40);
+        doc.text(`Date: ${formatDate(order.updatedAt)}`, 20, 50);
+        doc.text(`Ship To: ${order.Office.Company.name}`, 20, 60);
+        doc.text(`Order Items: ${order.OrderItems.length}`, 20, 70);
 
-        // Add table for invoice items
-        const tableTop = 200;
-        doc.font('Helvetica-Bold');
-        doc.text('Item', 50, tableTop);
-        doc.text('Quantity', 200, tableTop);
-        doc.text('Price', 300, tableTop);
-        doc.text('Total', 400, tableTop);
+        // Add table for order items
+        const tableTop = 80;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Item', 20, tableTop);
+        doc.text('Quantity', 80, tableTop);
+        doc.text('Price', 140, tableTop);
+        doc.text('Total', 200, tableTop);
 
         let tableRow = 0;
         order.OrderItems.forEach((item: any) => {
-            tableRow += 20;
-            doc.font('Helvetica');
-            doc.text(item.description, 50, tableTop + tableRow);
-            doc.text(item.quantity.toString(), 200, tableTop + tableRow);
-            doc.text(formatCurrency(item.unitPrice), 300, tableTop + tableRow);
-            doc.text(formatCurrency(item.total), 400, tableTop + tableRow);
+            tableRow += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text(item.description, 20, tableTop + tableRow);
+            doc.text(item.quantity.toString(), 80, tableTop + tableRow);
+            doc.text(formatCurrency(item.unitPrice), 140, tableTop + tableRow);
+            doc.text(formatCurrency(item.total), 200, tableTop + tableRow);
         });
 
-        doc.moveDown();
-        doc.text(`Subtotal: $${order.calculatedSubTotal}`);
-        doc.text(`Tax: $${order.calculatedSalesTax}`);
-        doc.font('Helvetica-Bold');
-        doc.text(`Total: $${order.totalAmount}`);
+        doc.text(`Subtotal: ${formatCurrency(order.calculatedSubTotal ?? 0)}`, 20, tableTop + tableRow + 20);
+        doc.text(`Tax: ${formatCurrency(order.calculatedSalesTax ?? 0)}`, 20, tableTop + tableRow + 30);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Total: ${formatCurrency(order.totalAmount ?? 0)}`, 20, tableTop + tableRow + 40);
 
-        doc.end();
+        doc.save('order.pdf');
     });
 }
