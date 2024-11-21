@@ -3,6 +3,13 @@ import sgMail from '@sendgrid/mail';
 // Initialize SendGrid with your API key
 sgMail.setApiKey(process.env.SENDGRID_SMTP_PASSWORD as string);
 
+interface SendGridError {
+    response?: {
+        body: unknown;
+    };
+    message?: string;
+}
+
 export async function sendInvoiceEmail(
     to: string,
     subject: string,
@@ -20,10 +27,13 @@ export async function sendInvoiceEmail(
         await sgMail.send(msg);
         console.log('Email sent successfully');
         return true;
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error sending email:', error);
-        if (error.response) {
-            console.error('SendGrid error response:', error.response.body);
+        if (error && typeof error === 'object' && 'response' in error) {
+            const sendGridError = error as SendGridError;
+            if (sendGridError.response) {
+                console.error('SendGrid error response:', sendGridError.response.body);
+            }
         }
         return false;
     }
@@ -46,10 +56,13 @@ export async function sendOrderEmail(
         await sgMail.send(msg);
         console.log('Email sent successfully');
         return true;
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error sending email:', error);
-        if (error.response) {
-            console.error('SendGrid error response:', error.response.body);
+        if (error && typeof error === 'object' && 'response' in error) {
+            const sendGridError = error as SendGridError;
+            if (sendGridError.response) {
+                console.error('SendGrid error response:', sendGridError.response.body);
+            }
         }
         return false;
     }

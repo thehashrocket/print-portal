@@ -64,7 +64,7 @@ export function normalizeInvoice(invoice: Invoice & {
         name: string | null;
         email: string | null;
     };
-    Order: {
+    Order?: {
         Office: {
             Company: { name: string };
         };
@@ -85,9 +85,13 @@ export function normalizeInvoice(invoice: Invoice & {
         invoiceNumber: invoice.invoiceNumber,
         InvoicePayments: invoice.InvoicePayments.map(normalizeInvoicePayment),
         notes: invoice.notes,
-        Order: {
+        Order: invoice.Order ? {
             Office: {
                 Company: { name: invoice.Order.Office.Company.name }
+            }
+        } : {
+            Office: {
+                Company: { name: "" }  // Provide a default value
             }
         },
         orderId: invoice.orderId,
