@@ -14,6 +14,9 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge";
+import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF'; // You'll need to create this file
+import { PrintButton } from './PrintButton'; // Create this component in the same directory
+
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
@@ -97,6 +100,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Job Details</h1>
+                <PrintButton onClick={() => generateOrderItemPDF(orderItem, order)} />
                 <div className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>
