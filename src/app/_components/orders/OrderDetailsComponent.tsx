@@ -15,13 +15,14 @@ import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
+import { StatusBadge } from "../shared/StatusBadge";
 
-const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
+const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
-    const { mutate: updateStatus, isError } = api.orders.updateStatus.useMutation({
-        onSuccess: (udpatedOrder) => {
-            utils.orders.getAll.invalidate();
+    const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
+        onSuccess: () => {
+            utils.orders.getByID.invalidate(orderId);
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
@@ -37,41 +38,27 @@ const StatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }
             case "Shipping": return "bg-blue-100 text-blue-800";
             case "Invoicing": return "bg-blue-100 text-blue-800";
             case "PaymentReceived": return "bg-blue-100 text-blue-800";
-            default: return "bg-blue-100 text-blue-800";
+            default: return "bg-gray-100 text-gray-800";
         }
     };
 
     const handleStatusChange = (newStatus: OrderStatus, sendEmail: boolean) => {
-        updateStatus({ 
-            id, 
-            status: newStatus,
-            sendEmail 
-        });
+        updateStatus({ id, status: newStatus, sendEmail });
         setCurrentStatus(newStatus);
     };
 
-    useEffect(() => {
-        setCurrentStatus(status);
-    }, [status]);
-
     return (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
-                {currentStatus}
-            </span>
-            <select
-                value={currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
-                className="px-2 py-1 rounded-md border border-gray-300"
-            >
-                {Object.values(OrderStatus).map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                ))}
-            </select>
-            {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
-        </div>
+        <StatusBadge<OrderStatus>
+            id={id}
+            status={status}
+            currentStatus={currentStatus}
+            orderId={orderId}
+            onStatusChange={handleStatusChange}
+            getStatusColor={getStatusColor}
+            statusOptions={Object.values(OrderStatus)}
+        />
     );
-};
+}
 
 const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
     <section className="mb-6">
@@ -241,7 +228,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         <div className="grid-cols-1 gap-4">
                             <InfoCard
                                 title="Status"
-                                content={<StatusBadge
+                                content={<ItemStatusBadge
                                     id={order.id}
                                     status={order.status}
                                     orderId={order.id}

@@ -123,7 +123,7 @@ export const orderItemRouter = createTRPCRouter({
     
                 await sendOrderEmail(
                     updatedItem.Order.contactPerson.email,
-                    `Order Item Status Update`,
+                    `Job Status Update`,
                     emailHtml,
                     '' // No attachment needed for status update
                 );

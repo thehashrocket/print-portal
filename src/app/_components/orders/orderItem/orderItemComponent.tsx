@@ -13,7 +13,7 @@ import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
-import { StatusBadge } from "./StatusBadge";
+import { StatusBadge } from "../../shared/StatusBadge";
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
