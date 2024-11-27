@@ -13,9 +13,12 @@ const NavBar = async () => {
       <div className="mx-auto max-w-7xl">
         <div className="flex justify-between items-center">
           <div className="flex space-x-4">
-            <Link href="/">
-              <span className="text-white">Home</span>
-            </Link>
+            {/* Hide home link when the user is logged */}
+            {!session?.user && (
+              <Link href="/">
+                <span className="text-white">Home</span>
+              </Link>
+            )}
             <Link href="/companies">
               <span className="text-white">Companies</span>
             </Link>
