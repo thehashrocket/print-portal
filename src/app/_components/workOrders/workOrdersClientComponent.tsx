@@ -35,7 +35,7 @@ const WorkOrdersClientComponent: React.FC = () => {
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-bold">Estimates</h1>
                     <Link className="btn btn-primary" href="/workOrders/create">
-                        Create Estimate
+                        Create Order
                     </Link>
                 </div>
                 <nav aria-label="breadcrumb" className="text-sm breadcrumbs">

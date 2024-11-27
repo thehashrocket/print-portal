@@ -30,7 +30,7 @@ export default async function CreateWorkOrderPage() {
                         <ul>
                             <li><Link href="/">Home</Link> </li>
                             <li><Link href="/workOrders">Estimates</Link></li>
-                            <li><Link href="/workOrders/create">Create Estimate</Link></li>
+                            <li><Link href="/workOrders/create">Create Order</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -49,7 +49,7 @@ export default async function CreateWorkOrderPage() {
                         Shipping Information
                     </div>
                     <div className={`step`}>
-                        Estimate Jobs
+                        Jobs
                     </div>
                 </div>
             </div>

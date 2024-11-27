@@ -61,7 +61,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                         <ul>
                             <li><Link href="/">Home</Link> </li>
                             <li><Link href="/workOrders">Estimates</Link></li>
-                            <li><Link href="/workOrders/create">Create Estimate</Link></li>
+                            <li><Link href="/workOrders/create">Create Order</Link></li>
                         </ul>
                     </div>
                 </div>

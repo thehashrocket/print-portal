@@ -116,7 +116,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Estimate</Link>
+                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Order</Link>
                 </div>
             </div>
 

@@ -17,11 +17,11 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
         setIsConverting(true);
         try {
             await convertMutation.mutateAsync({ id: workOrderId, officeId });
-            alert('Estimate successfully converted to Order');
+            alert('Order successfully sent to Production');
             // You might want to redirect or refresh the page here
         } catch (error) {
-            console.error('Error converting Estimate:', error);
-            alert('Failed to convert Estimate to Order');
+            console.error('Error sending Order to Production:', error);
+            alert('Failed to send Order to Production');
         } finally {
             setIsConverting(false);
         }
@@ -33,7 +33,7 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
             disabled={isConverting}
             className="btn btn-primary"
         >
-            {isConverting ? 'Converting...' : 'Convert Estimate to Order'}
+            {isConverting ? 'Converting...' : 'Send Order to Production'}
         </button>
     );
 }

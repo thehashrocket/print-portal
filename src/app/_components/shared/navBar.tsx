@@ -45,7 +45,7 @@ const NavBar = async () => {
                   <span className="text-white hover:text-gray-300">Profile</span>
                 </Link>
                 <Link href="/workOrders/create">
-                  <span className="btn btn-sm btn-primary text-white hover:text-gray-300">Create Estimate</span>
+                  <span className="btn btn-sm btn-primary text-white hover:text-gray-300">Create Order</span>
                 </Link>
                 <QuickbooksStatus />
               </>
