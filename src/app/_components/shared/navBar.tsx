@@ -26,13 +26,13 @@ const NavBar = async () => {
               <span className="text-white">Dashboard</span>
             </Link>
             <Link href="/workOrders">
-              <span className="text-white">Estimates</span>
+              <span className="text-white">Orders Not in Production</span>
             </Link>
             <Link href="/invoices">
               <span className="text-white">Invoices</span>
             </Link>
             <Link href="/orders">
-              <span className="text-white">Orders</span>
+              <span className="text-white">Orders in Production</span>
             </Link>
             <Link href="/users">
               <span className="text-white">Users</span>
