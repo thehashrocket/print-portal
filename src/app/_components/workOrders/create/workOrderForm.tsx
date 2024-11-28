@@ -54,18 +54,68 @@ const WorkOrderForm: React.FC = () => {
     const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
     const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation<SerializedWorkOrder>();
     const router = useRouter();
+    const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+    const [isLoadingOffices, setIsLoadingOffices] = useState(false);
+    const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
 
+
+    const CompanySelect = () => {
+        // Add loading state display
+        if (isLoadingCompanies) {
+            return (
+                <div className="flex flex-col space-y-1.5">
+                    <label htmlFor="company">Company</label>
+                    <Button variant="outline" disabled className="w-[300px]">
+                        Loading companies...
+                    </Button>
+                </div>
+            );
+        }
+    
+        // Add error state display
+        if (!companies.length) {
+            return (
+                <div className="flex flex-col space-y-1.5">
+                    <label htmlFor="company">Company</label>
+                    <Button variant="outline" disabled className="w-[300px]">
+                        No companies available
+                    </Button>
+                </div>
+            );
+        }
+    
+        return (
+            <div className="flex flex-col space-y-1.5">
+                <label htmlFor="company">Company</label>
+                <CustomComboBox
+                    options={companies.map(company => ({
+                        value: company.id,
+                        label: company.name ?? 'Unnamed Company'
+                    }))}
+                    value={selectedCompany ?? ""}
+                    onValueChange={setSelectedCompany}
+                    placeholder="Select company..."
+                    emptyText="No company found."
+                    searchPlaceholder="Search company..."
+                    className="w-[300px]"
+                />
+            </div>
+        );
+    };
+    
     useEffect(() => {
         if (companyData) {
             setCompanies(companyData.map(company => ({
                 id: company.id,
                 name: company.name
             })));
+            setIsLoadingCompanies(false);
         }
     }, [companyData]);
 
     useEffect(() => {
         if (selectedCompany) {
+            setIsLoadingOffices(true);
             refetchOffices();
         }
     }, [selectedCompany, refetchOffices]);
@@ -76,11 +126,13 @@ const WorkOrderForm: React.FC = () => {
                 id: office.id,
                 name: office.name
             })));
+            setIsLoadingOffices(false);
         }
     }, [officeData]);
 
     useEffect(() => {
         if (selectedOffice) {
+            setIsLoadingEmployees(true);
             refetchEmployees();
         }
     }, [selectedOffice, refetchEmployees]);
@@ -91,6 +143,7 @@ const WorkOrderForm: React.FC = () => {
                 id: employee.id,
                 name: employee.name
             })));
+            setIsLoadingEmployees(false);
         }
     }, [employeeData]);
 
@@ -123,11 +176,11 @@ const WorkOrderForm: React.FC = () => {
                     <CustomComboBox
                         options={companies.map(company => ({
                             value: company.id,
-                            label: company.name || 'Unnamed Company'
+                            label: company.name ?? 'Unnamed Company'
                         }))}
                         value={selectedCompany ?? ""}
                         onValueChange={setSelectedCompany}
-                        placeholder="Select company..."
+                        placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
                         emptyText="No company found."
                         searchPlaceholder="Search company..."
                         className="w-[300px]"
@@ -140,11 +193,11 @@ const WorkOrderForm: React.FC = () => {
                         <CustomComboBox
                             options={offices.map(office => ({
                                 value: office.id,
-                                label: office.name || 'Unnamed Office'
+                                label: office.name ?? 'Unnamed Office'
                             }))}
                             value={selectedOffice ?? ""}
                             onValueChange={setSelectedOffice}
-                            placeholder="Select office..."
+                            placeholder={isLoadingOffices ? "Loading..." : "Select office..."}
                             emptyText="No office found."
                             searchPlaceholder="Search office..."
                             className="w-[300px]"
@@ -158,11 +211,11 @@ const WorkOrderForm: React.FC = () => {
                         <CustomComboBox
                             options={employees.map(employee => ({
                                 value: employee.id,
-                                label: employee.name ?? employee.id
+                                label: employee.name ?? `Employee ${employee.id}`
                             }))}
                             value={watch('contactPersonId') ?? ""}
                             onValueChange={(value) => setValue('contactPersonId', value)}
-                            placeholder="Select contact..."
+                            placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
                             emptyText="No contact found."
                             searchPlaceholder="Search contact..."
                             className="w-[300px]"
@@ -192,9 +245,9 @@ const WorkOrderForm: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
-                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', { 
+                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', {
                         setValueAs: v => v === '' ? undefined : Number(v)
-                    })}  className="input input-bordered w-full" />
+                    })} className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
                 <div className="flex flex-col space-y-1.5">
