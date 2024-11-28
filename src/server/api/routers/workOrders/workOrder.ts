@@ -70,7 +70,7 @@ export const workOrderRouter = createTRPCRouter({
   createWorkOrder: protectedProcedure
     .input(z.object({
       dateIn: z.date(),
-      estimateNumber: z.string(),
+      estimateNumber: z.string().optional(),
       contactPersonId: z.string(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
@@ -78,7 +78,7 @@ export const workOrderRouter = createTRPCRouter({
       purchaseOrderNumber: z.string(),
       shippingInfoId: z.string().optional().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
-      workOrderNumber: z.number(),
+      workOrderNumber: z.number().optional(),
       workOrderItems: z.array(z.object({
         quantity: z.number(),
         description: z.string(),
@@ -89,6 +89,7 @@ export const workOrderRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
       // If the estimateNumber is not provided, auto generate it using a timestamp
       const estimateNumber = input.estimateNumber ? input.estimateNumber : `EST-${Date.now()}`;
+      const workOrderNumber = input.workOrderNumber ? input.workOrderNumber : `${Date.now()}`;
       const createdWorkOrder = await ctx.db.workOrder.create({
         data: {
           dateIn: input.dateIn,
@@ -97,7 +98,7 @@ export const workOrderRouter = createTRPCRouter({
           invoicePrintEmail: input.invoicePrintEmail,
           purchaseOrderNumber: input.purchaseOrderNumber,
           status: input.status,
-          workOrderNumber: input.workOrderNumber,
+          workOrderNumber: typeof workOrderNumber === 'string' ? parseInt(workOrderNumber, 10) : workOrderNumber,
           Office: { connect: { id: input.officeId } },
           ShippingInfo: input.shippingInfoId ? { connect: { id: input.shippingInfoId } } : undefined,
           contactPerson: { connect: { id: input.contactPersonId } },
