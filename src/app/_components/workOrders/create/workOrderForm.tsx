@@ -6,6 +6,8 @@ import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
 import { type SerializedWorkOrder } from '~/types/serializedTypes';
+import { CustomComboBox } from '~/app/_components/shared/CustomComboBox';
+import { Button } from '~/app/_components/ui/button';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
@@ -22,25 +24,43 @@ const workOrderSchema = z.object({
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
 
+interface Company {
+    id: string;
+    name: string;
+}
+
+interface Office {
+    id: string;
+    name: string;
+}
+
+interface Employee {
+    id: string;
+    name: string | null;
+}
+
 const WorkOrderForm: React.FC = () => {
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<WorkOrderFormData>({
+    const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
     });
     const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
-    const [companies, setCompanies] = useState<any[]>([]);
-    const [offices, setOffices] = useState<any[]>([]);
-    const [employees, setEmployees] = useState<any[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [offices, setOffices] = useState<Office[]>([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const { data: companyData } = api.companies.getAll.useQuery();
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
     const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
     const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation<SerializedWorkOrder>();
-    const router = useRouter()
+    const router = useRouter();
 
     useEffect(() => {
         if (companyData) {
-            setCompanies(companyData);
+            setCompanies(companyData.map(company => ({
+                id: company.id,
+                name: company.name
+            })));
         }
     }, [companyData]);
 
@@ -52,7 +72,10 @@ const WorkOrderForm: React.FC = () => {
 
     useEffect(() => {
         if (officeData) {
-            setOffices(officeData);
+            setOffices(officeData.map(office => ({
+                id: office.id,
+                name: office.name
+            })));
         }
     }, [officeData]);
 
@@ -64,7 +87,10 @@ const WorkOrderForm: React.FC = () => {
 
     useEffect(() => {
         if (employeeData) {
-            setEmployees(employeeData);
+            setEmployees(employeeData.map(employee => ({
+                id: employee.id,
+                name: employee.name
+            })));
         }
     }, [employeeData]);
 
@@ -92,43 +118,58 @@ const WorkOrderForm: React.FC = () => {
     return (
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
-                    <select id="company" onChange={(e) => setSelectedCompany(e.target.value)} className="select select-bordered w-full">
-                        <option value="">Select a Company</option>
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>{company.name}</option>
-                        ))}
-                    </select>
+                <div className="flex flex-col space-y-1.5">
+                    <label htmlFor="company">Company</label>
+                    <CustomComboBox
+                        options={companies.map(company => ({
+                            value: company.id,
+                            label: company.name || 'Unnamed Company'
+                        }))}
+                        value={selectedCompany ?? ""}
+                        onValueChange={setSelectedCompany}
+                        placeholder="Select company..."
+                        emptyText="No company found."
+                        searchPlaceholder="Search company..."
+                        className="w-[300px]"
+                    />
                 </div>
+
                 {selectedCompany && (
-                    <div>
-                        <label htmlFor="office" className="block text-sm font-medium text-gray-700">Office</label>
-                        <select id="office" onChange={(e) => setSelectedOffice(e.target.value)} className="select select-bordered w-full">
-                            <option value="">Select an Office</option>
-                            {offices.map((office) => (
-                                <option key={office.id} value={office.id}>{office.name}</option>
-                            ))}
-                        </select>
+                    <div className="flex flex-col space-y-1.5">
+                        <label htmlFor="office">Office</label>
+                        <CustomComboBox
+                            options={offices.map(office => ({
+                                value: office.id,
+                                label: office.name || 'Unnamed Office'
+                            }))}
+                            value={selectedOffice ?? ""}
+                            onValueChange={setSelectedOffice}
+                            placeholder="Select office..."
+                            emptyText="No office found."
+                            searchPlaceholder="Search office..."
+                            className="w-[300px]"
+                        />
                     </div>
                 )}
+
                 {selectedOffice && (
-                    <div>
-                        <label htmlFor="contactPersonId" className="block text-sm font-medium text-gray-700">Contact Person</label>
-                        <select
-                            id="contactPersonId"
-                            {...register('contactPersonId')}
-                            onChange={(e) => setValue('contactPersonId', e.target.value)}
-                            className="select select-bordered w-full"
-                        >
-                            <option value="">Select a Contact Person</option>
-                            {employees.map((employee) => (
-                                <option key={employee.id} value={employee.id}>{employee.name}</option>
-                            ))}
-                        </select>
-                        {errors.contactPersonId && <p className="text-red-500">{errors.contactPersonId.message}</p>}
+                    <div className="flex flex-col space-y-1.5">
+                        <label htmlFor="contactPersonId">Contact Person</label>
+                        <CustomComboBox
+                            options={employees.map(employee => ({
+                                value: employee.id,
+                                label: employee.name ?? employee.id
+                            }))}
+                            value={watch('contactPersonId') ?? ""}
+                            onValueChange={(value) => setValue('contactPersonId', value)}
+                            placeholder="Select contact..."
+                            emptyText="No contact found."
+                            searchPlaceholder="Search contact..."
+                            className="w-[300px]"
+                        />
                     </div>
                 )}
+
                 <div>
                     <label htmlFor="dateIn" className="block text-sm font-medium text-gray-700">Date In</label>
                     <input id="dateIn" type="date" {...register('dateIn')} className="input input-bordered w-full" />
@@ -156,26 +197,40 @@ const WorkOrderForm: React.FC = () => {
                     })}  className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
-                <div>
-                    <label htmlFor="invoicePrintEmail" className="block text-sm font-medium text-gray-700">Invoice Type</label>
-                    <select id="invoicePrintEmail" {...register('invoicePrintEmail')} className="select select-bordered w-full">
-                        <option value="Print">Print</option>
-                        <option value="Email">Email</option>
-                        <option value="Both">Both</option>
-                    </select>
-                    {errors.invoicePrintEmail && <p className="text-red-500">{errors.invoicePrintEmail.message}</p>}
+                <div className="flex flex-col space-y-1.5">
+                    <label htmlFor="invoicePrintEmail">Invoice Type</label>
+                    <CustomComboBox
+                        options={[
+                            { value: 'Print', label: 'Print' },
+                            { value: 'Email', label: 'Email' },
+                            { value: 'Both', label: 'Both' }
+                        ]}
+                        value={watch('invoicePrintEmail') ?? ""}
+                        onValueChange={(value) => setValue('invoicePrintEmail', value as 'Print' | 'Email' | 'Both')}
+                        placeholder="Select type..."
+                        emptyText="No type found."
+                        searchPlaceholder="Search type..."
+                        className="w-[300px]"
+                    />
                 </div>
-                <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="status" {...register('status')} className="select select-bordered w-full">
-                        <option value="Approved">Approved</option>
-                        <option value="Cancelled">Cancelled</option>
-                        <option value="Draft">Draft</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                    {errors.status && <p className="text-red-500">{errors.status.message}</p>}
+                <div className="flex flex-col space-y-1.5">
+                    <label htmlFor="status">Status</label>
+                    <CustomComboBox
+                        options={[
+                            { value: 'Approved', label: 'Approved' },
+                            { value: 'Cancelled', label: 'Cancelled' },
+                            { value: 'Draft', label: 'Draft' },
+                            { value: 'Pending', label: 'Pending' }
+                        ]}
+                        value={watch('status') ?? ""}
+                        onValueChange={(value) => setValue('status', value as 'Approved' | 'Cancelled' | 'Draft' | 'Pending')}
+                        placeholder="Select status..."
+                        emptyText="No status found."
+                        searchPlaceholder="Search status..."
+                        className="w-[300px]"
+                    />
                 </div>
-                <button type="submit" className="btn btn-primary">Submit and Next Step</button>
+                <Button type="submit">Submit and Next Step</Button>
             </form>
         </div>
     );
