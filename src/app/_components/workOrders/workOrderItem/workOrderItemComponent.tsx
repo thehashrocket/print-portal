@@ -98,7 +98,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     }
 
     if (!workOrderItem) {
-        return <div className="text-center">No work order item found.</div>;
+        return <div className="text-center">No order items found.</div>;
     }
 
     return (
@@ -109,8 +109,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
-                            <li><Link href="/workOrders">Estimates</Link></li>
-                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
+                            <li><Link href="/workOrders">Orders Not in Production</Link></li>
+                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Order {workOrder?.workOrderNumber}</Link></li>
                             <li>Job {workOrderItem.workOrderItemNumber}</li>
                         </ul>
                     </div>

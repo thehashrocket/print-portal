@@ -11,7 +11,7 @@ const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.string().min(1, 'Date In is required'),
     contactPersonId: z.string().min(1, 'Contact Person is required'),
-    estimateNumber: z.string().min(1, 'Estimate Number is required'),
+    estimateNumber: z.string(),
     inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
     purchaseOrderNumber: z.string().min(1, 'Purchase Order Number is required'),

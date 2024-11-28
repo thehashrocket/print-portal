@@ -127,19 +127,19 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             <div className="container mx-auto px-4 py-8">
                 <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-3xl font-bold">Estimate Details</h1>
+                        <h1 className="text-3xl font-bold">Order Details</h1>
                         <div className="space-x-2">
                             {workOrder.Order === null && (
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
-                            <Link className="btn btn-primary" href="/workOrders/create">Create a Estimate</Link>
+                            <Link className="btn btn-primary" href="/workOrders/create">Create a Order</Link>
                         </div>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
-                            <li><Link href="/workOrders">Estimates</Link></li>
-                            <li>Estimate {workOrder.workOrderNumber}</li>
+                            <li><Link href="/workOrders">Orders Not in Production</Link></li>
+                            <li>Order {workOrder.workOrderNumber}</li>
                         </ul>
                     </nav>
                 </header>
@@ -147,7 +147,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                 <main className="space-y-8">
                     <div className="grid md:grid-cols-2 gap-6">
                         <InfoCard
-                            title="Estimate Number"
+                            title="Order Number"
                             content={<p className="text-2xl font-bold">{workOrder.workOrderNumber}</p>}
                         />
                         <InfoCard
@@ -155,11 +155,11 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             content={<p className="text-2xl">{workOrder.Office.Company.name}</p>}
                         />
                         <InfoCard
-                            title="Estimate Status"
+                            title="Order Status"
                             content={<StatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}
                         />
                         <InfoCard
-                            title="Estimate Price Details"
+                            title="Order Price Details"
                             content={
                                 <div>
                                     <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount ?? 0)}</p>

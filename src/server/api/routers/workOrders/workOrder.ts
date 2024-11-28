@@ -87,10 +87,12 @@ export const workOrderRouter = createTRPCRouter({
       })).optional(),
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
+      // If the estimateNumber is not provided, auto generate it using a timestamp
+      const estimateNumber = input.estimateNumber ? input.estimateNumber : `EST-${Date.now()}`;
       const createdWorkOrder = await ctx.db.workOrder.create({
         data: {
           dateIn: input.dateIn,
-          estimateNumber: input.estimateNumber,
+          estimateNumber,
           inHandsDate: input.inHandsDate,
           invoicePrintEmail: input.invoicePrintEmail,
           purchaseOrderNumber: input.purchaseOrderNumber,
