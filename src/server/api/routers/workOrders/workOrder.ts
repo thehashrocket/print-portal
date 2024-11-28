@@ -78,7 +78,7 @@ export const workOrderRouter = createTRPCRouter({
       purchaseOrderNumber: z.string().optional(),
       shippingInfoId: z.string().optional().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
-      workOrderNumber: z.number().optional(),
+      workOrderNumber: z.bigint().optional(),
       workOrderItems: z.array(z.object({
         quantity: z.number(),
         description: z.string(),
@@ -99,7 +99,11 @@ export const workOrderRouter = createTRPCRouter({
           invoicePrintEmail: input.invoicePrintEmail,
           purchaseOrderNumber,
           status: input.status,
-          workOrderNumber: typeof workOrderNumber === 'string' ? parseInt(workOrderNumber, 10) : workOrderNumber,
+          workOrderNumber: typeof workOrderNumber === 'string' 
+            ? Number(workOrderNumber) 
+            : typeof workOrderNumber === 'bigint' 
+              ? Number(workOrderNumber) 
+              : workOrderNumber,
           Office: { connect: { id: input.officeId } },
           ShippingInfo: input.shippingInfoId ? { connect: { id: input.shippingInfoId } } : undefined,
           contactPerson: { connect: { id: input.contactPersonId } },

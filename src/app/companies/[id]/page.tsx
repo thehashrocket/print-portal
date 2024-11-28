@@ -60,6 +60,7 @@ function serializeCompany(company: Company & {
                 dateIn: workOrder.dateIn.toISOString(),
                 inHandsDate: workOrder.inHandsDate.toISOString(),
                 totalCost: workOrder.totalCost?.toString() ?? null,
+                workOrderNumber: Number(workOrder.workOrderNumber ?? 0),
                 WorkOrderItems: workOrder.WorkOrderItems.map(item => ({
                     ...item,
                     createdAt: item.createdAt.toISOString(),

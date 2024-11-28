@@ -17,7 +17,7 @@ const workOrderSchema = z.object({
     purchaseOrderNumber: z.string().optional(),
     status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
-    workOrderNumber: z.number().optional(),
+    workOrderNumber: z.bigint().optional(),
 });
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
@@ -152,7 +152,7 @@ const WorkOrderForm: React.FC = () => {
                 <div>
                     <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
                     <input id="workOrderNumber" type="number" {...register('workOrderNumber', { 
-                        setValueAs: v => v === '' ? undefined : parseInt(v, 10)
+                        setValueAs: v => v === '' ? undefined : Number(v)
                     })}  className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
