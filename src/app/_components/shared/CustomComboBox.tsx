@@ -38,7 +38,7 @@ export function CustomComboBox({
     searchPlaceholder,
     className
 }: ComboboxProps) {
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = React.useState(false);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -56,7 +56,7 @@ export function CustomComboBox({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className={cn("p-0", className)}>
-                <Command>
+                <Command shouldFilter={true}> {/* Add this prop */}
                     <CommandInput placeholder={searchPlaceholder} />
                     <CommandList>
                         <CommandEmpty>{emptyText}</CommandEmpty>
@@ -64,10 +64,10 @@ export function CustomComboBox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.value}
-                                    onSelect={(currentValue) => {
-                                        onValueChange(currentValue === value ? "" : currentValue)
-                                        setOpen(false)
+                                    value={option.label} // Change this to option.label
+                                    onSelect={() => {
+                                        onValueChange(option.value);
+                                        setOpen(false);
                                     }}
                                 >
                                     <Check
@@ -84,5 +84,5 @@ export function CustomComboBox({
                 </Command>
             </PopoverContent>
         </Popover>
-    )
+    );
 }

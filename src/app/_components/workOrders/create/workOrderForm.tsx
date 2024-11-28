@@ -102,14 +102,16 @@ const WorkOrderForm: React.FC = () => {
             </div>
         );
     };
-    
-    useEffect(() => {
-        if (companyData) {
-            setCompanies(companyData.map(company => ({
-                id: company.id,
-                name: company.name
-            })));
-            setIsLoadingCompanies(false);
+
+   useEffect(() => {
+    if (companyData) {
+        const formattedCompanies = companyData.map(company => ({
+            id: company.id,
+            name: company.name
+        })).filter(company => company.name); // Filter out any null names
+
+        setCompanies(formattedCompanies);
+        setIsLoadingCompanies(false);
         }
     }, [companyData]);
 

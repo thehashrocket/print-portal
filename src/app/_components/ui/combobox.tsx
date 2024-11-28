@@ -28,7 +28,7 @@ interface ComboboxProps {
     className?: string
 }
 
-export function Combobox({
+export function CustomComboBox({
     options,
     value,
     onValueChange,
@@ -37,7 +37,17 @@ export function Combobox({
     searchPlaceholder,
     className
 }: ComboboxProps) {
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState("");
+
+    // Filter options based on search query
+    const filteredOptions = React.useMemo(() => {
+        if (!searchQuery) return options;
+        
+        return options.filter((option) =>
+            option.label.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [options, searchQuery]);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -56,17 +66,22 @@ export function Combobox({
             </PopoverTrigger>
             <PopoverContent className={cn("p-0", className)}>
                 <Command>
-                    <CommandInput placeholder={searchPlaceholder} />
+                    <CommandInput 
+                        placeholder={searchPlaceholder}
+                        value={searchQuery}
+                        onValueChange={setSearchQuery}
+                    />
                     <CommandList>
                         <CommandEmpty>{emptyText}</CommandEmpty>
                         <CommandGroup>
-                            {options.map((option) => (
+                            {filteredOptions.map((option) => (
                                 <CommandItem
                                     key={option.value}
                                     value={option.value}
                                     onSelect={(currentValue) => {
-                                        onValueChange(currentValue === value ? "" : currentValue)
-                                        setOpen(false)
+                                        onValueChange(currentValue === value ? "" : currentValue);
+                                        setSearchQuery(""); // Clear search when selecting
+                                        setOpen(false);
                                     }}
                                 >
                                     <Check
@@ -83,5 +98,5 @@ export function Combobox({
                 </Command>
             </PopoverContent>
         </Popover>
-    )
-} 
+    );
+}
