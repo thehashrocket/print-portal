@@ -458,7 +458,7 @@ model WorkOrder {
   version             Int                      @default(autoincrement())
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
-  workOrderNumber     Int                      @default(autoincrement())
+  workOrderNumber     BigInt                      @default(autoincrement())
   shippingInfoId      String?
   status              WorkOrderStatus          @default(Draft)
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)

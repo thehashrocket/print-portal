@@ -75,7 +75,7 @@ export const workOrderRouter = createTRPCRouter({
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
-      purchaseOrderNumber: z.string(),
+      purchaseOrderNumber: z.string().optional(),
       shippingInfoId: z.string().optional().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
       workOrderNumber: z.number().optional(),
@@ -90,13 +90,14 @@ export const workOrderRouter = createTRPCRouter({
       // If the estimateNumber is not provided, auto generate it using a timestamp
       const estimateNumber = input.estimateNumber ? input.estimateNumber : `EST-${Date.now()}`;
       const workOrderNumber = input.workOrderNumber ? input.workOrderNumber : `${Date.now()}`;
+      const purchaseOrderNumber = input.purchaseOrderNumber ? input.purchaseOrderNumber : `PO-${Date.now()}`;
       const createdWorkOrder = await ctx.db.workOrder.create({
         data: {
           dateIn: input.dateIn,
           estimateNumber,
           inHandsDate: input.inHandsDate,
           invoicePrintEmail: input.invoicePrintEmail,
-          purchaseOrderNumber: input.purchaseOrderNumber,
+          purchaseOrderNumber,
           status: input.status,
           workOrderNumber: typeof workOrderNumber === 'string' ? parseInt(workOrderNumber, 10) : workOrderNumber,
           Office: { connect: { id: input.officeId } },

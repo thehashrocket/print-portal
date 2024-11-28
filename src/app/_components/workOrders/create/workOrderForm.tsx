@@ -14,7 +14,7 @@ const workOrderSchema = z.object({
     estimateNumber: z.string().optional(),
     inHandsDate: z.string(),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
-    purchaseOrderNumber: z.string().min(1, 'Purchase Order Number is required'),
+    purchaseOrderNumber: z.string().optional(),
     status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
     workOrderNumber: z.number().optional(),

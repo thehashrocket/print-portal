@@ -99,6 +99,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 shippingInfoData.shippingPickup = {
                     pickupDate: data.pickupDate ? new Date(data.pickupDate) : undefined,
                     pickupTime: data.pickupTime,
+                    contactName: data.pickupContactName,
                     contactPhone: data.pickupContactPhone,
                     notes: data.pickupNotes,
                 };
@@ -202,17 +203,26 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                         </div>
                         <div>
                             <label htmlFor="pickupContactName" className="block text-sm font-medium text-gray-700">Pickup Contact Name</label>
-                            <input {...register('pickupContactName')} className="input input-bordered w-full" />
+                            <input
+                                {...register('pickupContactName', { required: 'Contact Name is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {errors.pickupContactName && <p className="text-red-500">{errors.pickupContactName.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="pickupContactPhone" className="block text-sm font-medium text-gray-700">Pickup Contact Phone</label>
-                            <input {...register('pickupContactPhone')} className="input input-bordered w-full" />
+                            <input
+                                {...register('pickupContactPhone', { required: 'Contact Phone is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {errors.pickupContactPhone && <p className="text-red-500">{errors.pickupContactPhone.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="pickupNotes" className="block text-sm font-medium text-gray-700">Pickup Notes</label>
-                            <textarea {...register('pickupNotes')} className="textarea textarea-bordered w-full" />
+                            <textarea
+                                {...register('pickupNotes', { required: 'Pickup Notes are required' })}
+                                className="textarea textarea-bordered w-full"
+                            />
                             {errors.pickupNotes && <p className="text-red-500">{errors.pickupNotes.message}</p>}
                         </div>
                     </>
@@ -220,7 +230,10 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
                 <div>
                     <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
-                    <textarea {...register('instructions')} className="textarea textarea-bordered w-full" />
+                    <textarea
+                        {...register('instructions', { required: 'Instructions are required' })}
+                        className="textarea textarea-bordered w-full"
+                    />
                     {errors.instructions && <p className="text-red-500">{errors.instructions.message}</p>}
                 </div>
 
@@ -233,41 +246,66 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                     <form onSubmit={handleSubmitAddress(handleAddressSubmit)} className="space-y-4 mt-4">
                         <div>
                             <label htmlFor="line1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
-                            <input {...registerAddress('line1')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('line1', { required: 'Address Line 1 is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.line1 && <p className="text-red-500">{addressErrors.line1.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="line2" className="block text-sm font-medium text-gray-700">Address Line 2</label>
-                            <input {...registerAddress('line2')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('line2', { required: 'Address Line 2 is required' })}
+                                className="input input-bordered w-full"
+                            />
+                            {addressErrors.line2 && <p className="text-red-500">{addressErrors.line2.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-                            <input {...registerAddress('city')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('city', { required: 'City is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.city && <p className="text-red-500">{addressErrors.city.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-                            <input {...registerAddress('state')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('state', { required: 'State is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.state && <p className="text-red-500">{addressErrors.state.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code</label>
-                            <input {...registerAddress('zipCode')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('zipCode', { required: 'Zip Code is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.zipCode && <p className="text-red-500">{addressErrors.zipCode.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                            <input {...registerAddress('country')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('country', { required: 'Country is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.country && <p className="text-red-500">{addressErrors.country.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="telephoneNumber" className="block text-sm font-medium text-gray-700">Telephone Number</label>
-                            <input {...registerAddress('telephoneNumber')} className="input input-bordered w-full" />
+                            <input
+                                {...registerAddress('telephoneNumber', { required: 'Telephone Number is required' })}
+                                className="input input-bordered w-full"
+                            />
                             {addressErrors.telephoneNumber && <p className="text-red-500">{addressErrors.telephoneNumber.message}</p>}
                         </div>
                         <div>
                             <label htmlFor="addressType" className="block text-sm font-medium text-gray-700">Address Type</label>
-                            <select {...registerAddress('addressType')} className="select select-bordered w-full">
+                            <select
+                                {...registerAddress('addressType', { required: 'Address Type is required' })}
+                                className="select select-bordered w-full"
+                            >
                                 {Object.values(AddressType).map((type) => (
                                     <option key={type} value={type}>{type}</option>
                                 ))}
