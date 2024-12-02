@@ -248,7 +248,7 @@ const WorkOrderForm: React.FC = () => {
                 <div>
                     <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
                     <input id="workOrderNumber" type="number" {...register('workOrderNumber', {
-                        setValueAs: v => v === '' ? undefined : Number(v)
+                        setValueAs: v => v === '' ? undefined : BigInt(v)
                     })} className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
