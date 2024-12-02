@@ -68,31 +68,80 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         event.currentTarget.classList.remove('bg-blue-600');
     }
 
-    const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
-        event.dataTransfer.setData("text/plain", id);
-    };
-
-    const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        event.currentTarget.classList.add('bg-blue-600');
+    // First, add position tracking to the dragged items
+    const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string, status: OrderItemStatus) => {
+        event.dataTransfer.setData("text/plain", JSON.stringify({ id, status }));
     };
 
     const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderItemStatus) => {
         event.preventDefault();
-        const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-blue-600');
+
+        // Get the drop target
+        const dropTarget = event.target as HTMLElement;
+        const itemContainer = dropTarget.closest('[data-item-container]') as HTMLElement;
+
         try {
-            await updateOrderItemStatus.mutateAsync({ id, status: newStatus });
-            // Update both original and displayed items
-            const updatedItems = originalItems.map(item =>
-                item.id === id ? { ...item, status: newStatus } : item
-            );
-            const updatedDisplayedItems = displayedItems.map(item =>
-                item.id === id ? { ...item, status: newStatus } : item
-            );
-            setDisplayedItems(updatedDisplayedItems);
+            const { id, status: oldStatus } = JSON.parse(event.dataTransfer.getData("text/plain"));
+
+            // If the status hasn't changed, find the drop position within the same column
+            if (oldStatus === newStatus && itemContainer) {
+                const items = [...displayedItems];
+                const draggedItemIndex = items.findIndex(item => item.id === id);
+                if (draggedItemIndex === -1) return;  // Exit if item not found
+
+                const draggedItem = items[draggedItemIndex] as SerializedOrderItem;
+                items.splice(draggedItemIndex, 1);
+
+                // Find the drop target's index
+                const dropIndex = Array.from(itemContainer.parentElement?.children || [])
+                    .indexOf(itemContainer);
+                if (dropIndex === -1) return;  // Exit if drop position not found
+
+                // Insert the item at the new position
+                items.splice(dropIndex, 0, draggedItem);
+
+                setDisplayedItems(items);
+            } else {
+                // Update status and move to top of new column
+                await updateOrderItemStatus.mutateAsync({ id, status: newStatus });
+
+                const updatedItems = displayedItems.map(item => {
+                    if (item.id === id) {
+                        return { ...item, status: newStatus } as SerializedOrderItem;
+                    }
+                    return item;
+                });
+
+                // Sort the items so the newly moved item appears at the top of its new status
+                const sortedItems = updatedItems.sort((a, b) => {
+                    if (a.id === id) return -1;
+                    if (b.id === id) return 1;
+                    if (a.status === b.status) return 0;
+                    return 0;
+                });
+
+                setDisplayedItems(sortedItems);
+            }
         } catch (error) {
             console.error(error);
+        }
+    };
+
+    const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+
+        const dropTarget = event.target as HTMLElement;
+        const itemContainer = dropTarget.closest('[data-item-container]');
+
+        // Remove existing drop indicators
+        document.querySelectorAll('.drop-indicator').forEach(el =>
+            el.classList.remove('drop-indicator'));
+
+        if (itemContainer) {
+            itemContainer.classList.add('drop-indicator');
+        } else {
+            event.currentTarget.classList.add('bg-blue-600');
         }
     };
 
@@ -120,16 +169,19 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto min-w-[200px] min-h-[200px]">
+                        className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto min-w-[200px] min-h-[200px]"
+                    >
                         <h3 className="font-semibold mb-2">{status}</h3>
                         {(orderItemsByStatus[status] || []).map(orderItem => (
                             <div key={orderItem.id}
+                                data-item-container
                                 draggable
-                                onDragStart={(event) => onDragStart(event, orderItem.id)}
+                                onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
                                 className="flex-column p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
                                 style={{
                                     borderColor: orderItem.expectedDate && isWithinAWeek(orderItem.expectedDate) ? 'red' : 'green'
-                                }}>
+                                }}
+                            >
                                 <div className='text-sm font-bold mb-2'>{orderItem.Order.Office.Company.name}</div>
                                 <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
                                 <div className="flex items-center mb-3">

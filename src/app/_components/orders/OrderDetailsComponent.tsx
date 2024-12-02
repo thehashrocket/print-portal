@@ -202,7 +202,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Order Details</h1>
-                        <Link className="btn btn-primary" href="/orders/create">Create Order</Link>
+                        <Link className="btn btn-primary" href="/workOrders/create">Create Order</Link>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
