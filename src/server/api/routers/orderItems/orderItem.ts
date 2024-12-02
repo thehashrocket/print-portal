@@ -93,7 +93,8 @@ export const orderItemRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             status: z.nativeEnum(OrderItemStatus),
-            sendEmail: z.boolean().default(false)
+            sendEmail: z.boolean().default(false),
+            emailOverride: z.string().optional()
         }))
         .mutation(async ({ ctx, input }) => {
             const updatedItem = await ctx.db.orderItem.update({
@@ -113,7 +114,8 @@ export const orderItemRouter = createTRPCRouter({
             });
     
             // If sendEmail is true and we have a contact email, send status update
-            if (input.sendEmail && updatedItem.Order?.contactPerson?.email) {
+            const emailToSend = input.emailOverride || updatedItem.Order?.contactPerson?.email;
+            if (input.sendEmail && emailToSend) {
                 const emailHtml = `
                     <h1>Order Item Status Update</h1>
                     <p>Your order item status has been updated to: ${input.status}</p>
@@ -122,7 +124,7 @@ export const orderItemRouter = createTRPCRouter({
                 `;
     
                 await sendOrderEmail(
-                    updatedItem.Order.contactPerson.email,
+                    emailToSend,
                     `Job Status Update`,
                     emailHtml,
                     '' // No attachment needed for status update

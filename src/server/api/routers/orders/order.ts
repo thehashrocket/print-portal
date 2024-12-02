@@ -506,6 +506,7 @@ export const orderRouter = createTRPCRouter({
       id: z.string(),
       status: z.nativeEnum(OrderStatus),
       sendEmail: z.boolean().default(false),
+      emailOverride: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedOrder> => {
       const updatedOrder = await ctx.db.order.update({
@@ -574,7 +575,9 @@ export const orderRouter = createTRPCRouter({
       });
 
       // If sendEmail is true, send status update email
-      if (input.sendEmail && updatedOrder.contactPerson?.email) {
+      // If emailOverride is provided, send to that email address instead of the customer's email address
+      const emailToSend = input.emailOverride || updatedOrder.contactPerson?.email;
+      if (input.sendEmail && emailToSend) {
         const emailHtml = `
             <h1>Order Status Update</h1>
             <p>Your order #${updatedOrder.orderNumber} status has been updated to: ${input.status}</p>
@@ -582,7 +585,7 @@ export const orderRouter = createTRPCRouter({
         `;
 
         await sendOrderEmail(
-          updatedOrder.contactPerson.email,
+          emailToSend,
           `Order ${updatedOrder.orderNumber} Status Update`,
           emailHtml,
           '' // No attachment needed for status update
