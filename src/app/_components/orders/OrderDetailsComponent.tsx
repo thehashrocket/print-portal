@@ -13,7 +13,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippiungInfoEditor/Shi
 import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { Send } from "lucide-react";
+import { Printer, Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
 import { StatusBadge } from "../shared/StatusBadge";
 
@@ -105,7 +105,7 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
 
     return (
-        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText} <Send className="w-4 h-4" /></button>
+        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText}</button>
     );
 };
 
@@ -152,7 +152,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         }
     });
 
-    const handleEmailOrder = (orderId: string) => {
+    const handlePrintOrder = (orderId: string) => {
         // sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
         if (order) {
             const pdfContent = generateOrderPDF(order);
@@ -235,8 +235,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 />}
                             />
                             <InfoCard
-                                title="Email Order"
-                                content={<button className="btn btn-primary btn-sm" onClick={() => handleEmailOrder(order.id)}><Send className="w-4 h-4" /> Email Order</button>}
+                                title="Print Order"
+                                content={<button className="btn btn-primary btn-sm" onClick={() => handlePrintOrder(order.id)}><Printer className="w-4 h-4" /> Print Order</button>}
                             />
                         </div>
                         <div className="grid-flow-dense">
