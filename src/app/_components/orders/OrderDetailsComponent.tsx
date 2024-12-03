@@ -15,7 +15,8 @@ import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { Printer, Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
-import { StatusBadge } from "../shared/StatusBadge";
+import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
+import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -277,7 +278,14 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         />
                         <InfoCard
                             title="Contact Person"
-                            content={<p>{order.contactPerson?.name}</p>}
+                            content={<ContactPersonEditor
+                                orderId={order.id}
+                                currentContactPerson={order.contactPerson}
+                                officeId={order.officeId}
+                                onUpdate={() => {
+                                    utils.orders.getByID.invalidate(orderId);
+                                }}
+                            />}
                         />
                         <InfoCard
                             title="In Hands Date"

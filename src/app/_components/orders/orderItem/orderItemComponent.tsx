@@ -13,9 +13,10 @@ import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
-import { StatusBadge } from "../../shared/StatusBadge";
+import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF'; // You'll need to create this file
 import { PrintButton } from './PrintButton'; // Create this component in the same directory
+import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -82,7 +83,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
-
+    const utils = api.useUtils();
     if (orderLoading || itemLoading || typesettingLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -119,11 +120,14 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
                     <InfoCard title="Company" content={order.Office?.Company.name} />
                     <InfoCard title="Contact Info" content={
-                        <div>
-                            <p>{order.contactPerson?.name}</p>
-                            <p>{order.ShippingInfo?.Address?.telephoneNumber}</p>
-                            <p>{order.contactPerson?.email}</p>
-                        </div>
+                        <ContactPersonEditor 
+                            orderId={order.id} 
+                            currentContactPerson={order.contactPerson} 
+                            officeId={order.officeId} 
+                            onUpdate={() => {
+                                utils.orders.getByID.invalidate(orderId);
+                            }} 
+                        />
                     } />
                 </div>
                 {/* Row 2 */}

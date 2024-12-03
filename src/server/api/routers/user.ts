@@ -33,6 +33,8 @@ export const userRouter = createTRPCRouter({
       },
     });
   }),
+
+  // Get Users by Office ID
   getByOfficeId: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
     return ctx.db.user.findMany({
       where: {

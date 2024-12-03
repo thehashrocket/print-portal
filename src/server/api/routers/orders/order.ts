@@ -347,6 +347,20 @@ export const orderRouter = createTRPCRouter({
       });
     }),
 
+    updateContactPerson: protectedProcedure
+    .input(z.object({
+        orderId: z.string(),
+        contactPersonId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+        const updatedOrder = await ctx.db.order.update({
+            where: { id: input.orderId },
+            data: { contactPersonId: input.contactPersonId },
+        });
+
+        return updatedOrder;
+    }),
+
   updateShippingInfo: protectedProcedure
     .input(z.object({
       orderId: z.string(),

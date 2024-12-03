@@ -1,7 +1,7 @@
 // src/app/_components/orders/orderItem/StatusBadge.tsx
 import React, { useState } from 'react';
 import { Switch } from '~/app/_components/ui/switch';
-import { Input } from '../ui/input';
+import { Input } from '../../ui/input';
 
 export interface StatusBadgeProps<T extends string> {
     id: string;
