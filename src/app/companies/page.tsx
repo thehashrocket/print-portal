@@ -8,7 +8,7 @@ import CompaniesTable from "../_components/companies/companiesTable";
 import Link from "next/link";
 import CompaniesChart from "../_components/companies/CompaniesChart";
 import { type CompanyDashboardData } from "~/types/company";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();

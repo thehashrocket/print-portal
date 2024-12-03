@@ -6,7 +6,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { Company } from "@prisma/client";
 import Link from "next/link";
 import { CreateCompany } from "~/app/_components/companies/createCompanyComponent";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();

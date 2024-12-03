@@ -9,7 +9,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
-import NoPermission from "../_components/noPermission/noPremission";
+import NoPermission from "../_components/noPermission/noPermission";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

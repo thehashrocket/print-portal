@@ -4,7 +4,7 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import WorkOrderWizard from "~/app/_components/workOrders/create/workOrderWizard";
 import { WorkOrderProvider } from "~/app/contexts/workOrderContext";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 
 
 export default async function Page({

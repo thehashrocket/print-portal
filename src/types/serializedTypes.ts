@@ -32,6 +32,13 @@ export interface SerializedAddress {
     zipCode: string;
 }
 
+export interface SerializedCompany {
+    id: string;
+    name: string;
+    quickbooksId: string | null;
+    Offices: SerializedOffice[];
+}
+
 export interface SerializedInvoice {
     createdAt: string;
     createdById: string;
@@ -79,6 +86,19 @@ export interface SerializedInvoicePayment {
     paymentDate: string;
     paymentMethod: PaymentMethod;
     invoiceId: string;
+}
+
+export interface SerializedOffice {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    createdById: string;
+    companyId: string;
+    name: string;
+    quickbooksCustomerId: string | null;
+    Addresses: SerializedAddress[];
+    WorkOrders: SerializedWorkOrder[];
+    Orders: SerializedOrder[];
 }
 
 export interface SerializedOrder {
@@ -343,7 +363,7 @@ export interface SerializedWorkOrder {
     totalShippingAmount: string | null;
     updatedAt: string;
     version: number;
-    workOrderNumber: number;
+    workOrderNumber: bigint;
     contactPerson: {
         id: string;
         name: string | null;

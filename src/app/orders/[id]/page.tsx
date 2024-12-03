@@ -6,7 +6,7 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import { notFound } from "next/navigation";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 import OrderDetails from "~/app/_components/orders/OrderDetailsComponent";
 
 export default async function OrderPage({

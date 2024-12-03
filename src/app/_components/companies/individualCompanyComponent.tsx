@@ -7,10 +7,8 @@ import Link from "next/link";
 import { type AddressType, type WorkOrderStatus, type OrderStatus } from "@prisma/client";
 import QuickbooksSyncOrdersButton from "./QuickbooksSyncOrdersButton";
 import { toast } from "react-hot-toast";
-
-function convertToSnakeCase(str: string): string {
-    return str.toLowerCase().replace(/\s+/g, '_');
-}
+import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
+import { formatCurrency } from "~/utils/formatters";
 
 function convertToCamelCase(str: string): string {
     return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
@@ -29,48 +27,6 @@ export interface SerializedAddress {
     country: string;
     telephoneNumber: string;
     addressType: AddressType;
-}
-
-export interface SerializedWorkOrder {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    workOrderNumber: number;
-    status: WorkOrderStatus;
-    totalCost: string | null;
-    // Add other necessary fields
-}
-
-export interface SerializedOrder {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    orderNumber: number;
-    status: OrderStatus;
-    totalCost: string | null;
-    // Add other necessary fields
-}
-
-export interface SerializedOffice {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    createdById: string;
-    companyId: string;
-    name: string;
-    quickbooksCustomerId: string | null;
-    fullyQualifiedName: string | null;
-    syncToken: string | null;
-    Addresses: SerializedAddress[];
-    WorkOrders: SerializedWorkOrder[];
-    Orders: SerializedOrder[];
-}
-
-export interface SerializedCompany {
-    id: string;
-    name: string;
-    quickbooksId: string | null;
-    Offices: SerializedOffice[];
 }
 
 const AddressList: React.FC<{ addresses: SerializedAddress[] }> = ({ addresses }) => (
@@ -100,8 +56,10 @@ const DataTable: React.FC<{ data: any[], columns: string[], actionLink: string }
                     <tr key={item.id} className="hover:bg-base-200">
                         {columns.map((col) => (
                             <td key={col}>
-                                {col.toLowerCase().includes('total')
-                                    ? `$${item['totalCost']}`
+                                {col.toLowerCase() === 'total cost'
+                                    ? formatCurrency(item['totalCost'])
+                                    : col.toLowerCase() === 'total amount'
+                                    ? formatCurrency(item['totalAmount'])
                                     : item[convertToCamelCase(col)]}
                             </td>
                         ))}
@@ -148,7 +106,7 @@ const OfficeCard: React.FC<{ office: SerializedOffice }> = ({ office }) => (
                 <div className="divider">Estimates</div>
                 <DataTable
                     data={office.WorkOrders}
-                    columns={['Estimate Number', 'Status', 'Total Cost']}
+                    columns={['Estimate Number', 'Status', 'Total Cost', 'Total Amount']}
                     actionLink="/workOrders"
                 />
                 
@@ -158,14 +116,16 @@ const OfficeCard: React.FC<{ office: SerializedOffice }> = ({ office }) => (
                     <QuickbooksSyncOrdersButton office={{
                             ...office,
                             createdAt: new Date(office.createdAt),
-                            updatedAt: new Date(office.updatedAt)
+                            updatedAt: new Date(office.updatedAt),
+                            syncToken: null,
+                            fullyQualifiedName: null
                         }} onSyncSuccess={() => {
                             toast.success('Office synced with QuickBooks successfully');
                         }} />
                 </div>
                 <DataTable
                     data={office.Orders}
-                    columns={['Order Number', 'Status', 'Total Cost']}
+                    columns={['Order Number', 'Status', 'Total Cost', 'Total Amount']}
                     actionLink="/orders"
                 />
             </div>
@@ -179,6 +139,7 @@ interface IndividualCompanyPageProps {
 }
 
 const IndividualCompanyPage: React.FC<IndividualCompanyPageProps> = ({ company }) => {
+
     return (
         <div className="container mx-auto p-4">
             <main>

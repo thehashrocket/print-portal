@@ -6,7 +6,7 @@ import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
 import CreateWorkOrderComponent from "~/app/_components/workOrders/create/createWorkOrderComponent";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 
 
 export default async function CreateWorkOrderPage() {

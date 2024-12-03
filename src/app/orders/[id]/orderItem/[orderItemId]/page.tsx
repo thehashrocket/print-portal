@@ -9,7 +9,7 @@
 
 "use server";
 import React from "react";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 import OrderItemComponent from "~/app/_components/orders/orderItem/orderItemComponent";
 
 import { getServerAuthSession } from "~/server/auth";

@@ -2,7 +2,7 @@ import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import UserManagementTable from "~/app/_components/users/userManagementTable";
-import NoPermission from "../_components/noPermission/noPremission";
+import NoPermission from "../_components/noPermission/noPermission";
 
 export default async function UsersPage() {
   const session = await getServerAuthSession();

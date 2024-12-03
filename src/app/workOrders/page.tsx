@@ -6,7 +6,7 @@
 import React from "react";
 import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 import WorkOrdersTable from "~/app/_components/workOrders/workOrdersTable";
 
 export default async function WorkOrdersPage() {

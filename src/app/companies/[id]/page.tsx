@@ -5,11 +5,10 @@ import React from "react";
 import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
-import { type Company, type Office, type Address, type WorkOrder, type WorkOrderItem, type Order, type OrderItem, type OrderStatus, type AddressType } from "@prisma/client";
-import IndividualCompanyPage, { type SerializedCompany } from "~/app/_components/companies/individualCompanyComponent";
-import { type Decimal } from "@prisma/client/runtime/library";
-import NoPermission from "~/app/_components/noPermission/noPremission";
+import IndividualCompanyPage from "~/app/_components/companies/individualCompanyComponent";
+import NoPermission from "~/app/_components/noPermission/noPermission"
 import HeaderClient from "~/app/_components/companies/HeaderClient";
+import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
 
 const Breadcrumbs: React.FC = () => (
     <div className="text-sm breadcrumbs mb-4">
@@ -20,72 +19,20 @@ const Breadcrumbs: React.FC = () => (
     </div>
 );
 
-function serializeCompany(company: Company & {
-    Offices: (Office & {
-        Addresses: Address[],
-        WorkOrders: (WorkOrder & {
-            WorkOrderItems: WorkOrderItem[],
-            totalCost?: Decimal | null
-        })[],
-        Orders: (Order & {
-            OrderItems: OrderItem[],
-            totalCost?: Decimal | null
-        })[]
-    })[]
+function serializeCompany(company: {
+    id: string;
+    name: string;
+    quickbooksId: string | null;
+    syncToken: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    Offices: SerializedOffice[];
 }): SerializedCompany {
     return {
         id: company.id,
         name: company.name,
         quickbooksId: company.quickbooksId,
-        Offices: company.Offices.map(office => ({
-            id: office.id,
-            createdAt: office.createdAt.toISOString(),
-            updatedAt: office.updatedAt.toISOString(),
-            createdById: office.createdById,
-            fullyQualifiedName: office.fullyQualifiedName,
-            syncToken: office.syncToken,
-            companyId: office.companyId,
-            name: office.name,
-            quickbooksCustomerId: office.quickbooksCustomerId,
-            Addresses: office.Addresses.map(address => ({
-                ...address,
-                createdAt: address.createdAt.toISOString(),
-                updatedAt: address.updatedAt.toISOString(),
-                addressType: address.addressType as AddressType,
-            })),
-            WorkOrders: office.WorkOrders.map(workOrder => ({
-                ...workOrder,
-                createdAt: workOrder.createdAt.toISOString(),
-                updatedAt: workOrder.updatedAt.toISOString(),
-                dateIn: workOrder.dateIn.toISOString(),
-                inHandsDate: workOrder.inHandsDate.toISOString(),
-                totalCost: workOrder.totalCost?.toString() ?? null,
-                workOrderNumber: Number(workOrder.workOrderNumber ?? 0),
-                WorkOrderItems: workOrder.WorkOrderItems.map(item => ({
-                    ...item,
-                    createdAt: item.createdAt.toISOString(),
-                    updatedAt: item.updatedAt.toISOString(),
-                    expectedDate: item.expectedDate?.toISOString() ?? null,
-                    amount: item.amount?.toString() ?? null,
-                    cost: item.cost?.toString() ?? null,
-                })),
-            })),
-            Orders: office.Orders.map(order => ({
-                ...order,
-                createdAt: order.createdAt.toISOString(),
-                updatedAt: order.updatedAt.toISOString(),
-                totalCost: order.totalCost?.toString() ?? null,
-                deposit: order.deposit.toString(),
-                status: order.status as OrderStatus,
-                OrderItems: order.OrderItems.map(item => ({
-                    ...item,
-                    createdAt: item.createdAt.toISOString(),
-                    updatedAt: item.updatedAt.toISOString(),
-                    amount: item.amount?.toString() ?? null,
-                    cost: item.cost?.toString() ?? null
-                })),
-            })),
-        })),
+        Offices: company.Offices
     };
 }
 
@@ -104,7 +51,69 @@ export default async function CompanyPage(
         return <div className="alert alert-danger">Company not found</div>;
     }
 
-    const serializedCompany = serializeCompany(company);
+    const serializedOffices: SerializedOffice[] = company.Offices.map(office => ({
+        ...office,
+        createdAt: office.createdAt.toISOString(),
+        updatedAt: office.updatedAt.toISOString(),
+        Addresses: office.Addresses.map(address => ({
+            ...address,
+            createdAt: address.createdAt.toISOString(),
+            updatedAt: address.updatedAt.toISOString()
+        })),
+        WorkOrders: office.WorkOrders.map(workOrder => ({
+            ...workOrder,
+            createdAt: workOrder.createdAt.toISOString(),
+            updatedAt: workOrder.updatedAt.toISOString(),
+            dateIn: workOrder.dateIn.toISOString(),
+            inHandsDate: workOrder.inHandsDate.toISOString(),
+            calculatedSalesTax: workOrder.calculatedSalesTax?.toString() ?? "0",
+            calculatedSubTotal: workOrder.calculatedSubTotal?.toString() ?? "0",
+            totalAmount: workOrder.totalAmount?.toString() ?? "0",
+            totalItemAmount: workOrder.totalItemAmount?.toString() ?? "0",
+            totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? "0",
+            totalCost: workOrder.totalCost?.toString() ?? "0",
+            contactPerson: { id: "", name: null },
+            createdBy: { id: "", name: null },
+            Office: { Company: { name: office.name }, id: office.id, name: office.name },
+            Order: null,
+            ShippingInfo: null,
+            WorkOrderItems: [],
+            WorkOrderNotes: [],
+            WorkOrderVersions: []
+        })),
+        Orders: office.Orders.map(order => ({
+            ...order,
+            deposit: order.deposit.toString(),
+            createdAt: order.createdAt.toISOString(),
+            updatedAt: order.updatedAt.toISOString(),
+            inHandsDate: order.inHandsDate?.toISOString() ?? null,
+            dateInvoiced: order.dateInvoiced?.toISOString() ?? null,
+            balance: "0",
+            calculatedSalesTax: order.calculatedSalesTax?.toString() ?? "0",
+            calculatedSubTotal: order.calculatedSubTotal?.toString() ?? "0",
+            totalAmount: order.totalAmount?.toString() ?? "0",
+            totalItemAmount: "0",
+            totalShippingAmount: "0",
+            totalCost: order.totalCost?.toString() ?? "0",
+            totalPaid: "0",
+            OrderItems: [],
+            OrderNotes: [],
+            OrderPayments: [],
+            ShippingInfo: null,
+            Invoice: null,
+            WorkOrder: { purchaseOrderNumber: "" },
+            contactPerson: { id: "", name: null, email: null },
+            createdBy: { id: "", name: null },
+            Office: { Company: { name: office.name }, id: office.id, name: office.name }
+        }))
+    }));
+
+    const serializedCompany = serializeCompany({
+        ...company,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt,
+        Offices: serializedOffices
+    });
 
     return (
         <div className="container mx-auto px-4 py-8">
