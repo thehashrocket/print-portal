@@ -940,7 +940,7 @@ async function createWorkOrder(officeId: string, shippingInfoId: string) {
       contactPersonId: randomOfficeUser.id,
       createdById: randomUser.id,
       invoicePrintEmail: randomElementFromArray(Object.values(InvoicePrintEmailOptions)),
-      workOrderNumber: faker.number.int({ min: 1000, max: 9999 }),
+      workOrderNumber: String(faker.number.int({ min: 1000, max: 9999 })),
     },
   });
 

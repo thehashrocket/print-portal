@@ -534,7 +534,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? null,
         updatedAt: workOrder.updatedAt.toISOString(),
         version: workOrder.version,
-        workOrderNumber: BigInt(workOrder.workOrderNumber ?? 0),
+        workOrderNumber: workOrder.workOrderNumber,
         contactPerson: {
             id: workOrder.contactPerson.id,
             name: workOrder.contactPerson.name

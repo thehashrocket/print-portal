@@ -19,7 +19,7 @@ const workOrderSchema = z.object({
     purchaseOrderNumber: z.string().optional(),
     status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
-    workOrderNumber: z.bigint().optional(),
+    workOrderNumber: z.string().optional(),
 });
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
@@ -57,51 +57,6 @@ const WorkOrderForm: React.FC = () => {
     const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
     const [isLoadingOffices, setIsLoadingOffices] = useState(false);
     const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
-
-
-    const CompanySelect = () => {
-        // Add loading state display
-        if (isLoadingCompanies) {
-            return (
-                <div className="flex flex-col space-y-1.5">
-                    <label htmlFor="company">Company</label>
-                    <Button variant="outline" disabled className="w-[300px]">
-                        Loading companies...
-                    </Button>
-                </div>
-            );
-        }
-    
-        // Add error state display
-        if (!companies.length) {
-            return (
-                <div className="flex flex-col space-y-1.5">
-                    <label htmlFor="company">Company</label>
-                    <Button variant="outline" disabled className="w-[300px]">
-                        No companies available
-                    </Button>
-                </div>
-            );
-        }
-    
-        return (
-            <div className="flex flex-col space-y-1.5">
-                <label htmlFor="company">Company</label>
-                <CustomComboBox
-                    options={companies.map(company => ({
-                        value: company.id,
-                        label: company.name ?? 'Unnamed Company'
-                    }))}
-                    value={selectedCompany ?? ""}
-                    onValueChange={setSelectedCompany}
-                    placeholder="Select company..."
-                    emptyText="No company found."
-                    searchPlaceholder="Search company..."
-                    className="w-[300px]"
-                />
-            </div>
-        );
-    };
 
    useEffect(() => {
     if (companyData) {
@@ -247,8 +202,8 @@ const WorkOrderForm: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
-                    <input id="workOrderNumber" type="number" {...register('workOrderNumber', {
-                        setValueAs: v => v === '' ? undefined : BigInt(v)
+                    <input id="workOrderNumber" {...register('workOrderNumber', {
+                        setValueAs: v => v === '' ? undefined : v
                     })} className="input input-bordered w-full" />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>

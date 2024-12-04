@@ -26,7 +26,7 @@ const NavBar = async () => {
               <span className="text-white">Dashboard</span>
             </Link>
             <Link href="/workOrders">
-              <span className="text-white">Orders Not in Production</span>
+              <span className="text-white">Estimates</span>
             </Link>
             <Link href="/invoices">
               <span className="text-white">Invoices</span>

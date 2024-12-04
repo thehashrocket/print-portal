@@ -62,6 +62,7 @@ export default async function CompanyPage(
         })),
         WorkOrders: office.WorkOrders.map(workOrder => ({
             ...workOrder,
+            workOrderNumber: BigInt(workOrder.workOrderNumber ?? 0),
             createdAt: workOrder.createdAt.toISOString(),
             updatedAt: workOrder.updatedAt.toISOString(),
             dateIn: workOrder.dateIn.toISOString(),

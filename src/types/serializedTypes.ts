@@ -363,7 +363,7 @@ export interface SerializedWorkOrder {
     totalShippingAmount: string | null;
     updatedAt: string;
     version: number;
-    workOrderNumber: bigint;
+    workOrderNumber: string;
     contactPerson: {
         id: string;
         name: string | null;
