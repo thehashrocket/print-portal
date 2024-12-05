@@ -17,8 +17,9 @@ import { Printer, Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
+import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
 
-const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({id, status, orderId }) => {
+const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
@@ -44,20 +45,20 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: stri
     };
 
     const handleStatusChange = (
-        newStatus: OrderStatus, 
-        sendEmail: boolean, 
+        newStatus: OrderStatus,
+        sendEmail: boolean,
         emailOverride: string,
         shippingDetails?: {
             trackingNumber?: string;
             shippingMethod?: ShippingMethod;
         }
     ) => {
-        updateStatus({ 
-            id, 
-            status: newStatus, 
-            sendEmail, 
+        updateStatus({
+            id,
+            status: newStatus,
+            sendEmail,
             emailOverride,
-            shippingDetails 
+            shippingDetails
         });
         setCurrentStatus(newStatus);
     };
@@ -120,7 +121,14 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
 
     return (
-        <button className="btn btn-primary btn-sm" disabled={isInvoiceCreated} onClick={handleCreateInvoice}>{buttonText}</button>
+        <button 
+            className="btn btn-primary btn-sm w-full flex items-center gap-2"
+            disabled={isInvoiceCreated}
+            onClick={handleCreateInvoice}
+        >
+            <FileText className="w-4 h-4" />
+            {buttonText}
+        </button>
     );
 };
 
@@ -156,16 +164,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const handleCreateQuickbooksInvoice = (orderId: string) => {
         createQuickbooksInvoice({ orderId: orderId });
     };
-
-    const { mutate: sendOrderEmail, error: sendOrderEmailError } = api.orders.sendOrderEmail.useMutation({
-        onSuccess: () => {
-            utils.orders.getByID.invalidate(orderId);
-        },
-        onError: (error) => {
-            console.error('Failed to send order email:', error);
-            toast.error('Failed to send order email');
-        }
-    });
 
     const handlePrintOrder = (orderId: string) => {
         // sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
@@ -258,24 +256,87 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             <InfoCard
                                 title="Order Price Details"
                                 content={
-                                    <div>
-                                        <p><strong>Item Total:</strong> {formatCurrency(order.totalItemAmount ?? "")}</p>
-                                        <p><strong>Shipping Amount:</strong> {formatCurrency(order.totalShippingAmount ?? "")}</p>
-                                        <p><strong>Subtotal:</strong> {formatCurrency(order.calculatedSubTotal ?? "")}</p>
-                                        <p><strong>Calculated Sales Tax:</strong> {formatCurrency(order.calculatedSalesTax ?? "")}</p>
-                                        <p><strong>Total Amount:</strong> {formatCurrency(order.totalAmount ?? "")}</p>
-                                        {order.Invoice === null && <CreateInvoiceButton order={order} />}
-                                        {order.Invoice !== null && <Link className="btn btn-primary btn-sm" href={`/invoices/${order.Invoice.id}`}>View Invoice</Link>}
-                                        <p>
-                                            {!order.quickbooksInvoiceId &&
-                                                <button
-                                                    className="btn btn-primary btn-sm mt-2 mb-2"
-                                                    onClick={() => handleCreateQuickbooksInvoice(order.id)}>
-                                                    Create Quickbooks Invoice
-                                                </button>}
-                                        </p>
-                                        {order.quickbooksInvoiceId && <p><strong>Quickbooks Invoice ID:</strong> {order.quickbooksInvoiceId}</p>}
-                                        <OrderDeposit order={order} />
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {/* Left Column - Price Details */}
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Receipt className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Item Total</div>
+                                                        <div className="font-semibold">{formatCurrency(order.totalItemAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Truck className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Shipping Amount</div>
+                                                        <div className="font-semibold">{formatCurrency(order.totalShippingAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Calculator className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Subtotal</div>
+                                                        <div className="font-semibold">{formatCurrency(order.calculatedSubTotal ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Percent className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Sales Tax</div>
+                                                        <div className="font-semibold">{formatCurrency(order.calculatedSalesTax ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 pt-2 border-t">
+                                                    <DollarSign className="w-5 h-5 text-green-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Total Amount</div>
+                                                        <div className="text-lg font-bold text-green-600">{formatCurrency(order.totalAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Column - Actions */}
+                                            <div className="space-y-3">
+                                                <div>
+                                                    {order.Invoice === null ? (
+                                                        <CreateInvoiceButton order={order} />
+                                                    ) : (
+                                                        <Link
+                                                            href={`/invoices/${order.Invoice.id}`}
+                                                            className="btn btn-outline btn-sm w-full flex items-center gap-2"
+                                                        >
+                                                            <ReceiptIcon className="w-4 h-4" />
+                                                            View Invoice
+                                                        </Link>
+                                                    )}
+                                                </div>
+
+                                                {!order.quickbooksInvoiceId && (
+                                                    <button
+                                                        onClick={() => handleCreateQuickbooksInvoice(order.id)}
+                                                        className="btn btn-secondary btn-sm w-full flex items-center gap-2"
+                                                    >
+                                                        <PlusCircle className="w-4 h-4" />
+                                                        Create QuickBooks Invoice
+                                                    </button>
+                                                )}
+
+                                                {order.quickbooksInvoiceId && (
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <FileText className="w-4 h-4" />
+                                                        QB Invoice: {order.quickbooksInvoiceId}
+                                                    </div>
+                                                )}
+
+                                                <OrderDeposit order={order} />
+                                            </div>
+                                        </div>
                                     </div>
                                 }
                             />

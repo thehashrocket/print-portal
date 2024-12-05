@@ -6,6 +6,7 @@ import { api } from '~/trpc/react';
 import { AddressType, ShippingMethod, ShippingInfo, type Address } from '@prisma/client';
 import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
+import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText } from 'lucide-react';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -135,17 +136,73 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
 
     if (!isEditing) {
         return (
-            <div>
+            <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
                 {currentShippingInfo ? (
                     <>
-                        <p>Method: {currentShippingInfo.shippingMethod}</p>
-                        <p>Address: {currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.city}</p>
-                        <p>Cost: {currentShippingInfo.shippingCost ? formatCurrency(currentShippingInfo.shippingCost) : 'N/A'}</p>
-                        <p>Date: {currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</p>
-                        <p>Notes: {currentShippingInfo.shippingNotes}</p>
-                        <p>Other: {currentShippingInfo.shippingOther}</p>
-                        <p>Tracking Number: {currentShippingInfo.trackingNumber}</p>
-                        <button onClick={() => setIsEditing(true)} className="btn btn-primary mt-2">Edit Shipping Info</button>
+                        <div className="grid gap-4">
+                            <div className="flex items-center gap-3">
+                                <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Method</div>
+                                    <div className="font-medium">FedEx</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Address</div>
+                                    <div className="font-medium">6949 Bramble Close, Mabellefort</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <DollarSign className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Cost</div>
+                                    <div className="font-medium">$68.22</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Date</div>
+                                    <div className="font-medium">October 25, 2025</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <Notebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Notes</div>
+                                    <div className="font-medium">Vilicus tabgo denuncio delibero coepi.</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Other</div>
+                                    <div className="font-medium">Candidus viduo consectetur convoco.</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Tracking Number</div>
+                                    <div className="font-medium">asdfasdfasdfasdf</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="mt-6 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        >
+                            Edit Shipping Info
+                        </button>
                     </>
                 ) : (
                     <button onClick={() => setIsEditing(true)} className="btn btn-primary">Add Shipping Information</button>
