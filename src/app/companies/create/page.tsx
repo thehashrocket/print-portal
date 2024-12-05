@@ -36,7 +36,7 @@ export default async function CompaniesPage() {
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-primary" href="/companies/create">New Company</Link>
+                    <Link className="btn btn-primary bg-blue-500 text-white" href="/companies/create">Create Company</Link>
                 </div>
             </div>
             <CreateCompany />

@@ -56,17 +56,17 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
         <div className="container mx-auto">
             <div className="navbar bg-base-100">
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Orders Not in Production</a>
+                    <a className="btn btn-ghost text-xl">Estimates</a>
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link> </li>
-                            <li><Link href="/workOrders">Orders Not in Production</Link></li>
-                            <li><Link href="/workOrders/create">Create Order</Link></li>
+                            <li><Link href="/workOrders">Estimates</Link></li>
+                            <li><Link href="/workOrders/create">Create Estimate</Link></li>
                         </ul>
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create a Order</Link>
+                    <Link className="btn btn-sm btn-primary bg-blue-500 text-white" href="/workOrders/create">Create Estimate</Link>
                 </div>
             </div>
             <div className="flex justify-center mb-8">

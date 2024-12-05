@@ -28,13 +28,13 @@ export default async function WorkOrdersPage() {
         <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
           <ul>
             <li><Link href="/">Home</Link></li>
-            <li>Orders Not in Production</li>
+            <li>Estimates</li>
           </ul>
         </nav>
       </header>
       <main>
         <section className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Orders Not in Production List</h2>
+          <h2 className="text-xl font-semibold mb-4">Estimates List</h2>
           <WorkOrdersTable />
         </section>
       </main>

@@ -33,22 +33,22 @@ const WorkOrdersClientComponent: React.FC = () => {
         <div className="container mx-auto px-4 py-8">
             <header className="mb-8">
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-3xl font-bold">Orders Not in Production</h1>
-                    <Link className="btn btn-primary" href="/workOrders/create">
-                        Create Order
+                    <h1 className="text-3xl font-bold">Estimates</h1>
+                    <Link className="btn btn-primary bg-blue-500 text-white" href="/workOrders/create">
+                        Create Estimate
                     </Link>
                 </div>
                 <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>
-                        <li>Orders Not in Production</li>
+                        <li>Estimates</li>
                     </ul>
                 </nav>
             </header>
             {/* <WorkOrderCharts workOrders={workOrders} /> */}
             <main>
                 <section className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold mb-4">Orders Not in Production List</h2>
+                    <h2 className="text-xl font-semibold mb-4">Estimates List</h2>
                     <WorkOrdersTable />
                 </section>
             </main>

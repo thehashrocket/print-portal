@@ -11,6 +11,10 @@ import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrde
 import { api } from "~/trpc/react";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import { DollarSign } from "lucide-react";
+import { Calculator, Percent, Truck } from "lucide-react";
+import { Receipt } from "lucide-react";
+import { Button } from "~/app/_components/shared/Button/Button";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -132,7 +136,9 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             {workOrder.Order === null && (
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
-                            <Link className="btn btn-primary" href="/workOrders/create">Create Estimate</Link>
+                            <Link href="/workOrders/create">
+                                <Button>Create Estimate</Button>
+                            </Link>
                         </div>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
@@ -161,13 +167,47 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         <InfoCard
                             title="Order Price Details"
                             content={
-                                <div>
-                                    <p><strong>Item Total:</strong> {formatCurrency(workOrder.totalItemAmount ?? 0)}</p>
-                                    <p><strong>Shipping Amount: </strong>{formatCurrency(workOrder.totalShippingAmount ?? 0)}</p>
-                                    <p><strong>Subtotal:</strong> {formatCurrency(workOrder.calculatedSubTotal ?? 0)}</p>
-                                    <p><strong>Tax Amount:</strong> {formatCurrency(workOrder.calculatedSalesTax ?? 0)}</p>
-                                    <p><strong>Total Amount:</strong> {formatCurrency(workOrder.totalAmount ?? 0)}</p>
-                                </div>
+                                <div className="space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Receipt className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Item Total</div>
+                                                        <div className="font-semibold">{formatCurrency(workOrder.totalItemAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Truck className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Shipping Amount</div>
+                                                        <div className="font-semibold">{formatCurrency(workOrder.totalShippingAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Calculator className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Subtotal</div>
+                                                        <div className="font-semibold">{formatCurrency(workOrder.calculatedSubTotal ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <Percent className="w-5 h-5 text-blue-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Sales Tax</div>
+                                                        <div className="font-semibold">{formatCurrency(workOrder.calculatedSalesTax ?? "")}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 pt-2 border-t">
+                                                    <DollarSign className="w-5 h-5 text-green-600" />
+                                                    <div>
+                                                        <div className="text-sm text-gray-500">Total Amount</div>
+                                                        <div className="text-lg font-bold text-green-600">{formatCurrency(workOrder.totalAmount ?? "")}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
                             }
                         />
                         <InfoCard
@@ -219,8 +259,8 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     <section>
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
-                            <Link className="btn btn-primary" href={`/workOrders/create/${workOrder.id}`}>
-                                Add Estimate Job
+                            <Link href={`/workOrders/create/${workOrder.id}`}>
+                                <Button>Add Estimate Job</Button>
                             </Link>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-md">

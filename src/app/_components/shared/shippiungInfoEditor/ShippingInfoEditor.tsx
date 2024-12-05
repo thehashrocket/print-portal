@@ -6,7 +6,7 @@ import { api } from '~/trpc/react';
 import { AddressType, ShippingMethod, ShippingInfo, type Address } from '@prisma/client';
 import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
-import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText } from 'lucide-react';
+import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, Pencil } from 'lucide-react';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -199,8 +199,9 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
 
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="mt-6 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            className="mt-6 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                         >
+                            <FilePenLine className="w-4 h-4 mr-2" />
                             Edit Shipping Info
                         </button>
                     </>

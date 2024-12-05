@@ -122,7 +122,7 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
 
     return (
         <button 
-            className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
+            className="btn btn-primary bg-blue-500 text-white w-full flex items-center justify-center gap-2 whitespace-nowrap"
             disabled={isInvoiceCreated}
             onClick={handleCreateInvoice}
         >
@@ -215,7 +215,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Order Details</h1>
-                        <Link className="btn btn-primary" href="/workOrders/create">Create Order</Link>
+                        <Link className="btn btn-primary bg-blue-500 text-white" href="/workOrders/create">Create Order</Link>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
@@ -249,7 +249,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             />
                             <InfoCard
                                 title="Print Order"
-                                content={<button className="btn btn-primary btn-sm" onClick={() => handlePrintOrder(order.id)}><Printer className="w-4 h-4" /> Print Order</button>}
+                                content={<button className="btn btn-primary bg-blue-500 text-white btn-sm" onClick={() => handlePrintOrder(order.id)}><Printer className="w-4 h-4" /> Print Order</button>}
                             />
                         </div>
                         <div className="grid-flow-dense">
@@ -309,7 +309,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                     ) : (
                                                         <Link
                                                             href={`/invoices/${order.Invoice.id}`}
-                                                            className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
+                                                            className="btn btn-primary bg-blue-500 text-white w-full flex items-center justify-center gap-2 whitespace-nowrap"
                                                         >
                                                             <ReceiptIcon className="w-4 h-4" />
                                                             View Invoice
@@ -320,7 +320,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                 {!order.quickbooksInvoiceId && (
                                                     <button
                                                         onClick={() => handleCreateQuickbooksInvoice(order.id)}
-                                                        className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
+                                                        className="btn btn-primary w-full bg-blue-500 text-white w-full flex items-center justify-center gap-2 whitespace-nowrap"
                                                     >
                                                         <PlusCircle className="w-4 h-4" />
                                                         Create QuickBooks Invoice

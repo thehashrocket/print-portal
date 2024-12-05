@@ -7,7 +7,12 @@ export default {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ["var(--font-sans)", ...fontFamily.sans]
+  			sans: ['Bliss Pro', 'sans-serif'],
+			normal: ['Bliss Pro', 'sans-serif'],
+			light: ['Bliss Pro Light', 'sans-serif'],
+			bold: ['Bliss Pro Bold', 'sans-serif'],
+			italic: ['Bliss Pro Italic', 'sans-serif'],
+			lightBold: ['Bliss Pro Light Bold', 'sans-serif']
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

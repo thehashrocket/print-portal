@@ -60,6 +60,48 @@
 }
 
 @layer base {
+  @font-face {
+    font-family: 'Bliss Normal';
+    src: url('/fonts/BlissNormal.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Bliss Pro';
+    src: url('/fonts/BlissProRegular.otf') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Bliss Pro Bold';
+    src: url('/fonts/BlissProBold.otf') format('woff2');
+    font-weight: 700;
+    font-style: bold;
+  }
+
+  @font-face {
+    font-family: 'Bliss Pro Italic';
+    src: url('/fonts/BlissProItalic.otf') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: 'Bliss Pro Light';
+    src: url('/fonts/BlissProLight.otf') format('woff2');
+    font-weight: 300;
+    font-style: light;
+  }
+
+  @font-face {
+    font-family: 'Bliss Pro Light Bold';
+    src: url('/fonts/BlissProLightBold.otf') format('woff2');
+    font-weight: 700;
+    font-style: bold;
+  }
+
   * {
     @apply border-border;
   }

@@ -140,7 +140,7 @@ export function CreateCompany() {
                                 </div>
 
                                 <div className="form-control mt-6">
-                                    <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                                    <button type="submit" className="btn btn-primary bg-blue-500 text-white" disabled={isLoading}>
                                         {isLoading ? "Creating..." : "Create Company"}
                                     </button>
                                 </div>

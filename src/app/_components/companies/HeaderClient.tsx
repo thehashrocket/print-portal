@@ -72,7 +72,7 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                     )}
                     {syncCompanyMutation.isPending ? 'Syncing...' : 'Sync with QuickBooks'}
                 </button>
-                <Link href="/companies/create" className="btn btn-primary">Create Company</Link>
+                <Link href="/companies/create" className="btn btn-primary bg-blue-500 text-white">Create Company</Link>
             </div>
         </div>
     );
