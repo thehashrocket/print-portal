@@ -124,6 +124,7 @@ const OfficeCard: React.FC<{ office: SerializedOffice }> = ({ office }) => (
                 <div className="flex flex-col gap-4">
                     <QuickbooksSyncOrdersButton office={{
                         ...office,
+                        deleted: false,
                         createdAt: new Date(office.createdAt),
                         updatedAt: new Date(office.updatedAt),
                         syncToken: null,
