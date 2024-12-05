@@ -37,7 +37,12 @@ const DraggableOrdersDash: React.FC<{ initialOrders: SerializedOrder[] }> = ({ i
         const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-blue-600');
         try {
-            await updateOrderStatus.mutateAsync({ id, status: newStatus });
+            await updateOrderStatus.mutateAsync({ 
+                id, 
+                status: newStatus,
+                sendEmail: false,
+                emailOverride: ""
+            });
 
             setOrders(prevOrders =>
                 prevOrders.map(order =>
