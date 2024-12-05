@@ -55,7 +55,9 @@ export default async function CompanyPage(
         ...office,
         createdAt: office.createdAt.toISOString(),
         updatedAt: office.updatedAt.toISOString(),
-        Company: { name: office.Company.name },
+        Company: { name: 
+            office.Company.name
+        },
         Addresses: office.Addresses.map(address => ({
             ...address,
             deleted: false,
