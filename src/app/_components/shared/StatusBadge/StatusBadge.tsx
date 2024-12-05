@@ -101,7 +101,7 @@ export function StatusBadge<T extends string>({
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <button 
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                     onClick={() => {
                         setIsSaving(true);
                         const shippingDetails = isShippingStatus ? {

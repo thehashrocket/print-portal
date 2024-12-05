@@ -199,14 +199,18 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
 
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="mt-6 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                         >
                             <FilePenLine className="w-4 h-4 mr-2" />
                             Edit Shipping Info
                         </button>
                     </>
                 ) : (
-                    <button onClick={() => setIsEditing(true)} className="btn btn-primary">Add Shipping Information</button>
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="items-center justify-center gap-2 flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]">
+                        Add Shipping Information
+                    </button>
                 )}
             </div>
         );

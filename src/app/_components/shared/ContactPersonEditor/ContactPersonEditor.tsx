@@ -60,7 +60,7 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
                 </select>
             </div>
             <button 
-                className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium bg-blue-500 text-white border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                 onClick={handleUpdateContactPerson}
             >
                 <CheckCircle className="w-5 h-5 mr-2" />

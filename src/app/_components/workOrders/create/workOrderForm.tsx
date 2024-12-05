@@ -240,7 +240,12 @@ const WorkOrderForm: React.FC = () => {
                         className="w-[300px]"
                     />
                 </div>
-                <Button type="submit">Submit and Next Step</Button>
+                <Button
+                    type="submit"
+                    className="px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                >
+                    Submit and Next Step
+                </Button>
             </form>
         </div>
     );

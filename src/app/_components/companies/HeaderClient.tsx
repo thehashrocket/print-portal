@@ -6,6 +6,7 @@ import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
+import { Button } from '../shared/Button/Button';
 
 const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
     const router = useRouter();
@@ -72,7 +73,9 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                     )}
                     {syncCompanyMutation.isPending ? 'Syncing...' : 'Sync with QuickBooks'}
                 </button>
-                <Link href="/companies/create" className="btn btn-primary bg-blue-500 text-white">Create Company</Link>
+                <Link href="/companies/create">
+                    <Button>Create Company</Button>
+                </Link>
             </div>
         </div>
     );

@@ -31,7 +31,7 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
         <button
             onClick={handleConvert}
             disabled={isConverting}
-            className="btn btn-primary"
+            className="bg-[#006739] text-white hover:bg-[#005730] px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors"
         >
             {isConverting ? 'Converting...' : 'Send Order to Production'}
         </button>
