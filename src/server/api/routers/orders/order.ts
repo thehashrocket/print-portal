@@ -532,7 +532,15 @@ export const orderRouter = createTRPCRouter({
         // Update order status
         const updatedOrder = await ctx.db.order.update({
           where: { id: input.id },
-          data: { status: input.status },
+          data: { 
+            status: input.status,
+            ShippingInfo: {
+              update: {
+                trackingNumber: shippingDetails?.trackingNumber,
+                shippingMethod: shippingDetails?.shippingMethod,
+              },
+            },
+          },
           include: {
             Office: {
               include: {
