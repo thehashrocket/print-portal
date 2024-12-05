@@ -122,7 +122,7 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
 
     return (
         <button 
-            className="btn btn-primary btn-sm w-full flex items-center gap-2"
+            className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
             disabled={isInvoiceCreated}
             onClick={handleCreateInvoice}
         >
@@ -309,7 +309,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                     ) : (
                                                         <Link
                                                             href={`/invoices/${order.Invoice.id}`}
-                                                            className="btn btn-outline btn-sm w-full flex items-center gap-2"
+                                                            className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
                                                         >
                                                             <ReceiptIcon className="w-4 h-4" />
                                                             View Invoice
@@ -320,7 +320,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                 {!order.quickbooksInvoiceId && (
                                                     <button
                                                         onClick={() => handleCreateQuickbooksInvoice(order.id)}
-                                                        className="btn btn-secondary btn-sm w-full flex items-center gap-2"
+                                                        className="btn btn-primary w-full flex items-center justify-center gap-2 whitespace-nowrap"
                                                     >
                                                         <PlusCircle className="w-4 h-4" />
                                                         Create QuickBooks Invoice
