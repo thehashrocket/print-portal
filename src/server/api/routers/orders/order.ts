@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, Prisma, type ShippingMethod } from "@prisma/client";
+import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
@@ -517,84 +517,98 @@ export const orderRouter = createTRPCRouter({
 
   updateStatus: protectedProcedure
     .input(z.object({
-      id: z.string(),
-      status: z.nativeEnum(OrderStatus),
-      sendEmail: z.boolean().default(false),
-      emailOverride: z.string().optional(),
+        id: z.string(),
+        status: z.nativeEnum(OrderStatus),
+        sendEmail: z.boolean(),
+        emailOverride: z.string(),
+        shippingDetails: z.object({
+            trackingNumber: z.string().optional(),
+            shippingMethod: z.nativeEnum(ShippingMethod).optional(),
+        }).optional(),
     }))
-    .mutation(async ({ ctx, input }): Promise<SerializedOrder> => {
-      const updatedOrder = await ctx.db.order.update({
-        where: { id: input.id },
-        data: { status: input.status },
-        include: {
-          Office: {
-            include: {
-              Company: true,
+    .mutation(async ({ ctx, input }) => {
+        const { id, status, sendEmail, emailOverride, shippingDetails } = input;
+
+        // Update order status
+        const updatedOrder = await ctx.db.order.update({
+          where: { id: input.id },
+          data: { status: input.status },
+          include: {
+            Office: {
+              include: {
+                Company: true,
+              },
             },
-          },
-          OrderItems: {
-            include: {
-              artwork: true,
-              OrderItemStock: true,
-              Order: {
-                select: {
-                  Office: {
-                    select: {
-                      Company: true,
-                    }
-                  },
-                  WorkOrder: {
-                    select: {
-                      purchaseOrderNumber: true,
+            OrderItems: {
+              include: {
+                artwork: true,
+                OrderItemStock: true,
+                Order: {
+                  select: {
+                    Office: {
+                      select: {
+                        Company: true,
+                      }
+                    },
+                    WorkOrder: {
+                      select: {
+                        purchaseOrderNumber: true,
+                      }
                     }
                   }
                 }
+              },
+            },
+            contactPerson: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            OrderPayments: true,
+            ShippingInfo: {
+              include: {
+                Address: true,
+                ShippingPickup: true,
+              },
+            },
+            Invoice: {
+              include: {
+                InvoiceItems: true,
+                InvoicePayments: true,
+                createdBy: true,
+              },
+            },
+            OrderNotes: true,
+            WorkOrder: {
+              select: {
+                purchaseOrderNumber: true,
               }
-            },
-          },
-          contactPerson: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          OrderPayments: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          Invoice: {
-            include: {
-              InvoiceItems: true,
-              InvoicePayments: true,
-              createdBy: true,
-            },
-          },
-          OrderNotes: true,
-          WorkOrder: {
-            select: {
-              purchaseOrderNumber: true,
             }
-          }
-        },
-      });
+          },
+        });
 
-      // If sendEmail is true, send status update email
+        // If sendEmail is true, send status update email
       // If emailOverride is provided, send to that email address instead of the customer's email address
       const emailToSend = input.emailOverride || updatedOrder.contactPerson?.email;
       if (input.sendEmail && emailToSend) {
+
+        // If tracking number and shipping method are provided, add them to the email
+        const trackingNumber = input.shippingDetails?.trackingNumber;
+        const shippingMethod = input.shippingDetails?.shippingMethod;
+
         const emailHtml = `
             <h1>Order Status Update</h1>
             <p>Your order #${updatedOrder.orderNumber} status has been updated to: ${input.status}</p>
+            ${trackingNumber ? `<p>Tracking Number: ${trackingNumber}</p>` : ''}
+            ${shippingMethod ? `<p>Shipping Method: ${shippingMethod}</p>` : ''}
             <p>If you have any questions, please contact us.</p>
         `;
 
@@ -688,6 +702,7 @@ export const orderRouter = createTRPCRouter({
     .input(z.object({
       orderId: z.string(),
       recipientEmail: z.string().email(),
+      
     }))
     .mutation(async ({ ctx, input }) => {
       const order = await ctx.db.order.findUnique({

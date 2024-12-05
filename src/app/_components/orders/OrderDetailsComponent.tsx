@@ -43,8 +43,22 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: stri
         }
     };
 
-    const handleStatusChange = (newStatus: OrderStatus, sendEmail: boolean, emailOverride: string) => {
-        updateStatus({ id, status: newStatus, sendEmail, emailOverride });
+    const handleStatusChange = (
+        newStatus: OrderStatus, 
+        sendEmail: boolean, 
+        emailOverride: string,
+        shippingDetails?: {
+            trackingNumber?: string;
+            shippingMethod?: ShippingMethod;
+        }
+    ) => {
+        updateStatus({ 
+            id, 
+            status: newStatus, 
+            sendEmail, 
+            emailOverride,
+            shippingDetails 
+        });
         setCurrentStatus(newStatus);
     };
 
