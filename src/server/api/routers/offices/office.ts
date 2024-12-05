@@ -14,9 +14,20 @@ export const officeRouter = createTRPCRouter({
             return ctx.db.office.findUnique({
                 where: {
                     id: input,
+                    deleted: false,
                 },
                 include: {
-                    Addresses: true, // Include the Address associated with the Office
+                    Addresses: {
+                        where: {
+                            deleted: false,
+                        },
+                    }, // Include the Address associated with the Office
+                    // Only include the Company Name and nothing else.
+                    Company: {
+                        select: {
+                            name: true,
+                        },
+                    },
                     WorkOrders: {
                         include: {
                             WorkOrderItems: true, // Include the WorkOrderItems associated with the WorkOrder
@@ -37,6 +48,7 @@ export const officeRouter = createTRPCRouter({
             return ctx.db.office.findMany({
                 where: {
                     companyId: input,
+                    deleted: false,
                 },
                 include: {
                     Company: true,
@@ -109,45 +121,70 @@ export const officeRouter = createTRPCRouter({
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            name: z.string().optional(),
-            Address: z.object({
-                officeId: z.string(),
-                id: z.string().optional(),
+            name: z.string(),
+            addresses: z.array(z.object({
+                addressType: z.nativeEnum(AddressType),
+                city: z.string(),
+                country: z.string(),
+                deleted: z.boolean().optional(),
+                id: z.string().optional(), // Optional for new addresses
                 line1: z.string(),
                 line2: z.string().optional(),
-                city: z.string(),
+                officeId: z.string(),
                 state: z.string(),
-                zipCode: z.string(),
-                country: z.string(),
                 telephoneNumber: z.string(),
-                addressType: z.nativeEnum(AddressType),
-            }),
-        })).mutation(({ ctx, input }) => {
-            return ctx.db.office.update({
-                where: {
-                    id: input.id,
-                },
-                data: {
-                    name: input.name,
-                    Addresses: {
-                        update: {
-                            where: {
-                                id: input.Address.id,
-                            },
-                            data: {
-                                line1: input.Address.line1,
-                                line2: input.Address.line2,
-                                city: input.Address.city,
-                                state: input.Address.state,
-                                zipCode: input.Address.zipCode,
-                                country: input.Address.country,
-                                telephoneNumber: input.Address.telephoneNumber,
-                                addressType: input.Address.addressType,
-                            },
-                        },
-                    },
-                },
+                zipCode: z.string(),
+            })),
+        })).mutation(async ({ ctx, input }) => {
+            // First update the office name
+            await ctx.db.office.update({
+                where: { id: input.id },
+                data: { name: input.name },
             });
+
+            // Handle addresses
+            for (const address of input.addresses) {
+                if (address.id?.startsWith('temp-')) {
+                    // Create new address
+                    await ctx.db.address.create({
+                        data: {
+                            line1: address.line1,
+                            line2: address.line2,
+                            city: address.city,
+                            deleted: address.deleted,
+                            state: address.state,
+                            zipCode: address.zipCode,
+                            country: address.country,
+                            telephoneNumber: address.telephoneNumber,
+                            addressType: address.addressType,
+                            Office: { connect: { id: input.id } },
+                        },
+                    });
+                } else if (address.id) {
+                    // Update existing address
+                    await ctx.db.address.update({
+                        where: { id: address.id },
+                        data: {
+                            line1: address.line1,
+                            line2: address.line2,
+                            city: address.city,
+                            deleted: address.deleted,
+                            state: address.state,
+                            zipCode: address.zipCode,
+                            country: address.country,
+                            telephoneNumber: address.telephoneNumber,
+                            addressType: address.addressType,
+                        },
+                    });
+                }
+            }
+
+            const updatedOffice = await ctx.db.office.findUnique({
+                where: { id: input.id },
+                include: { Addresses: { where: { deleted: false } } },
+            });
+
+            return updatedOffice;
         }),
     // Delete an Office
     delete: protectedProcedure
@@ -157,5 +194,16 @@ export const officeRouter = createTRPCRouter({
                     id: input,
                 },
             });
+        }),
+    // Add this new endpoint for soft-deleting addresses
+    deleteAddress: protectedProcedure
+        .input(z.string()) // address id
+        .mutation(async ({ ctx, input }) => {
+            await ctx.db.address.update({
+                where: { id: input },
+                data: { deleted: true }
+            });
+
+            return { success: true };
         }),
 });

@@ -374,6 +374,7 @@ export function normalizeAddress(address: Address): SerializedAddress {
         line1: address.line1,
         line2: address.line2,
         city: address.city,
+        deleted: address.deleted,
         quickbooksId: address.quickbooksId,
         state: address.state,
         zipCode: address.zipCode,
@@ -534,7 +535,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? null,
         updatedAt: workOrder.updatedAt.toISOString(),
         version: workOrder.version,
-        workOrderNumber: workOrder.workOrderNumber,
+        workOrderNumber: workOrder.workOrderNumber.toString(),
         contactPerson: {
             id: workOrder.contactPerson.id,
             name: workOrder.contactPerson.name

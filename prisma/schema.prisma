@@ -39,21 +39,22 @@ model Account {
 }
 
 model Address {
+  addressType     AddressType    @default(Other)
+  city            String
+  country         String
+  createdAt       DateTime       @default(now())
+  deleted         Boolean        @default(false)
   id              String         @id @default(uuid())
-  officeId        String
   line1           String
   line2           String?
-  city            String
-  state           String
-  zipCode         String
-  country         String
-  telephoneNumber String         @default("")
-  addressType     AddressType    @default(Other)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
   Office          Office         @relation(fields: [officeId], references: [id])
+  officeId        String
   quickbooksId    String?
   ShippingInfo    ShippingInfo[]
+  state           String
+  telephoneNumber String         @default("")
+  updatedAt       DateTime       @updatedAt
+  zipCode         String
 
   @@index([officeId, addressType, quickbooksId])
 }
@@ -117,20 +118,21 @@ model InvoicePayment {
 }
 
 model Office {
-  id                   String         @id @default(uuid())
-  companyId            String
-  name                 String
-  createdAt            DateTime       @default(now())
-  createdById          String
-  fullyQualifiedName   String?
-  updatedAt            DateTime       @default(now()) @updatedAt
-  quickbooksCustomerId String?        @unique
-  syncToken            String?
   Addresses            Address[]
   Company              Company        @relation(fields: [companyId], references: [id])
+  companyId            String
+  createdAt            DateTime       @default(now())
   createdBy            User           @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById          String
+  deleted              Boolean        @default(false)
+  fullyQualifiedName   String?
+  id                   String         @id @default(uuid())
+  name                 String
   Orders               Order[]
+  quickbooksCustomerId String?        @unique
   ShippingInfo         ShippingInfo[]
+  syncToken            String?
+  updatedAt            DateTime       @default(now()) @updatedAt
   Users                User[]
   WorkOrders           WorkOrder[]
 
@@ -174,6 +176,7 @@ model OrderItem {
   createdAt           DateTime            @default(now())
   createdBy           User                @relation(fields: [createdById], references: [id])
   createdById         String
+  deleted             Boolean             @default(false)
   description         String              @default("")
   expectedDate        DateTime            @default(now())
   finishedQty         Int
@@ -481,6 +484,7 @@ model WorkOrderItem {
   createdAt           DateTime               @default(now())
   createdBy           User                   @relation(fields: [createdById], references: [id])
   createdById         String
+  deleted             Boolean                @default(false)
   description         String                 @default("")
   expectedDate        DateTime               @default(now())
   id                  String                 @id @default(uuid())
@@ -554,8 +558,9 @@ model WorkOrderVersion {
 
 enum AddressType {
   Billing
-  Shipping
   Mailing
+  Physical
+  Shipping
   Other
 }
 

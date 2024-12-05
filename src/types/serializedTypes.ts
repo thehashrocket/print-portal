@@ -21,6 +21,7 @@ export interface SerializedAddress {
     city: string;
     country: string;
     createdAt: string;
+    deleted: boolean;
     id: string;
     line1: string;
     line2: string | null;
@@ -97,6 +98,9 @@ export interface SerializedOffice {
     name: string;
     quickbooksCustomerId: string | null;
     Addresses: SerializedAddress[];
+    Company: {
+        name: string;
+    }
     WorkOrders: SerializedWorkOrder[];
     Orders: SerializedOrder[];
 }
