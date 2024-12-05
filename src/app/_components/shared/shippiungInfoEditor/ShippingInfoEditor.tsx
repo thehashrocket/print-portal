@@ -8,19 +8,20 @@ import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializ
 import { formatCurrency, formatDate } from '~/utils/formatters';
 
 const shippingInfoSchema = z.object({
-    shippingMethod: z.nativeEnum(ShippingMethod),
-    instructions: z.string().optional(),
     addressId: z.string().optional(),
+    instructions: z.string().optional(),
+    pickupContactName: z.string().optional(),
+    pickupContactPhone: z.string().optional(),
+    pickupDate: z.string().optional(),
+    pickupNotes: z.string().optional(),
+    pickupTime: z.string().optional(),
     shippingCost: z.number().optional(),
     shippingDate: z.string().optional(), // Changed to string
+    shippingMethod: z.nativeEnum(ShippingMethod),
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
-    pickupDate: z.string().optional(),
-    pickupTime: z.string().optional(),
-    pickupContactName: z.string().optional(),
-    pickupContactPhone: z.string().optional(),
-    pickupNotes: z.string().optional(),
+    trackingNumber: z.string().optional(),
 });
 
 const addressSchema = z.object({
@@ -53,14 +54,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
         defaultValues: {
-            shippingMethod: currentShippingInfo?.shippingMethod ?? ShippingMethod.Courier,
-            instructions: currentShippingInfo?.instructions ?? undefined,
             addressId: currentShippingInfo?.addressId ?? undefined,
+            instructions: currentShippingInfo?.instructions ?? undefined,
             shippingCost: currentShippingInfo?.shippingCost ? parseFloat(currentShippingInfo.shippingCost) : undefined,
             shippingDate: currentShippingInfo?.shippingDate ?? undefined,
+            shippingMethod: currentShippingInfo?.shippingMethod ?? ShippingMethod.Courier,
             shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
+            trackingNumber: currentShippingInfo?.trackingNumber ?? undefined,
         },
     });
 
@@ -134,7 +136,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     if (!isEditing) {
         return (
             <div>
-                <h3 className="text-lg font-semibold mb-2">Shipping Information</h3>
                 {currentShippingInfo ? (
                     <>
                         <p>Method: {currentShippingInfo.shippingMethod}</p>
@@ -143,6 +144,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         <p>Date: {currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</p>
                         <p>Notes: {currentShippingInfo.shippingNotes}</p>
                         <p>Other: {currentShippingInfo.shippingOther}</p>
+                        <p>Tracking Number: {currentShippingInfo.trackingNumber}</p>
                         <button onClick={() => setIsEditing(true)} className="btn btn-primary mt-2">Edit Shipping Info</button>
                     </>
                 ) : (
@@ -238,6 +240,12 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                     <label htmlFor="shippingCost" className="block text-sm font-medium text-gray-700">Shipping Cost</label>
                     <input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
+                </div>
+
+                <div>
+                    <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-700">Tracking Number</label>
+                    <input {...register('trackingNumber')} className="input input-bordered w-full" />
+                    {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
                 </div>
 
                 <div>

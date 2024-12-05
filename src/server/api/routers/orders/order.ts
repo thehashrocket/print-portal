@@ -370,6 +370,7 @@ export const orderRouter = createTRPCRouter({
         shippingDate: z.date().optional(),
         shippingNotes: z.string().optional(),
         shippingMethod: z.string(), // Add this field
+        trackingNumber: z.string().optional(),
       }),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -399,6 +400,7 @@ export const orderRouter = createTRPCRouter({
                 shippingDate: shippingInfo.shippingDate,
                 shippingNotes: shippingInfo.shippingNotes,
                 shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                trackingNumber: shippingInfo.trackingNumber,
               },
             },
           },
