@@ -18,7 +18,7 @@ import { generateOrderPDF } from "~/utils/pdfGenerator";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
-import { Button } from "../shared/Button/Button";
+import { Button } from "../ui/button";
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -122,14 +122,14 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
 
     return (
-        <button 
-            className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+        <Button
+            variant="default"
             disabled={isInvoiceCreated}
             onClick={handleCreateInvoice}
         >
             <FileText className="w-4 h-4" />
             {buttonText}
-        </button>
+        </Button>
     );
 };
 
@@ -217,7 +217,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Order Details</h1>
                         <Link href="/workOrders/create">
-                            <Button>Create Order</Button>
+                            <Button
+                                variant="default"
+                            >
+                                Create Order
+                            </Button>
                         </Link>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
@@ -252,11 +256,12 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             />
                             <InfoCard
                                 title="Print Order"
-                                content={<button
-                                    className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
-                                    onClick={() => handlePrintOrder(order.id)}>
+                                content={<Button
+                                    variant="default"
+                                    onClick={() => handlePrintOrder(order.id)}
+                                >
                                     <Printer className="w-4 h-4" /> Print Order
-                                </button>}
+                                </Button>}
                             />
                         </div>
                         <div className="grid-flow-dense">
@@ -317,7 +322,9 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                         <Link
                                                             href={`/invoices/${order.Invoice.id}`}
                                                         >
-                                                            <Button>
+                                                            <Button
+                                                                variant="default"
+                                                            >
                                                                 <ReceiptIcon className="w-4 h-4" />
                                                                 View Invoice
                                                             </Button>
@@ -326,13 +333,13 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                 </div>
 
                                                 {!order.quickbooksInvoiceId && (
-                                                    <button
+                                                    <Button
+                                                        variant="default"
                                                         onClick={() => handleCreateQuickbooksInvoice(order.id)}
-                                                        className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                                                     >
                                                         <PlusCircle className="w-4 h-4" />
                                                         Create QuickBooks Invoice
-                                                    </button>
+                                                    </Button>
                                                 )}
 
                                                 {order.quickbooksInvoiceId && (

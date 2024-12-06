@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ShippingMethod, type Address } from '@prisma/client';
+import { Button } from '../../ui/button';
 
 const addressSchema = z.object({
     id: z.string().optional(),
@@ -211,7 +212,12 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                 <textarea {...register('shippingNotes')} className="textarea textarea-bordered w-full" />
             </div>
 
-            <button type="submit" className="btn btn-primary">Submit</button>
+            <Button
+                variant="default"
+                type="submit"
+            >
+                Submit
+            </Button>
         </form>
     );
 };

@@ -8,6 +8,7 @@ import { api } from '~/trpc/react';
 import { useTypesettingContext } from '~/app/contexts/TypesettingContext';
 import { type SerializedTypesettingOption } from '~/types/serializedTypes';
 import { normalizeTypesettingOption } from '~/utils/dataNormalization';
+import { Button } from '../../ui/button';
 
 const typesettingOptionsSchema = z.object({
     option: z.string(),
@@ -83,12 +84,19 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
                 {errors.description && <span>{errors.description.message}</span>}
             </div>
             <div className="form-group">
-                <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                <Button
+                    variant="default"
+                    type="submit"
+                    disabled={isLoading}
+                >
                     {isLoading ? "Creating..." : "Create"}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={onCancel}>
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                >
                     Cancel
-                </button>
+                </Button>
             </div>
             {error && <div className="alert alert-danger">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}

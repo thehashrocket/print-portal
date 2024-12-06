@@ -9,6 +9,7 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
+import { Button } from "~/app/_components/ui/button";
 
 import {
     type ColDef,
@@ -91,13 +92,13 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ workOrder }) =
                             onChange={(e) => setNote(e.target.value)}
                         />
                     </div>
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    <Button
+                        variant="default"
                         type="submit"
                         disabled={createNote.isPending}
                     >
                         Add Note
-                    </button>
+                    </Button>
                     {createNote.isPending && <span>Submitting...</span>}
                 </form>
             </div>

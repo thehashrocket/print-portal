@@ -16,6 +16,7 @@ import Link from "next/link";
 import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
 import { type CompanyDashboardData } from "~/types/company";
+import { Button } from "../ui/button";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedCompany = {
@@ -45,7 +46,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         filter: true,
     };
 
-    const {data: updatedCompanies, refetch} = api.companies.companyDashboard.useQuery(
+    const { data: updatedCompanies, refetch } = api.companies.companyDashboard.useQuery(
         undefined,
         {
             initialData: initialCompanies as CompanyDashboardData[], enabled: false,
@@ -73,13 +74,15 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
         <div className="flex justify-center items-center space-x-2 px-2">
-            <Link className="btn btn-xs btn-primary" href={`/companies/${props.data.id}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-                </svg>
-                Company
+            <Link href={`/companies/${props.data.id}`}>
+                <Button
+                    variant="default"
+                    size="sm"
+                >
+                    Company
+                </Button>
             </Link>
-            <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess}/>
+            <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess} />
         </div>
     );
 
@@ -118,10 +121,10 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             sortable: true,
             filter: true,
         },
-        { 
-            headerName: "Actions", 
-            cellRenderer: actionsCellRenderer, 
-            sortable: false, 
+        {
+            headerName: "Actions",
+            cellRenderer: actionsCellRenderer,
+            sortable: false,
             filter: false,
             width: 250, // Adjust this value as needed
             cellStyle: { padding: '5px' } // Add some padding

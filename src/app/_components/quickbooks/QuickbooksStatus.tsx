@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { api } from "~/trpc/react";
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import { toast } from 'react-hot-toast';
+import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
 
 const QuickbooksStatus: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -73,25 +75,25 @@ const QuickbooksStatus: React.FC = () => {
     return (
         <div className="flex items-center">
             {isAuthenticated ? (
-                <button
+                <Button
+                    variant="default"
                     title="Refresh QuickBooks Token"
                     aria-label="Refresh QuickBooks Token"
                     onClick={handleRefreshToken}
-                    className="btn btn-sm btn-primary text-white hover:text-gray-300"
                     disabled={refreshTokenMutation.isPending}
                 >
-                    {refreshTokenMutation.isPending ? 'Refreshing...' : 'Connected to QuickBooks'}
-                </button>
+                    {refreshTokenMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connected to QuickBooks'}
+                </Button>
             ) : (
-                <button
+                <Button
                     title="Connect to QuickBooks"
                     aria-label="Connect to QuickBooks"
                     onClick={handleConnectClick}
                     className="btn btn-sm btn-primary text-white hover:text-gray-300"
                     disabled={initializeAuthMutation.isPending}
                 >
-                    {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
-                </button>
+                    {initializeAuthMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect to QuickBooks'}
+                </Button>
             )}
         </div>
     );

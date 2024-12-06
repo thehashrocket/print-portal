@@ -9,7 +9,8 @@ import QuickbooksSyncOrdersButton from "./QuickbooksSyncOrdersButton";
 import { toast } from "react-hot-toast";
 import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
 import { formatCurrency } from "~/utils/formatters";
-import { FilePenLine } from 'lucide-react';
+import { EyeIcon, FilePenLine } from 'lucide-react';
+import { Button } from "../ui/button";
 
 function convertToCamelCase(str: string): string {
     return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
@@ -65,11 +66,14 @@ const DataTable: React.FC<{ data: any[], columns: string[], actionLink: string }
                             </td>
                         ))}
                         <td>
-                            <Link className="btn btn-primary btn-xs" href={`${actionLink}/${item.id}`}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-                                </svg>
-                                View
+                            <Link href={`${actionLink}/${item.id}`}>
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                >
+                                    <EyeIcon className="w-4 h-4 mr-1" />
+                                    View
+                                </Button>
                             </Link>
                         </td>
                     </tr>
@@ -85,9 +89,14 @@ const OfficeCard: React.FC<{ office: SerializedOffice }> = ({ office }) => (
             <h2 className="card-title">{office.name}</h2>
             <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                    <Link href={`/companies/${office.companyId}/office/${office.id}/edit`} className="btn btn-primary btn-xs">
-                        <FilePenLine className="w-4 h-4" />
-                        <p>Edit</p>
+                    <Link href={`/companies/${office.companyId}/office/${office.id}/edit`}>
+                        <Button
+                            variant="default"
+                            size="sm"
+                        >
+                            <FilePenLine className="w-4 h-4" />
+                            <p>Edit</p>
+                        </Button>
                     </Link>
                 </div>
                 <div className={`flex items-center ${office.quickbooksCustomerId ? "text-green-600" : "text-red-600"}`}>

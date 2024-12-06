@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { toast } from 'react-hot-toast';
 import { CheckCircle, LucideIcon } from 'lucide-react';
+import { Button } from '../../ui/button';
 interface ContactPersonEditorProps {
     orderId: string;
     currentContactPerson: { id: string; name: string | null; email: string | null } | null;
@@ -59,13 +60,13 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
                     ))}
                 </select>
             </div>
-            <button 
-                className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+            <Button
+                variant="default"
                 onClick={handleUpdateContactPerson}
             >
                 <CheckCircle className="w-5 h-5 mr-2" />
                 Update
-            </button>
+            </Button>
             {message && (
                 <p className={`mt-4 text-sm ${isError ? 'text-red-500' : 'text-green-500'}`}>
                     {message}

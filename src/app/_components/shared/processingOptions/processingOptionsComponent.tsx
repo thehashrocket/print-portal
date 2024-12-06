@@ -4,6 +4,8 @@ import React from "react";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsItem from "~/app/_components/shared/processingOptions/processingOptionsItem";
 import ProcessingOptionsForm from "./processingOptionsForm";
+import { Button } from "../../ui/button";
+import { PlusCircle } from "lucide-react";
 
 type ProcessingOptionsComponentProps = {
     orderItemId?: string;
@@ -32,7 +34,13 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
                     isActive={isAdding}
                 />
             ) : (
-                <button onClick={toggleAdding} className="btn btn-primary">Add Bindery Option</button>
+                <Button
+                    variant="default"
+                    onClick={toggleAdding}
+                >
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Add Bindery Option
+                </Button>
             )}
             <div className="mb-4 mt-4 grid grid-cols-2 gap-4">
                 {processingOptions.map((option) => (

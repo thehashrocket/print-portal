@@ -13,6 +13,7 @@ import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { Download, Send } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { Button } from '../ui/button';
 
 interface InvoiceDetailClientProps {
     initialInvoice: SerializedInvoice | null;
@@ -166,19 +167,21 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                         </Link>
                         {invoice.quickbooksId &&
                             <>
-                                <button
+                                <Button
+                                    variant="default"
                                     onClick={() => handlePrint(invoice.quickbooksId!)}
                                     className="btn btn-primary mr-2"
                                     disabled={isPrinting}
                                 >
                                     <Download className="w-4 h-4 mr-2" />
                                     {isPrinting ? 'Downloading...' : 'Download PDF'}
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="default"
                                     className="btn btn-primary mr-2 mt-1"
                                     onClick={() => handleSendInvoiceByEmail(invoice.quickbooksId ?? '', invoice.id)}>
                                     <Send className="w-4 h-4" /> Email Invoice
-                                </button>
+                                </Button>
                             </>
                         }
                     </div>
@@ -215,25 +218,28 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                         </Link>
                                         <>
                                             {!invoice.quickbooksId &&
-                                                <button
+                                                <Button
+                                                    variant="default"
                                                     className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
                                                     onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
                                                     Create Quickbooks Invoice
-                                                </button>
+                                                </Button>
                                             }
                                             {invoice.quickbooksId &&
                                                 <>
-                                                    <button
+                                                    <Button
+                                                        variant="default"
                                                         className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
                                                         onClick={() => handleCreateQuickbooksInvoice(invoice.id)}>
                                                         Update Quickbooks Invoice
-                                                    </button>
+                                                    </Button>
 
-                                                    <button
+                                                    <Button
+                                                        variant="default"
                                                         className="btn btn-primary btn-sm mt-2 mb-2 mr-2"
                                                         onClick={() => handleSendInvoiceByEmail(invoice.quickbooksId ?? '', invoice.id)}>
                                                         <Send className="w-4 h-4" /> Email Invoice
-                                                    </button>
+                                                    </Button>
                                                 </>
                                             }
                                         </>

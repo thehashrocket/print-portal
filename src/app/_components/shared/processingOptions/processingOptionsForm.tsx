@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import { BindingType, type ProcessingOptions } from "@prisma/client";
+import { Button } from "../../ui/button";
 
 const processingOptionsSchema = z.object({
     id: z.string().optional(),
@@ -230,12 +231,18 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2 mt-6">
-                <button type="submit" className="btn btn-primary">
+                <Button
+                    variant="default"
+                    type="submit"
+                >
                     {initialData ? "Update" : "Add"} Bindery Options
-                </button>
-                <button type="button" className="btn btn-ghost" onClick={onCancel} >
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                >
                     Cancel
-                </button>
+                </Button>
 
             </div>
         </form>

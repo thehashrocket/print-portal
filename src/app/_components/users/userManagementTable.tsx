@@ -17,6 +17,8 @@ import { type User, type Role } from "@prisma/client";
 import { api } from "~/trpc/react";
 import EditUserRolesModal from './editUserRolesModal';
 import Link from "next/link";
+import { Button } from "../ui/button";
+import { Pencil, Trash } from "lucide-react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -49,21 +51,23 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
 
     const actionsCellRenderer = (props: ICellRendererParams) => (
         <div className="grid grid-cols-3 gap-1">
-            <button
+            <Button
+                variant="default"
                 onClick={() => handleEditRoles(props.data)}
-                className="btn btn-xs btn-primary m-1"
             >
+                <Pencil className="w-4 h-4 mr-2" />
                 Edit Roles
-            </button>
+            </Button>
             <Link href={`/users/${props.data.id}`} className="btn btn-xs btn-secondary m-1">
                 <span >View User</span>
             </Link>
-            <button
+            <Button
+                variant="destructive"
                 onClick={() => console.log("Delete user")}
-                className="btn btn-xs btn-danger m-1"
             >
+                <Trash className="w-4 h-4 mr-2" />
                 Delete User
-            </button>
+            </Button>
         </div>
 
     );

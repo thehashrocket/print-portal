@@ -9,6 +9,7 @@ import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Office } from '@prisma/client';
+import { Button } from '../ui/button';
 
 const QuickbooksSyncOrdersButton: React.FC<{ office: Office; onSyncSuccess: () => void }> = ({ office, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
@@ -50,9 +51,13 @@ const QuickbooksSyncOrdersButton: React.FC<{ office: Office; onSyncSuccess: () =
         : 'Add to QB';
 
     return (
-        <button className="btn btn-sm btn-primary" onClick={handleSyncOffice}>
+        <Button
+            variant="default"
+            size="sm"
+            onClick={handleSyncOffice}
+        >
             {syncButtonText}
-        </button>
+        </Button>
     );
 };
 

@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import { api } from "~/trpc/react"; // use client to fetch data instead of server
-
+import { Button } from '~/app/_components/ui/button';
 
 interface ConvertWorkOrderButtonProps {
     workOrderId: string;
@@ -28,12 +28,12 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
     };
 
     return (
-        <button
+        <Button
+            variant="default"
             onClick={handleConvert}
             disabled={isConverting}
-            className="bg-[#006739] text-white hover:bg-[#005730] px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors"
         >
             {isConverting ? 'Converting...' : 'Send Order to Production'}
-        </button>
+        </Button>
     );
 }

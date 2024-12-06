@@ -9,7 +9,7 @@ import Link from "next/link";
 import CompaniesChart from "../_components/companies/CompaniesChart";
 import { type CompanyDashboardData } from "~/types/company";
 import NoPermission from "~/app/_components/noPermission/noPermission";
-import { Button } from "../_components/shared/Button/Button";
+import { Button } from "../_components/ui/button";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();
@@ -54,7 +54,11 @@ export default async function CompaniesPage() {
                     </div>
                 </div>
                 <Link href="/companies/create">
-                    <Button>New Company</Button>
+                    <Button
+                        variant="default"
+                    >
+                        New Company
+                    </Button>
                 </Link>
             </div>
 

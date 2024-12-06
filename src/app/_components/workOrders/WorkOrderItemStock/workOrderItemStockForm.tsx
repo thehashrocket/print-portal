@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
 import { StockStatus } from '@prisma/client';
+import { Button } from '~/app/_components/ui/button';
 
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
@@ -195,12 +196,18 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2">
-                <button type="submit" className="btn btn-primary">
+                <Button
+                    type="submit"
+                    variant="default"
+                >
                     {stockId ? 'Update' : 'Add'} Stock
-                </button>
-                <button type="button" onClick={onCancel} className="btn btn-ghost">
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                >
                     Cancel
-                </button>
+                </Button>
             </div>
         </form>
     );

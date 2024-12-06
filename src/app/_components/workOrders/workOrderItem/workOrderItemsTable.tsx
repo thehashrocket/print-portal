@@ -17,6 +17,8 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { Button } from "../../ui/button";
+import { Eye } from "lucide-react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -36,8 +38,14 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     }), []);
 
     const actionsRenderer = (props: { data: SerializedWorkOrderItem }) => (
-        <Link className="btn btn-xs btn-primary" href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
-            View
+        <Link href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
+            <Button
+                variant="default"
+                size="sm"
+            >
+                <Eye className="w-4 h-4 mr-2" />
+                View
+            </Button>
         </Link>
     );
 

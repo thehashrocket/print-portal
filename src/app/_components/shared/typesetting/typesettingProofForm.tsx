@@ -10,6 +10,7 @@ import { type SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 import FileUpload from "../fileUpload";
 import ArtworkComponent from "../artworkComponent/artworkComponent";
+import { Button } from "../../ui/button";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -173,16 +174,19 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                 )}
             </div>
             <div className="flex justify-end">
-                <button
+                <Button
+                    variant="default"
                     type="submit"
                     disabled={isLoading}
-                    className="btn btn-primary mr-2"
                 >
                     Submit
-                </button>
-                <button type="button" onClick={cancel} className="btn btn-ghost">
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={cancel}
+                >
                     Cancel
-                </button>
+                </Button>
             </div>
             {error && <div className="alert alert-error mt-4">{error}</div>}
             {success && <div className="alert alert-success mt-4">{success}</div>}

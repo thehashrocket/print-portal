@@ -12,6 +12,8 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
+import { Pencil, PlusCircle } from "lucide-react";
+import { Button } from "../../ui/button";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -116,7 +118,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary" href="/workOrders/create">Create Estimate</Link>
+                    <Link href="/workOrders/create">
+                        <Button
+                            variant="default"
+                        >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Create Estimate
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
@@ -162,7 +171,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
                 {/* Row 4 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">
-                    <Link className="btn btn-sm btn-primary" href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>Edit</Link>
+                    <Link href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>
+                        <Button
+                            variant="default"
+                        >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit Job
+                        </Button>
+                    </Link>
                 </div>
                 {/* Row 5 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { AddressType, ShippingMethod } from '@prisma/client';
-import { Button } from '../../shared/Button/Button';
+import { Button } from '~/app/_components/ui/button';
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod),
@@ -240,7 +240,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
                 <Button
                     type="submit"
-                    className="px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                    variant="default"
                 >
                     Submit and Next Step
                 </Button>
@@ -319,19 +319,18 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                             {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
                         </div>
                         <div className="flex justify-between">
-                            <button
+                            <Button
                                 type="submit"
-                                className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                                variant="default"
                             >
                                 Add Address
-                            </button>
-                            <button
-                                type="button"
+                            </Button>
+                            <Button
                                 onClick={() => setIsCreatingNewAddress(false)}
-                                className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                                variant="secondary"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>

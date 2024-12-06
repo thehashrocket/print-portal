@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "~/trpc/react";
 import { type User, type Company, type Office, type Role } from "@prisma/client";
+import { Button } from "../ui/button";
+import { Pencil } from "lucide-react";
 
 const userProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -98,9 +100,13 @@ export default function UserProfileForm({
                 <p>Office: {user.Office?.name || "Not assigned"}</p>
                 <p>Roles: {user.Roles.map(role => role.name).join(", ")}</p>
                 {canEdit && (
-                    <button onClick={() => setIsEditing(true)} className="btn btn-primary mt-4">
+                    <Button
+                        variant="default"
+                        onClick={() => setIsEditing(true)}
+                    >
+                        <Pencil className="w-4 h-4 mr-2" />
                         Edit Profile
-                    </button>
+                    </Button>
                 )}
             </div>
         );
@@ -180,12 +186,18 @@ export default function UserProfileForm({
             )}
 
             <div className="flex justify-end space-x-2">
-                <button type="button" onClick={() => setIsEditing(false)} className="btn btn-secondary">
+                <Button
+                    variant="secondary"
+                    onClick={() => setIsEditing(false)}
+                >
                     Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button
+                    variant="default"
+                    type="submit"
+                >
                     Save Changes
-                </button>
+                </Button>
             </div>
         </form>
     );

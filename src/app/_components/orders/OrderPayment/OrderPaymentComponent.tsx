@@ -6,6 +6,8 @@ import { Decimal } from 'decimal.js';
 import { api } from '~/trpc/react';
 import { type SerializedOrder, type SerializedOrderPayment } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from "~/utils/formatters";
+import { Button } from '../../ui/button';
+import { Loader2, Plus } from 'lucide-react';
 
 interface OrderPaymentComponentProps {
     order: SerializedOrder
@@ -82,13 +84,14 @@ const OrderPaymentComponent: React.FC<OrderPaymentComponentProps> = ({ order }) 
                         ))}
                     </select>
                 </div>
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                <Button
+                    variant="default"
                     type="submit"
                     disabled={addPaymentMutation.isPending}
                 >
+                    {addPaymentMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
                     {addPaymentMutation.isPending ? 'Adding Payment...' : 'Add Payment'}
-                </button>
+                </Button>
             </form>
             <div className="mt-4">
                 <h3 className="text-xl font-bold mb-2">Payment History</h3>

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
 import { StockStatus } from '@prisma/client';
+import { Button } from '../../ui/button';
 
 const orderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -173,12 +174,18 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2">
-                <button type="submit" className="btn btn-primary">
+                <Button
+                    variant="default"
+                    type="submit"
+                >
                     {stockId ? 'Update' : 'Add'} Stock
-                </button>
-                <button type="button" onClick={onCancel} className="btn btn-ghost">
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                >
                     Cancel
-                </button>
+                </Button>
             </div>
         </form>
     );

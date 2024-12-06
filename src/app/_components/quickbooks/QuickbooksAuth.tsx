@@ -5,7 +5,8 @@ import { useSession } from 'next-auth/react';
 import { api } from "~/trpc/react";
 import { useRouter } from 'next/navigation';
 import QuickBooksCompanyInfo from './QuickbooksCompanyInfo';
-
+import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
 const QuickBooksAuth: React.FC = () => {
     const { data: session } = useSession();
     const router = useRouter();
@@ -173,32 +174,32 @@ const QuickBooksAuth: React.FC = () => {
                 <>
                     <p className="mt-2 text-green-600">Connected to QuickBooks</p>
                     <div className="mt-2 flex flex-row gap-2">
-                        <button
+                        <Button
+                            variant="default"
                             onClick={handleRefreshToken}
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                         >
                             Refresh Token
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="default"
                             onClick={handleGetCompanyInfo}
-                            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors ml-2"
                         >
                             Get Company Info
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="default"
                             onClick={handleSyncCustomers}
-                            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors mt-2 ml-2"
                             disabled={isSyncing || isSyncingCustomers}
                         >
-                            {isSyncing || isSyncingCustomers ? 'Syncing...' : 'Sync Customers'}
-                        </button>
-                        <button
+                            {isSyncing || isSyncingCustomers ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sync Customers'}
+                        </Button>
+                        <Button
+                            variant="default"
                             onClick={handleSyncInvoices}
-                            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors mt-2 ml-2"
                             disabled={isSyncing || isSyncingInvoices}
                         >
-                            {isSyncing || isSyncingInvoices ? 'Syncing...' : 'Sync Invoices'}
-                        </button>
+                            {isSyncing || isSyncingInvoices ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sync Invoices'}
+                        </Button>
                     </div>
                     {companyInfo && (
                         <QuickBooksCompanyInfo companyInfo={companyInfo} />
@@ -210,23 +211,23 @@ const QuickBooksAuth: React.FC = () => {
 
                 <>
                     <div>
-                        <button
+                        <Button
+                            variant="secondary"
                             onClick={handleSignInToIntuit}
-                            className="btn btn-secondary mr-2"
                             disabled={getIntuitSignInUrlMutation.isPending}
                         >
-                            {getIntuitSignInUrlMutation.isPending ? 'Signing In...' : 'Sign In to Intuit'}
-                        </button>
+                            {getIntuitSignInUrlMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In to Intuit'}
+                        </Button>
                     </div>
 
                     <div>
-                        <button
+                        <Button
+                            variant="default"
                             onClick={handleConnectClick}
-                            className="btn btn-primary"
                             disabled={initializeAuthMutation.isPending}
                         >
-                            {initializeAuthMutation.isPending ? 'Connecting...' : 'Connect to QuickBooks'}
-                        </button>
+                            {initializeAuthMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect to QuickBooks'}
+                        </Button>
                         {error && <p className="text-red-500 mt-2">{error}</p>}
                     </div>
                 </>

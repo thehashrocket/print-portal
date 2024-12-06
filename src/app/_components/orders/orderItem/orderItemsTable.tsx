@@ -17,6 +17,8 @@ import {
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
 import Link from "next/link";
+import { Button } from "../../ui/button";
+import { EyeIcon } from "lucide-react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -36,8 +38,14 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     }), []);
 
     const actionsRenderer = (props: ICellRendererParams) => (
-        <Link className="btn btn-xs btn-primary" href={`/orders/${props.data.orderId}/orderItem/${props.data.id}`}>
-            View
+        <Link href={`/orders/${props.data.orderId}/orderItem/${props.data.id}`}>
+            <Button
+                variant="default"
+                size="sm"
+            >
+                <EyeIcon className="w-4 h-4 mr-1" />
+                View
+            </Button>
         </Link>
     );
 

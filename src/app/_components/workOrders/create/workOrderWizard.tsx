@@ -6,6 +6,8 @@ import WorkOrderItemForm from './workOrderItemForm';
 import WorkOrderShippingInfoForm from './workOrderShippingInfoForm';
 import { api } from '~/trpc/react';
 import Link from "next/link";
+import { PlusCircle } from 'lucide-react';
+import { Button } from '../../ui/button';
 
 const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
     workOrderId
@@ -66,7 +68,14 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                     </div>
                 </div>
                 <div className="flex-none">
-                    <Link className="btn btn-sm btn-primary bg-blue-500 text-white" href="/workOrders/create">Create Estimate</Link>
+                    <Link href="/workOrders/create">
+                        <Button
+                            variant="default"
+                        >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Create Estimate
+                        </Button>
+                    </Link>
                 </div>
             </div>
             <div className="flex justify-center mb-8">

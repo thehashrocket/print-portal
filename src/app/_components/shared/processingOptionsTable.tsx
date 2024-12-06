@@ -6,6 +6,8 @@ import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
 import { type BindingType, type ProcessingOptions } from "@prisma/client";
 import { GridReadyEvent, type ColDef } from "@ag-grid-community/core";
+import { Button } from "../ui/button";
+import { Pencil, Trash } from "lucide-react";
 
 type ProcessingOptionsProps = {
     processingOptions: ProcessingOptions[];
@@ -63,18 +65,20 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
 
     const actionsCellRenderer = (props: { data: ProcessingOptions }) => (
         <div className="grid grid-cols-2 gap-4">
-            <button
-                className="btn btn-active btn-primary btn-xs sm:btn-sm"
+            <Button
+                variant="default"
                 onClick={() => handleEdit(props.data)}
             >
+                <Pencil className="w-4 h-4 mr-2" />
                 Edit
-            </button>
-            <button
-                className="btn btn-active btn-secondary btn-xs sm:btn-sm"
+            </Button>
+            <Button
+                variant="destructive"
                 onClick={() => handleDelete(props.data.id)}
             >
+                <Trash className="w-4 h-4 mr-2" />
                 Delete
-            </button>
+            </Button>
         </div>
     );
 
@@ -274,15 +278,14 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
                             className="w-full rounded-full px-4 py-2 text-black"
                         />
                     </div>
-                    <button
+                    <Button
                         type="submit"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         disabled={createProcessingOption.isPending || updateProcessingOption.isPending}
                     >
                         {(createProcessingOption.isPending || updateProcessingOption.isPending)
                             ? "Submitting..."
                             : isEditMode ? "Update" : "Submit"}
-                    </button>
+                    </Button>
                 </form>
             </div>
             <div className="ag-theme-quartz" style={{ height: 300, width: "100%" }}>

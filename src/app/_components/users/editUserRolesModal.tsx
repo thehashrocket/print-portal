@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { type User, type Role, RoleName } from "@prisma/client";
+import { Button } from '../ui/button';
 
 interface EditUserRolesModalProps {
     isOpen: boolean;
@@ -59,12 +60,18 @@ const EditUserRolesModal: React.FC<EditUserRolesModalProps> = ({ isOpen, onClose
                         </div>
                     ))}
                     <div className="mt-4 flex justify-end">
-                        <button type="button" onClick={onClose} className="btn btn-secondary mr-2">
+                        <Button
+                            variant="secondary"
+                            onClick={onClose}
+                        >
                             Cancel
-                        </button>
-                        <button type="submit" className="btn btn-primary">
+                        </Button>
+                        <Button
+                            variant="default"
+                            type="submit"
+                        >
                             Save Changes
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

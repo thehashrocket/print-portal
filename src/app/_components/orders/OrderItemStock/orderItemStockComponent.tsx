@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { api } from '~/trpc/react';
 import OrderItemStockForm from './orderItemStockForm';
 import { formatDate } from "~/utils/formatters";
+import { Button } from '../../ui/button';
+import { PencilIcon, Plus } from 'lucide-react';
 
 
 interface OrderItemStockComponentProps {
@@ -58,12 +60,13 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                                     <td>{stock.stockStatus}</td>
                                     <td>{stock.expectedDate ? formatDate(new Date(stock.expectedDate)) : null}</td>
                                     <td>
-                                        <button
-                                            className="btn btn-xs btn-primary"
+                                        <Button
+                                            variant="default"
                                             onClick={() => setSelectedStockId(stock.id)}
                                         >
+                                            <PencilIcon className="w-4 h-4 mr-1" />
                                             Edit
-                                        </button>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -74,12 +77,13 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
 
             {/* Add new stock button */}
             {!isAddMode && !selectedStockId && (
-                <button
-                    className="btn btn-primary"
+                <Button
+                    variant="default"
                     onClick={() => setIsAddMode(true)}
                 >
+                    <Plus className="w-4 h-4 mr-2" />
                     Add New Stock
-                </button>
+                </Button>
             )}
 
             {/* Form for adding/editing stock */}

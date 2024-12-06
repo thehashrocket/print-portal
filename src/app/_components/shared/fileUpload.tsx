@@ -1,6 +1,7 @@
 // ~/src/app/_components/shared/fileUpload.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { Button } from '../ui/button';
 
 interface FileUploadProps {
     onFileUploaded: (fileUrl: string, description: string) => void;
@@ -171,12 +172,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
                             className="input input-bordered w-full"
                         />
                     </div>
-                    <button
+                    <Button
+                        variant="destructive"
                         onClick={() => handleRemoveFile(file.fileUrl)}
-                        className="btn btn-sm btn-error mt-2"
                     >
                         Remove
-                    </button>
+                    </Button>
                 </div>
             ))}
         </div>

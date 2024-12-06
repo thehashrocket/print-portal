@@ -7,6 +7,7 @@ import TypesettingComponent from '../../shared/typesetting/typesettingComponent'
 import ProcessingOptionsComponent from '../../shared/processingOptions/processingOptionsComponent';
 import WorkOrderItemStockComponent from '../../workOrders/WorkOrderItemStock/workOrderItemStockComponent';
 import { api } from '~/trpc/react';
+import { Button } from '~/app/_components/ui/button';
 
 interface ExpandableWorkOrderItemDetailsProps {
     itemId: string;
@@ -36,9 +37,12 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
         <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">Job Details</h3>
-                <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                <Button
+                    variant="secondary"
+                    onClick={onClose}
+                >
                     Close
-                </button>
+                </Button>
             </div>
 
             <div className="mb-4">

@@ -12,7 +12,7 @@ import { WorkOrderItemStatus } from '@prisma/client'
 import FileUpload from '~/app/_components/shared/fileUpload';
 import { type SerializedWorkOrderItem } from '~/types/serializedTypes';
 import { useRouter } from 'next/navigation';
-import { Button } from '../../shared/Button/Button';
+import { Button } from '~/app/_components/ui/button';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -197,8 +197,8 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                         </div>
                         <Button
+                            variant="default"
                             type="submit"
-                            className="px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                         >
                             Add Estimate Job
                         </Button>

@@ -5,7 +5,7 @@ import React from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
-
+import { Button } from '~/app/_components/ui/button';
 const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
@@ -42,8 +42,8 @@ const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void
         : 'Add to QB';
 
     return (
-        <button
-            className={`btn btn-xs btn-outline ${syncCompanyMutation.isPending ? 'loading' : ''}`}
+        <Button
+            variant="outline"
             onClick={handleSyncCompany}
             disabled={syncCompanyMutation.isPending || !isAuthenticated}
         >
@@ -57,7 +57,7 @@ const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void
                 </svg>
             )}
             {syncCompanyMutation.isPending ? 'Syncing...' : syncButtonText}
-        </button>
+        </Button>
     );
 };
 

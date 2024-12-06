@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
+import { Button } from "~/app/_components/ui/button";
 
 const companyFormSchema = z.object({
     name: z.string().min(1, "Required"),
@@ -140,9 +141,13 @@ export function CreateCompany() {
                                 </div>
 
                                 <div className="form-control mt-6">
-                                    <button type="submit" className="btn btn-primary bg-blue-500 text-white" disabled={isLoading}>
+                                    <Button
+                                        type="submit"
+                                        variant="default"
+                                        disabled={isLoading}
+                                    >
                                         {isLoading ? "Creating..." : "Create Company"}
-                                    </button>
+                                    </Button>
                                 </div>
                             </form>
                         </div>

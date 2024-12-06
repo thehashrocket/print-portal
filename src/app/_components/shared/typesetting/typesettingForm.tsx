@@ -8,6 +8,7 @@ import { SerializedTypesetting, SerializedTypesettingOption, SerializedTypesetti
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import { type TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import { Decimal } from "decimal.js";
+import { Button } from "../../ui/button";
 
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
@@ -210,8 +211,18 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <button type="submit" className="btn btn-primary">Submit</button>
-                <button type="button" className="btn" onClick={onCancel}>Cancel</button>
+                <Button
+                    variant="default"
+                    type="submit"
+                >
+                    Submit
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={onCancel}
+                >
+                    Cancel
+                </Button>
             </div>
         </form>
     );

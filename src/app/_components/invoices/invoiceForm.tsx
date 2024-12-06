@@ -10,6 +10,7 @@ import { InvoiceStatus, Order, OrderItem, Office } from '@prisma/client';
 import { SerializedOrder, SerializedOrderItem } from '~/types/serializedTypes';
 import { formatCurrency } from '~/utils/formatters';
 import { Decimal } from 'decimal.js';
+import { Button } from '../ui/button';
 
 const invoiceItemSchema = z.object({
     description: z.string().min(1, 'Description is required'),
@@ -206,10 +207,20 @@ const InvoiceForm: React.FC = () => {
                         <input {...register(`items.${index}.description`)} placeholder="Description" className="input input-bordered col-span-2" />
                         <input type="number" {...register(`items.${index}.quantity`, { valueAsNumber: true })} placeholder="Qty" className="input input-bordered" />
                         <input type="number" {...register(`items.${index}.unitPrice`, { valueAsNumber: true })} placeholder="Price" className="input input-bordered" />
-                        <button type="button" onClick={() => remove(index)} className="btn btn-error">Remove</button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => remove(index)}
+                        >
+                            Remove
+                        </Button>
                     </div>
                 ))}
-                <button type="button" onClick={() => append({ description: '', quantity: 1, unitPrice: 0, total: 0 })} className="btn btn-secondary">Add Item</button>
+                <Button
+                    variant="secondary"
+                    onClick={() => append({ description: '', quantity: 1, unitPrice: 0, total: 0 })}
+                >
+                    Add Item
+                </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -241,12 +252,19 @@ const InvoiceForm: React.FC = () => {
             </div>
 
             <div className="flex justify-between">
-                <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+                <Button
+                    variant="default"
+                    type="submit"
+                    disabled={isSubmitting}
+                >
                     {isSubmitting ? 'Creating...' : 'Create Invoice'}
-                </button>
-                <button type="button" onClick={() => reset()} className="btn btn-secondary">
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => reset()}
+                >
                     Reset Form
-                </button>
+                </Button>
             </div>
 
             {selectedOrder && (

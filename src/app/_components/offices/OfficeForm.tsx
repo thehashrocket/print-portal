@@ -9,6 +9,7 @@ import { normalizeAddress } from "~/utils/dataNormalization";
 import { api } from "~/trpc/react";
 import { Mail, MapPin, Plus, Trash } from "lucide-react"; // Added Plus and Trash icons
 import { AddressType } from "@prisma/client";
+import { Button } from "../ui/button";
 
 type NewAddress = Omit<SerializedAddress, 'createdAt' | 'updatedAt' | 'quickbooksId'>;
 
@@ -135,14 +136,14 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-medium">Addresses</h3>
-                    <button
-                        type="button"
+                    <Button
+                        variant="secondary"
                         onClick={handleAddAddress}
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Address
-                    </button>
+                    </Button>
                 </div>
 
                 {formData.addresses.map((address) => (
@@ -162,13 +163,13 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                     ))}
                                 </select>
                             </div>
-                            <button
-                                type="button"
+                            <Button
+                                variant="destructive"
                                 onClick={() => handleRemoveAddress(address.id)}
                                 className="text-red-600 hover:text-red-800"
                             >
                                 <Trash className="w-4 h-4" />
-                            </button>
+                            </Button>
                         </div>
 
                         <input
@@ -229,12 +230,12 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
             </div>
 
             <div className="flex justify-end space-x-2">
-                <button
+                <Button
+                    variant="default"
                     type="submit"
-                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     Save Changes
-                </button>
+                </Button>
             </div>
         </form>
     );

@@ -3,6 +3,8 @@ import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsForm from "~/app/_components/shared/processingOptions/processingOptionsForm";
 import { type ProcessingOptions } from "@prisma/client";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { Button } from "../../ui/button";
+import { Pencil, Trash } from "lucide-react";
 
 interface ProcessingOptionsItemProps {
     option: ProcessingOptions;
@@ -65,18 +67,20 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
                                 <p>Updated: {formatValue("updatedAt", option.updatedAt)}</p>
                             </div>
                             <div className="flex space-x-2">
-                                <button
+                                <Button
+                                    variant="outline"
                                     onClick={toggleEdit}
-                                    className="btn btn-sm btn-outline btn-primary"
                                 >
-                                    <FiEdit2 className="mr-1" /> Edit
-                                </button>
-                                <button
+                                    <Pencil className="w-4 h-4 mr-2" />
+                                    Edit
+                                </Button>
+                                <Button
+                                    variant="destructive"
                                     onClick={handleDelete}
-                                    className="btn btn-sm btn-outline btn-error"
                                 >
-                                    <FiTrash2 className="mr-1" /> Delete
-                                </button>
+                                    <Trash className="w-4 h-4 mr-2" />
+                                    Delete
+                                </Button>
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { PaymentMethod } from '@prisma/client';
+import { Button } from '../ui/button';
 
 const paymentSchema = z.object({
     amount: z.number().min(0.01, 'Amount must be greater than 0'),
@@ -74,9 +75,13 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = ({ invoiceId, onPaymentAdd
                 {errors.paymentMethod && <span className="text-red-500">{errors.paymentMethod.message}</span>}
             </div>
 
-            <button type="submit" className="btn btn-primary w-full">
+            <Button
+                type="submit"
+                variant="default"
+                className="btn btn-primary w-full"
+            >
                 Add Payment
-            </button>
+            </Button>
         </form>
     );
 };

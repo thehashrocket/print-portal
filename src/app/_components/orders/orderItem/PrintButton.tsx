@@ -1,14 +1,15 @@
 import { Printer } from 'lucide-react';
+import { Button } from '../../ui/button';
 
 export const PrintButton = ({ onClick }: { onClick: () => void }) => {
     return (
-        <button 
+        <Button
+            variant="default"
             onClick={onClick}
-            className="btn btn-primary"
             title="Print Job Details"
         >
             <Printer className="w-4 h-4 mr-2" />
             Print Job Details
-        </button>
+        </Button>
     );
 };

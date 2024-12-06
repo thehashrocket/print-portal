@@ -11,10 +11,10 @@ import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrde
 import { api } from "~/trpc/react";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { DollarSign } from "lucide-react";
+import { DollarSign, PlusCircle } from "lucide-react";
 import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
-import { Button } from "~/app/_components/shared/Button/Button";
+import { Button } from "~/app/_components/ui/button";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -137,7 +137,12 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
                             <Link href="/workOrders/create">
-                                <Button>Create Estimate</Button>
+                                <Button
+                                    variant="default"
+                                >
+                                    <PlusCircle className="w-4 h-4 mr-2" />
+                                    Create Estimate
+                                </Button>
                             </Link>
                         </div>
                     </div>
@@ -260,7 +265,12 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
                             <Link href={`/workOrders/create/${workOrder.id}`}>
-                                <Button>Add Estimate Job</Button>
+                                <Button
+                                    variant="default"
+                                >
+                                    <PlusCircle className="w-4 h-4 mr-2" />
+                                    Add Estimate Job
+                                </Button>
                             </Link>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-md">

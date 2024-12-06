@@ -6,7 +6,8 @@ import { api } from '~/trpc/react';
 import { AddressType, ShippingMethod, ShippingInfo, type Address } from '@prisma/client';
 import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
-import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, Pencil } from 'lucide-react';
+import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, Pencil, PlusCircle } from 'lucide-react';
+import { Button } from "../../ui/button";
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -197,20 +198,22 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                             </div>
                         </div>
 
-                        <button
+                        <Button
+                            variant="default"
                             onClick={() => setIsEditing(true)}
-                            className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
                         >
                             <FilePenLine className="w-4 h-4 mr-2" />
                             Edit Shipping Info
-                        </button>
+                        </Button>
                     </>
                 ) : (
-                    <button
+                    <Button
+                        variant="default"
                         onClick={() => setIsEditing(true)}
-                        className="items-center justify-center gap-2 flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]">
+                    >
+                        <PlusCircle className="w-4 h-4 mr-2" />
                         Add Shipping Information
-                    </button>
+                    </Button>
                 )}
             </div>
         );
@@ -321,7 +324,11 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 </div>
 
                 <div className="flex justify-end gap-2">
-                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        variant="default"
+                    >
                         {isSubmitting ? (
                             <>
                                 <span className="loading loading-spinner"></span>
@@ -330,10 +337,13 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         ) : (
                             'Update Shipping Info'
                         )}
-                    </button>
-                    <button type="button" onClick={handleCancel} className="btn btn-secondary">
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={handleCancel}
+                    >
                         Cancel
-                    </button>
+                    </Button>
                 </div>
             </form>
 
@@ -385,8 +395,18 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                             </select>
                             {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
                         </div>
-                        <button type="submit" className="btn btn-primary">Add Address</button>
-                        <button type="button" onClick={() => setIsCreatingNewAddress(false)} className="btn btn-secondary ml-2">Cancel</button>
+                        <Button
+                            variant="default"
+                            type="submit"
+                        >
+                            Add Address
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsCreatingNewAddress(false)}
+                        >
+                            Cancel
+                        </Button>
                     </form>
                 </div>
             )}

@@ -8,6 +8,8 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { formatDate, formatCurrency } from "~/utils/formatters";
 import ArtworkComponent from "../artworkComponent/artworkComponent";
+import { Button } from "../../ui/button";
+import { Pencil, PlusCircle, Trash } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -83,12 +85,16 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
         <>
             {/* Buttons and dropdown */}
             <div className="mb-4 grid grid-cols-4 gap-4">
-                <button className="btn btn-active btn-primary" onClick={() => {
-                    setMode('add');
-                    setIsEditMode(true);
-                }}>
+                <Button
+                    variant="default"
+                    onClick={() => {
+                        setMode('add');
+                        setIsEditMode(true);
+                    }}
+                >
+                    <PlusCircle className="w-4 h-4 mr-2" />
                     Add Typesetting
-                </button>
+                </Button>
                 <select
                     className="select w-full max-w-xs"
                     value={selectedTypeId}
@@ -101,15 +107,23 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                         </option>
                     ))}
                 </select>
-                <button className="btn btn-active btn-primary" onClick={() => {
-                    setMode('edit');
-                    setIsEditMode(true);
-                }}>
+                <Button
+                    variant="default"
+                    onClick={() => {
+                        setMode('edit');
+                        setIsEditMode(true);
+                    }}
+                >
+                    <Pencil className="w-4 h-4 mr-2" />
                     Edit Typesetting
-                </button>
-                <button className="btn btn-active btn-primary" onClick={() => setIsEditMode(true)}>
+                </Button>
+                <Button
+                    variant="destructive"
+                    onClick={() => setIsEditMode(true)}
+                >
+                    <Trash className="w-4 h-4 mr-2" />
                     Delete Typesetting
-                </button>
+                </Button>
             </div>
             {currentItem && (
                 (isEditMode ? (
@@ -153,9 +167,13 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                         <div>
                             <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
                             <div className="mb-4 grid grid-cols-4 gap-4">
-                                <button className="btn btn-active btn-primary" onClick={() => setAddProofMode(true)}>
+                                <Button
+                                    variant="default"
+                                    onClick={() => setAddProofMode(true)}
+                                >
+                                    <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Proof
-                                </button>
+                                </Button>
                             </div>
                             <div className="grid grid-cols-4 gap-4">
                                 {addProofMode && (

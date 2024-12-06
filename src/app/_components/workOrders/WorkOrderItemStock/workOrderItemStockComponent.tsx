@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { api } from '~/trpc/react';
 import WorkOrderItemStockForm from './workOrderItemStockForm';
 import { formatDate } from '~/utils/formatters';
+import { Button } from '~/app/_components/ui/button';
+import { Pencil, PlusCircle } from 'lucide-react';
 
 interface WorkOrderItemStockComponentProps {
     workOrderItemId: string;
@@ -52,12 +54,13 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
                                     <td>{stock.stockStatus}</td>
                                     <td>{stock.expectedDate ? formatDate(new Date(stock.expectedDate)) : null}</td>
                                     <td>
-                                        <button
-                                            className="btn btn-xs btn-primary"
+                                        <Button
+                                            variant="default"
                                             onClick={() => setSelectedStockId(stock.id)}
                                         >
+                                            <Pencil className="w-4 h-4 mr-2" />
                                             Edit
-                                        </button>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -68,12 +71,13 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
 
             {/* Add new stock button */}
             {!isAddMode && !selectedStockId && (
-                <button
-                    className="btn btn-primary"
+                <Button
+                    variant="default"
                     onClick={() => setIsAddMode(true)}
                 >
+                    <PlusCircle className="w-4 h-4 mr-2" />
                     Add New Stock
-                </button>
+                </Button>
             )}
 
             {/* Form for adding/editing stock */}

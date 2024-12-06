@@ -9,6 +9,8 @@ import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import NoPermission from "~/app/_components/noPermission/noPermission";
 import OfficeForm from "~/app/_components/offices/OfficeForm";
+import { PlusCircle } from "lucide-react";
+import { Button } from "~/app/_components/ui/button";
 
 export default async function EditOfficePage({ params: { officeId } }: { params: { officeId: string } }) {
     const session = await getServerAuthSession();
@@ -40,10 +42,17 @@ export default async function EditOfficePage({ params: { officeId } }: { params:
         <div className="container mx-auto px-4 py-8">
             <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-3xl font-bold">Office Details</h1>
-                        <Link className="btn btn-primary" href="/workOrders/create">Create Estimate</Link>
-                    </div>
-                    <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
+                    <h1 className="text-3xl font-bold">Office Details</h1>
+                    <Link href="/workOrders/create">
+                        <Button
+                            variant="default"
+                        >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Create Estimate
+                        </Button>
+                    </Link>
+                </div>
+                <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
                             <li><Link href="/companies">Companies</Link></li>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Switch } from '~/app/_components/ui/switch';
 import { Input } from '../../ui/input';
 import { ShippingMethod } from '@prisma/client';
+import { Button } from '../../ui/button';
 
 export interface StatusBadgeProps<T extends string> {
     id: string;
@@ -100,8 +101,8 @@ export function StatusBadge<T extends string>({
                 </div>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <button 
-                    className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                <Button
+                    variant="default"
                     onClick={() => {
                         setIsSaving(true);
                         const shippingDetails = isShippingStatus ? {
@@ -114,7 +115,7 @@ export function StatusBadge<T extends string>({
                     }}
                 >
                     Save
-                </button>
+                </Button>
             </div>
         </div>
     );

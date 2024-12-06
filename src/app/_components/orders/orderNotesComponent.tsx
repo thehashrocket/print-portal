@@ -8,6 +8,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
 import {
     type ColDef,
@@ -90,13 +91,13 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
                         onChange={(e) => setNote(e.target.value)}
                     />
                 </div>
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                <Button
+                    variant="default"
                     type="submit"
                     disabled={createNote.isPending}
                 >
                     {createNote.isPending ? "Adding..." : "Add Note"}
-                </button>
+                </Button>
             </form>
             <div className="ag-theme-alpine" style={{ height: "300px", width: "100%" }}>
                 <AgGridReact

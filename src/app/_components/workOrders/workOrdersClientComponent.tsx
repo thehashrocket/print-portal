@@ -7,6 +7,8 @@ import WorkOrdersTable from "./workOrdersTable";
 import WorkOrderCharts from "./WorkOrderCharts";
 import { api } from "~/trpc/react";
 import { SerializedWorkOrder } from "~/types/serializedTypes";
+import { Button } from "../ui/button";
+import { PlusCircle } from "lucide-react";
 
 
 const WorkOrdersClientComponent: React.FC = () => {
@@ -34,8 +36,13 @@ const WorkOrdersClientComponent: React.FC = () => {
             <header className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-bold">Estimates</h1>
-                    <Link className="btn btn-primary bg-blue-500 text-white" href="/workOrders/create">
-                        Create Estimate
+                    <Link href="/workOrders/create">
+                        <Button
+                            variant="default"
+                        >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Create Estimate
+                        </Button>
                     </Link>
                 </div>
                 <nav aria-label="breadcrumb" className="text-sm breadcrumbs">

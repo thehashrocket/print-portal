@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { WorkOrderItemStatus } from "@prisma/client";
+import { Button } from "~/app/_components/ui/button";
 
 interface EditWorkOrderItemProps {
     workOrderItemId: string;
@@ -197,9 +198,12 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                         rows={4}
                     />
                 </div>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <Button
+                    type="submit"
+                    variant="default"
+                >
                     Update Estimate Item
-                </button>
+                </Button>
             </form>
         </div>
     );
