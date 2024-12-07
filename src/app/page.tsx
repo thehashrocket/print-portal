@@ -10,11 +10,12 @@ export default async function Home() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
-          src="/images/daily-banner-newspaper.png"
+          src="/images/daily-banner-newspaper.webp" // Use WebP format
           alt="Daily Banner Newspaper Background"
           fill
           className="object-cover"
           priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Responsive sizes
         />
         <div className="absolute inset-0 bg-[#005c2f] bg-opacity-85" />
       </div>
@@ -29,8 +30,8 @@ export default async function Home() {
                 <rect x="92" y="88" width="492" height="151" fill="url(#pattern0_17_4)" />
               </g>
               <defs>
-                <filter id="filter0_d_17_4" x="0.299999" y="0.299999" width="675.4" height="334.4" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <filter id="filter0_d_17_4" x="0.299999" y="0.299999" width="675.4" height="334.4" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                   <feMorphology radius="34" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_17_4" />
                   <feOffset dy="4" />

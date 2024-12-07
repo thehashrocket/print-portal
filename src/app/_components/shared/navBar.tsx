@@ -5,6 +5,7 @@ import Link from "next/link";
 import QuickbooksStatus from "~/app/_components/quickbooks/QuickbooksStatus";
 import { getServerAuthSession } from "~/server/auth";
 import { Button } from "../ui/button";
+import { PlusIcon, UserIcon } from "lucide-react";
 
 const NavBar = async () => {
   const session = await getServerAuthSession();
@@ -43,10 +44,20 @@ const NavBar = async () => {
             {session?.user ? (
               <>
                 <Link href={`/users/${session.user.id}`}>
-                  <span className="text-white hover:text-gray-100 transition-colors font-medium">Profile</span>
+                  <Button
+                    variant="outline"
+                  >
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    Profile
+                  </Button>
                 </Link>
                 <Link href="/workOrders/create">
-                  <span className="btn btn-sm btn-primary px-4 text-white hover:opacity-90 transition-opacity">Create Order</span>
+                  <Button
+                    variant="outline"
+                  >
+                    <PlusIcon className="w-4 h-4 mr-2" />
+                    Create Order
+                  </Button>
                 </Link>
                 <QuickbooksStatus />
               </>
