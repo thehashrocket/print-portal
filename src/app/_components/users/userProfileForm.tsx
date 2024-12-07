@@ -8,7 +8,7 @@ import { z } from "zod";
 import { api } from "~/trpc/react";
 import { type User, type Company, type Office, type Role } from "@prisma/client";
 import { Button } from "../ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, User as UserIcon, Mail, Building2, Building, Users } from "lucide-react";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Input } from "~/app/_components/ui/input";
 import { Label } from "~/app/_components/ui/label";
@@ -95,20 +95,60 @@ export default function UserProfileForm({
 
     if (!isEditing) {
         return (
-            <div>
-                <p>Name: {user.name}</p>
-                <p>Email: {user.email}</p>
-                <p>Company: {user.Office?.Company?.name || "Not assigned"}</p>
-                <p>Office: {user.Office?.name || "Not assigned"}</p>
-                <p>Roles: {user.Roles.map(role => role.name).join(", ")}</p>
+            <div className="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <UserIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                            <div className="text-sm text-gray-500">Name</div>
+                            <div className="font-medium">{user.name}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                            <div className="text-sm text-gray-500">Email</div>
+                            <div className="font-medium">{user.email}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                            <div className="text-sm text-gray-500">Company</div>
+                            <div className="font-medium">{user.Office?.Company?.name || "Not assigned"}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Building className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                            <div className="text-sm text-gray-500">Office</div>
+                            <div className="font-medium">{user.Office?.name || "Not assigned"}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Users className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                            <div className="text-sm text-gray-500">Roles</div>
+                            <div className="font-medium">{user.Roles.map(role => role.name).join(", ")}</div>
+                        </div>
+                    </div>
+                </div>
+
                 {canEdit && (
-                    <Button
-                        variant="default"
-                        onClick={() => setIsEditing(true)}
-                    >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit Profile
-                    </Button>
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                        <Button
+                            variant="default"
+                            onClick={() => setIsEditing(true)}
+                            className="w-full sm:w-auto"
+                        >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit Profile
+                        </Button>
+                    </div>
                 )}
             </div>
         );
