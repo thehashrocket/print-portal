@@ -1,3 +1,6 @@
+// ~/src/app/_components/shared/processingOptions/processingOptionsItem.tsx
+"use client";
+
 import React, { useState } from "react";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsForm from "~/app/_components/shared/processingOptions/processingOptionsForm";

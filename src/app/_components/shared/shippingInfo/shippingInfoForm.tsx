@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ShippingMethod, type Address } from '@prisma/client';
 import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
 
 const addressSchema = z.object({
     id: z.string().optional(),
@@ -112,23 +114,23 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
 
             {shippingMethod === ShippingMethod.Pickup && (
                 <>
-                    <div>
-                        <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700">Pickup Date</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="pickupDate">Pickup Date</Label>
                         <input type="date" {...register('shippingPickup.pickupDate')} className="input input-bordered w-full" />
                         {errors.shippingPickup?.pickupDate && <p className="text-red-500">{errors.shippingPickup.pickupDate.message}</p>}
                     </div>
-                    <div>
-                        <label htmlFor="pickupTime" className="block text-sm font-medium text-gray-700">Pickup Time</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="pickupTime">Pickup Time</Label>
                         <input type="time" {...register('shippingPickup.pickupTime')} className="input input-bordered w-full" />
                         {errors.shippingPickup?.pickupTime && <p className="text-red-500">{errors.shippingPickup.pickupTime.message}</p>}
                     </div>
-                    <div>
-                        <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">Contact Name</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="contactName">Contact Name</Label>
                         <input {...register('shippingPickup.contactName')} className="input input-bordered w-full" />
                         {errors.shippingPickup?.contactName && <p className="text-red-500">{errors.shippingPickup.contactName.message}</p>}
                     </div>
-                    <div>
-                        <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700">Contact Phone</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="contactPhone">Contact Phone</Label>
                         <input {...register('shippingPickup.contactPhone')} className="input input-bordered w-full" />
                         {errors.shippingPickup?.contactPhone && <p className="text-red-500">{errors.shippingPickup.contactPhone.message}</p>}
                     </div>
@@ -137,8 +139,8 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
 
             {shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other && (
                 <>
-                    <div>
-                        <label htmlFor="addressSelect" className="block text-sm font-medium text-gray-700">Select Address</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="addressSelect">Select Address</Label>
                         <select
                             id="addressSelect"
                             value={selectedAddress}
@@ -156,59 +158,59 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
 
                     {selectedAddress === 'new' && (
                         <>
-                            <div>
-                                <label htmlFor="line1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
-                                <input {...register('address.line1')} className="input input-bordered w-full" />
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="line1">Address Line 1</Label>
+                                <Input {...register('address.line1')} className="input input-bordered w-full" />
                                 {errors.address?.line1 && <p className="text-red-500">{errors.address.line1.message}</p>}
                             </div>
-                            <div>
-                                <label htmlFor="line2" className="block text-sm font-medium text-gray-700">Address Line 2</label>
-                                <input {...register('address.line2')} className="input input-bordered w-full" />
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="line2">Address Line 2</Label>
+                                <Input {...register('address.line2')} className="input input-bordered w-full" />
                             </div>
-                            <div>
-                                <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-                                <input {...register('address.city')} className="input input-bordered w-full" />
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="city">City</Label>
+                                <Input {...register('address.city')} className="input input-bordered w-full" />
                                 {errors.address?.city && <p className="text-red-500">{errors.address.city.message}</p>}
                             </div>
                             <div>
-                                <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-                                <input {...register('address.state')} className="input input-bordered w-full" />
+                                <Label htmlFor="state">State</Label>
+                                <Input {...register('address.state')} className="input input-bordered w-full" />
                                 {errors.address?.state && <p className="text-red-500">{errors.address.state.message}</p>}
                             </div>
                             <div>
-                                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code</label>
-                                <input {...register('address.zipCode')} className="input input-bordered w-full" />
+                                <Label htmlFor="zipCode">Zip Code</Label>
+                                <Input {...register('address.zipCode')} className="input input-bordered w-full" />
                                 {errors.address?.zipCode && <p className="text-red-500">{errors.address.zipCode.message}</p>}
                             </div>
                             <div>
-                                <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                                <input {...register('address.country')} className="input input-bordered w-full" />
+                                <Label htmlFor="country">Country</Label>
+                                <Input {...register('address.country')} className="input input-bordered w-full" />
                                 {errors.address?.country && <p className="text-red-500">{errors.address.country.message}</p>}
                             </div>
                         </>
                     )}
 
-                    <div>
-                        <label htmlFor="estimatedDelivery" className="block text-sm font-medium text-gray-700">Estimated Delivery Date</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="estimatedDelivery">Estimated Delivery Date</Label>
                         <input type="date" {...register('estimatedDelivery')} className="input input-bordered w-full" />
                         {errors.estimatedDelivery && <p className="text-red-500">{errors.estimatedDelivery.message}</p>}
                     </div>
                 </>
             )}
 
-            <div>
-                <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="instructions">Instructions</Label>
                 <textarea {...register('instructions')} className="textarea textarea-bordered w-full" />
             </div>
 
-            <div>
-                <label htmlFor="shippingCost" className="block text-sm font-medium text-gray-700">Shipping Cost</label>
-                <input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="shippingCost">Shipping Cost</Label>
+                <Input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
                 {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
             </div>
 
-            <div>
-                <label htmlFor="shippingNotes" className="block text-sm font-medium text-gray-700">Shipping Notes</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="shippingNotes">Shipping Notes</Label>
                 <textarea {...register('shippingNotes')} className="textarea textarea-bordered w-full" />
             </div>
 

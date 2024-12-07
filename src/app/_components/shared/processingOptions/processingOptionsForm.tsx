@@ -1,3 +1,6 @@
+// ~/src/app/_components/shared/processingOptions/processingOptionsForm.tsx
+"use client";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,6 +8,8 @@ import { z } from "zod";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import { BindingType, type ProcessingOptions } from "@prisma/client";
 import { Button } from "../../ui/button";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
 
 const processingOptionsSchema = z.object({
     id: z.string().optional(),
@@ -81,11 +86,9 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
             <input type="hidden" {...register("orderItemId")} />
             <input type="hidden" {...register("workOrderItemId")} />
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Name</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="name">Name</Label>
+                <Input
                     {...register("name")}
                     className={inputClass}
                     placeholder="Name"
@@ -93,21 +96,18 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 {errors.name && <span className={errorClass}>{errors.name.message}</span>}
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Bindery Time</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="binderyTime">Bindery Time</Label>
+                <Input
+                    type="number"
                     {...register("binderyTime", { valueAsNumber: true })}
                     className={inputClass}
                     placeholder="Bindery Time"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Binding</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="binding">Binding</Label>
                 <select {...register("binding")} className={inputClass}>
                     <option value="">Select Binding</option>
                     {Object.values(BindingType).map((type) => (
@@ -118,21 +118,17 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 </select>
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Cutting</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="cutting">Cutting</Label>
+                <Input
                     {...register("cutting")}
                     className={inputClass}
                     placeholder="Cutting"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Description</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="description">Description</Label>
                 <textarea
                     {...register("description")}
                     className={`${inputClass} h-24`}
@@ -140,90 +136,74 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Drilling</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="drilling">Drilling</Label>
+                <Input
                     {...register("drilling")}
                     className={inputClass}
                     placeholder="Drilling"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Folding</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="folding">Folding</Label>
+                <Input
                     {...register("folding")}
                     className={inputClass}
                     placeholder="Folding"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Numbering Color</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="numberingColor">Numbering Color</Label>
+                <Input
                     {...register("numberingColor")}
                     className={inputClass}
                     placeholder="Numbering Color"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Numbering End</span>
-                </label>
-                <input
-                    {...register("numberingEnd", { valueAsNumber: true })}
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="numberingEnd">Numbering End</Label>
+                <Input
                     type="number"
+                    {...register("numberingEnd", { valueAsNumber: true })}
                     className={inputClass}
                     placeholder="Numbering End"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Numbering Start</span>
-                </label>
-                <input
-                    {...register("numberingStart", { valueAsNumber: true })}
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="numberingStart">Numbering Start</Label>
+                <Input
                     type="number"
+                    {...register("numberingStart", { valueAsNumber: true })}
                     className={inputClass}
                     placeholder="Numbering Start"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Other</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="other">Other</Label>
+                <Input
                     {...register("other")}
                     className={inputClass}
                     placeholder="Other"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Padding</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="padding">Padding</Label>
+                <Input
                     {...register("padding")}
                     className={inputClass}
                     placeholder="Padding"
                 />
             </div>
 
-            <div className="form-control">
-                <label className={labelClass}>
-                    <span className={labelTextClass}>Stitching</span>
-                </label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="stitching">Stitching</Label>
+                <Input
                     {...register("stitching")}
                     className={inputClass}
                     placeholder="Stitching"

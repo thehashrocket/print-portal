@@ -11,6 +11,9 @@ import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 import FileUpload from "../fileUpload";
 import ArtworkComponent from "../artworkComponent/artworkComponent";
 import { Button } from "../../ui/button";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
+import { Checkbox } from "../../ui/checkbox";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -93,9 +96,9 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     return (
         <form onSubmit={handleSubmit(onSubmitHandler)} className="max-w-md mx-auto">
             <h2 className="text-xl font-bold mb-4">Create Typesetting Proof</h2>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Proof Number</label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="proofNumber">Proof Number</Label>
+                <Input
                     type="number"
                     {...register("proofNumber", { valueAsNumber: true })}
                     className="input input-bordered w-full"
@@ -104,8 +107,8 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     <span className="text-red-500">{errors.proofNumber.message}</span>
                 )}
             </div>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Artwork</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="artwork">Artwork</Label>
                 <div className="grid grid-cols-2 gap-4">
                     {artworks.map((artwork, index) => (
                         <ArtworkComponent
@@ -116,8 +119,8 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     ))}
                 </div>
             </div>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Proof Count</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="proofCount">Proof Count</Label>
                 <FileUpload
                     onFileUploaded={handleFileUploaded}
                     onFileRemoved={handleFileRemoved}
@@ -126,8 +129,8 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     initialFiles={artworks}
                 />
             </div>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Date Submitted</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="dateSubmitted">Date Submitted</Label>
                 <input
                     type="date"
                     {...register("dateSubmitted")}
@@ -137,21 +140,20 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     <span className="text-red-500">{errors.dateSubmitted.message}</span>
                 )}
             </div>
-            <div className="mb-4">
-                <label className="flex items-center">
-                    <input
-                        type="checkbox"
-                        {...register("approved")}
-                        className="checkbox checkbox-primary"
-                    />
-                    <span className="ml-2 text-gray-700 font-bold">Approved</span>
-                </label>
+            <div className="flex items-center space-x-2 mb-4">
+                <input type="checkbox" id="approved" {...register("approved")} />
                 {errors.approved && (
                     <span className="text-red-500">{errors.approved.message}</span>
                 )}
+                <Label
+                    htmlFor="approved"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    Approved
+                </Label>
             </div>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Notes</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="notes">Notes</Label>
                 <textarea
                     {...register("notes")}
                     className="textarea textarea-bordered w-full"
@@ -160,8 +162,8 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     <span className="text-red-500">{errors.notes.message}</span>
                 )}
             </div>
-            <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Proof Method</label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="proofMethod">Proof Method</Label>
                 <select {...register("proofMethod")} className="select select-bordered w-full">
                     {Object.values(ProofMethod).map((method) => (
                         <option key={method} value={method}>
@@ -173,7 +175,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     <span className="text-red-500">{errors.proofMethod.message}</span>
                 )}
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
                 <Button
                     variant="default"
                     type="submit"

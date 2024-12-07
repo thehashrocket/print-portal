@@ -8,6 +8,8 @@ import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializ
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, Pencil, PlusCircle } from 'lucide-react';
 import { Button } from "../../ui/button";
+import { Label } from '../../ui/label';
+import { Input } from '../../ui/input';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -223,8 +225,8 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         <div className="space-y-6">
             <h3 className="text-lg font-semibold mb-2">Edit Shipping Information</h3>
             <form onSubmit={handleSubmit(handleShippingInfoSubmit)} className="space-y-4">
-                <div>
-                    <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="shippingMethod">Shipping Method</Label>
                     <Controller
                         name="shippingMethod"
                         control={control}
@@ -240,8 +242,8 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 </div>
 
                 {shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other && (
-                    <div>
-                        <label htmlFor="addressId" className="block text-sm font-medium text-gray-700">Select Address</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="addressId">Select Address</Label>
                         <select
                             {...register('addressId')}
                             className="select select-bordered w-full"
@@ -295,26 +297,26 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                     </>
                 )}
 
-                <div>
-                    <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="instructions">Instructions</Label>
                     <textarea {...register('instructions')} className="textarea textarea-bordered w-full" />
                     {errors.instructions && <p className="text-red-500">{errors.instructions.message}</p>}
                 </div>
 
-                <div>
-                    <label htmlFor="shippingCost" className="block text-sm font-medium text-gray-700">Shipping Cost</label>
-                    <input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="shippingCost">Shipping Cost</Label>
+                    <Input type="number" step="0.01" {...register('shippingCost', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
                 </div>
 
-                <div>
-                    <label htmlFor="trackingNumber" className="block text-sm font-medium text-gray-700">Tracking Number</label>
-                    <input {...register('trackingNumber')} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="trackingNumber">Tracking Number</Label>
+                    <Input {...register('trackingNumber')} className="input input-bordered w-full" />
                     {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
                 </div>
 
-                <div>
-                    <label htmlFor="shippingDate" className="block text-sm font-medium text-gray-700">Shipping Date</label>
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="shippingDate">Shipping Date</Label>
                     <input
                         type="date"
                         {...register('shippingDate')}
@@ -352,42 +354,42 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                     <h3 className="text-lg font-medium text-gray-900">Create New Address</h3>
                     <form onSubmit={handleSubmitAddress(handleAddressSubmit)} className="space-y-4 mt-4">
                         {/* Address form fields */}
-                        <div>
-                            <label htmlFor="line1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
-                            <input {...registerAddress('line1')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="line1">Address Line 1</Label>
+                            <Input {...registerAddress('line1')} className="input input-bordered w-full" />
                             {addressErrors.line1 && <p className="text-red-500">{addressErrors.line1.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="line2" className="block text-sm font-medium text-gray-700">Address Line 2</label>
-                            <input {...registerAddress('line2')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="line2">Address Line 2</Label>
+                            <Input {...registerAddress('line2')} className="input input-bordered w-full" />
                         </div>
-                        <div>
-                            <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-                            <input {...registerAddress('city')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="city">City</Label>
+                            <Input {...registerAddress('city')} className="input input-bordered w-full" />
                             {addressErrors.city && <p className="text-red-500">{addressErrors.city.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-                            <input {...registerAddress('state')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="state">State</Label>
+                            <Input {...registerAddress('state')} className="input input-bordered w-full" />
                             {addressErrors.state && <p className="text-red-500">{addressErrors.state.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code</label>
-                            <input {...registerAddress('zipCode')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="zipCode">Zip Code</Label>
+                            <Input {...registerAddress('zipCode')} className="input input-bordered w-full" />
                             {addressErrors.zipCode && <p className="text-red-500">{addressErrors.zipCode.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                            <input {...registerAddress('country')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="country">Country</Label>
+                            <Input {...registerAddress('country')} className="input input-bordered w-full" />
                             {addressErrors.country && <p className="text-red-500">{addressErrors.country.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="telephoneNumber" className="block text-sm font-medium text-gray-700">Telephone Number</label>
-                            <input {...registerAddress('telephoneNumber')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="telephoneNumber">Telephone Number</Label>
+                            <Input {...registerAddress('telephoneNumber')} className="input input-bordered w-full" />
                             {addressErrors.telephoneNumber && <p className="text-red-500">{addressErrors.telephoneNumber.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="addressType" className="block text-sm font-medium text-gray-700">Address Type</label>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="addressType">Address Type</Label>
                             <select {...registerAddress('addressType')} className="select select-bordered w-full">
                                 {Object.values(AddressType).map((type) => (
                                     <option key={type} value={type}>{type}</option>

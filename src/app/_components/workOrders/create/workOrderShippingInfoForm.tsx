@@ -6,6 +6,8 @@ import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { AddressType, ShippingMethod } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
+import { Label } from '../../ui/label';
+import { Input } from '../../ui/input';
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod),
@@ -147,8 +149,8 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     return (
         <div className="space-y-6">
             <form onSubmit={handleSubmit(handleShippingInfoSubmit)} className="space-y-4">
-                <div>
-                    <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="shippingMethod">Shipping Method</Label>
                     <Controller
                         name="shippingMethod"
                         control={control}
@@ -164,8 +166,8 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 </div>
 
                 {needsAddress && (
-                    <div>
-                        <label htmlFor="addressId" className="block text-sm font-medium text-gray-700">Select Address</label>
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label htmlFor="addressId">Select Address</Label>
                         <select
                             {...register('addressId')}
                             className="select select-bordered w-full"
@@ -192,34 +194,34 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
                 {shippingMethod === ShippingMethod.Pickup && (
                     <>
-                        <div>
-                            <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                            <input type="date" {...register('pickupDate')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="pickupDate">Pickup Date</Label>
+                            <Input type="date" {...register('pickupDate')} placeholder="Select date..." />
                             {errors.pickupDate && <p className="text-red-500">{errors.pickupDate.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="pickupTime" className="block text-sm font-medium text-gray-700">Pickup Time</label>
-                            <input type="time" {...register('pickupTime')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="pickupTime">Pickup Time</Label>
+                            <Input type="time" {...register('pickupTime')} placeholder="Select time..." />
                             {errors.pickupTime && <p className="text-red-500">{errors.pickupTime.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="pickupContactName" className="block text-sm font-medium text-gray-700">Pickup Contact Name</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="pickupContactName">Pickup Contact Name</Label>
+                            <Input
                                 {...register('pickupContactName', { required: 'Contact Name is required' })}
                                 className="input input-bordered w-full"
                             />
                             {errors.pickupContactName && <p className="text-red-500">{errors.pickupContactName.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="pickupContactPhone" className="block text-sm font-medium text-gray-700">Pickup Contact Phone</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="pickupContactPhone">Pickup Contact Phone</Label>
+                            <Input
                                 {...register('pickupContactPhone', { required: 'Contact Phone is required' })}
-                                className="input input-bordered w-full"
+                                placeholder="Enter phone number..."
                             />
                             {errors.pickupContactPhone && <p className="text-red-500">{errors.pickupContactPhone.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="pickupNotes" className="block text-sm font-medium text-gray-700">Pickup Notes</label>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="pickupNotes">Pickup Notes</Label>
                             <textarea
                                 {...register('pickupNotes', { required: 'Pickup Notes are required' })}
                                 className="textarea textarea-bordered w-full"
@@ -229,8 +231,8 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                     </>
                 )}
 
-                <div>
-                    <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="instructions">Instructions</Label>
                     <textarea
                         {...register('instructions', { required: 'Instructions are required' })}
                         className="textarea textarea-bordered w-full"
@@ -250,64 +252,64 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 <div className="mt-6">
                     <h3 className="text-lg font-medium text-gray-900">Create New Address</h3>
                     <form onSubmit={handleSubmitAddress(handleAddressSubmit)} className="space-y-4 mt-4">
-                        <div>
-                            <label htmlFor="line1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="line1">Address Line 1</Label>
+                            <Input
                                 {...registerAddress('line1', { required: 'Address Line 1 is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.line1 && <p className="text-red-500">{addressErrors.line1.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="line2" className="block text-sm font-medium text-gray-700">Address Line 2</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="line2">Address Line 2</Label>
+                            <Input
                                 {...registerAddress('line2', { required: 'Address Line 2 is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.line2 && <p className="text-red-500">{addressErrors.line2.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="city">City</Label>
+                            <Input
                                 {...registerAddress('city', { required: 'City is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.city && <p className="text-red-500">{addressErrors.city.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="state">State</Label>
+                            <Input
                                 {...registerAddress('state', { required: 'State is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.state && <p className="text-red-500">{addressErrors.state.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">Zip Code</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="zipCode">Zip Code</Label>
+                            <Input
                                 {...registerAddress('zipCode', { required: 'Zip Code is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.zipCode && <p className="text-red-500">{addressErrors.zipCode.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="country">Country</Label>
+                            <Input
                                 {...registerAddress('country', { required: 'Country is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.country && <p className="text-red-500">{addressErrors.country.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="telephoneNumber" className="block text-sm font-medium text-gray-700">Telephone Number</label>
-                            <input
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="telephoneNumber">Telephone Number</Label>
+                            <Input
                                 {...registerAddress('telephoneNumber', { required: 'Telephone Number is required' })}
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.telephoneNumber && <p className="text-red-500">{addressErrors.telephoneNumber.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="addressType" className="block text-sm font-medium text-gray-700">Address Type</label>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="addressType">Address Type</Label>
                             <select
                                 {...registerAddress('addressType', { required: 'Address Type is required' })}
                                 className="select select-bordered w-full"

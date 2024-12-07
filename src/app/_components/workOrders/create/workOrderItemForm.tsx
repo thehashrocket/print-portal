@@ -13,6 +13,8 @@ import FileUpload from '~/app/_components/shared/fileUpload';
 import { type SerializedWorkOrderItem } from '~/types/serializedTypes';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/app/_components/ui/button';
+import { Label } from '../../ui/label';
+import { Input } from '../../ui/input';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -132,64 +134,64 @@ const WorkOrderItemForm: React.FC = () => {
                                 initialFiles={artworks}
                             />
                         </div>
-                        <div>
-                            <label htmlFor='amount' className='block text-sm font-medium text-gray-700'>Amount (we bill customer)</label>
-                            <input id='amount' type='number' {...register('amount', { valueAsNumber: true })} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='amount'>Amount (we bill customer)</Label>
+                            <Input id='amount' type='number' {...register('amount', { valueAsNumber: true })} placeholder="Enter amount..." />
                             {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='cost' className='block text-sm font-medium text-gray-700'>Cost (our cost)</label>
-                            <input id='cost' type='number' {...register('cost', { valueAsNumber: true })} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='cost'>Cost (our cost)</Label>
+                            <Input id='cost' type='number' {...register('cost', { valueAsNumber: true })} placeholder="Enter cost..." />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='costPerM' className='block text-sm font-medium text-gray-700'>Cost Per M</label>
-                            <input id='costPerM' type='number' {...register('costPerM', { valueAsNumber: true })} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='costPerM'>Cost Per M</Label>
+                            <Input id='costPerM' type='number' {...register('costPerM', { valueAsNumber: true })} placeholder="Enter cost per m..." />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='description' className='block text-sm font-medium text-gray-700'>Description</label>
-                            <input id='description' {...register('description')} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='description'>Description</Label>
+                            <Input id='description' {...register('description')} placeholder="Enter description..." />
                             {errors.description && <p className='text-red-500'>{errors.description.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='ink' className='block text-sm font-medium text-gray-700'>Ink</label>
-                            <input id='ink' {...register('ink')} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='ink'>Ink</Label>
+                            <Input id='ink' {...register('ink')} placeholder="Enter ink..." />
                             {errors.ink && <p className='text-red-500'>{errors.ink.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='expectedDate' className='block text-sm font-medium text-gray-700'>Expected Date</label>
-                            <input id='expectedDate' type='date' {...register('expectedDate')} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='expectedDate'>Expected Date</Label>
+                            <input id='expectedDate' type='date' {...register('expectedDate')} placeholder="Select date..." />
                             {errors.expectedDate && <p className='text-red-500'>{errors.expectedDate.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='other' className='block text-sm font-medium text-gray-700'>Other</label>
-                            <input id='other' {...register('other')} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='other'>Other</Label>
+                            <Input id='other' {...register('other')} placeholder="Enter other..." />
                             {errors.other && <p className='text-red-500'>{errors.other.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor='prepTime' className='block text-sm font-medium text-gray-700'>Prep Time</label>
-                            <input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} className='input input-bordered w-full' />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='prepTime'>Prep Time</Label>
+                            <Input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} placeholder="Enter prep time..." />
                             {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity Ordered</label>
-                            <input id="quantity" type="number" {...register('quantity', { valueAsNumber: true })} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="quantity">Quantity Ordered</Label>
+                            <Input id="quantity" type="number" {...register('quantity', { valueAsNumber: true })} placeholder="Enter quantity..." />
                             {errors.quantity && <p className="text-red-500">{errors.quantity.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="size" className="block text-sm font-medium text-gray-700">Size</label>
-                            <input id="size" {...register('size')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="size">Size</Label>
+                            <Input id="size" {...register('size')} placeholder="Enter size..." />
                             {errors.size && <p className="text-red-500">{errors.size.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="specialInstructions" className="block text-sm font-medium text-gray-700">Special Instructions</label>
-                            <input id="specialInstructions" {...register('specialInstructions')} className="input input-bordered w-full" />
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="specialInstructions">Special Instructions</Label>
+                            <Input id="specialInstructions" {...register('specialInstructions')} placeholder="Enter special instructions..." />
                             {errors.specialInstructions && <p className="text-red-500">{errors.specialInstructions.message}</p>}
                         </div>
-                        <div>
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                            <select id="status" {...register('status')} className="input input-bordered w-full">
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="status">Status</Label>
+                            <select id="status" {...register('status')}>
                                 {Object.values(WorkOrderItemStatus).map(status => (
                                     <option key={status} value={status}>{status}</option>
                                 ))}

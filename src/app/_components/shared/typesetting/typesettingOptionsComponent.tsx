@@ -9,6 +9,8 @@ import { useTypesettingContext } from '~/app/contexts/TypesettingContext';
 import { type SerializedTypesettingOption } from '~/types/serializedTypes';
 import { normalizeTypesettingOption } from '~/utils/dataNormalization';
 import { Button } from '../../ui/button';
+import { Label } from '../../ui/label';
+import { Input } from '../../ui/input';
 
 const typesettingOptionsSchema = z.object({
     option: z.string(),
@@ -63,9 +65,9 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
 
     return (
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-            <div className="form-group">
-                <label htmlFor="option">Option</label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="option">Option</Label>
+                <Input
                     type="text"
                     id="option"
                     className="form-control"
@@ -73,9 +75,9 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
                 />
                 {errors.option && <span>{errors.option.message}</span>}
             </div>
-            <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <input
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="description">Description</Label>
+                <Input
                     type="text"
                     id="description"
                     className="form-control"
@@ -83,7 +85,7 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
                 />
                 {errors.description && <span>{errors.description.message}</span>}
             </div>
-            <div className="form-group">
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Button
                     variant="default"
                     type="submit"

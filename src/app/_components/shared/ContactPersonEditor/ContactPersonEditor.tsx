@@ -1,8 +1,14 @@
+// ~/src/app/_components/shared/ContactPersonEditor/ContactPersonEditor.tsx
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { toast } from 'react-hot-toast';
 import { CheckCircle, LucideIcon } from 'lucide-react';
 import { Button } from '../../ui/button';
+import { Label } from '../../ui/label';
+
+
 interface ContactPersonEditorProps {
     orderId: string;
     currentContactPerson: { id: string; name: string | null; email: string | null } | null;
@@ -44,9 +50,7 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
     return (
         <div className="p-4 bg-white shadow-md rounded-md">
             <div className="mb-4">
-                <label htmlFor="contactPerson" className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Contact Person
-                </label>
+                <Label htmlFor="contactPerson">Select Contact Person</Label>
                 <select 
                     id="contactPerson" 
                     value={selectedUserId} 

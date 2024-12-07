@@ -9,6 +9,9 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import { type TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import { Decimal } from "decimal.js";
 import { Button } from "../../ui/button";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
+import { Checkbox } from "../../ui/checkbox";
 
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
@@ -124,9 +127,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
             {/* Form fields */}
             <div className="grid grid-cols-1 gap-6 mb-4">
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Date In</span>
-                    </label>
+                    <Label htmlFor="dateIn">Date In</Label>
                     <input
                         type="date"
                         className="input input-bordered"
@@ -135,16 +136,12 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.dateIn && <span className="text-error">{errors.dateIn.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Time In</span>
-                    </label>
+                    <Label htmlFor="timeIn">Time In</Label>
                     <input type="time" className="input input-bordered" {...register("timeIn")} />
                     {errors.timeIn && <span className="text-error">{errors.timeIn.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Plate Ran</span>
-                    </label>
+                    <Label htmlFor="plateRan">Plate Ran</Label>
                     <input
                         type="text"
                         className="input input-bordered"
@@ -153,9 +150,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.plateRan && <span className="text-error">{errors.plateRan.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Prep Time</span>
-                    </label>
+                    <Label htmlFor="prepTime">Prep Time</Label>
                     <input
                         type="number"
                         className="input input-bordered"
@@ -166,17 +161,18 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     />
                     {errors.prepTime && <span className="text-error">{errors.prepTime.message}</span>}
                 </div>
-                <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Approved</span>
-                    </label>
-                    <input type="checkbox" className="checkbox" {...register("approved")} />
+                <div className="flex items-center space-x-2 mb-4">
+                    <Checkbox id="approved" {...register("approved")} />
+                    <Label
+                        htmlFor="approved"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                        Approved
+                    </Label>
                     {errors.approved && <span className="text-error">{errors.approved.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Cost</span>
-                    </label>
+                    <Label htmlFor="cost">Cost</Label>
                     <input
                         type="number"
                         className="input input-bordered"
@@ -189,9 +185,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.cost && <span className="text-error">{errors.cost.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Status</span>
-                    </label>
+                    <Label htmlFor="status">Status</Label>
                     <select className="select select-bordered" {...register("status")}>
                         {Object.values(TypesettingStatus).map((status) => (
                             <option key={status} value={status}>{status}</option>
@@ -200,9 +194,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.status && <span className="text-error">{errors.status.message}</span>}
                 </div>
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Follow Up Notes</span>
-                    </label>
+                    <Label htmlFor="followUpNotes">Follow Up Notes</Label>
                     <textarea
                         className="textarea textarea-bordered"
                         {...register("followUpNotes")}

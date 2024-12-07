@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import { type SerializedWorkOrder } from '~/types/serializedTypes';
 import { CustomComboBox } from '~/app/_components/shared/CustomComboBox';
 import { Button } from '~/app/_components/ui/button';
+import { Input } from '~/app/_components/ui/input';
+import { Label } from '~/app/_components/ui/label';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
@@ -180,35 +182,35 @@ const WorkOrderForm: React.FC = () => {
                     </div>
                 )}
 
-                <div>
-                    <label htmlFor="dateIn" className="block text-sm font-medium text-gray-700">Date In</label>
-                    <input id="dateIn" type="date" {...register('dateIn')} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="dateIn">Date In</Label>
+                    <input id="dateIn" type="date" {...register('dateIn')} placeholder="Select date..." />
                     {errors.dateIn && <p className="text-red-500">{errors.dateIn.message}</p>}
                 </div>
-                <div>
-                    <label htmlFor="inHandsDate" className="block text-sm font-medium text-gray-700">In Hands Date</label>
-                    <input id="inHandsDate" type="date" {...register('inHandsDate')} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="inHandsDate">In Hands Date</Label>
+                    <input id="inHandsDate" type="date" {...register('inHandsDate')} placeholder="Select date..." />
                     {errors.inHandsDate && <p className="text-red-500">{errors.inHandsDate.message}</p>}
                 </div>
-                <div>
-                    <label htmlFor="estimateNumber" className="block text-sm font-medium text-gray-700">Estimate Number</label>
-                    <input id="estimateNumber" {...register('estimateNumber')} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="estimateNumber">Estimate Number</Label>
+                    <Input id="estimateNumber" {...register('estimateNumber')} placeholder="Enter estimate number..." />
                     {errors.estimateNumber && <p className="text-red-500">{errors.estimateNumber.message}</p>}
                 </div>
-                <div>
-                    <label htmlFor="purchaseOrderNumber" className="block text-sm font-medium text-gray-700">Purchase Order Number</label>
-                    <input id="purchaseOrderNumber" {...register('purchaseOrderNumber')} className="input input-bordered w-full" />
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="purchaseOrderNumber">Purchase Order Number</Label>
+                    <Input id="purchaseOrderNumber" {...register('purchaseOrderNumber')} placeholder="Enter purchase order number..." />
                     {errors.purchaseOrderNumber && <p className="text-red-500">{errors.purchaseOrderNumber.message}</p>}
                 </div>
-                <div>
-                    <label htmlFor="workOrderNumber" className="block text-sm font-medium text-gray-700">Job Number</label>
-                    <input id="workOrderNumber" {...register('workOrderNumber', {
+                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                    <Label htmlFor="workOrderNumber">Job Number</Label>
+                    <Input id="workOrderNumber" {...register('workOrderNumber', {
                         setValueAs: v => v === '' ? undefined : v
-                    })} className="input input-bordered w-full" />
+                    })} placeholder="Enter job number..." />
                     {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
                 </div>
-                <div className="flex flex-col space-y-1.5">
-                    <label htmlFor="invoicePrintEmail">Invoice Type</label>
+                <div className="flex flex-col space-y-1.5 mb-4">
+                    <Label htmlFor="invoicePrintEmail">Invoice Type</Label>
                     <CustomComboBox
                         options={[
                             { value: 'Print', label: 'Print' },
@@ -223,8 +225,8 @@ const WorkOrderForm: React.FC = () => {
                         className="w-[300px]"
                     />
                 </div>
-                <div className="flex flex-col space-y-1.5">
-                    <label htmlFor="status">Status</label>
+                <div className="flex flex-col space-y-1.5 mb-4">
+                    <Label htmlFor="status">Status</Label>
                     <CustomComboBox
                         options={[
                             { value: 'Approved', label: 'Approved' },

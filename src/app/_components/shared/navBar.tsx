@@ -66,7 +66,7 @@ const NavBar = async () => {
                 <Button
                   variant="outline"
                 > 
-                  Sign in
+                  LOGIN
                 </Button>
               </Link>
             )}
