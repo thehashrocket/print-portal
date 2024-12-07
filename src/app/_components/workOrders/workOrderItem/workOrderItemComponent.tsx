@@ -14,6 +14,7 @@ import { WorkOrderItemStatus } from "@prisma/client";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
 import { Pencil, PlusCircle } from "lucide-react";
 import { Button } from "../../ui/button";
+import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -43,15 +44,13 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
             <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
                 {currentStatus}
             </span>
-            <select
+            <SelectField
+                options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}
                 value={currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value as WorkOrderItemStatus)}
-                className="px-2 py-1 rounded-md border border-gray-300"
-            >
-                {Object.values(WorkOrderItemStatus).map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                ))}
-            </select>
+                onValueChange={(value: string) => handleStatusChange(value as WorkOrderItemStatus)}
+                placeholder="Select status..."
+                required={true}
+            />
         </div>
     );
 };

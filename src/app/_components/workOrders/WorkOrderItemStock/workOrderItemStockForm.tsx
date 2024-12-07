@@ -8,6 +8,7 @@ import * as z from 'zod';
 import { api } from '~/trpc/react';
 import { StockStatus } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
+import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
@@ -40,7 +41,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     onSuccess,
     onCancel
 }) => {
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
         resolver: zodResolver(workOrderItemStockSchema),
         defaultValues: {
             workOrderItemId,
@@ -153,11 +154,13 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 <label className="label">
                     <span className="label-text">Stock Status</span>
                 </label>
-                <select {...register('stockStatus')} className="select select-bordered w-full">
-                    {Object.values(StockStatus).map(status => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
+                <SelectField
+                    options={Object.values(StockStatus).map((status) => ({ value: status, label: status }))}
+                    value={watch('stockStatus')}
+                    onValueChange={(value: string) => setValue('stockStatus', value as StockStatus)}
+                    placeholder="Select stock status..."
+                    required={true}
+                />
             </div>
 
             <div>

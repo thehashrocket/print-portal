@@ -370,12 +370,22 @@ export const orderRouter = createTRPCRouter({
         shippingCost: z.number().optional(),
         shippingDate: z.date().optional(),
         shippingNotes: z.string().optional(),
-        shippingMethod: z.string(), // Add this field
+        shippingMethod: z.string(),
         shippingOther: z.string().optional(),
         trackingNumber: z.string().optional(),
+        ShippingPickup: z.object({
+          id: z.string().optional(),
+          pickupDate: z.date(),
+          pickupTime: z.string(),
+          contactName: z.string(),
+          contactPhone: z.string(),
+          notes: z.string().optional(),
+        }).optional(),
       }),
     }))
     .mutation(async ({ ctx, input }) => {
+      console.log('Updating shipping info:', input);
+      
       const { orderId, shippingInfo } = input;
 
       const order = await ctx.db.order.findUnique({
@@ -383,140 +393,129 @@ export const orderRouter = createTRPCRouter({
         select: { officeId: true },
       });
 
-      if (!order) throw new Error("Order not found");
+      if (!order) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Order not found',
+        });
+      }
 
-      const updatedOrder = await ctx.db.order.update({
-        where: { id: orderId },
-        data: {
-          ShippingInfo: {
-            upsert: {
-              create: {
-                ...shippingInfo,
-                createdById: ctx.session.user.id,
-                officeId: order.officeId,
-                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-              },
-              update: {
-                addressId: shippingInfo.addressId,
-                shippingCost: shippingInfo.shippingCost,
-                shippingDate: shippingInfo.shippingDate,
-                shippingNotes: shippingInfo.shippingNotes,
-                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-                trackingNumber: shippingInfo.trackingNumber,
-              },
-            },
-          },
-        },
-        include: {
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          OrderItems: {
-            include: {
-              artwork: true,
-              OrderItemStock: true,
-              Order: {
-                select: {
-                  Office: {
-                    select: {
-                      Company: true,
+      try {
+        const updatedOrder = await ctx.db.order.update({
+          where: { id: orderId },
+          data: {
+            ShippingInfo: {
+              upsert: {
+                create: {
+                  ...shippingInfo,
+                  createdById: ctx.session.user.id,
+                  officeId: order.officeId,
+                  shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                  ShippingPickup: shippingInfo.ShippingPickup ? {
+                    create: {
+                      pickupDate: shippingInfo.ShippingPickup.pickupDate,
+                      pickupTime: shippingInfo.ShippingPickup.pickupTime,
+                      contactName: shippingInfo.ShippingPickup.contactName,
+                      contactPhone: shippingInfo.ShippingPickup.contactPhone,
+                      notes: shippingInfo.ShippingPickup.notes,
+                      createdById: ctx.session.user.id,
                     }
-                  },
-                  WorkOrder: {
-                    select: {
-                      purchaseOrderNumber: true,
+                  } : undefined
+                },
+                update: {
+                  addressId: shippingInfo.addressId,
+                  shippingCost: shippingInfo.shippingCost,
+                  shippingDate: shippingInfo.shippingDate,
+                  shippingNotes: shippingInfo.shippingNotes,
+                  shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                  trackingNumber: shippingInfo.trackingNumber,
+                  shippingOther: shippingInfo.shippingOther,
+                  instructions: shippingInfo.instructions,
+                  ShippingPickup: shippingInfo.ShippingPickup ? {
+                    create: {
+                      pickupDate: shippingInfo.ShippingPickup.pickupDate,
+                      pickupTime: shippingInfo.ShippingPickup.pickupTime,
+                      contactName: shippingInfo.ShippingPickup.contactName,
+                      contactPhone: shippingInfo.ShippingPickup.contactPhone,
+                      notes: shippingInfo.ShippingPickup.notes,
+                      createdById: ctx.session.user.id,
+                    }
+                  } : undefined
+                },
+              },
+            },
+          },
+          include: {
+            Office: {
+              include: {
+                Company: true,
+              },
+            },
+            OrderItems: {
+              include: {
+                artwork: true,
+                OrderItemStock: true,
+                Order: {
+                  select: {
+                    Office: {
+                      select: {
+                        Company: true,
+                      }
+                    },
+                    WorkOrder: {
+                      select: {
+                        purchaseOrderNumber: true,
+                      }
                     }
                   }
                 }
+              },
+            },
+            contactPerson: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            OrderPayments: true,
+            ShippingInfo: {
+              include: {
+                Address: true,
+                ShippingPickup: true,
+              },
+            },
+            Invoice: {
+              include: {
+                InvoiceItems: true,
+                InvoicePayments: true,
+                createdBy: true,
+              },
+            },
+            OrderNotes: true,
+            WorkOrder: {
+              select: {
+                purchaseOrderNumber: true,
               }
-            },
-          },
-          contactPerson: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          OrderPayments: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          Invoice: {
-            include: {
-              InvoiceItems: true,
-              InvoicePayments: true,
-              createdBy: true,
-            },
-          },
-          OrderNotes: true,
-          WorkOrder: {
-            select: {
-              purchaseOrderNumber: true,
             }
-          }
-        },
-      });
-
-      const nonCancelledOrderItems = updatedOrder.OrderItems?.filter((item) => item.status !== 'Cancelled') ?? [];
-      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
-      const totalOrderPayments = updatedOrder.OrderPayments?.map(normalizeOrderPayment) ?? [];
-      const totalPaid = totalOrderPayments.reduce((sum: Prisma.Decimal, payment: { amount: string | number }) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
-      const balance = totalAmount.sub(totalPaid);
-
-      return normalizeOrder({
-        ...updatedOrder,
-        calculatedSalesTax,
-        calculatedSubTotal,
-        totalAmount,
-        totalItemAmount,
-        totalCost,
-        totalShippingAmount,
-        totalPaid,
-        balance,
-        OrderPayments: null,
-        Office: {
-          Company: {
-            name: ""
-          }
-        },
-        contactPerson: {
-          id: "",
-          name: null,
-          email: null
-        },
-        createdBy: {
-          id: "",
-          name: null
-        },
-        WorkOrder: {
-          purchaseOrderNumber: ""
-        },
-        OrderItems: updatedOrder.OrderItems.map(item => ({
-          ...item,
-          Order: {
-            id: updatedOrder.id,
-            Office: updatedOrder.Office,
-            WorkOrder: updatedOrder.WorkOrder,
           },
-        })),
-      });
+        });
+        
+        console.log('Order updated successfully:', updatedOrder);
+        return updatedOrder;
+      } catch (error) {
+        console.error('Error updating order:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update shipping info',
+        });
+      }
     }),
 
   updateStatus: protectedProcedure

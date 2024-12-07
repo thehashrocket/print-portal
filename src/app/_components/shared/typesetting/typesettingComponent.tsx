@@ -10,6 +10,7 @@ import { formatDate, formatCurrency } from "~/utils/formatters";
 import ArtworkComponent from "../artworkComponent/artworkComponent";
 import { Button } from "../../ui/button";
 import { Pencil, PlusCircle, Trash } from "lucide-react";
+import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,9 +32,8 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [addProofMode, setAddProofMode] = useState<boolean>(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedId = e.target.value;
-        setSelectedTypeId(selectedId);
+    const handleChange = (value: string) => {
+        setSelectedTypeId(value);
     };
 
     useEffect(() => {
@@ -95,18 +95,13 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                     <PlusCircle className="w-4 h-4 mr-2" />
                     Add Typesetting
                 </Button>
-                <select
-                    className="select w-full max-w-xs"
+                <SelectField
+                    options={typesetting.map((type) => ({ value: type.id, label: `${formatDate(type.dateIn)} - ${type.timeIn}` }))}
                     value={selectedTypeId}
-                    onChange={handleChange}
-                >
-                    <option value="" disabled>Please choose a Typesetting Version to view.</option>
-                    {typesetting.map((type) => (
-                        <option key={type.id} value={type.id}>
-                            {formatDate(type.dateIn)} - {type.timeIn}
-                        </option>
-                    ))}
-                </select>
+                    onValueChange={handleChange}
+                    placeholder="Please choose a Typesetting Version to view."
+                    required={true}
+                />
                 <Button
                     variant="default"
                     onClick={() => {

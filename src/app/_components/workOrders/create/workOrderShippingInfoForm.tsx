@@ -65,7 +65,9 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         register: registerAddress,
         handleSubmit: handleSubmitAddress,
         formState: { errors: addressErrors },
-        reset: resetAddressForm
+        reset: resetAddressForm,
+        watch: watchAddress,
+        setValue: setValueAddress
     } = useForm<AddressFormData>({
         resolver: zodResolver(addressSchema),
     });
@@ -316,14 +318,13 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="addressType">Address Type</Label>
-                            <select
-                                {...registerAddress('addressType', { required: 'Address Type is required' })}
-                                className="select select-bordered w-full"
-                            >
-                                {Object.values(AddressType).map((type) => (
-                                    <option key={type} value={type}>{type}</option>
-                                ))}
-                            </select>
+                            <SelectField
+                                options={Object.values(AddressType).map((type) => ({ value: type, label: type }))}
+                                value={watchAddress('addressType')}
+                                onValueChange={(value: string) => setValueAddress('addressType', value as AddressType)}
+                                placeholder="Select address type..."
+                                required={true}
+                            />
                             {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
                         </div>
                         <div className="flex justify-between">

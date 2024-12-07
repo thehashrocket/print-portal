@@ -6,6 +6,7 @@ import { api } from "~/trpc/react";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { WorkOrderItemStatus } from "@prisma/client";
 import { Button } from "~/app/_components/ui/button";
+import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 
 interface EditWorkOrderItemProps {
     workOrderItemId: string;
@@ -175,17 +176,13 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                 </div>
                 <div>
                     <label htmlFor="status" className="block mb-1">Status</label>
-                    <select
-                        id="status"
-                        name="status"
+                    <SelectField
+                        options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}
                         value={workOrderItem.status}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded"
-                    >
-                        {Object.values(WorkOrderItemStatus).map((status) => (
-                            <option key={status} value={status}>{status}</option>
-                        ))}
-                    </select>
+                        onValueChange={(value: string) => setWorkOrderItem(prev => prev ? { ...prev, status: value as WorkOrderItemStatus } : null)}
+                        placeholder="Select status..."
+                        required={true}
+                    />
                 </div>
                 <div>
                     <label htmlFor="specialInstructions" className="block mb-1">Special Instructions</label>

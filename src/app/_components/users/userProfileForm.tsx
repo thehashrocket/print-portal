@@ -9,6 +9,9 @@ import { api } from "~/trpc/react";
 import { type User, type Company, type Office, type Role } from "@prisma/client";
 import { Button } from "../ui/button";
 import { Pencil } from "lucide-react";
+import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
+import { Input } from "~/app/_components/ui/input";
+import { Label } from "~/app/_components/ui/label";
 
 const userProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -84,8 +87,7 @@ export default function UserProfileForm({
         }
     };
 
-    const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newCompanyId = e.target.value;
+    const handleCompanyChange = (newCompanyId: string) => {
         setSelectedCompanyId(newCompanyId);
         setAvailableOffices(offices.filter(office => office.companyId === newCompanyId));
         setValue("officeId", null); // Reset office selection when company changes
@@ -113,10 +115,10 @@ export default function UserProfileForm({
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                <input
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex flex-col gap-4">
+            <div className="">
+                <Label htmlFor="name">Name</Label>
+                <Input
                     {...register("name")}
                     id="name"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
@@ -125,8 +127,8 @@ export default function UserProfileForm({
             </div>
 
             <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input
+                <Label htmlFor="email">Email</Label>
+                <Input
                     {...register("email")}
                     id="email"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
@@ -137,32 +139,25 @@ export default function UserProfileForm({
             {canAssignCompanyAndOffice && (
                 <>
                     <div>
-                        <label htmlFor="companyId" className="block text-sm font-medium text-gray-700">Company</label>
-                        <select
-                            id="companyId"
-                            value={selectedCompanyId}
-                            onChange={handleCompanyChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                        >
-                            <option value="">Select a company</option>
-                            {companies.map(company => (
-                                <option key={company.id} value={company.id}>{company.name}</option>
-                            ))}
-                        </select>
+                        <Label htmlFor="companyId">Company</Label>
+                        <SelectField
+                            options={companies.map(company => ({ value: company.id, label: company.name }))}
+                            value={selectedCompanyId ?? ''}
+                            onValueChange={(value: string) => handleCompanyChange(value)}
+                            placeholder="Select a company"
+                            required={true}
+                        />
                     </div>
 
                     <div>
-                        <label htmlFor="officeId" className="block text-sm font-medium text-gray-700">Office</label>
-                        <select
-                            {...register("officeId")}
-                            id="officeId"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                        >
-                            <option value="">Select an office</option>
-                            {availableOffices.map(office => (
-                                <option key={office.id} value={office.id}>{office.name}</option>
-                            ))}
-                        </select>
+                        <Label htmlFor="officeId">Office</Label>
+                        <SelectField
+                            options={availableOffices.map(office => ({ value: office.id, label: office.name }))}
+                            value={watch("officeId") ?? ''}
+                            onValueChange={(value: string) => setValue("officeId", value)}
+                            placeholder="Select an office"
+                            required={true}
+                        />
                     </div>
                 </>
             )}

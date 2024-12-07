@@ -48,15 +48,13 @@ export function StatusBadge<T extends string>({
                 <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
                     {currentStatus}
                 </span>
-                <select
+                <SelectField
+                    options={statusOptions.map(status => ({ value: status, label: status }))}
                     value={statusToSave}
-                    onChange={(e) => setStatusToSave(e.target.value as T)}
-                    className="px-2 py-1 rounded-md border border-gray-300"
-                >
-                    {statusOptions.map((status) => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
+                    onValueChange={(value: string) => setStatusToSave(value as T)}
+                    placeholder="Select status..."
+                    required={true}
+                />
             </div>
             
             {isShippingStatus && (

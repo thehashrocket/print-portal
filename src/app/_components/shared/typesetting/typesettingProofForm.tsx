@@ -14,6 +14,7 @@ import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Checkbox } from "../../ui/checkbox";
+import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 const typesettingProofFormSchema = z.object({
     proofNumber: z.number().min(1, "Proof number must be greater than 0"),
@@ -31,7 +32,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     onSubmit: (data: SerializedTypesettingProof) => void;
     onCancel: () => void;
 }) {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<TypesettingProofFormData>({
+    const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<TypesettingProofFormData>({
         resolver: zodResolver(typesettingProofFormSchema),
     });
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
@@ -164,13 +165,13 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
             </div>
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="proofMethod">Proof Method</Label>
-                <select {...register("proofMethod")} className="select select-bordered w-full">
-                    {Object.values(ProofMethod).map((method) => (
-                        <option key={method} value={method}>
-                            {method}
-                        </option>
-                    ))}
-                </select>
+                <SelectField
+                    options={Object.values(ProofMethod).map((method) => ({ value: method, label: method }))}
+                    value={watch('proofMethod')}
+                    onValueChange={(value: string) => setValue("proofMethod", value as ProofMethod)}
+                    placeholder="Select proof method..."
+                    required={true}
+                />
                 {errors.proofMethod && (
                     <span className="text-red-500">{errors.proofMethod.message}</span>
                 )}

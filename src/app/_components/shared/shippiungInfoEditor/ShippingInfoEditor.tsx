@@ -11,22 +11,33 @@ import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
+import { toast } from 'react-hot-toast';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
     instructions: z.string().optional(),
-    pickupContactName: z.string().optional(),
-    pickupContactPhone: z.string().optional(),
-    pickupDate: z.string().optional(),
-    pickupNotes: z.string().optional(),
-    pickupTime: z.string().optional(),
+    shippingPickup: z.object({
+        contactName: z.string().min(1, 'Contact name is required'),
+        contactPhone: z.string().min(1, 'Contact phone is required'),
+        pickupDate: z.string().min(1, 'Pickup date is required'),
+        pickupTime: z.string().min(1, 'Pickup time is required'),
+        notes: z.string().optional(),
+    }).optional().nullable(),
     shippingCost: z.number().optional(),
-    shippingDate: z.string().optional(), // Changed to string
+    shippingDate: z.string().optional(),
     shippingMethod: z.nativeEnum(ShippingMethod),
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
     trackingNumber: z.string().optional(),
+}).refine((data) => {
+    if (data.shippingMethod === ShippingMethod.Pickup) {
+        return !!data.shippingPickup;
+    }
+    return true;
+}, {
+    message: "Pickup information is required when shipping method is Pickup",
+    path: ["shippingPickup"],
 });
 
 const addressSchema = z.object({
@@ -68,6 +79,19 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
             trackingNumber: currentShippingInfo?.trackingNumber ?? undefined,
+            shippingPickup: currentShippingInfo?.ShippingPickup ? {
+                contactName: currentShippingInfo.ShippingPickup.contactName,
+                contactPhone: currentShippingInfo.ShippingPickup.contactPhone,
+                pickupDate: new Date(currentShippingInfo.ShippingPickup.pickupDate).toISOString().split('T')[0],
+                pickupTime: currentShippingInfo.ShippingPickup.pickupTime,
+                notes: currentShippingInfo.ShippingPickup.notes ?? undefined,
+            } : {
+                contactName: '',
+                contactPhone: '',
+                pickupDate: '',
+                pickupTime: '',
+                notes: '',
+            },
         },
     });
 
@@ -75,13 +99,25 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         register: registerAddress,
         handleSubmit: handleSubmitAddress,
         formState: { errors: addressErrors },
-        reset: resetAddressForm
+        reset: resetAddressForm,
+        watch: watchAddress,
+        setValue: setValueAddress
     } = useForm<AddressFormData>({
         resolver: zodResolver(addressSchema),
     });
 
     const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
-    const updateShippingInfoMutation = api.orders.updateShippingInfo.useMutation();
+    const updateShippingInfoMutation = api.orders.updateShippingInfo.useMutation({
+        onSuccess: () => {
+            console.log('Shipping info updated successfully');
+            setIsEditing(false);
+            onUpdate();
+        },
+        onError: (error) => {
+            console.error('Error updating shipping info:', error);
+            toast.error('Failed to update shipping info');
+        }
+    });
     const createAddressMutation = api.addresses.create.useMutation();
 
     const shippingMethod = watch('shippingMethod');
@@ -98,21 +134,60 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         }
     }, [isEditing, currentShippingInfo, setValue]);
 
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            console.log('Form validation errors:', errors);
+        }
+    }, [errors]);
+
+    useEffect(() => {
+        if (shippingMethod === ShippingMethod.Pickup) {
+            setValue('shippingPickup', {
+                contactName: watch('shippingPickup.contactName') ?? '',
+                contactPhone: watch('shippingPickup.contactPhone') ?? '',
+                pickupDate: watch('shippingPickup.pickupDate') ?? '',
+                pickupTime: watch('shippingPickup.pickupTime') ?? '',
+                notes: watch('shippingPickup.notes') ?? '',
+            });
+        } else {
+            setValue('shippingPickup', undefined);
+        }
+    }, [shippingMethod, setValue, watch]);
+
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
         setIsSubmitting(true);
         try {
-            await updateShippingInfoMutation.mutateAsync({
-                orderId,
-                shippingInfo: {
-                    ...data,
-                    shippingCost: data.shippingCost ?? undefined,
-                    shippingDate: data.shippingDate ? new Date(data.shippingDate) : undefined,
-                },
-            });
+            console.log('Submitting shipping info:', data);
+            const shippingData = {
+                ...data,
+                shippingCost: data.shippingCost ?? undefined,
+                shippingDate: data.shippingDate ? new Date(data.shippingDate) : undefined,
+                shippingPickup: data.shippingMethod === ShippingMethod.Pickup ? {
+                    contactName: data.shippingPickup?.contactName ?? '',
+                    contactPhone: data.shippingPickup?.contactPhone ?? '',
+                    pickupDate: data.shippingPickup?.pickupDate ? new Date(data.shippingPickup.pickupDate) : new Date(),
+                    pickupTime: data.shippingPickup?.pickupTime ?? '',
+                    notes: data.shippingPickup?.notes,
+                } : undefined
+            };
+
+            await toast.promise(
+                updateShippingInfoMutation.mutateAsync({
+                    orderId,
+                    shippingInfo: shippingData,
+                }),
+                {
+                    loading: 'Updating shipping info...',
+                    success: 'Shipping info updated successfully',
+                    error: 'Failed to update shipping info'
+                }
+            );
+            
             setIsEditing(false);
             onUpdate();
         } catch (error) {
             console.error("Error updating shipping info:", error);
+            toast.error('Failed to update shipping info');
         } finally {
             setIsSubmitting(false);
         }
@@ -136,6 +211,111 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     const handleCancel = () => {
         setIsEditing(false);
         reset(); // This resets the form to its default values
+    };
+
+    const renderPickupForm = () => (
+        <div className="space-y-4 border p-4 rounded-lg bg-gray-50">
+            <h4 className="font-medium text-gray-900">Pickup Information</h4>
+            
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="pickupDate">Pickup Date</Label>
+                <Controller
+                    name="shippingPickup.pickupDate"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            type="date"
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.pickupDate && 
+                    <p className="text-red-500">Pickup date is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="pickupTime">Pickup Time</Label>
+                <Controller
+                    name="shippingPickup.pickupTime"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            type="time"
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.pickupTime && 
+                    <p className="text-red-500">Pickup time is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="contactName">Contact Name</Label>
+                <Controller
+                    name="shippingPickup.contactName"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.contactName && 
+                    <p className="text-red-500">Contact name is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="contactPhone">Contact Phone</Label>
+                <Controller
+                    name="shippingPickup.contactPhone"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.contactPhone && 
+                    <p className="text-red-500">Contact phone is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="notes">Pickup Notes</Label>
+                <Controller
+                    name="shippingPickup.notes"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <textarea
+                            {...field}
+                            value={field.value || ''}
+                            className="textarea textarea-bordered w-full"
+                        />
+                    )}
+                />
+            </div>
+        </div>
+    );
+
+    const onSubmit = async (data: ShippingInfoFormData) => {
+        console.log('Form submitted with data:', data);
+        await handleShippingInfoSubmit(data);
     };
 
     if (!isEditing) {
@@ -233,7 +413,10 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold mb-2">Edit Shipping Information</h3>
-            <form onSubmit={handleSubmit(handleShippingInfoSubmit)} className="space-y-4">
+            <form 
+                onSubmit={handleSubmit(onSubmit)} 
+                className="space-y-4"
+            >
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="shippingMethod">Shipping Method</Label>
                     <Controller
@@ -260,42 +443,21 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 { value: 'new', label: 'Create New Address' },
                             ]}
                             value={watch('addressId') || ''}
-                            onValueChange={(value) => setValue('addressId', value)}
+                            onValueChange={(value) => {
+                                if (value === 'new') {
+                                    setIsCreatingNewAddress(true);
+                                    setValue('addressId', ''); // Clear the address ID when creating new
+                                } else {
+                                    setValue('addressId', value);
+                                }
+                            }}
                             placeholder="Select Address"
                         />
                         {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
                     </div>
                 )}
 
-                {shippingMethod === ShippingMethod.Pickup && (
-                    <>
-                        <div>
-                            <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                            <input type="date" {...register('pickupDate')} className="input input-bordered w-full" />
-                            {errors.pickupDate && <p className="text-red-500">{errors.pickupDate.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="pickupTime" className="block text-sm font-medium text-gray-700">Pickup Time</label>
-                            <input type="time" {...register('pickupTime')} className="input input-bordered w-full" />
-                            {errors.pickupTime && <p className="text-red-500">{errors.pickupTime.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="pickupContactName" className="block text-sm font-medium text-gray-700">Pickup Contact Name</label>
-                            <input {...register('pickupContactName')} className="input input-bordered w-full" />
-                            {errors.pickupContactName && <p className="text-red-500">{errors.pickupContactName.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="pickupContactPhone" className="block text-sm font-medium text-gray-700">Pickup Contact Phone</label>
-                            <input {...register('pickupContactPhone')} className="input input-bordered w-full" />
-                            {errors.pickupContactPhone && <p className="text-red-500">{errors.pickupContactPhone.message}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="pickupNotes" className="block text-sm font-medium text-gray-700">Pickup Notes</label>
-                            <textarea {...register('pickupNotes')} className="textarea textarea-bordered w-full" />
-                            {errors.pickupNotes && <p className="text-red-500">{errors.pickupNotes.message}</p>}
-                        </div>
-                    </>
-                )}
+                {shippingMethod === ShippingMethod.Pickup && renderPickupForm()}
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="instructions">Instructions</Label>
@@ -331,17 +493,12 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         type="submit"
                         disabled={isSubmitting}
                         variant="default"
+                        onClick={() => console.log('Submit button clicked')}
                     >
-                        {isSubmitting ? (
-                            <>
-                                <span className="loading loading-spinner"></span>
-                                Updating...
-                            </>
-                        ) : (
-                            'Update Shipping Info'
-                        )}
+                        {isSubmitting ? 'Updating...' : 'Update Shipping Info'}
                     </Button>
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={handleCancel}
                     >
@@ -391,11 +548,12 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="addressType">Address Type</Label>
-                            <select {...registerAddress('addressType')} className="select select-bordered w-full">
-                                {Object.values(AddressType).map((type) => (
-                                    <option key={type} value={type}>{type}</option>
-                                ))}
-                            </select>
+                            <SelectField
+                                options={Object.values(AddressType).map(type => ({ value: type, label: type }))}
+                                value={watchAddress('addressType') || AddressType.Other}
+                                onValueChange={(value) => setValueAddress('addressType', value as AddressType)}
+                                placeholder="Select Address Type"
+                            />
                             {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
                         </div>
                         <Button

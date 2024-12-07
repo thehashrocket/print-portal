@@ -12,6 +12,7 @@ import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Checkbox } from "../../ui/checkbox";
+import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
@@ -56,7 +57,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
     const [error, setError] = useState<string | null>(null);
     console.log('typesetting', typesetting);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<TypesettingFormData>({
+    const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
             ...typesetting,
@@ -186,11 +187,13 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                 </div>
                 <div className="form-control">
                     <Label htmlFor="status">Status</Label>
-                    <select className="select select-bordered" {...register("status")}>
-                        {Object.values(TypesettingStatus).map((status) => (
-                            <option key={status} value={status}>{status}</option>
-                        ))}
-                    </select>
+                    <SelectField
+                        options={Object.values(TypesettingStatus).map((status) => ({ value: status, label: status }))}
+                        value={watch('status')}
+                        onValueChange={(value: string) => setValue("status", value as TypesettingStatus)}
+                        placeholder="Select status..."
+                        required={true}
+                    />
                     {errors.status && <span className="text-error">{errors.status.message}</span>}
                 </div>
                 <div className="form-control">

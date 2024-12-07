@@ -15,7 +15,7 @@ import { DollarSign, PlusCircle } from "lucide-react";
 import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
-
+import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -51,15 +51,13 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
             <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
                 {currentStatus}
             </span>
-            <select
+            <SelectField
+                options={Object.values(WorkOrderStatus).map((status) => ({ value: status, label: status }))}
                 value={currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value as WorkOrderStatus)}
-                className="px-2 py-1 rounded-md border border-gray-300"
-            >
-                {Object.values(WorkOrderStatus).map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                ))}
-            </select>
+                onValueChange={(value: string) => handleStatusChange(value as WorkOrderStatus)}
+                placeholder="Select status..."
+                required={true}
+            />
             {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
         </div>
     );
