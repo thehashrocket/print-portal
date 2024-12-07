@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import QuickbooksStatus from "~/app/_components/quickbooks/QuickbooksStatus";
 import { getServerAuthSession } from "~/server/auth";
+import { Button } from "../ui/button";
 
 const NavBar = async () => {
   const session = await getServerAuthSession();
@@ -39,7 +40,7 @@ const NavBar = async () => {
           </div>
           
           <div className="flex items-center gap-6"> {/* Increased gap from space-x-4 to gap-6 */}
-            {session?.user && (
+            {session?.user ? (
               <>
                 <Link href={`/users/${session.user.id}`}>
                   <span className="text-white hover:text-gray-100 transition-colors font-medium">Profile</span>
@@ -49,6 +50,14 @@ const NavBar = async () => {
                 </Link>
                 <QuickbooksStatus />
               </>
+            ) : (
+              <Link href="/api/auth/signin">
+                <Button
+                  variant="outline"
+                > 
+                  Sign in
+                </Button>
+              </Link>
             )}
           </div>
         </div>
