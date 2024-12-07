@@ -7,7 +7,7 @@ import { OrderItemStatus } from '@prisma/client';
 import type { SerializedOrderItem } from "~/types/serializedTypes";
 import { formatDate } from "~/utils/formatters";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { CustomComboBox } from "~/app/_components/shared/CustomComboBox";
+import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view

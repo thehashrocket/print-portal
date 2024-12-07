@@ -8,6 +8,8 @@ import * as z from 'zod';
 import { api } from '~/trpc/react';
 import { StockStatus } from '@prisma/client';
 import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
 
 const orderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -111,33 +113,38 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-                <label className="label">
-                    <span className="label-text">Quantity</span>
-                </label>
-                <input type="number" {...register('stockQty', { valueAsNumber: true })} className="input input-bordered w-full" />
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="stockQty">Quantity</Label>
+                <Input
+                    type="number"
+                    {...register('stockQty', { valueAsNumber: true })}
+                    className="input input-bordered w-full"
+                />
                 {errors.stockQty && <p className="text-red-500">{errors.stockQty.message}</p>}
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Cost Per M</span>
-                </label>
-                <input type="number" step="0.01" {...register('costPerM', { valueAsNumber: true })} className="input input-bordered w-full" />
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="costPerM">Cost Per M</Label>
+                <Input
+                    type="number"
+                    step="0.01"
+                    {...register('costPerM', { valueAsNumber: true })}
+                    className="input input-bordered w-full"
+                />
                 {errors.costPerM && <p className="text-red-500">{errors.costPerM.message}</p>}
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Supplier</span>
-                </label>
-                <input type="text" {...register('supplier')} className="input input-bordered w-full" />
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="supplier">Supplier</Label>
+                <Input
+                    type="text"
+                    {...register('supplier')}
+                    className="input input-bordered w-full"
+                />
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Stock Status</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="stockStatus">Stock Status</Label>
                 <select {...register('stockStatus')} className="select select-bordered w-full">
                     {Object.values(StockStatus).map(status => (
                         <option key={status} value={status}>{status}</option>
@@ -145,31 +152,23 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                 </select>
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Expected Date</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="expectedDate">Expected Date</Label>
                 <input type="date" {...register('expectedDate')} className="input input-bordered w-full" />
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Ordered Date</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="orderedDate">Ordered Date</Label>
                 <input type="date" {...register('orderedDate')} className="input input-bordered w-full" />
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Received Date</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="receivedDate">Received Date</Label>
                 <input type="date" {...register('receivedDate')} className="input input-bordered w-full" />
             </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">Notes</span>
-                </label>
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="notes">Notes</Label>
                 <textarea {...register('notes')} className="textarea textarea-bordered w-full" />
             </div>
 

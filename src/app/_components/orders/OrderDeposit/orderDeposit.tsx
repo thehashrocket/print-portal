@@ -6,6 +6,7 @@ import { formatCurrency } from "~/utils/formatters";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { Button } from "../../ui/button";
 import { PencilIcon } from "lucide-react";
+import { Input } from "../../ui/input";
 
 interface OrderDepositProps {
     order: SerializedOrder;
@@ -40,7 +41,7 @@ const OrderDeposit: React.FC<OrderDepositProps> = ({ order }) => {
             <h3 className="text-lg font-semibold mb-2">Deposit</h3>
             {isEditing ? (
                 <form onSubmit={handleSubmit} className="flex items-center">
-                    <input
+                    <Input
                         type="number"
                         step="0.01"
                         value={deposit}

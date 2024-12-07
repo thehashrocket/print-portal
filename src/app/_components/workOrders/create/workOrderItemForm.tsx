@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '~/app/_components/ui/button';
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
+import { SelectField } from '../../shared/ui/SelectField/SelectField';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -42,7 +43,7 @@ const WorkOrderItemForm: React.FC = () => {
     const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
     const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
     const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<WorkOrderItemFormData>({
+    const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
     });
     const { workOrder } = useContext(WorkOrderContext);
@@ -191,11 +192,13 @@ const WorkOrderItemForm: React.FC = () => {
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="status">Status</Label>
-                            <select id="status" {...register('status')}>
-                                {Object.values(WorkOrderItemStatus).map(status => (
-                                    <option key={status} value={status}>{status}</option>
-                                ))}
-                            </select>
+                            <SelectField
+                                options={Object.values(WorkOrderItemStatus).map(status => ({ value: status, label: status }))}
+                                value={watch('status') || ''}
+                                onValueChange={(value) => setValue('status', value as WorkOrderItemStatus)}
+                                placeholder="Select status..."
+                                required={true}
+                            />
                             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                         </div>
                         <Button

@@ -4,6 +4,7 @@ import { Switch } from '~/app/_components/ui/switch';
 import { Input } from '../../ui/input';
 import { ShippingMethod } from '@prisma/client';
 import { Button } from '../../ui/button';
+import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 
 export interface StatusBadgeProps<T extends string> {
     id: string;
@@ -67,15 +68,13 @@ export function StatusBadge<T extends string>({
                             value={trackingNumber} 
                             onChange={(e) => setTrackingNumber(e.target.value)} 
                         />
-                        <select
+                        <SelectField
+                            options={Object.values(ShippingMethod).map(method => ({ value: method, label: method }))}
                             value={shippingMethod}
-                            onChange={(e) => setShippingMethod(e.target.value as ShippingMethod)}
-                            className="px-2 py-1 rounded-md border border-gray-300"
-                        >
-                            {Object.values(ShippingMethod).map((method) => (
-                                <option key={method} value={method}>{method}</option>
-                            ))}
-                        </select>
+                            onValueChange={(value: string) => setShippingMethod(value as ShippingMethod)}
+                            placeholder="Select shipping method..."
+                            required={true}
+                        />
                     </div>
                 </div>
             )}

@@ -8,9 +8,12 @@ import { AddressType, ShippingMethod } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
+import { SelectField } from '../../shared/ui/SelectField/SelectField';
 
 const shippingInfoSchema = z.object({
-    shippingMethod: z.nativeEnum(ShippingMethod),
+    shippingMethod: z.nativeEnum(ShippingMethod, {
+        required_error: "Please select a shipping method",
+    }),
     instructions: z.string().optional(),
     addressId: z.string().optional(),
     shippingCost: z.number().optional(),
@@ -44,7 +47,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
         defaultValues: {
-            shippingMethod: ShippingMethod.Courier,
+            // shippingMethod: ShippingMethod.Courier,
         },
     });
     const { workOrder, setWorkOrder, setCurrentStep } = useContext(WorkOrderContext);
@@ -86,6 +89,11 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     }, [shippingMethod, setValue]);
 
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
+        if (!data.shippingMethod) {
+            alert("Please select a shipping method before proceeding.");
+            return;
+        }
+
         try {
             const shippingInfoData: any = {
                 shippingMethod: data.shippingMethod,
@@ -151,16 +159,12 @@ const WorkOrderShippingInfoForm: React.FC = () => {
             <form onSubmit={handleSubmit(handleShippingInfoSubmit)} className="space-y-4">
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                     <Label htmlFor="shippingMethod">Shipping Method</Label>
-                    <Controller
-                        name="shippingMethod"
-                        control={control}
-                        render={({ field }) => (
-                            <select {...field} className="select select-bordered w-full">
-                                {Object.values(ShippingMethod).map((method) => (
-                                    <option key={method} value={method}>{method}</option>
-                                ))}
-                            </select>
-                        )}
+                    <SelectField
+                        options={Object.values(ShippingMethod).map((method) => ({ value: method, label: method }))}
+                        value={watch('shippingMethod') || ''}
+                        onValueChange={(value) => setValue('shippingMethod', value as ShippingMethod)}
+                        placeholder="Select shipping method..."
+                        required={true}
                     />
                     {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
                 </div>
@@ -168,26 +172,28 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 {needsAddress && (
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                         <Label htmlFor="addressId">Select Address</Label>
-                        <select
-                            {...register('addressId')}
-                            className="select select-bordered w-full"
-                            onChange={(e) => {
-                                if (e.target.value === 'new') {
+                        <SelectField
+                            options={[
+                                ...addresses.map((address) => ({ 
+                                    value: address.id, 
+                                    label: `${address.line1}, ${address.city}, ${address.state} ${address.zipCode}` 
+                                })),
+                                { value: 'new', label: '+ Create new address' }
+                            ]}
+                            value={watch('addressId') || ''}
+                            onValueChange={(value) => {
+                                if (value === 'new') {
                                     setIsCreatingNewAddress(true);
+                                    setValue('addressId', ''); // Clear the address ID when creating new
                                 } else {
-                                    setSelectedAddress(e.target.value);
+                                    setSelectedAddress(value);
+                                    setValue('addressId', value);
                                     setIsCreatingNewAddress(false);
                                 }
                             }}
-                        >
-                            <option value="">Select an address</option>
-                            {addresses.map((address) => (
-                                <option key={address.id} value={address.id}>
-                                    {address.line1}, {address.city}, {address.state} {address.zipCode}
-                                </option>
-                            ))}
-                            <option value="new">Create new address</option>
-                        </select>
+                            placeholder="Select an address..."
+                            required={false}
+                        />
                         {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
                     </div>
                 )}

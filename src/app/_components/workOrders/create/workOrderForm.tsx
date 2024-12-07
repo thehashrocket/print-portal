@@ -6,7 +6,7 @@ import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
 import { type SerializedWorkOrder } from '~/types/serializedTypes';
-import { CustomComboBox } from '~/app/_components/shared/CustomComboBox';
+import { CustomComboBox } from '~/app/_components/shared/ui/CustomComboBox';
 import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
 import { Label } from '~/app/_components/ui/label';

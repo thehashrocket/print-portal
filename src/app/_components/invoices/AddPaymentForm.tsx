@@ -1,4 +1,3 @@
-
 // ~/src/app/_components/invoices/AddPaymentForm.tsx
 "use client"
 
@@ -9,6 +8,8 @@ import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { PaymentMethod } from '@prisma/client';
 import { Button } from '../ui/button';
+import { SelectField } from '../shared/ui/SelectField/SelectField';
+import { Label } from '../ui/label';
 
 const paymentSchema = z.object({
     amount: z.number().min(0.01, 'Amount must be greater than 0'),
@@ -24,7 +25,7 @@ interface AddPaymentFormProps {
 }
 
 const AddPaymentForm: React.FC<AddPaymentFormProps> = ({ invoiceId, onPaymentAdded }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<PaymentFormData>({
+    const { register, handleSubmit, reset, formState: { errors }, watch, setValue } = useForm<PaymentFormData>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
             paymentDate: new Date(),
@@ -66,12 +67,14 @@ const AddPaymentForm: React.FC<AddPaymentFormProps> = ({ invoiceId, onPaymentAdd
             </div>
 
             <div>
-                <label className="label">Payment Method</label>
-                <select {...register('paymentMethod')} className="select select-bordered w-full">
-                    {Object.values(PaymentMethod).map(method => (
-                        <option key={method} value={method}>{method}</option>
-                    ))}
-                </select>
+                <Label htmlFor="paymentMethod">Payment Method</Label>
+                <SelectField
+                    options={Object.values(PaymentMethod).map(method => ({ value: method, label: method }))}
+                    value={watch('paymentMethod') || ''}
+                    onValueChange={(value) => setValue('paymentMethod', value as PaymentMethod)}
+                    placeholder="Select payment method..."
+                    required={true}
+                />
                 {errors.paymentMethod && <span className="text-red-500">{errors.paymentMethod.message}</span>}
             </div>
 

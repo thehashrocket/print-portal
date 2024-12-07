@@ -9,6 +9,8 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 import {
     type ColDef,
@@ -78,9 +80,7 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
                 onSubmit={handleSubmit}
             >
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="note">
-                        Add Note
-                    </label>
+                    <Label htmlFor="note">Add Note</Label>
                     <textarea
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="note"

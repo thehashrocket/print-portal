@@ -11,6 +11,8 @@ import { SerializedOrder, SerializedOrderItem } from '~/types/serializedTypes';
 import { formatCurrency } from '~/utils/formatters';
 import { Decimal } from 'decimal.js';
 import { Button } from '../ui/button';
+import { Label } from '../ui/label';
+import { SelectField } from '../shared/ui/SelectField/SelectField';
 
 const invoiceItemSchema = z.object({
     description: z.string().min(1, 'Description is required'),
@@ -139,7 +141,14 @@ const InvoiceForm: React.FC = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-                <label className="label">Select Order</label>
+                <Label htmlFor="orderId">Select Order</Label>
+                <SelectField
+                    options={orders?.map(order => ({ value: order.id, label: `Order #${order.orderNumber} - ${order.Office.Company.name}` })) || []}
+                    value={selectedOrderId || ''}
+                    onValueChange={(value) => handleOrderSelect(value)}
+                    placeholder="Select an order..."
+                    required={true}
+                />
                 <select
                     onChange={(e) => handleOrderSelect(e.target.value)}
                     className="select select-bordered w-full"
@@ -156,7 +165,7 @@ const InvoiceForm: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="label">Date Issued</label>
+                    <Label htmlFor="dateIssued">Date Issued</Label>
                     <Controller
                         name="dateIssued"
                         control={control}
@@ -173,7 +182,7 @@ const InvoiceForm: React.FC = () => {
                     {errors.dateIssued && <span className="text-red-500">{errors.dateIssued.message}</span>}
                 </div>
                 <div>
-                    <label className="label">Due Date</label>
+                    <Label htmlFor="dateDue">Due Date</Label>
                     <Controller
                         name="dateDue"
                         control={control}
@@ -192,7 +201,7 @@ const InvoiceForm: React.FC = () => {
             </div>
 
             <div>
-                <label className="label">Status</label>
+                <Label htmlFor="status">Status</Label>
                 <select {...register('status')} className="select select-bordered w-full">
                     {Object.values(InvoiceStatus).map(status => (
                         <option key={status} value={status}>{status}</option>
@@ -201,7 +210,7 @@ const InvoiceForm: React.FC = () => {
             </div>
 
             <div>
-                <label className="label">Items</label>
+                <Label htmlFor="items">Items</Label>
                 {fields.map((field, index) => (
                     <div key={field.id} className="grid grid-cols-5 gap-2 mb-2">
                         <input {...register(`items.${index}.description`)} placeholder="Description" className="input input-bordered col-span-2" />
@@ -225,29 +234,29 @@ const InvoiceForm: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="label">Tax Rate (%)</label>
+                    <Label htmlFor="taxRate">Tax Rate (%)</Label>
                     <input type="number" {...register('taxRate', { valueAsNumber: true })} className="input input-bordered w-full" />
                     {errors.taxRate && <span className="text-red-500">{errors.taxRate.message}</span>}
                 </div>
                 <div>
-                    <label className="label">Subtotal</label>
+                    <Label htmlFor="subtotal">Subtotal</Label>
                     <input type="number" {...register('subtotal', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="label">Tax Amount</label>
+                    <Label htmlFor="taxAmount">Tax Amount</Label>
                     <input type="number" {...register('taxAmount', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
                 </div>
                 <div>
-                    <label className="label">Total</label>
+                    <Label htmlFor="total">Total</Label>
                     <input type="number" {...register('total', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
                 </div>
             </div>
 
             <div>
-                <label className="label">Notes</label>
+                <Label htmlFor="notes">Notes</Label>
                 <textarea {...register('notes')} className="textarea textarea-bordered w-full" />
             </div>
 
