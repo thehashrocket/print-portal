@@ -10,6 +10,7 @@ import { StockStatus } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
+import { SelectField } from '../../shared/ui/SelectField/SelectField';
 
 const orderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -41,7 +42,7 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
     onSuccess,
     onCancel
 }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<OrderItemStockFormData>({
+    const { register, handleSubmit, reset, formState: { errors }, setValue, watch } = useForm<OrderItemStockFormData>({
         resolver: zodResolver(orderItemStockSchema),
         defaultValues: {
             orderItemId,
@@ -145,26 +146,42 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="stockStatus">Stock Status</Label>
-                <select {...register('stockStatus')} className="select select-bordered w-full">
-                    {Object.values(StockStatus).map(status => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
+                <SelectField
+                    options={Object.values(StockStatus).map(status => ({ value: status, label: status }))}
+                    value={watch('stockStatus')}
+                    onValueChange={(value) => setValue('stockStatus', value as StockStatus)}
+                    placeholder="Select Stock Status"
+                />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="expectedDate">Expected Date</Label>
-                <input type="date" {...register('expectedDate')} className="input input-bordered w-full" />
+                <Input
+                    id="expectedDate"
+                    type="date"
+                    {...register('expectedDate')}
+                    className="input input-bordered w-full"
+                />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="orderedDate">Ordered Date</Label>
-                <input type="date" {...register('orderedDate')} className="input input-bordered w-full" />
+                <Input
+                    id="orderedDate"
+                    type="date"
+                    {...register('orderedDate')}
+                    className="input input-bordered w-full"
+                />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="receivedDate">Received Date</Label>
-                <input type="date" {...register('receivedDate')} className="input input-bordered w-full" />
+                <Input
+                    id="receivedDate"
+                    type="date"
+                    {...register('receivedDate')}
+                    className="input input-bordered w-full"
+                />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

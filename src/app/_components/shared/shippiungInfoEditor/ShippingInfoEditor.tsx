@@ -10,6 +10,7 @@ import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FileP
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
+import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -147,7 +148,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Method</div>
-                                    <div className="font-medium">FedEx</div>
+                                    <div className="font-medium">{currentShippingInfo.shippingMethod}</div>
                                 </div>
                             </div>
 
@@ -155,7 +156,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
-                                    <div className="font-medium">6949 Bramble Close, Mabellefort</div>
+                                    <div className="font-medium">{currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.city}, {currentShippingInfo.Address?.state} {currentShippingInfo.Address?.zipCode}</div>
                                 </div>
                             </div>
 
@@ -163,7 +164,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <DollarSign className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Cost</div>
-                                    <div className="font-medium">$68.22</div>
+                                    <div className="font-medium">{currentShippingInfo.shippingCost ? formatCurrency(currentShippingInfo.shippingCost) : 'N/A'}</div>
                                 </div>
                             </div>
 
@@ -171,7 +172,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Date</div>
-                                    <div className="font-medium">October 25, 2025</div>
+                                    <div className="font-medium">{currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div>
+                                    <div className="text-sm text-gray-500">Instructions</div>
+                                    <div className="font-medium">{currentShippingInfo.instructions}</div>
                                 </div>
                             </div>
 
@@ -179,7 +188,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <Notebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Notes</div>
-                                    <div className="font-medium">Vilicus tabgo denuncio delibero coepi.</div>
+                                    <div className="font-medium">{currentShippingInfo.shippingNotes}</div>
                                 </div>
                             </div>
 
@@ -187,7 +196,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Other</div>
-                                    <div className="font-medium">Candidus viduo consectetur convoco.</div>
+                                    <div className="font-medium">{currentShippingInfo.shippingOther}</div>
                                 </div>
                             </div>
 
@@ -195,7 +204,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Tracking Number</div>
-                                    <div className="font-medium">asdfasdfasdfasdf</div>
+                                    <div className="font-medium">{currentShippingInfo.trackingNumber}</div>
                                 </div>
                             </div>
                         </div>
@@ -231,11 +240,12 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         name="shippingMethod"
                         control={control}
                         render={({ field }) => (
-                            <select {...field} className="select select-bordered w-full">
-                                {Object.values(ShippingMethod).map((method) => (
-                                    <option key={method} value={method}>{method}</option>
-                                ))}
-                            </select>
+                            <SelectField
+                                options={Object.values(ShippingMethod).map(method => ({ value: method, label: method }))}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder="Select Shipping Method"
+                            />
                         )}
                     />
                     {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
@@ -244,25 +254,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 {shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other && (
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="addressId">Select Address</Label>
-                        <select
-                            {...register('addressId')}
-                            className="select select-bordered w-full"
-                            onChange={(e) => {
-                                if (e.target.value === 'new') {
-                                    setIsCreatingNewAddress(true);
-                                } else {
-                                    setIsCreatingNewAddress(false);
-                                }
-                            }}
-                        >
-                            <option value="">Select an address</option>
-                            {addresses.map((address) => (
-                                <option key={address.id} value={address.id}>
-                                    {address.line1}, {address.city}, {address.state} {address.zipCode}
-                                </option>
-                            ))}
-                            <option value="new">Create new address</option>
-                        </select>
+                        <SelectField
+                            options={[
+                                ...addresses.map(address => ({ value: address.id, label: `${address.line1}, ${address.city}, ${address.state}` })),
+                                { value: 'new', label: 'Create New Address' },
+                            ]}
+                            value={watch('addressId') || ''}
+                            onValueChange={(value) => setValue('addressId', value)}
+                            placeholder="Select Address"
+                        />
                         {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
                     </div>
                 )}
@@ -317,7 +317,8 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="shippingDate">Shipping Date</Label>
-                    <input
+                    <Input
+                        id="shippingDate"
                         type="date"
                         {...register('shippingDate')}
                         className="input input-bordered w-full"

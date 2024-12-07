@@ -8,6 +8,9 @@ import { type SerializedOrder, type SerializedOrderPayment } from '~/types/seria
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { Button } from '../../ui/button';
 import { Loader2, Plus } from 'lucide-react';
+import { SelectField } from '../../shared/ui/SelectField/SelectField';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
 
 interface OrderPaymentComponentProps {
     order: SerializedOrder
@@ -54,11 +57,8 @@ const OrderPaymentComponent: React.FC<OrderPaymentComponentProps> = ({ order }) 
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="amount">
-                        Payment Amount
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    <Label htmlFor="amount">Payment Amount</Label>
+                    <Input
                         id="amount"
                         type="number"
                         step="0.01"
@@ -68,21 +68,13 @@ const OrderPaymentComponent: React.FC<OrderPaymentComponentProps> = ({ order }) 
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="paymentMethod">
-                        Payment Method
-                    </label>
-                    <select
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="paymentMethod"
+                    <Label htmlFor="paymentMethod">Payment Method</Label>
+                    <SelectField
+                        options={Object.values(PaymentMethod).map(method => ({ value: method, label: method }))}
                         value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                    >
-                        {Object.values(PaymentMethod).map((method) => (
-                            <option key={method} value={method}>
-                                {method}
-                            </option>
-                        ))}
-                    </select>
+                        onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+                        placeholder="Select Payment Method"
+                    />
                 </div>
                 <Button
                     variant="default"

@@ -10,6 +10,7 @@ import { BindingType, type ProcessingOptions } from "@prisma/client";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
+import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 const processingOptionsSchema = z.object({
     id: z.string().optional(),
@@ -52,6 +53,8 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
         register,
         handleSubmit,
         formState: { errors },
+        watch,
+        setValue
     } = useForm({
         resolver: zodResolver(processingOptionsSchema),
         defaultValues: {
@@ -76,8 +79,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
     };
 
     const inputClass = "input input-bordered w-full";
-    const labelClass = "label";
-    const labelTextClass = "label-text";
     const errorClass = "text-error text-sm mt-1";
 
     return (
@@ -108,14 +109,12 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="binding">Binding</Label>
-                <select {...register("binding")} className={inputClass}>
-                    <option value="">Select Binding</option>
-                    {Object.values(BindingType).map((type) => (
-                        <option key={type} value={type}>
-                            {type}
-                        </option>
-                    ))}
-                </select>
+                <SelectField
+                    options={Object.values(BindingType).map(type => ({ value: type, label: type }))}
+                    value={watch('binding') || ''}
+                    onValueChange={(value) => setValue('binding', value as BindingType)}
+                    placeholder="Select Binding"
+                />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

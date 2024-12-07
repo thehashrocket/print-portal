@@ -13,6 +13,7 @@ import { Decimal } from 'decimal.js';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { SelectField } from '../shared/ui/SelectField/SelectField';
+import { Input } from '../ui/input';
 
 const invoiceItemSchema = z.object({
     description: z.string().min(1, 'Description is required'),
@@ -140,7 +141,7 @@ const InvoiceForm: React.FC = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
+            <div >
                 <Label htmlFor="orderId">Select Order</Label>
                 <SelectField
                     options={orders?.map(order => ({ value: order.id, label: `Order #${order.orderNumber} - ${order.Office.Company.name}` })) || []}
@@ -149,17 +150,6 @@ const InvoiceForm: React.FC = () => {
                     placeholder="Select an order..."
                     required={true}
                 />
-                <select
-                    onChange={(e) => handleOrderSelect(e.target.value)}
-                    className="select select-bordered w-full"
-                >
-                    <option value="">Select an order</option>
-                    {orders?.map((order) => (
-                        <option key={order.id} value={order.id}>
-                            Order #{order.orderNumber} - {order.Office.Company.name}
-                        </option>
-                    ))}
-                </select>
                 {errors.orderId && <span className="text-red-500">{errors.orderId.message}</span>}
             </div>
 
@@ -202,20 +192,38 @@ const InvoiceForm: React.FC = () => {
 
             <div>
                 <Label htmlFor="status">Status</Label>
-                <select {...register('status')} className="select select-bordered w-full">
-                    {Object.values(InvoiceStatus).map(status => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
+                <SelectField
+                    options={Object.values(InvoiceStatus).map(status => ({ value: status, label: status }))}
+                    value={watch('status')}
+                    onValueChange={(value) => setValue('status', value as InvoiceStatus)}
+                    placeholder="Select Status"
+                />
             </div>
 
             <div>
                 <Label htmlFor="items">Items</Label>
                 {fields.map((field, index) => (
                     <div key={field.id} className="grid grid-cols-5 gap-2 mb-2">
-                        <input {...register(`items.${index}.description`)} placeholder="Description" className="input input-bordered col-span-2" />
-                        <input type="number" {...register(`items.${index}.quantity`, { valueAsNumber: true })} placeholder="Qty" className="input input-bordered" />
-                        <input type="number" {...register(`items.${index}.unitPrice`, { valueAsNumber: true })} placeholder="Price" className="input input-bordered" />
+                        <Input
+                            id="description"
+                            {...register(`items.${index}.description`)}
+                            placeholder="Description"
+                            className="input input-bordered col-span-2"
+                        />
+                        <Input
+                            id="quantity"
+                            type="number"
+                            {...register(`items.${index}.quantity`, { valueAsNumber: true })}
+                            placeholder="Qty"
+                            className="input input-bordered"
+                        />
+                        <Input
+                            id="unitPrice"
+                            type="number"
+                            {...register(`items.${index}.unitPrice`, { valueAsNumber: true })}
+                            placeholder="Price"
+                            className="input input-bordered"
+                        />
                         <Button
                             variant="destructive"
                             onClick={() => remove(index)}
@@ -235,23 +243,46 @@ const InvoiceForm: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="taxRate">Tax Rate (%)</Label>
-                    <input type="number" {...register('taxRate', { valueAsNumber: true })} className="input input-bordered w-full" />
+                    <Input
+                        id="taxRate"
+                        type="number"
+                        {...register('taxRate', { valueAsNumber: true })}
+                        className="input input-bordered w-full"
+                    />
                     {errors.taxRate && <span className="text-red-500">{errors.taxRate.message}</span>}
                 </div>
                 <div>
                     <Label htmlFor="subtotal">Subtotal</Label>
-                    <input type="number" {...register('subtotal', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
+                    <Input
+                        id="subtotal"
+                        type="number"
+                        {...register('subtotal', { valueAsNumber: true })}
+                        readOnly
+                        className="input input-bordered w-full"
+                    />
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="taxAmount">Tax Amount</Label>
-                    <input type="number" {...register('taxAmount', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
+                    <Input
+                        id="taxAmount"
+                        type="number"
+                        {...register('taxAmount', { valueAsNumber: true })}
+                        readOnly
+                        className="input input-bordered w-full"
+                    />
                 </div>
                 <div>
                     <Label htmlFor="total">Total</Label>
-                    <input type="number" {...register('total', { valueAsNumber: true })} readOnly className="input input-bordered w-full" />
+                    <Input
+                        id="total"
+                        type="number"
+                        {...register('total', { valueAsNumber: true })}
+                        readOnly
+                        className="input input-bordered w-full"
+                    />
                 </div>
             </div>
 

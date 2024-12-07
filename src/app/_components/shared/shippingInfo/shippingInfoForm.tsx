@@ -6,6 +6,7 @@ import { ShippingMethod, type Address } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
+import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 
 const addressSchema = z.object({
     id: z.string().optional(),
@@ -73,8 +74,7 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
         onSubmit(data);
     };
 
-    const handleAddressChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const addressId = e.target.value;
+    const handleAddressChange = (addressId: string) => {
         setSelectedAddress(addressId);
         if (addressId !== 'new') {
             const selectedAddress = officeAddresses.find(addr => addr.id === addressId);
@@ -97,16 +97,17 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
             <div>
-                <label htmlFor="shippingMethod" className="block text-sm font-medium text-gray-700">Shipping Method</label>
+                <Label htmlFor="shippingMethod">Shipping Method</Label>
                 <Controller
                     name="shippingMethod"
                     control={control}
                     render={({ field }) => (
-                        <select {...field} className="select select-bordered w-full">
-                            {Object.values(ShippingMethod).map((method) => (
-                                <option key={method} value={method}>{method}</option>
-                            ))}
-                        </select>
+                        <SelectField
+                            options={Object.values(ShippingMethod).map(method => ({ value: method, label: method }))}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select Shipping Method"
+                        />
                     )}
                 />
                 {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
@@ -116,22 +117,40 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                 <>
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="pickupDate">Pickup Date</Label>
-                        <input type="date" {...register('shippingPickup.pickupDate')} className="input input-bordered w-full" />
+                        <Input
+                            id="pickupDate"
+                            type="date"
+                            {...register('shippingPickup.pickupDate')}
+                            className="input input-bordered w-full"
+                        />
                         {errors.shippingPickup?.pickupDate && <p className="text-red-500">{errors.shippingPickup.pickupDate.message}</p>}
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="pickupTime">Pickup Time</Label>
-                        <input type="time" {...register('shippingPickup.pickupTime')} className="input input-bordered w-full" />
+                        <Input
+                            id="pickupTime"
+                            type="time"
+                            {...register('shippingPickup.pickupTime')}
+                            className="input input-bordered w-full"
+                        />
                         {errors.shippingPickup?.pickupTime && <p className="text-red-500">{errors.shippingPickup.pickupTime.message}</p>}
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="contactName">Contact Name</Label>
-                        <input {...register('shippingPickup.contactName')} className="input input-bordered w-full" />
+                        <Input
+                            id="contactName"
+                            {...register('shippingPickup.contactName')}
+                            className="input input-bordered w-full"
+                        />
                         {errors.shippingPickup?.contactName && <p className="text-red-500">{errors.shippingPickup.contactName.message}</p>}
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="contactPhone">Contact Phone</Label>
-                        <input {...register('shippingPickup.contactPhone')} className="input input-bordered w-full" />
+                        <Input
+                            id="contactPhone"
+                            {...register('shippingPickup.contactPhone')}
+                            className="input input-bordered w-full"
+                        />
                         {errors.shippingPickup?.contactPhone && <p className="text-red-500">{errors.shippingPickup.contactPhone.message}</p>}
                     </div>
                 </>
@@ -141,19 +160,15 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                 <>
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="addressSelect">Select Address</Label>
-                        <select
-                            id="addressSelect"
+                        <SelectField
+                            options={[
+                                { value: 'new', label: 'Create New Address' },
+                                ...officeAddresses.map(address => ({ value: address.id, label: `${address.line1}, ${address.city}, ${address.state}` })),
+                            ]}
                             value={selectedAddress}
-                            onChange={handleAddressChange}
-                            className="select select-bordered w-full"
-                        >
-                            <option value="new">Create New Address</option>
-                            {officeAddresses.map((address) => (
-                                <option key={address.id} value={address.id}>
-                                    {address.line1}, {address.city}, {address.state}
-                                </option>
-                            ))}
-                        </select>
+                            onValueChange={handleAddressChange}
+                            placeholder="Select Address"
+                        />
                     </div>
 
                     {selectedAddress === 'new' && (
@@ -192,7 +207,12 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
 
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="estimatedDelivery">Estimated Delivery Date</Label>
-                        <input type="date" {...register('estimatedDelivery')} className="input input-bordered w-full" />
+                        <Input
+                            id="estimatedDelivery"
+                            type="date"
+                            {...register('estimatedDelivery')}
+                            className="input input-bordered w-full"
+                        />
                         {errors.estimatedDelivery && <p className="text-red-500">{errors.estimatedDelivery.message}</p>}
                     </div>
                 </>

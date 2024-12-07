@@ -390,6 +390,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             currentShippingInfo={order.ShippingInfo}
                             officeId={order.officeId}
                             onUpdate={() => {
+                                console.log("Shipping info updated");
                                 utils.orders.getByID.invalidate(orderId);
                             }}
                         />

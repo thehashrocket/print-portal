@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { CheckCircle, LucideIcon } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Label } from '../../ui/label';
-
+import { SelectField } from '../../shared/ui/SelectField/SelectField';
 
 interface ContactPersonEditorProps {
     orderId: string;
@@ -51,18 +51,12 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
         <div className="p-4 bg-white shadow-md rounded-md">
             <div className="mb-4">
                 <Label htmlFor="contactPerson">Select Contact Person</Label>
-                <select 
-                    id="contactPerson" 
-                    value={selectedUserId} 
-                    onChange={handleUserChange} 
-                    className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                >
-                    {users?.map(user => (
-                        <option key={user.id} value={user.id}>
-                            {user.name || user.email || user.id}
-                        </option>
-                    ))}
-                </select>
+                <SelectField
+                    options={users?.map(user => ({ value: user.id, label: user.name || user.email || user.id })) || []}
+                    value={selectedUserId}
+                    onValueChange={(value) => setSelectedUserId(value)}
+                    placeholder="Select Contact Person"
+                />
             </div>
             <Button
                 variant="default"

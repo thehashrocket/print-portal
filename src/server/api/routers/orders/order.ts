@@ -366,10 +366,12 @@ export const orderRouter = createTRPCRouter({
       orderId: z.string(),
       shippingInfo: z.object({
         addressId: z.string().optional(),
+        instructions: z.string().optional(),
         shippingCost: z.number().optional(),
         shippingDate: z.date().optional(),
         shippingNotes: z.string().optional(),
         shippingMethod: z.string(), // Add this field
+        shippingOther: z.string().optional(),
         trackingNumber: z.string().optional(),
       }),
     }))

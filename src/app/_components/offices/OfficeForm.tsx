@@ -10,6 +10,9 @@ import { api } from "~/trpc/react";
 import { Mail, MapPin, Plus, Trash } from "lucide-react"; // Added Plus and Trash icons
 import { AddressType } from "@prisma/client";
 import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { SelectField } from "../shared/ui/SelectField/SelectField";
+import { Input } from "../ui/input";
 
 type NewAddress = Omit<SerializedAddress, 'createdAt' | 'updatedAt' | 'quickbooksId'>;
 
@@ -124,12 +127,12 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white shadow-md rounded-md">
             <div className="flex items-center space-x-2">
-                <label className="block text-sm font-medium text-gray-700">Name:</label>
-                <input
+                <Label htmlFor="name">Name:</Label>
+                <Input
+                    id="name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
             </div>
 
@@ -151,17 +154,12 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                         <div className="flex justify-between items-center">
                             <div className="flex items-center space-x-2">
                                 <MapPin className="w-4 h-4 text-gray-500" />
-                                <select
+                                <SelectField
+                                    options={Object.values(AddressType).map(type => ({ value: type, label: type }))}
                                     value={address.addressType}
-                                    onChange={(e) => handleAddressChange(address.id, 'addressType', e.target.value)}
-                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                >
-                                    {Object.values(AddressType).map((type) => (
-                                        <option key={type} value={type}>
-                                            {type}
-                                        </option>
-                                    ))}
-                                </select>
+                                    onValueChange={(value) => handleAddressChange(address.id, 'addressType', value)}
+                                    placeholder="Select Address Type"
+                                />
                             </div>
                             <Button
                                 variant="destructive"
@@ -172,14 +170,16 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             </Button>
                         </div>
 
-                        <input
+                        <Input
+                            id="line1"
                             type="text"
                             value={address.line1}
                             onChange={(e) => handleAddressChange(address.id, 'line1', e.target.value)}
                             placeholder="Address Line 1"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
-                        <input
+                        <Input
+                            id="line2"
                             type="text"
                             value={address.line2 ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'line2', e.target.value)}
@@ -187,14 +187,16 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <div className="grid grid-cols-2 gap-2">
-                            <input
+                            <Input
+                                id="city"
                                 type="text"
                                 value={address.city}
                                 onChange={(e) => handleAddressChange(address.id, 'city', e.target.value)}
                                 placeholder="City"
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
-                            <input
+                            <Input
+                                id="state"
                                 type="text"
                                 value={address.state}
                                 onChange={(e) => handleAddressChange(address.id, 'state', e.target.value)}
@@ -203,14 +205,16 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <input
+                            <Input
+                                id="zipCode"
                                 type="text"
                                 value={address.zipCode}
                                 onChange={(e) => handleAddressChange(address.id, 'zipCode', e.target.value)}
                                 placeholder="Zip Code"
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
-                            <input
+                            <Input
+                                id="country"
                                 type="text"
                                 value={address.country}
                                 onChange={(e) => handleAddressChange(address.id, 'country', e.target.value)}
@@ -218,7 +222,8 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
-                        <input
+                        <Input
+                            id="telephoneNumber"
                             type="tel"
                             value={address.telephoneNumber ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'telephoneNumber', e.target.value)}
