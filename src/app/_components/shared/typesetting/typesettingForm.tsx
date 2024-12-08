@@ -55,7 +55,6 @@ function ensureCompleteTypesettingData(data: Partial<Typesetting>): Typesetting 
 export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onSubmit, onCancel }: TypesettingFormProps) {
     const isAddMode = !typesetting;
     const [error, setError] = useState<string | null>(null);
-    console.log('typesetting', typesetting);
 
     const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingFormSchema),

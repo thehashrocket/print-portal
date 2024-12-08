@@ -1,7 +1,7 @@
 // ~/app/_components/orders/orderItem/orderItemComponent.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { OrderItemStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
@@ -17,6 +17,8 @@ import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF'; // You'll need to create this file
 import { PrintButton } from './PrintButton'; // Create this component in the same directory
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -26,7 +28,7 @@ type OrderItemPageProps = {
 const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
-    
+
     const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(orderId);
@@ -47,8 +49,8 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: 
     };
 
     const handleStatusChange = (newStatus: OrderItemStatus, sendEmail: boolean, emailOverride: string) => {
-        updateStatus({ 
-            id, 
+        updateStatus({
+            id,
             status: newStatus,
             sendEmail,
             emailOverride
@@ -83,7 +85,34 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
+    const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
+        onSuccess: () => {
+            toast.success('Job description updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update job description:', error);
+            toast.error('Failed to update job description');
+        }
+    });
+
     const utils = api.useUtils();
+    const [jobDescription, setJobDescription] = useState("");
+
+    useEffect(() => {
+        if (orderItem) {
+            setJobDescription(orderItem.description);
+        }
+    }, [orderItem]);
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setJobDescription(e.target.value);
+    };
+
+     const updateJobDescription = () => {
+        updateDescription({ id: orderItemId, description: jobDescription });
+    };
+
     if (orderLoading || itemLoading || typesettingLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -96,7 +125,11 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         return <div className="text-red-500 text-center mt-8">Error loading job details.</div>;
     }
 
+    
+
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
+
+    
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -120,22 +153,33 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
                     <InfoCard title="Company" content={order.Office?.Company.name} />
                     <InfoCard title="Contact Info" content={
-                        <ContactPersonEditor 
-                            orderId={order.id} 
-                            currentContactPerson={order.contactPerson} 
-                            officeId={order.officeId} 
+                        <ContactPersonEditor
+                            orderId={order.id}
+                            currentContactPerson={order.contactPerson}
+                            officeId={order.officeId}
                             onUpdate={() => {
                                 utils.orders.getByID.invalidate(orderId);
-                            }} 
+                            }}
                         />
                     } />
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
-                    <InfoCard
-                        title="Job Description"
-                        content={orderItem.description}
-                    />
+                    <div className="mb-6">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
+                        <Input
+                            type="text"
+                            value={jobDescription}
+                            onChange={handleDescriptionChange}
+                            className="bg-gray-50 p-4 rounded-lg w-full"
+                        />
+                        <Button
+                            variant="default"
+                            onClick={updateJobDescription}
+                        >
+                            Update Description
+                        </Button>
+                    </div>
                     <InfoCard
                         title="Job Quantity"
                         content={orderItem.quantity}

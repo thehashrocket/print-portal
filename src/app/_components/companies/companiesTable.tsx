@@ -73,7 +73,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     }, [updatedCompanies]);
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
-        <div className="flex justify-center items-center space-x-2 px-2">
+        <div className="flex gap-2">
             <Link href={`/companies/${props.data.id}`}>
                 <Button
                     variant="default"
@@ -127,7 +127,6 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             sortable: false,
             filter: false,
             width: 250, // Adjust this value as needed
-            cellStyle: { padding: '5px' } // Add some padding
         },
     ];
 

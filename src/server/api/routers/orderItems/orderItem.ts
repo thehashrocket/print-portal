@@ -89,6 +89,17 @@ export const orderItemRouter = createTRPCRouter({
             }
         });
     }),
+    updateDescription: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            description: z.string()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.orderItem.update({
+                where: { id: input.id },
+                data: { description: input.description }
+            });
+        }),
     updateStatus: protectedProcedure
         .input(z.object({
             id: z.string(),
@@ -112,7 +123,7 @@ export const orderItemRouter = createTRPCRouter({
                     },
                 },
             });
-    
+
             // If sendEmail is true and we have a contact email, send status update
             const emailToSend = input.emailOverride || updatedItem.Order?.contactPerson?.email;
             if (input.sendEmail && emailToSend) {
@@ -122,7 +133,7 @@ export const orderItemRouter = createTRPCRouter({
                     <p>Description: ${updatedItem.description}</p>
                     <p>If you have any questions, please contact us.</p>
                 `;
-    
+
                 await sendOrderEmail(
                     emailToSend,
                     `Job Status Update`,
@@ -130,7 +141,7 @@ export const orderItemRouter = createTRPCRouter({
                     '' // No attachment needed for status update
                 );
             }
-    
+
             return updatedItem;
         }),
 });
