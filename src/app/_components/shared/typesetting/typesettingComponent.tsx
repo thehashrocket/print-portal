@@ -44,7 +44,6 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
             );
             setSelectedTypeId(mostRecent.id);
         }
-        console.log('initialTypesetting', initialTypesetting);
     }, [initialTypesetting, setTypesetting]);
 
     const handleNewTypesetting = (newTypesetting: TypesettingWithRelations) => {

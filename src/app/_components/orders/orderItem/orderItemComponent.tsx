@@ -135,7 +135,16 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Job Details</h1>
-                <PrintButton onClick={() => generateOrderItemPDF(orderItem, order)} />
+                <PrintButton 
+                    onClick={async () => {
+                        try {
+                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting);
+                        } catch (error) {
+                            console.error('Error generating PDF:', error);
+                            toast.error('Error generating PDF');
+                        }
+                    }} 
+                />
                 <div className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>

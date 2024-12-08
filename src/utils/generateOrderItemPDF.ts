@@ -20,7 +20,8 @@ const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): 
     return yPos;
 };
 
-export const generateOrderItemPDF = async (orderItem: any, order: any) => {
+export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any) => {
+    console.log('typesetting', typesetting);
     const doc = new jsPDF();
     
     // Set initial y position
@@ -29,10 +30,81 @@ export const generateOrderItemPDF = async (orderItem: any, order: any) => {
     const rightCol = 110;
     const pageHeight = doc.internal.pageSize.height;
     
-    // Header
-    doc.setFontSize(20);
+    // Header section
+    doc.setFontSize(24);
     doc.text('Job Details', leftMargin, yPos);
+    yPos += 30;
+
+    // Order and Item numbers
+    doc.setFontSize(16);
+    doc.text(`Order #${order.orderNumber}`, leftMargin, yPos);
+    doc.text(`Item #${orderItem.orderItemNumber}`, leftMargin + 250, yPos);
+    yPos += 25;
+
+    // Left column
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Company:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.Office?.Company.name || 'N/A', leftMargin + 80, yPos);
     yPos += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Job Description:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderItem.description || 'N/A', leftMargin + 80, yPos);
+    yPos += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Ink:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderItem.ink || 'N/A', leftMargin + 80, yPos);
+    yPos += 15;
+
+    // Right column
+    let rightColumnY = yPos - 45; // Align with start of left column details
+    doc.setFont('helvetica', 'bold');
+    doc.text('Purchase Order Number:', leftMargin + 250, rightColumnY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.WorkOrder.purchaseOrderNumber || 'N/A', leftMargin + 380, rightColumnY);
+    rightColumnY += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Job Quantity:', leftMargin + 250, rightColumnY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderItem.quantity.toString(), leftMargin + 380, rightColumnY);
+    rightColumnY += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Status:', leftMargin + 250, rightColumnY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderItem.status, leftMargin + 380, rightColumnY);
+
+    // Contact Information section header (with proper spacing)
+    yPos += 20; // Add space after the last detail
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Contact Information', leftMargin, yPos);
+    yPos += 15;
+
+    // Contact details
+    doc.setFontSize(12);
+    doc.text('Name:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.contactPerson?.name || 'N/A', leftMargin + 80, yPos);
+    yPos += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Email:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.contactPerson?.email || 'N/A', leftMargin + 80, yPos);
+    yPos += 15;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Phone:', leftMargin, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.contactPerson?.phone || 'N/A', leftMargin + 80, yPos);
+    yPos += 25; // Add extra space before next section
 
     // Add company logo/header if needed
     doc.setFontSize(12);
@@ -175,39 +247,226 @@ export const generateOrderItemPDF = async (orderItem: any, order: any) => {
 
     // Processing Options
     if (orderItem.ProcessingOptions && orderItem.ProcessingOptions.length > 0) {
-        yPos = checkAndAddPage(doc, yPos, 50);
-        doc.setFontSize(14);
+        yPos = checkAndAddPage(doc, yPos, 150);
+        doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.text('Bindery Options', leftMargin, yPos);
-        yPos += 10;
-        doc.setFontSize(10);
+        yPos += 20;
+        doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
         
         const options = orderItem.ProcessingOptions[0];
         
         if (options.cutting) {
-            const splitCutting = doc.splitTextToSize(`Cutting: ${options.cutting}`, 170);
-            doc.text(splitCutting, leftMargin, yPos);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Cutting:', leftMargin, yPos);
+            doc.setFont('helvetica', 'normal');
+            const splitCutting = doc.splitTextToSize(options.cutting, 
+                doc.internal.pageSize.width - (leftMargin + 80));
+            doc.text(splitCutting, leftMargin + 80, yPos);
             yPos += splitCutting.length * 5;
         }
-        yPos += 5;
+        yPos += 15;
         
         if (options.folding) {
-            const splitFolding = doc.splitTextToSize(`Folding: ${options.folding}`, 170);
-            doc.text(splitFolding, leftMargin, yPos);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Folding:', leftMargin, yPos);
+            doc.setFont('helvetica', 'normal');
+            const splitFolding = doc.splitTextToSize(options.folding, 
+                doc.internal.pageSize.width - (leftMargin + 80));
+            doc.text(splitFolding, leftMargin + 80, yPos);
             yPos += splitFolding.length * 5;
         }
-        yPos += 5;
+        yPos += 15;
         
         if (options.binding) {
-            doc.text(`Binding: ${options.binding}`, leftMargin, yPos);
-            yPos += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Binding:', leftMargin, yPos);
+            doc.setFont('helvetica', 'normal');
+            const splitBinding = doc.splitTextToSize(options.binding, 
+                doc.internal.pageSize.width - (leftMargin + 80));
+            doc.text(splitBinding, leftMargin + 80, yPos);
+            yPos += splitBinding.length * 5;
         }
         
         if (options.stitching) {
-            const splitStitching = doc.splitTextToSize(`Stitching: ${options.stitching}`, 170);
-            doc.text(splitStitching, leftMargin, yPos);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Stitching:', leftMargin, yPos);
+            doc.setFont('helvetica', 'normal');
+            const splitStitching = doc.splitTextToSize(options.stitching, 
+                doc.internal.pageSize.width - (leftMargin + 80));
+            doc.text(splitStitching, leftMargin + 80, yPos);
             yPos += splitStitching.length * 5;
+        }
+    }
+
+    // Start a new page for the typesetting proofs
+    doc.addPage();
+    yPos = 20;
+
+    // Typesetting Proofs
+    if (typesetting.length > 0) {
+        yPos = checkAndAddPage(doc, yPos, 40);
+        
+        const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+        // Process typesetting proofs
+        for (const proof of typesetting) {
+            if (!proof.TypesettingProofs?.length) continue;
+
+            // Section Header
+            doc.setFillColor(240, 240, 240);  // Light gray background
+            doc.rect(leftMargin - 5, yPos - 5, doc.internal.pageSize.width - (leftMargin * 2) + 10, 25, 'F');
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Typesetting Proofs', leftMargin, yPos + 8);
+            yPos += 30;
+
+            for (const typesettingProof of proof.TypesettingProofs) {
+                // Proof Header
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Proof #${typesettingProof.proofNumber}`, leftMargin, yPos);
+                
+                // Status indicator
+                const statusColor = typesettingProof.approved ? '008000' : '808080';
+                doc.setTextColor(statusColor);
+                doc.text(typesettingProof.approved ? 'Approved' : 'Pending', leftMargin + 100, yPos);
+                doc.setTextColor(0, 0, 0);
+                yPos += 15;
+
+                // Proof Details Box
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setDrawColor(200, 200, 200);
+                const detailsBox = {
+                    x: leftMargin,
+                    y: yPos,
+                    width: doc.internal.pageSize.width - (leftMargin + 20),
+                    padding: 5
+                };
+
+                // Details content
+                const details = [
+                    `Date Submitted: ${formatDate(typesettingProof.dateSubmitted)}`,
+                    `Proof Method: ${typesettingProof.proofMethod || 'N/A'}`,
+                    `Proof Count: ${typesettingProof.proofCount || 'N/A'}`,
+                ];
+
+                // Draw details box
+                doc.rect(detailsBox.x, detailsBox.y, detailsBox.width, 
+                    (details.length * 12) + (detailsBox.padding * 2), 'S');
+
+                // Add details content
+                let detailsY = detailsBox.y + detailsBox.padding + 5;
+                
+                doc.setFont('helvetica', 'bold');
+                doc.text('Date Submitted:', detailsBox.x + detailsBox.padding, detailsY);
+                doc.setFont('helvetica', 'normal');
+                const splitDateSubmitted = doc.splitTextToSize(typesettingProof.dateSubmitted, 
+                    doc.internal.pageSize.width - (leftMargin + 50));
+                doc.text(splitDateSubmitted, detailsBox.x + 50, detailsY);
+                detailsY += splitDateSubmitted.length * 5;
+
+                doc.setFont('helvetica', 'bold');
+                doc.text('Proof Method:', detailsBox.x + detailsBox.padding, detailsY);
+                doc.setFont('helvetica', 'normal');
+                const splitProofMethod = doc.splitTextToSize(typesettingProof.proofMethod, 
+                    doc.internal.pageSize.width - (leftMargin + 50));
+                doc.text(splitProofMethod, detailsBox.x + 50, detailsY);
+                detailsY += splitProofMethod.length * 5;
+
+                doc.setFont('helvetica', 'bold');
+                doc.text('Proof Count:', detailsBox.x + detailsBox.padding, detailsY);
+                doc.setFont('helvetica', 'normal');
+                const splitProofCount = doc.splitTextToSize(typesettingProof.proofCount, 
+                    doc.internal.pageSize.width - (leftMargin + 50));
+                doc.text(splitProofCount, detailsBox.x + 50, detailsY);
+                detailsY += splitProofCount.length * 5;
+
+                yPos = detailsY + 10;
+
+                // Notes section (if exists)
+                if (typesettingProof.notes) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Notes:', detailsBox.x + detailsBox.padding, detailsY);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    // Word wrap for notes
+                    const splitNotes = doc.splitTextToSize(typesettingProof.notes, 
+                        doc.internal.pageSize.width - (leftMargin + 50));
+                    doc.text(splitNotes, leftMargin + 50, detailsY);
+                    yPos += (splitNotes.length * 5) + 10;
+                }
+
+                if (!typesettingProof.artwork?.length) continue;
+
+                // Pre-load all images
+                const artworkPromises = typesettingProof.artwork.map(async (art: { fileUrl: any; description: any; }) => {
+                    let fileUrl = art.fileUrl;
+                    if (!fileUrl.startsWith('http')) {
+                        const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '';
+                        fileUrl = `${BASE_URL}${fileUrl}`;
+                    }
+
+                    const fileType = fileUrl.split('.').pop()?.toLowerCase();
+                    if (['jpg', 'jpeg', 'png'].includes(fileType || '')) {
+                        try {
+                            const img = await loadImage(fileUrl);
+                            return { img, fileUrl, fileType, description: art.description };
+                        } catch (error) {
+                            console.error('Error loading image:', error, fileUrl);
+                            return null;
+                        }
+                    }
+                    return null;
+                });
+
+                const loadedArtwork = await Promise.all(artworkPromises);
+
+                // Artwork section
+                yPos += 10;
+                doc.setFont('helvetica', 'bold');
+                doc.text('Artwork:', leftMargin, yPos);
+                yPos += 10;
+
+                // Add the loaded images
+                for (const art of loadedArtwork) {
+                    if (!art) continue;
+
+                    yPos = checkAndAddPage(doc, yPos, 100); // Increased space check
+
+                    const maxWidth = 150;  // Increased max width
+                    const maxHeight = 100; // Increased max height
+                    
+                    const aspect = art.img.width / art.img.height;
+                    let width = maxWidth;
+                    let height = width / aspect;
+                    
+                    if (height > maxHeight) {
+                        height = maxHeight;
+                        width = height * aspect;
+                    }
+
+                    // Add image with border
+                    doc.setDrawColor(200, 200, 200);
+                    doc.rect(leftMargin - 2, yPos - 2, width + 4, height + 4, 'S');
+                    doc.addImage(art.img, art.fileType.toUpperCase(), leftMargin, yPos, width, height);
+                    yPos += height + 5;
+
+                    // Image description
+                    if (art.description) {
+                        doc.setFontSize(9);
+                        doc.setFont('helvetica', 'italic');
+                        const splitDescription = doc.splitTextToSize(art.description, width);
+                        doc.text(splitDescription, leftMargin, yPos);
+                        yPos += (splitDescription.length * 5) + 15;
+                    }
+                }
+                
+                yPos += 20; // Space between proofs
+                yPos = checkAndAddPage(doc, yPos, 40);
+            }
         }
     }
 
