@@ -131,7 +131,7 @@ const WorkOrderForm: React.FC = () => {
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div className="flex flex-col space-y-1.5">
-                    <label htmlFor="company">Company</label>
+                    <Label htmlFor="company">Company</Label>
                     <CustomComboBox
                         options={companies.map(company => ({
                             value: company.id,
@@ -148,7 +148,7 @@ const WorkOrderForm: React.FC = () => {
 
                 {selectedCompany && (
                     <div className="flex flex-col space-y-1.5">
-                        <label htmlFor="office">Office</label>
+                        <Label htmlFor="office">Office</Label>
                         <CustomComboBox
                             options={offices.map(office => ({
                                 value: office.id,
@@ -166,7 +166,7 @@ const WorkOrderForm: React.FC = () => {
 
                 {selectedOffice && (
                     <div className="flex flex-col space-y-1.5">
-                        <label htmlFor="contactPersonId">Contact Person</label>
+                        <Label htmlFor="contactPersonId">Contact Person</Label>
                         <CustomComboBox
                             options={employees.map(employee => ({
                                 value: employee.id,

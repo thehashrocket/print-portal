@@ -45,7 +45,7 @@ const NavBar = async () => {
               <>
                 <Link href={`/users/${session.user.id}`}>
                   <Button
-                    variant="outline"
+                    variant="navOutline"
                   >
                     <UserIcon className="w-4 h-4 mr-2" />
                     Profile
@@ -53,7 +53,7 @@ const NavBar = async () => {
                 </Link>
                 <Link href="/workOrders/create">
                   <Button
-                    variant="outline"
+                    variant="navOutline"
                   >
                     <PlusIcon className="w-4 h-4 mr-2" />
                     Create Order
@@ -64,7 +64,7 @@ const NavBar = async () => {
             ) : (
               <Link href="/api/auth/signin">
                 <Button
-                  variant="outline"
+                  variant="navOutline"
                 > 
                   LOGIN
                 </Button>
