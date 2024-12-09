@@ -86,7 +86,7 @@
     "zustand": "5.0.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "9.0.3",
+    "@faker-js/faker": "9.3.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/bcryptjs": "^2.4.6",
     "@types/eslint": "^9.6.1",
