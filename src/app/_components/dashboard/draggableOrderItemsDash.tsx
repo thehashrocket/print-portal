@@ -8,11 +8,14 @@ import type { SerializedOrderItem } from "~/types/serializedTypes";
 import { formatDate } from "~/utils/formatters";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
     const [originalItems] = useState<SerializedOrderItem[]>(initialOrderItems);
     const [displayedItems, setDisplayedItems] = useState<SerializedOrderItem[]>(initialOrderItems);
+    const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
@@ -50,8 +53,40 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                 placeholder="Filter by Company..."
                 emptyText="No companies found"
                 searchPlaceholder="Search companies..."
-                className="w-[300px] bg-gray-600 text-white"
+                className="w-[300px]"
             />
+        </div>
+    );
+
+    const handleOrderItemNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setOrderItemNumber(event.target.value);
+    };
+
+    const handleOrderItemNumberSubmit = () => {
+        const filtered = originalItems.filter(
+            item => item.orderItemNumber.toString().includes(orderItemNumber)
+        );
+        setDisplayedItems(filtered);
+    };
+
+    const clearOrderItemNumberFilter = () => {
+        setOrderItemNumber("");
+        setDisplayedItems(originalItems);
+    };
+
+    const OrderItemNumberFilter = () => (
+        <div className="mb-4 p-4 bg-gray-700 rounded-lg">
+            <Input
+                type="text"
+                value={orderItemNumber}
+                onChange={handleOrderItemNumberChange}  
+                placeholder="Filter by Job Number..."
+                className="w-[300px] mb-2"
+            />
+            <div className="flex gap-2">
+                <Button variant="default" onClick={handleOrderItemNumberSubmit}>Filter</Button>
+                <Button variant="default" onClick={clearOrderItemNumberFilter}>Clear</Button>
+            </div>
         </div>
     );
 
@@ -162,7 +197,10 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
 
     return (
         <div className="flex flex-col p-5 bg-gray-800 text-white min-h-screen">
-            <CompanyFilter />
+            <div className="flex justify-between items-center mb-4">
+                <CompanyFilter />
+                <OrderItemNumberFilter />
+            </div>
             <div className="flex">
                 {allStatuses.map((status) => (
                     <div key={status}
@@ -183,6 +221,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                                 }}
                             >
                                 <div className='text-sm font-bold mb-2'>{orderItem.Order.Office.Company.name}</div>
+                                <div className='text-sm font-bold mb-2'>Job #: {orderItem.orderItemNumber}</div>
                                 <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
                                 <div className="flex items-center mb-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 m-2">

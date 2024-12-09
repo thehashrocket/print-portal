@@ -109,7 +109,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         setJobDescription(e.target.value);
     };
 
-     const updateJobDescription = () => {
+    const updateJobDescription = () => {
         updateDescription({ id: orderItemId, description: jobDescription });
     };
 
@@ -125,17 +125,17 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         return <div className="text-red-500 text-center mt-8">Error loading job details.</div>;
     }
 
-    
+
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
 
-    
+
 
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Job Details</h1>
-                <PrintButton 
+                <PrintButton
                     onClick={async () => {
                         try {
                             await generateOrderItemPDF(orderItem, order, normalizedTypesetting);
@@ -143,34 +143,39 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             console.error('Error generating PDF:', error);
                             toast.error('Error generating PDF');
                         }
-                    }} 
+                    }}
                 />
                 <div className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/orders">Orders</Link></li>
                         <li><Link href={`/orders/${orderId}`}>Order {order.orderNumber}</Link></li>
-                        <li>Item {orderItem.orderItemNumber}</li>
+                        <li>Job {orderItem.orderItemNumber}</li>
                     </ul>
                 </div>
             </div>
 
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
-                <div className="grid md:grid-cols-2 gap-6 mb-2">
-                    <InfoCard title="Order Number" content={order.orderNumber} />
-                    <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
-                    <InfoCard title="Company" content={order.Office?.Company.name} />
-                    <InfoCard title="Contact Info" content={
-                        <ContactPersonEditor
-                            orderId={order.id}
-                            currentContactPerson={order.contactPerson}
-                            officeId={order.officeId}
-                            onUpdate={() => {
-                                utils.orders.getByID.invalidate(orderId);
-                            }}
-                        />
-                    } />
+                <div className="flex flex-col gap-4 mb-2">
+                    <div className="grid grid-cols-3 gap-4 mb-2">
+                        <InfoCard title="Order Number" content={order.orderNumber} />
+                        <InfoCard title="Job Number" content={orderItem.orderItemNumber} />
+                        <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                        <InfoCard title="Company" content={order.Office?.Company.name} />
+                        <InfoCard title="Contact Info" content={
+                            <ContactPersonEditor
+                                orderId={order.id}
+                                currentContactPerson={order.contactPerson}
+                                officeId={order.officeId}
+                                onUpdate={() => {
+                                    utils.orders.getByID.invalidate(orderId);
+                                }}
+                            />
+                        } />
+                    </div>
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">
@@ -180,7 +185,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             type="text"
                             value={jobDescription}
                             onChange={handleDescriptionChange}
-                            className="bg-gray-50 p-4 rounded-lg w-full"
+                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
                         />
                         <Button
                             variant="default"
