@@ -9,9 +9,9 @@ import timezone from 'dayjs/plugin/timezone';
 import { formatDate, formatCurrency } from "~/utils/formatters";
 import ArtworkComponent from "../artworkComponent/artworkComponent";
 import { Button } from "../../ui/button";
-import { Pencil, PlusCircle, Trash } from "lucide-react";
+import { Pencil, PlusCircle, Printer, Trash } from "lucide-react";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
-
+import { generateProofPDF } from "~/utils/generateProofPDF";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -196,6 +196,12 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                         <p className="text-sm">{proof.proofNumber}</p>
                                         <p className="text-gray-600 text-sm font-semibold">Notes</p>
                                         <p className="text-sm">{proof.notes}</p>
+                                        <Button variant="default" onClick={() => {
+                                            generateProofPDF(proof);
+                                        }}>
+                                            <Printer className="w-4 h-4 mr-2" />
+                                            Print Proof
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
