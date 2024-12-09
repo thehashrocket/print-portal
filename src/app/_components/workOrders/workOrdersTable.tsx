@@ -18,6 +18,7 @@ import { type SerializedWorkOrder } from "~/types/serializedTypes";
 import { api } from "~/trpc/react";
 import { formatNumberAsCurrencyInTable, formatDateInTable } from "~/utils/formatters";
 import { Button } from "../ui/button";
+import { Eye } from "lucide-react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -41,6 +42,7 @@ const WorkOrdersTable: React.FC = () => {
                     variant="default"
                     size="sm"
                 >
+                    <Eye className="w-4 h-4 mr-2" />
                     W/O
                 </Button>
             </Link>
@@ -50,6 +52,7 @@ const WorkOrdersTable: React.FC = () => {
                         variant="default"
                         size="sm"
                     >
+                        <Eye className="w-4 h-4 mr-2" />
                         Order
                     </Button>
                 </Link>

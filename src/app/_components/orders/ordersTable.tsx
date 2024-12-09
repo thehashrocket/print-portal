@@ -22,6 +22,7 @@ import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
+import { Eye } from "lucide-react";
 
 
 const OrdersTable: React.FC = () => {
@@ -56,6 +57,7 @@ const OrdersTable: React.FC = () => {
           variant="default"
           size="sm"
         >
+          <Eye className="w-4 h-4 mr-2" />
           Order
         </Button>
       </Link>
@@ -65,6 +67,7 @@ const OrdersTable: React.FC = () => {
             variant="default"
             size="sm"
           >
+            <Eye className="w-4 h-4 mr-2" />
             W/O
           </Button>
         </Link>

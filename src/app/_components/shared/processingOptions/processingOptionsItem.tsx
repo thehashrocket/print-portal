@@ -71,7 +71,7 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
                             </div>
                             <div className="flex space-x-2">
                                 <Button
-                                    variant="outline"
+                                    variant="default"
                                     onClick={toggleEdit}
                                 >
                                     <Pencil className="w-4 h-4 mr-2" />
