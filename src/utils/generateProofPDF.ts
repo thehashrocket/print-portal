@@ -12,23 +12,55 @@ const loadImage = async (url: string): Promise<HTMLImageElement> => {
     });
 };
 
+const loadSVG = async (url: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx?.drawImage(img, 0, 0);
+            
+            const newImg = new Image();
+            newImg.onload = () => resolve(newImg);
+            newImg.onerror = (e) => reject(e);
+            newImg.src = canvas.toDataURL('image/png');
+        };
+        
+        img.onerror = (e) => reject(e);
+        img.src = url;
+    });
+};
+
 export const generateProofPDF = async (proof: any) => {
-    console.log('proof', proof);
+    
     let yPos = 20;
     const leftMargin = 20;
     const rightCol = 110;
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
 
+    try {
+        const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';
+        const logoDataUrl = await loadSVG(logoUrl);
+        // reduce size of logo by 20%
+        doc.addImage(logoDataUrl, 'SVG', leftMargin - 20, yPos - 12, 90 * 0.8, 30 * 0.8); // Adjusted height to 30
+    } catch (error) {
+        console.error('Error loading logo:', error);
+    }
+    yPos += 20;
     // Proof Header
-    doc.setFontSize(12);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text(`Proof #${proof.proofNumber}`, leftMargin, yPos);
     
     // Status indicator
+    doc.text('Proof Status:', leftMargin + 100, yPos);
     const statusColor = proof.approved ? '008000' : '808080';
     doc.setTextColor(statusColor);
-    doc.text(proof.approved ? 'Approved' : 'Pending', leftMargin + 100, yPos);
+    doc.text(proof.approved ? 'Approved' : 'Pending', leftMargin + 140, yPos);
     doc.setTextColor(0, 0, 0);
     yPos += 15;
 

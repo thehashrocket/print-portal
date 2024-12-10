@@ -196,9 +196,13 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                         <p className="text-sm">{proof.proofNumber}</p>
                                         <p className="text-gray-600 text-sm font-semibold">Notes</p>
                                         <p className="text-sm">{proof.notes}</p>
-                                        <Button variant="default" onClick={() => {
-                                            generateProofPDF(proof);
-                                        }}>
+                                        <Button 
+                                            variant="default" 
+                                            className="mt-2"
+                                            onClick={() => {
+                                                generateProofPDF(proof);
+                                            }}
+                                        >
                                             <Printer className="w-4 h-4 mr-2" />
                                             Print Proof
                                         </Button>

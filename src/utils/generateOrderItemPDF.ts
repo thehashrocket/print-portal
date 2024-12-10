@@ -60,14 +60,18 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     try {
         const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';
         const logoDataUrl = await loadSVG(logoUrl);
-        doc.addImage(logoDataUrl, 'SVG', leftMargin - 20, yPos - 12, 90, 30); // Adjusted height to 30
+        doc.addImage(logoDataUrl, 'SVG', leftMargin - 20, yPos - 12, 90 * 0.8, 30 * 0.8); // Adjusted height to 30
     } catch (error) {
         console.error('Error loading logo:', error);
     }
     
     // Add Status on right side
     doc.setFontSize(16);
+    // Set the color of text to red
+    doc.setTextColor(255, 0, 0);
     doc.text('STATUS', rightColStart, yPos);
+    // set the color of text to black
+    doc.setTextColor(0, 0, 0);
     doc.text(`${orderItem.status}`, rightColStart + 50, yPos);
     
     // Job Details header
