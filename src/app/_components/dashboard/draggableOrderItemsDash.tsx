@@ -85,7 +85,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
             />
             <div className="flex gap-2">
                 <Button variant="default" onClick={handleOrderItemNumberSubmit}>Filter</Button>
-                <Button variant="default" onClick={clearOrderItemNumberFilter}>Clear</Button>
+                <Button variant="outline" onClick={clearOrderItemNumberFilter}>Clear</Button>
             </div>
         </div>
     );

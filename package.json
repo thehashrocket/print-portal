@@ -20,7 +20,8 @@
     "dev": "next dev -p 3005",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "generate-font": "node scripts/generateFontBase64.mjs"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",

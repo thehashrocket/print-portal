@@ -1,6 +1,28 @@
 import { jsPDF } from 'jspdf';
 import { formatDate } from '~/utils/formatters';
 
+const loadSVG = async (url: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx?.drawImage(img, 0, 0);
+            
+            const newImg = new Image();
+            newImg.onload = () => resolve(newImg);
+            newImg.onerror = (e) => reject(e);
+            newImg.src = canvas.toDataURL('image/png');
+        };
+        
+        img.onerror = (e) => reject(e);
+        img.src = url;
+    });
+};
+
 const loadImage = async (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -20,425 +42,144 @@ const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): 
     return yPos;
 };
 
+
+
 export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any) => {
     const doc = new jsPDF();
+
+     
     
-    // Set initial y position
+    // Initial setup
+    doc.setFont('helvetica', 'bold');
     let yPos = 20;
     const leftMargin = 20;
-    const rightCol = 110;
-    const pageHeight = doc.internal.pageSize.height;
+    const rightColStart = doc.internal.pageSize.width / 2 + 10;
+    const pageWidth = doc.internal.pageSize.width;
     
-    // Header section
-    doc.setFontSize(24);
-    doc.text('Job Details', leftMargin, yPos);
-    yPos += 30;
-
-    // Order and Item numbers
+    // Add Thomson logo/header
+    try {
+        const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';
+        const logoDataUrl = await loadSVG(logoUrl);
+        doc.addImage(logoDataUrl, 'SVG', leftMargin - 20, yPos - 12, 90, 30); // Adjusted height to 30
+    } catch (error) {
+        console.error('Error loading logo:', error);
+    }
+    
+    // Add Status on right side
     doc.setFontSize(16);
-    doc.text(`Order #${order.orderNumber}`, leftMargin, yPos);
-    doc.text(`Item #${orderItem.orderItemNumber}`, leftMargin + 250, yPos);
-    yPos += 25;
+    doc.text('STATUS', rightColStart, yPos);
+    doc.text(`${orderItem.status}`, rightColStart + 50, yPos);
+    
+    // Job Details header
+    yPos += 20;
+    doc.setFontSize(20);
+    doc.text('JOB DETAILS', leftMargin, yPos);
 
-    // Left column
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Company:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(order.Office?.Company.name || 'N/A', leftMargin + 80, yPos);
-    yPos += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Job Description:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(orderItem.description || 'N/A', leftMargin + 80, yPos);
-    yPos += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ink:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(orderItem.ink || 'N/A', leftMargin + 80, yPos);
-    yPos += 15;
-
-    // Right column
-    let rightColumnY = yPos - 45; // Align with start of left column details
-    doc.setFont('helvetica', 'bold');
-    doc.text('Purchase Order Number:', leftMargin + 250, rightColumnY);
-    doc.setFont('helvetica', 'normal');
-    doc.text(order.WorkOrder.purchaseOrderNumber || 'N/A', leftMargin + 380, rightColumnY);
-    rightColumnY += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Job Quantity:', leftMargin + 250, rightColumnY);
-    doc.setFont('helvetica', 'normal');
-    doc.text(orderItem.quantity.toString(), leftMargin + 380, rightColumnY);
-    rightColumnY += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Status:', leftMargin + 250, rightColumnY);
-    doc.setFont('helvetica', 'normal');
-    doc.text(orderItem.status, leftMargin + 380, rightColumnY);
-
-    // Contact Information section header (with proper spacing)
-    yPos += 20; // Add space after the last detail
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Contact Information', leftMargin, yPos);
-    yPos += 15;
-
-    // Contact details
-    doc.setFontSize(12);
-    doc.text('Name:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(order.contactPerson?.name || 'N/A', leftMargin + 80, yPos);
-    yPos += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Email:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(order.contactPerson?.email || 'N/A', leftMargin + 80, yPos);
-    yPos += 15;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Phone:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(order.contactPerson?.phone || 'N/A', leftMargin + 80, yPos);
-    yPos += 25; // Add extra space before next section
-
-    // Add company logo/header if needed
-    doc.setFontSize(12);
-    doc.text(`Order #${order.orderNumber}`, leftMargin, yPos);
-    doc.text(`Item #${orderItem.orderItemNumber}`, rightCol, yPos);
-    yPos += 10;
-
-    // Basic Information - Left Column
-    doc.setFontSize(10);
-    const addField = (label: string, value: string, isRightColumn: boolean = false): number => {
-        const currentY = isRightColumn ? yPos : checkAndAddPage(doc, yPos, 15);
-        doc.setFont('helvetica', 'bold');
-        doc.text(label, isRightColumn ? rightCol : leftMargin, currentY);
-        doc.setFont('helvetica', 'normal');
-        doc.text(value || 'N/A', isRightColumn ? rightCol : leftMargin, currentY + 5);
-        if (!isRightColumn) {
-            return currentY + 10;
-        }
-        return currentY;
-    };
-
-    // First Row
-    yPos = addField('Company:', order.Office?.Company.name);
-    yPos = addField('Purchase Order Number:', order.WorkOrder.purchaseOrderNumber, true);
-
-    // Second Row - Handle Job Description with text wrapping
-    yPos = checkAndAddPage(doc, yPos, 20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Job Description:', leftMargin, yPos);
-    doc.setFont('helvetica', 'normal');
-    const splitDescription = doc.splitTextToSize(orderItem.description || 'N/A', 80);
-    doc.text(splitDescription, leftMargin, yPos + 5);
-    yPos += 10 + (splitDescription.length - 1) * 5;
-
-    // Job Quantity on right side
-    yPos = addField('Job Quantity:', orderItem.quantity.toString(), true);
-
-    // Third Row
-    yPos = checkAndAddPage(doc, yPos, 15);
-    yPos = addField('Ink:', orderItem.ink || 'N/A');
-    yPos = addField('Status:', orderItem.status, true);
-
-    // Contact Information
-    yPos = checkAndAddPage(doc, yPos, 40);
+    // Add dates to the right of Job Details
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Contact Information', leftMargin, yPos);
-    yPos += 10;
-    doc.setFontSize(10);
+    doc.text('DATE STARTED', rightColStart, yPos);
     doc.setFont('helvetica', 'normal');
+    doc.text(formatDate(new Date()), rightColStart + 50, yPos);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('COMPLETION DATE', rightColStart, yPos + 5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(formatDate(new Date()), rightColStart + 50, yPos + 5);
+
+    yPos += 15; // Space after headers
+
+    // Two-column layout for top section
+    const addField = (label: string, value: string, x: number, currentY: number, spacing: number = 10, labelWidth: number = 20) => {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, x, currentY);
+        
+        // Calculate value position based on label length
+        // const labelWidth = doc.getTextWidth(label);
+        // const labelWidth = 20;
+        const valueX = x + labelWidth + 10;
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text(value || 'N/A', valueX, currentY);
+        return currentY + spacing;
+    };
+
+    // Modified addField function to handle text wrapping
+    const addWrappedField = (label: string, value: string, x: number, currentY: number, maxWidth: number, labelWidth: number = 20): number => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, x, currentY);
+        
+        // Calculate value position based on label length
+        // const labelWidth = doc.getTextWidth(label);
+        const valueX = x + labelWidth + 10;
+        
+        // Split the value text if it's too long
+        doc.setFont('helvetica', 'normal');
+        const availableWidth = maxWidth - (valueX - x);
+        const lines = doc.splitTextToSize(value || 'N/A', availableWidth);
+        
+        // Draw the wrapped text
+        doc.text(lines, valueX, currentY);
+        
+        // Return the Y position after this field (accounting for multiple lines)
+        return currentY + (lines.length * 7); // 7 units per line of text
+    };
+
+    // Left column
+    let leftY = yPos;
+    leftY = addField('ORDER', `#${order.orderNumber}`, leftMargin, leftY);
+    leftY = addField('COMPANY', order.Office?.Company.name || 'N/A', leftMargin, leftY);
+    
+    // Contact Information
+    leftY += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONTACT INFORMATION', leftMargin, leftY);
+    leftY += 10;
+    
     if (order.contactPerson) {
-        doc.text(`Name: ${order.contactPerson.name || 'N/A'}`, leftMargin, yPos);
-        yPos += 5;
-        doc.text(`Email: ${order.contactPerson.email || 'N/A'}`, leftMargin, yPos);
-        yPos += 5;
-        doc.text(`Phone: ${order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}`, leftMargin, yPos);
-        yPos += 10;
+        leftY = addField('Name', order.contactPerson.name || 'N/A', leftMargin, leftY, 7, 10);
+        leftY = addField('Email', order.contactPerson.email || 'N/A', leftMargin, leftY, 7, 10);
+        leftY = addField('Phone', order.contactPerson?.phone || 'N/A', leftMargin, leftY, 7, 10);
     }
 
-    // Artwork Section
-    if (orderItem.artwork && orderItem.artwork.length > 0) {
-        yPos = checkAndAddPage(doc, yPos, 100); // Large space for artwork
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Artwork', leftMargin, yPos);
-        yPos += 10;
-        doc.setFontSize(10);
+    // Right column (excluding the dates that are now above)
+    let rightY = yPos;
+    rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 20, 30);
+    rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 20, 30);
+    rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30);
+    // Utilize the new addWrappedField function for Paper Stock
+    rightY = addWrappedField('Paper Stock', orderItem.OrderItemStock[0]?.notes || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
+    const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
-        for (const art of orderItem.artwork) {
-            try {
-                const fileUrl = art.fileUrl;
-                const fileType = fileUrl.split('.').pop()?.toLowerCase();
-                const maxWidth = 100;
-                const maxHeight = 80;
+    rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
 
-                yPos = checkAndAddPage(doc, yPos, maxHeight + 20);
+    // Project Description (full width)
+    yPos = Math.max(leftY, rightY) + 5; // More space before project description
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROJECT DESCRIPTION', leftMargin, yPos);
+    yPos += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    const splitDescription = doc.splitTextToSize(orderItem.description || 'N/A', pageWidth - (leftMargin * 2));
+    doc.text(splitDescription, leftMargin, yPos);
+    yPos += splitDescription.length * 7 + 10; // More space after description
 
-                if (fileType === 'pdf') {
-                    doc.text('PDF File:', leftMargin, yPos);
-                    doc.setTextColor(0, 0, 255);
-                    doc.textWithLink('View PDF', leftMargin, yPos + 5, { url: fileUrl });
-                    doc.setTextColor(0, 0, 0);
-                    yPos += 10;
-                } else if (['jpg', 'jpeg', 'png'].includes(fileType || '')) {
-                    try {
-                        const img = await loadImage(fileUrl);
-                        const aspect = img.width / img.height;
-                        let width = maxWidth;
-                        let height = width / aspect;
-                        
-                        if (height > maxHeight) {
-                            height = maxHeight;
-                            width = height * aspect;
-                        }
-                        
-                        doc.addImage(img, fileType.toUpperCase(), leftMargin, yPos, width, height);
-                        yPos += height + 5;
-                    } catch (error) {
-                        console.error('Error loading image:', error);
-                        doc.text('Error loading image', leftMargin, yPos);
-                        yPos += 10;
-                    }
-                }
-
-                if (art.description) {
-                    yPos = checkAndAddPage(doc, yPos, 20);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Description:', leftMargin, yPos);
-                    doc.setFont('helvetica', 'normal');
-                    const splitArtDescription = doc.splitTextToSize(art.description, 150);
-                    doc.text(splitArtDescription, leftMargin, yPos + 5);
-                    yPos += 10 + (splitArtDescription.length * 5);
-                }
-
-                yPos += 10;
-            } catch (error) {
-                console.error('Error processing artwork:', error);
-            }
-        }
-    }
-
-    // Typesetting Information
-    if (orderItem.Typesetting && orderItem.Typesetting.length > 0) {
-        yPos = checkAndAddPage(doc, yPos, 40);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Typesetting Details', leftMargin, yPos);
-        yPos += 10;
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
+    // Process Typesetting Proofs with proper sizing
+    if (typesetting?.length > 0) {
+        let proofCount = 0;
+        let lastImageHeight = 0; // Track the height of the last row of images
         
-        const typesetting = orderItem.Typesetting[0];
-        doc.text(`Date In: ${formatDate(typesetting.dateIn)}`, leftMargin, yPos);
-        yPos += 5;
-        doc.text(`Status: ${typesetting.status}`, leftMargin, yPos);
-        yPos += 5;
-        doc.text(`Prep Time: ${typesetting.prepTime || 'N/A'}`, leftMargin, yPos);
-        yPos += 10;
-    }
-
-    // Processing Options
-    if (orderItem.ProcessingOptions && orderItem.ProcessingOptions.length > 0) {
-        yPos = checkAndAddPage(doc, yPos, 150);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Bindery Options', leftMargin, yPos);
-        yPos += 20;
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        
-        const options = orderItem.ProcessingOptions[0];
-        
-        if (options.cutting) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Cutting:', leftMargin, yPos);
-            doc.setFont('helvetica', 'normal');
-            const splitCutting = doc.splitTextToSize(options.cutting, 
-                doc.internal.pageSize.width - (leftMargin + 80));
-            doc.text(splitCutting, leftMargin + 80, yPos);
-            yPos += splitCutting.length * 5;
-        }
-        yPos += 15;
-        
-        if (options.folding) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Folding:', leftMargin, yPos);
-            doc.setFont('helvetica', 'normal');
-            const splitFolding = doc.splitTextToSize(options.folding, 
-                doc.internal.pageSize.width - (leftMargin + 80));
-            doc.text(splitFolding, leftMargin + 80, yPos);
-            yPos += splitFolding.length * 5;
-        }
-        yPos += 15;
-        
-        if (options.binding) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Binding:', leftMargin, yPos);
-            doc.setFont('helvetica', 'normal');
-            const splitBinding = doc.splitTextToSize(options.binding, 
-                doc.internal.pageSize.width - (leftMargin + 80));
-            doc.text(splitBinding, leftMargin + 80, yPos);
-            yPos += splitBinding.length * 5;
-        }
-        
-        if (options.stitching) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Stitching:', leftMargin, yPos);
-            doc.setFont('helvetica', 'normal');
-            const splitStitching = doc.splitTextToSize(options.stitching, 
-                doc.internal.pageSize.width - (leftMargin + 80));
-            doc.text(splitStitching, leftMargin + 80, yPos);
-            yPos += splitStitching.length * 5;
-        }
-    }
-
-    // Start a new page for the typesetting proofs
-    doc.addPage();
-    yPos = 20;
-
-    // Typesetting Proofs
-    if (typesetting.length > 0) {
-        yPos = checkAndAddPage(doc, yPos, 40);
-        
-        const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-        // Process typesetting proofs
-        for (const proof of typesetting) {
-            if (!proof.TypesettingProofs?.length) continue;
-
-            // Section Header
-            doc.setFillColor(240, 240, 240);  // Light gray background
-            doc.rect(leftMargin - 5, yPos - 5, doc.internal.pageSize.width - (leftMargin * 2) + 10, 25, 'F');
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Typesetting Proofs', leftMargin, yPos + 8);
-            yPos += 30;
-
-            for (const typesettingProof of proof.TypesettingProofs) {
-                // Proof Header
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text(`Proof #${typesettingProof.proofNumber}`, leftMargin, yPos);
-                
-                // Status indicator
-                const statusColor = typesettingProof.approved ? '008000' : '808080';
-                doc.setTextColor(statusColor);
-                doc.text(typesettingProof.approved ? 'Approved' : 'Pending', leftMargin + 100, yPos);
-                doc.setTextColor(0, 0, 0);
-                yPos += 15;
-
-                // Proof Details Box
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.setDrawColor(200, 200, 200);
-                const detailsBox = {
-                    x: leftMargin,
-                    y: yPos,
-                    width: doc.internal.pageSize.width - (leftMargin + 20),
-                    padding: 5
-                };
-
-                // Details content
-                const details = [
-                    `Date Submitted: ${formatDate(typesettingProof.dateSubmitted)}`,
-                    `Proof Method: ${typesettingProof.proofMethod || 'N/A'}`,
-                    `Proof Count: ${typesettingProof.proofCount || 'N/A'}`,
-                ];
-
-                // Draw details box
-                doc.rect(detailsBox.x, detailsBox.y, detailsBox.width, 
-                    (details.length * 12) + (detailsBox.padding * 2), 'S');
-
-                // Add details content
-                let detailsY = detailsBox.y + detailsBox.padding + 5;
-                
-                doc.setFont('helvetica', 'bold');
-                doc.text('Date Submitted:', detailsBox.x + detailsBox.padding, detailsY);
-                doc.setFont('helvetica', 'normal');
-                const splitDateSubmitted = doc.splitTextToSize(typesettingProof.dateSubmitted, 
-                    doc.internal.pageSize.width - (leftMargin + 50));
-                doc.text(splitDateSubmitted, detailsBox.x + 50, detailsY);
-                detailsY += splitDateSubmitted.length * 5;
-
-                doc.setFont('helvetica', 'bold');
-                doc.text('Proof Method:', detailsBox.x + detailsBox.padding, detailsY);
-                doc.setFont('helvetica', 'normal');
-                const splitProofMethod = doc.splitTextToSize(typesettingProof.proofMethod, 
-                    doc.internal.pageSize.width - (leftMargin + 50));
-                doc.text(splitProofMethod, detailsBox.x + 50, detailsY);
-                detailsY += splitProofMethod.length * 5;
-
-                doc.setFont('helvetica', 'bold');
-                doc.text('Proof Count:', detailsBox.x + detailsBox.padding, detailsY);
-                doc.setFont('helvetica', 'normal');
-                const splitProofCount = doc.splitTextToSize(typesettingProof.proofCount, 
-                    doc.internal.pageSize.width - (leftMargin + 50));
-                doc.text(splitProofCount, detailsBox.x + 50, detailsY);
-                detailsY += splitProofCount.length * 5;
-
-                yPos = detailsY + 10;
-
-                // Notes section (if exists)
-                if (typesettingProof.notes) {
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Notes:', detailsBox.x + detailsBox.padding, detailsY);
-                    doc.setFont('helvetica', 'normal');
+        for (const proof of typesetting[0].TypesettingProofs || []) {
+            for (const art of proof.artwork || []) {
+                try {
+                    const img = await loadImage(art.fileUrl);
+                    const maxWidth = (pageWidth - leftMargin * 2.5) / 2;
+                    const maxHeight = 200;
                     
-                    // Word wrap for notes
-                    const splitNotes = doc.splitTextToSize(typesettingProof.notes, 
-                        doc.internal.pageSize.width - (leftMargin + 50));
-                    doc.text(splitNotes, leftMargin + 50, detailsY);
-                    yPos += (splitNotes.length * 5) + 10;
-                }
-
-                if (!typesettingProof.artwork?.length) continue;
-
-                // Pre-load all images
-                const artworkPromises = typesettingProof.artwork.map(async (art: { fileUrl: any; description: any; }) => {
-                    let fileUrl = art.fileUrl;
-                    if (!fileUrl.startsWith('http')) {
-                        const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '';
-                        fileUrl = `${BASE_URL}${fileUrl}`;
-                    }
-
-                    const fileType = fileUrl.split('.').pop()?.toLowerCase();
-                    if (['jpg', 'jpeg', 'png'].includes(fileType || '')) {
-                        try {
-                            const img = await loadImage(fileUrl);
-                            return { img, fileUrl, fileType, description: art.description };
-                        } catch (error) {
-                            console.error('Error loading image:', error, fileUrl);
-                            return null;
-                        }
-                    }
-                    return null;
-                });
-
-                const loadedArtwork = await Promise.all(artworkPromises);
-
-                // Artwork section
-                yPos += 10;
-                doc.setFont('helvetica', 'bold');
-                doc.text('Artwork:', leftMargin, yPos);
-                yPos += 10;
-
-                // Add the loaded images
-                for (const art of loadedArtwork) {
-                    if (!art) continue;
-
-                    yPos = checkAndAddPage(doc, yPos, 100); // Increased space check
-
-                    const maxWidth = 150;  // Increased max width
-                    const maxHeight = 100; // Increased max height
-                    
-                    const aspect = art.img.width / art.img.height;
+                    // Calculate image dimensions maintaining aspect ratio
+                    const aspect = img.width / img.height;
                     let width = maxWidth;
                     let height = width / aspect;
                     
@@ -446,35 +187,129 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
                         height = maxHeight;
                         width = height * aspect;
                     }
-
-                    // Add image with border
-                    doc.setDrawColor(200, 200, 200);
-                    doc.rect(leftMargin - 2, yPos - 2, width + 4, height + 4, 'S');
-                    doc.addImage(art.img, art.fileType.toUpperCase(), leftMargin, yPos, width, height);
-                    yPos += height + 5;
-
-                    // Image description
-                    if (art.description) {
-                        doc.setFontSize(9);
-                        doc.setFont('helvetica', 'italic');
-                        const splitDescription = doc.splitTextToSize(art.description, width);
-                        doc.text(splitDescription, leftMargin, yPos);
-                        yPos += (splitDescription.length * 5) + 15;
+                    
+                    lastImageHeight = height; // Store the height for spacing calculation
+                    
+                    // Position image in left or right column
+                    const xPos = proofCount % 2 === 0 ? leftMargin : rightColStart;
+                    
+                    // Add new page if needed
+                    if (yPos + height > doc.internal.pageSize.height - 40) {
+                        doc.addPage();
+                        yPos = 20;
                     }
+                    
+                    doc.addImage(img, 'JPEG', xPos, yPos, width, height);
+                    
+                    // Move to next row after every 2 images
+                    if (proofCount % 2 === 1) {
+                        yPos += height + 20;
+                    }
+                    
+                    proofCount++;
+                } catch (error) {
+                    console.error('Error processing proof image:', error);
                 }
-                
-                yPos += 20; // Space between proofs
-                yPos = checkAndAddPage(doc, yPos, 40);
             }
         }
+
+        // If we ended with an odd number of images, we need to move down by the last image height
+        if (proofCount % 2 === 1) {
+            yPos += lastImageHeight + 20;
+        }
+
+        // Reduce spacing after images section
+        yPos += 20; // Changed from 40 to 20
     }
 
-    // Add page numbers
-    const pageCount = doc.internal.pages.length - 1;
+    // Typesetting and Bindery Options with proper alignment
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    
+    // Typesetting Details (left column)
+    doc.text('TYPESETTING DETAILS', leftMargin, yPos);
+    const typesettingY = yPos + 8;
+    doc.setFontSize(12);
+    
+    // Modified addDetailsField with tighter alignment
+    const addDetailsField = (label: string, value: string, x: number, currentY: number, maxWidth: number): number => {
+        // Draw label
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, x, currentY);
+        
+        // Calculate label width and position value right after it with small gap
+        // const labelWidth = doc.getTextWidth(label);
+        const labelWidth = 20;
+        const valueX = x + labelWidth + 10; // Keep the 10 unit gap after label
+        
+        doc.setFont('helvetica', 'normal');
+        
+        // For multi-line text, split by words and control the wrapping
+        const words = value.split(' ');
+        let currentLine = '';
+        let yOffset = 0;
+        const lineHeight = 5;
+
+        words.forEach((word, index) => {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const testWidth = doc.getTextWidth(testLine);
+
+            // Increase available width by reducing right margin
+            const availableWidth = maxWidth - (valueX - x) + 10; // Increased from -20 to +10
+            if (testWidth > availableWidth && index > 0) {
+                doc.text(currentLine, valueX, currentY + yOffset);
+                currentLine = word;
+                yOffset += lineHeight;
+            } else {
+                currentLine = testLine;
+            }
+        });
+
+        // Draw the last line
+        if (currentLine) {
+            doc.text(currentLine, valueX, currentY + yOffset);
+            yOffset += lineHeight;
+        }
+
+        return currentY + Math.max(yOffset, lineHeight + 2);
+    };
+    
+    // Typesetting Details section
+    if (typesetting?.length > 0) {
+        const ts = typesetting[0];
+        let currentY = typesettingY;
+        currentY = addDetailsField('Date In', formatDate(ts.dateIn), leftMargin, currentY, pageWidth/2 - 20);
+        currentY = addDetailsField('Status', ts.status, leftMargin, currentY + 2, pageWidth/2 - 20);
+        currentY = addDetailsField('Prep Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
+    }
+
+    // Bindery Options (right column)
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BINDERY OPTIONS', rightColStart, yPos);
+    doc.setFontSize(12);
+
+    if (orderItem.ProcessingOptions?.length > 0) {
+        const options = orderItem.ProcessingOptions[0];
+        let currentY = typesettingY;
+        
+        const binderyWidth = pageWidth - rightColStart - leftMargin;
+        
+        currentY = addDetailsField('Cutting', options.cutting || 'N/A', rightColStart, currentY, binderyWidth);
+        currentY = addDetailsField('Folding', options.folding || 'N/A', rightColStart, currentY + 2, binderyWidth);
+        currentY = addDetailsField('Binding', options.binding || 'N/A', rightColStart, currentY + 2, binderyWidth);
+        currentY = addDetailsField('Stitching', options.stitching || 'N/A', rightColStart, currentY + 2, binderyWidth);
+    }
+
+    // Add page numbers with proper alignment
+    const pageCount = doc.internal.pages.length - 1; // Subtract 1 because jsPDF uses 1-based indexing
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(10);
-        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+        doc.setFont('helvetica', 'normal');
+        const text = `Page ${i} of ${pageCount}`;
+        const textWidth = doc.getTextWidth(text);
+        doc.text(text, pageWidth - textWidth - 20, doc.internal.pageSize.height - 10);
     }
 
     // Save the PDF
