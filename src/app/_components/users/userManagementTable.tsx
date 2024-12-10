@@ -18,7 +18,7 @@ import { api } from "~/trpc/react";
 import EditUserRolesModal from './editUserRolesModal';
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Pencil, Trash } from "lucide-react";
+import { Eye, Pencil, Trash } from "lucide-react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -50,18 +50,26 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
     }), []);
 
     const actionsCellRenderer = (props: ICellRendererParams) => (
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-3 gap-2">
             <Button
+                size="sm"
                 variant="default"
                 onClick={() => handleEditRoles(props.data)}
             >
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit Roles
             </Button>
-            <Link href={`/users/${props.data.id}`} className="btn btn-xs btn-secondary m-1">
-                <span >View User</span>
+            <Link href={`/users/${props.data.id}`}>
+                <Button 
+                    size="sm"
+                    variant="secondary"
+                >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View User
+                </Button>
             </Link>
             <Button
+                size="sm"
                 variant="destructive"
                 onClick={() => console.log("Delete user")}
             >
