@@ -60,88 +60,6 @@ export const workOrderItemRouter = createTRPCRouter({
         return workOrderItems.map(normalizeWorkOrderItem);
     }),
 
-    update: protectedProcedure
-        .input(z.object({
-            id: z.string(),
-            data: z.object({
-                amount: z.number().optional(),
-                cost: z.number().optional(),
-                description: z.string().optional(),
-                expectedDate: z.date().optional(),
-                ink: z.string().optional(),
-                other: z.string().optional(),
-                quantity: z.number().optional(),
-                size: z.string().optional(),
-                specialInstructions: z.string().optional(),
-                status: z.nativeEnum(WorkOrderItemStatus).optional(),
-                workOrderId: z.string().optional(),
-            }),
-        }))
-        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
-            const updatedItem = await ctx.db.workOrderItem.update({
-                where: { id: input.id },
-                data: {
-                    amount: input.data.amount,
-                    cost: input.data.cost,
-                    description: input.data.description,
-                    expectedDate: input.data.expectedDate,
-                    ink: input.data.ink,
-                    other: input.data.other,
-                    quantity: input.data.quantity,
-                    size: input.data.size,
-                    specialInstructions: input.data.specialInstructions,
-                    status: input.data.status,
-                    workOrderId: input.data.workOrderId,
-                },
-                include: {
-                    artwork: true,
-                    createdBy: true,
-                    ProcessingOptions: true,
-                    Typesetting: {
-                        include: {
-                            TypesettingOptions: true,
-                            TypesettingProofs: {
-                                include: {
-                                    artwork: true,
-                                }
-                            },
-                        }
-                    },
-                    WorkOrderItemStock: true,
-                },
-            });
-            return normalizeWorkOrderItem(updatedItem);
-        }),
-
-    updateStatus: protectedProcedure
-        .input(z.object({
-            id: z.string(),
-            status: z.nativeEnum(WorkOrderItemStatus),
-        }))
-        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
-            const updatedItem = await ctx.db.workOrderItem.update({
-                where: { id: input.id },
-                data: { status: input.status },
-                include: {
-                    artwork: true,
-                    createdBy: true,
-                    ProcessingOptions: true,
-                    Typesetting: {
-                        include: {
-                            TypesettingOptions: true,
-                            TypesettingProofs: {
-                                include: {
-                                    artwork: true,
-                                }
-                            },
-                        }
-                    },
-                    WorkOrderItemStock: true,
-                },
-            });
-            return normalizeWorkOrderItem(updatedItem);
-        }),
-
     createWorkOrderItem: protectedProcedure
         .input(z.object({
             amount: z.number(),
@@ -260,6 +178,149 @@ export const workOrderItemRouter = createTRPCRouter({
             });
 
             return normalizeWorkOrderItem(workOrderItem);
+        }),
+    
+    update: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            data: z.object({
+                amount: z.number().optional(),
+                cost: z.number().optional(),
+                description: z.string().optional(),
+                expectedDate: z.date().optional(),
+                ink: z.string().optional(),
+                other: z.string().optional(),
+                quantity: z.number().optional(),
+                size: z.string().optional(),
+                specialInstructions: z.string().optional(),
+                status: z.nativeEnum(WorkOrderItemStatus).optional(),
+                workOrderId: z.string().optional(),
+            }),
+        }))
+        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
+            const updatedItem = await ctx.db.workOrderItem.update({
+                where: { id: input.id },
+                data: {
+                    amount: input.data.amount,
+                    cost: input.data.cost,
+                    description: input.data.description,
+                    expectedDate: input.data.expectedDate,
+                    ink: input.data.ink,
+                    other: input.data.other,
+                    quantity: input.data.quantity,
+                    size: input.data.size,
+                    specialInstructions: input.data.specialInstructions,
+                    status: input.data.status,
+                    workOrderId: input.data.workOrderId,
+                },
+                include: {
+                    artwork: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
+            });
+            return normalizeWorkOrderItem(updatedItem);
+        }),
+
+    updateDescription: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            description: z.string(),
+        }))
+        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
+            const updatedItem = await ctx.db.workOrderItem.update({
+                where: { id: input.id },
+                data: { description: input.description },
+                include: {
+                    artwork: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
+            });
+            return normalizeWorkOrderItem(updatedItem);
+        }),
+
+    updateSpecialInstructions: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            specialInstructions: z.string(),
+        }))
+        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
+            console.log('input', input);
+            const updatedItem = await ctx.db.workOrderItem.update({
+                where: { id: input.id },
+                data: { specialInstructions: input.specialInstructions },
+                include: {
+                    artwork: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
+            });
+            console.log('input', input);
+            console.log('updatedItem', updatedItem);
+            return normalizeWorkOrderItem(updatedItem);
+        }),
+
+    updateStatus: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            status: z.nativeEnum(WorkOrderItemStatus),
+        }))
+        .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
+            const updatedItem = await ctx.db.workOrderItem.update({
+                where: { id: input.id },
+                data: { status: input.status },
+                include: {
+                    artwork: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
+                        }
+                    },
+                    WorkOrderItemStock: true,
+                },
+            });
+            return normalizeWorkOrderItem(updatedItem);
         }),
 
     deleteArtwork: protectedProcedure
