@@ -24,8 +24,10 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: stri
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log('data', data);
             utils.orders.getByID.invalidate(orderId);
+            toast.success('Status updated successfully');
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
@@ -154,7 +156,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
     const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
         onSuccess: (invoice) => {
-            console.log('Quickbooks invoice created:', invoice);
+            toast.success('Quickbooks invoice created');
             utils.orders.getByID.invalidate(orderId);
         },
         onError: (error) => {

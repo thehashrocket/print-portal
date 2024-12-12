@@ -25,6 +25,11 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
     const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation({
         onSuccess: () => {
             utils.workOrders.getByID.invalidate(workOrderId);
+            toast.success('Status updated successfully', { duration: 4000, position: 'top-right' });
+        },
+        onError: (error) => {
+            console.error('Failed to update status:', error);
+            toast.error('Failed to update status', { duration: 4000, position: 'top-right' });
         }
     });
     const getStatusColor = (status: WorkOrderItemStatus): string => {

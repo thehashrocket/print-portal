@@ -31,14 +31,18 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: 
     const utils = api.useUtils();
 
     const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log('data', data);
             utils.orders.getByID.invalidate(orderId);
+            toast.success('Status updated successfully', { duration: 4000, position: 'top-right' });
         },
         onError: (error) => {
             console.error('Failed to update status:', error);
-            toast.error('Failed to update status');
-        }
+            toast.error('Failed to update status', { duration: 4000, position: 'top-right' });
+        },
     });
+
+    
 
     const getStatusColor = (status: OrderItemStatus): string => {
         switch (status) {
