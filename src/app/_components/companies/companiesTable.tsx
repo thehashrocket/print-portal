@@ -17,6 +17,7 @@ import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
 import { type CompanyDashboardData } from "~/types/company";
 import { Button } from "../ui/button";
+import { Eye } from "lucide-react";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedCompany = {
@@ -79,7 +80,8 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
                     variant="default"
                     size="sm"
                 >
-                    Company
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
                 </Button>
             </Link>
             <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess} />
