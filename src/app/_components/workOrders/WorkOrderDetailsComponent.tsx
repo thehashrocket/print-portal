@@ -16,12 +16,14 @@ import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
+
+
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
         onSuccess: (updatedWorkOrder) => {
-            utils.workOrders.getAll.invalidate();
+            utils.workOrders.getByID.invalidate(workOrderId);
         },
         onError: (error) => {
             console.error('Failed to update status:', error);

@@ -609,6 +609,15 @@ export const orderRouter = createTRPCRouter({
         // If sendEmail is true, send status update email
       // If emailOverride is provided, send to that email address instead of the customer's email address
       const emailToSend = input.emailOverride || updatedOrder.contactPerson?.email;
+
+      // If the status is 'Cancelled', update the order items to 'Cancelled'
+      if (input.status === 'Cancelled') {
+        await ctx.db.orderItem.updateMany({
+          where: { orderId: input.id },
+          data: { status: 'Cancelled' },
+        });
+      }
+
       if (input.sendEmail && emailToSend) {
 
         // If tracking number and shipping method are provided, add them to the email

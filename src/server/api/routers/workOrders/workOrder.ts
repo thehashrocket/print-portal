@@ -266,6 +266,14 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
+      // If the status is 'Cancelled', update the work order items to 'Cancelled'
+      if (input.status === 'Cancelled') {
+        await ctx.db.workOrderItem.updateMany({
+          where: { workOrderId: updatedWorkOrder.id },
+          data: { status: 'Cancelled' },
+        });
+      }
+
       const totalCost = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
