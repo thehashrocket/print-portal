@@ -68,7 +68,7 @@ const OrdersTable: React.FC = () => {
             size="sm"
           >
             <Eye className="w-4 h-4 mr-2" />
-            W/O
+            Estimate
           </Button>
         </Link>
       )}
