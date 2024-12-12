@@ -49,13 +49,13 @@ export default async function Home() {
           </div>
 
           {/* Submit Print Request Button */}
-          <Link href="/orders/new" className="mt-8">
+          {/* <Link href="/orders/new" className="mt-8">
             <Button
               className="rounded-full bg-white px-12 py-6 text-xl font-normal tracking-wider text-[#005c2f] hover:bg-gray-100 transition-all"
             >
               Submit a Print Request
             </Button>
-          </Link>
+          </Link> */}
         </div>
       </div>
     </main>
