@@ -99,6 +99,28 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         return daysDiff <= 7;
     };
 
+    const calculateDaysUntilDue = (dateString: string): number => {
+        const targetDate = new Date(dateString);
+        const currentDate = new Date();
+        const timeDiff = targetDate.getTime() - currentDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return daysDiff;
+    };
+
+    const jobBorderColor = (dateString: string): string => {
+        const daysUntilDue = calculateDaysUntilDue(dateString);
+        // if the job is due tomorrow then make the border yellow.
+        // if the job is due today or is past due then make the border red.
+        // if the job is due in more than 7 days then make the border green.
+        if (daysUntilDue === 1) {
+            return 'yellow';
+        } else if (daysUntilDue === 0 || daysUntilDue < 0) {
+            return 'red';
+        } else {
+            return 'green';
+        }
+    };
+
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
     }
@@ -217,7 +239,9 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                                 onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
                                 className="flex-column p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
                                 style={{
-                                    borderColor: orderItem.expectedDate && isWithinAWeek(orderItem.expectedDate) ? 'red' : 'green'
+                                    borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate) : undefined,
+                                    borderWidth: orderItem.expectedDate ? 3 : 1,
+                                    borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
                                 }}
                             >
                                 <div className='text-sm font-bold mb-2'>{orderItem.Order.Office.Company.name}</div>
