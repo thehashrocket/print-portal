@@ -19,6 +19,7 @@ import { PrintButton } from './PrintButton'; // Create this component in the sam
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
+import { Textarea } from "../../ui/textarea";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -85,6 +86,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
+    const [jobDescription, setJobDescription] = useState("");
+    const [specialInstructions, setSpecialInstructions] = useState("");
     const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
         onSuccess: () => {
             toast.success('Job description updated successfully');
@@ -96,21 +99,41 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         }
     });
 
+    const { mutate: updateInstructions } = api.orderItems.updateSpecialInstructions.useMutation({
+        onSuccess: () => {
+            toast.success('Special instructions updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update special instructions:', error);
+            toast.error('Failed to update special instructions');
+        }
+    });
+
     const utils = api.useUtils();
-    const [jobDescription, setJobDescription] = useState("");
+    
 
     useEffect(() => {
         if (orderItem) {
             setJobDescription(orderItem.description);
+            setSpecialInstructions(orderItem.specialInstructions ?? '');
         }
     }, [orderItem]);
 
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setJobDescription(e.target.value);
+    };
+
+    const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSpecialInstructions(e.target.value);
     };
 
     const updateJobDescription = () => {
         updateDescription({ id: orderItemId, description: jobDescription });
+    };
+
+    const updateSpecialInstructions = () => {
+        updateInstructions({ id: orderItemId, specialInstructions: specialInstructions });
     };
 
     if (orderLoading || itemLoading || typesettingLoading) {
@@ -158,10 +181,18 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
                 <div className="flex flex-col gap-4 mb-2">
-                    <div className="grid grid-cols-3 gap-4 mb-2">
+                    <div className="grid grid-cols-5 gap-4 mb-2">
                         <InfoCard title="Order Number" content={order.orderNumber} />
                         <InfoCard title="Job Number" content={orderItem.orderItemNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
+                        <InfoCard
+                            title="Job Quantity"
+                            content={orderItem.quantity}
+                        />
+                        <InfoCard
+                            title="Ink"
+                            content={orderItem.ink}
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-4 mb-2">
                         <InfoCard title="Company" content={order.Office?.Company.name} />
@@ -181,8 +212,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="grid grid-cols-2 gap-4 mb-2">
                     <div className="mb-6">
                         <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
-                        <Input
-                            type="text"
+                        <Textarea
                             value={jobDescription}
                             onChange={handleDescriptionChange}
                             className="bg-gray-50 p-4 rounded-lg w-full mb-4"
@@ -194,14 +224,22 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             Update Description
                         </Button>
                     </div>
-                    <InfoCard
-                        title="Job Quantity"
-                        content={orderItem.quantity}
-                    />
-                    <InfoCard
-                        title="Ink"
-                        content={orderItem.ink}
-                    />
+                    <div className="mb-6">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Special Instructions</h2>
+                        <Textarea
+                            value={specialInstructions}
+                            onChange={handleSpecialInstructionsChange}
+                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                        />
+                        <Button
+                            variant="default"
+                            onClick={updateSpecialInstructions}
+                        >
+                            Update Special Instructions
+                        </Button>
+                    </div>
+
+
                 </div>
                 {/* Row 3 */}
                 <div className="grid grid-cols-2 gap-4 mb-2">

@@ -100,6 +100,17 @@ export const orderItemRouter = createTRPCRouter({
                 data: { description: input.description }
             });
         }),
+    updateSpecialInstructions: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            specialInstructions: z.string()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.orderItem.update({
+                where: { id: input.id },
+                data: { specialInstructions: input.specialInstructions }
+            });
+        }),
     updateStatus: protectedProcedure
         .input(z.object({
             id: z.string(),

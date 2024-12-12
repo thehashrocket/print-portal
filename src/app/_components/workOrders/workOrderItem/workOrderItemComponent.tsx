@@ -15,9 +15,12 @@ import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderI
 import { Pencil, PlusCircle } from "lucide-react";
 import { Button } from "../../ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
+import { Textarea } from "../../ui/textarea";
+import { toast } from "react-hot-toast";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
+    
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation({
         onSuccess: () => {
@@ -71,15 +74,42 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     workOrderId,
     workOrderItemId
 }) => {
+    const [jobDescription, setJobDescription] = useState("");
+    const [specialInstructions, setSpecialInstructions] = useState("");
     const { data: workOrder, isLoading: isWorkOrderLoading, error: workOrderError } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading: isItemLoading, error: itemError } = api.workOrderItems.getByID.useQuery(workOrderItemId);
     const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
     const { data: typesettingData, isLoading: isTypesettingLoading } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId);
     const [serializedTypesettingData, setSerializedTypesettingData] = useState<SerializedTypesetting[]>([]);
+    const utils = api.useUtils();
+
+    const { mutate: updateDescription } = api.workOrderItems.updateDescription.useMutation({
+        onSuccess: () => {
+            toast.success('Job description updated successfully');
+            utils.workOrderItems.getByID.invalidate(workOrderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update job description:', error);
+            toast.error('Failed to update job description');
+        }
+    });
+
+    const { mutate: updateInstructions } = api.workOrderItems.updateSpecialInstructions.useMutation({
+        onSuccess: () => {
+            toast.success('Special instructions updated successfully');
+            utils.workOrderItems.getByID.invalidate(workOrderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update special instructions:', error);
+            toast.error('Failed to update special instructions');
+        }
+    });
 
     useEffect(() => {
         if (fetchedWorkOrderItem) {
             setWorkOrderItem(fetchedWorkOrderItem);
+            setJobDescription(fetchedWorkOrderItem.description);
+            setSpecialInstructions(fetchedWorkOrderItem.specialInstructions ?? '');
         }
     }, [fetchedWorkOrderItem]);
 
@@ -89,6 +119,22 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
             setSerializedTypesettingData(serializedData);
         }
     }, [typesettingData]);
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setJobDescription(e.target.value);
+    };
+
+    const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSpecialInstructions(e.target.value);
+    };
+
+    const updateJobDescription = () => {
+        updateDescription({ id: workOrderItemId, description: jobDescription });
+    };
+
+    const updateSpecialInstructions = () => {
+        updateInstructions({ id: workOrderItemId, specialInstructions: specialInstructions });
+    };
 
     if (isWorkOrderLoading || isItemLoading || isTypesettingLoading) {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -116,37 +162,16 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         </ul>
                     </div>
                 </div>
-                <div className="flex-none">
-                    <Link href="/workOrders/create">
-                        <Button
-                            variant="default"
-                        >
-                            <PlusCircle className="w-4 h-4 mr-2" />
-                            Create Estimate
-                        </Button>
-                    </Link>
-                </div>
             </div>
 
             <div className="rounded-lg bg-white p-6 shadow-md">
                 {/* Row 1 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
+                <div className="grid grid-cols-3 gap-4 mb-2">
                     <InfoCard
                         title="Estimate Number"
                         content={workOrder?.workOrderNumber ?? 'N/A'}
                     />
-                    <InfoCard
-                        title="Company"
-                        content={workOrder?.Office?.Company.name ?? 'N/A'}
-                    />
-                </div>
-                {/* Row 2 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                    <InfoCard
-                        title="Job Description"
-                        content={workOrderItem.description ?? 'N/A'}
-                    />
-                    <InfoCard
+                     <InfoCard
                         title="Job Quantity"
                         content={workOrderItem.quantity ?? 'N/A'}
                     />
@@ -154,6 +179,45 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Ink"
                         content={workOrderItem.ink ?? 'N/A'}
                     />
+                    
+                </div>
+                
+                {/* Row 2 */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                <InfoCard
+                        title="Company"
+                        content={workOrder?.Office?.Company.name ?? 'N/A'}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                <div className="mb-6">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
+                        <Textarea
+                            value={jobDescription}
+                            onChange={handleDescriptionChange}
+                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                        />
+                        <Button
+                            variant="default"
+                            onClick={updateJobDescription}
+                        >
+                            Update Description
+                        </Button>
+                    </div>
+                    <div className="mb-6">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Special Instructions</h2>
+                        <Textarea
+                            value={specialInstructions}
+                            onChange={handleSpecialInstructionsChange}
+                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                        />
+                        <Button
+                            variant="default"
+                            onClick={updateSpecialInstructions}
+                        >
+                            Update Special Instructions
+                        </Button>
+                    </div>
                 </div>
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 gap-4 mb-2">

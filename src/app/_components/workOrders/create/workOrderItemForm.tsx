@@ -16,6 +16,7 @@ import { Button } from '~/app/_components/ui/button';
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
+import { Textarea } from '../../ui/textarea';
 
 const workOrderItemSchema = z.object({
     amount: z.number().min(1, 'Amount is required'),
@@ -78,6 +79,7 @@ const WorkOrderItemForm: React.FC = () => {
                 other: data.other || '',
                 size: data.size || '',
                 specialInstructions: data.specialInstructions || '',
+                status: data.status,
             });
             await refetchWorkOrderItems();
             reset(); // Reset form after successful creation
@@ -152,7 +154,12 @@ const WorkOrderItemForm: React.FC = () => {
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='description'>Description</Label>
-                            <Input id='description' {...register('description')} placeholder="Enter description..." />
+                            <Textarea
+                                id='description'
+                                {...register('description')}
+                                placeholder="Enter description..."
+                                rows={4}
+                            />
                             {errors.description && <p className='text-red-500'>{errors.description.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

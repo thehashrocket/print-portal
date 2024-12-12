@@ -7,6 +7,7 @@ import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { WorkOrderItemStatus } from "@prisma/client";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
+import { Textarea } from "~/app/_components/ui/textarea";
 
 interface EditWorkOrderItemProps {
     workOrderItemId: string;
@@ -14,6 +15,7 @@ interface EditWorkOrderItemProps {
 
 const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrderItemId }) => {
     const router = useRouter();
+    const utils = api.useUtils();
     const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -21,6 +23,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
 
     const updateWorkOrderItemMutation = api.workOrderItems.update.useMutation({
         onSuccess: (updatedItem) => {
+            utils.workOrderItems.getByID.invalidate(updatedItem.id ?? '');
             router.push(`/workOrders/${updatedItem.workOrderId}/workOrderItem/${updatedItem.id}`);
         },
         onError: (error) => {
@@ -107,10 +110,11 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                 </div>
                 <div>
                     <label htmlFor="description" className="block mb-1">Description</label>
-                    <input
-                        type="text"
+                    <Textarea
                         id="description"
                         name="description"
+                        rows={4}
+                        placeholder="Enter description..."
                         value={workOrderItem.description}
                         onChange={handleInputChange}
                         className="w-full p-2 border rounded"
@@ -186,7 +190,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                 </div>
                 <div>
                     <label htmlFor="specialInstructions" className="block mb-1">Special Instructions</label>
-                    <textarea
+                    <Textarea
                         id="specialInstructions"
                         name="specialInstructions"
                         value={workOrderItem.specialInstructions || ""}
