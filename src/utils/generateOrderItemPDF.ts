@@ -154,9 +154,9 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30);
     // Utilize the new addWrappedField function for Paper Stock
     rightY = addWrappedField('Paper Stock', orderItem.OrderItemStock[0]?.notes || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
-    const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
+    // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
-    rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
+    // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
 
     // Project Description (full width)
     yPos = Math.max(leftY, rightY) + 5; // More space before project description
@@ -174,43 +174,17 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     if (typesetting?.length > 0) {
         let proofCount = 0;
         let lastImageHeight = 0; // Track the height of the last row of images
-        
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('PROOFFILE NAME(S)', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
         for (const proof of typesetting[0].TypesettingProofs || []) {
             for (const art of proof.artwork || []) {
                 try {
-                    const img = await loadImage(art.fileUrl);
-                    const maxWidth = (pageWidth - leftMargin * 2.5) / 2;
-                    const maxHeight = 200;
-                    
-                    // Calculate image dimensions maintaining aspect ratio
-                    const aspect = img.width / img.height;
-                    let width = maxWidth;
-                    let height = width / aspect;
-                    
-                    if (height > maxHeight) {
-                        height = maxHeight;
-                        width = height * aspect;
-                    }
-                    
-                    lastImageHeight = height; // Store the height for spacing calculation
-                    
-                    // Position image in left or right column
-                    const xPos = proofCount % 2 === 0 ? leftMargin : rightColStart;
-                    
-                    // Add new page if needed
-                    if (yPos + height > doc.internal.pageSize.height - 40) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    
-                    doc.addImage(img, 'JPEG', xPos, yPos, width, height);
-                    
-                    // Move to next row after every 2 images
-                    if (proofCount % 2 === 1) {
-                        yPos += height + 20;
-                    }
-                    
-                    proofCount++;
+                    doc.text(art.fileUrl, leftMargin, yPos);
+                    yPos += 5;
                 } catch (error) {
                     console.error('Error processing proof image:', error);
                 }
