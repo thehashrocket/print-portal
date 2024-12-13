@@ -49,6 +49,8 @@ export const env = createEnv({
     SENDGRID_SMTP_PORT: z.string(),
     SENDGRID_EMAIL_FROM: z.string().email(),
     WEBSITE_URL: z.string(),
+    HONEYBADGER_API_KEY: z.string(),
+    HONEYBADGER_ENV: z.string().default("development"),
   },
 
   /**
@@ -65,6 +67,7 @@ export const env = createEnv({
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_ID: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_CLIENT_SECRET: z.string(),
     NEXT_PUBLIC_QUICKBOOKS_ENVIRONMENT: z.string(),
+    NEXT_PUBLIC_HONEYBADGER_API_KEY: z.string(),
   },
 
   /**
@@ -98,6 +101,9 @@ export const env = createEnv({
     SENDGRID_SMTP_PORT: process.env.SENDGRID_SMTP_PORT,
     SENDGRID_EMAIL_FROM: process.env.SENDGRID_EMAIL_FROM,
     WEBSITE_URL: process.env.WEBSITE_URL,
+    HONEYBADGER_API_KEY: process.env.HONEYBADGER_API_KEY,
+    HONEYBADGER_ENV: process.env.HONEYBADGER_ENV,
+    NEXT_PUBLIC_HONEYBADGER_API_KEY: process.env.NEXT_PUBLIC_HONEYBADGER_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
