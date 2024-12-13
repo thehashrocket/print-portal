@@ -4,7 +4,7 @@ import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
-import { generateOrderPDF } from "~/utils/pdfGenerator";
+import { generateEmailOrderPDF } from "~/utils/pdfGenerator";
 import { sendOrderEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 
@@ -813,7 +813,7 @@ export const orderRouter = createTRPCRouter({
         })),
       });
 
-      const pdfContent = await generateOrderPDF(normalizedOrder);
+      const pdfContent = await generateEmailOrderPDF(normalizedOrder);
       const emailHtml = `
         <h1>Order ${order.orderNumber}</h1>
         <p>Please find attached the order for your recent order.</p>

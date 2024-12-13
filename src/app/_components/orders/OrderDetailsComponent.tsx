@@ -260,7 +260,15 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 title="Print Order"
                                 content={<Button
                                     variant="default"
-                                    onClick={() => handlePrintOrder(order.id)}
+                                    onClick={async () => {
+                                        try {
+                                            console.log('Generating order PDF', order);
+                                            await generateOrderPDF(order);
+                                        } catch (error) {
+                                            console.error('Error generating PDF:', error);
+                                            toast.error('Error generating PDF');
+                                        }
+                                    }}
                                 >
                                     <Printer className="w-4 h-4" /> Print Order
                                 </Button>}

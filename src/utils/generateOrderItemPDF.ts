@@ -47,8 +47,6 @@ const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): 
 export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any) => {
     const doc = new jsPDF();
 
-     
-    
     // Initial setup
     doc.setFont('helvetica', 'bold');
     let yPos = 20;
