@@ -29,7 +29,11 @@ export default async function DashboardPage() {
         )
     }
 
-    const orderItems = await api.orderItems.getAll();
+    const orderItems = await api.orderItems.getAll().then((items) => {
+        return items.sort((a, b) => {
+            return new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime();
+        });
+    });
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({
         ...item,
