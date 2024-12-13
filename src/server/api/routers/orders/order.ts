@@ -618,6 +618,14 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
+      // If the status is 'Completed', update the order items to 'Completed'
+      if (input.status === 'Completed') {
+        await ctx.db.orderItem.updateMany({
+          where: { orderId: input.id },
+          data: { status: 'Completed' },
+        });
+      }
+
       if (input.sendEmail && emailToSend) {
 
         // If tracking number and shipping method are provided, add them to the email
@@ -673,7 +681,13 @@ export const orderRouter = createTRPCRouter({
 
   dashboard: protectedProcedure
     .query(async ({ ctx }): Promise<SerializedOrderItem[]> => {
+      // Get all orders that are not cancelled or completed
       const orders = await ctx.db.order.findMany({
+        where: {
+          status: {
+            notIn: ['Cancelled', 'Completed']
+          }
+        },
         include: {
           OrderItems: {
             include: {
