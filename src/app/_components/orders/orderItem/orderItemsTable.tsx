@@ -30,6 +30,18 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     const defaultColDef = useMemo<ColDef>(() => ({
         resizable: true,
@@ -65,7 +77,46 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         }
     };
 
-    const columnDefs: ColDef[] = [
+    const mobileColumnDefs: ColDef[] = [
+        { 
+            headerName: "Job #", 
+            field: "orderItemNumber", 
+            width: 70,
+            maxWidth: 70
+        },
+        { 
+            headerName: "Description", 
+            field: "description", 
+            flex: 2,
+            minWidth: 160,
+            tooltipField: "description"
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            flex: 1,
+            minWidth: 100,
+            maxWidth: 120
+        },
+        { 
+            headerName: "Amount", 
+            field: "amount", 
+            valueFormatter: formatNumberAsCurrency,
+            flex: 1,
+            minWidth: 120,
+            maxWidth: 140
+        },
+        { 
+            headerName: "", 
+            cellRenderer: actionsRenderer, 
+            width: 140,
+            maxWidth: 160,
+            sortable: false, 
+            filter: false
+        }
+    ];
+
+    const desktopColumnDefs: ColDef[] = [
         { headerName: "Job #", field: "orderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
@@ -102,10 +153,17 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     }
 
     return (
-        <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+        <div 
+            className="ag-theme-alpine w-full" 
+            style={{ 
+                height: isMobile ? "600px" : "600px",
+                width: "100%",
+                fontSize: isMobile ? "14px" : "inherit"
+            }}
+        >
             <AgGridReact
                 ref={gridRef}
-                columnDefs={columnDefs}
+                columnDefs={isMobile ? mobileColumnDefs : desktopColumnDefs}
                 defaultColDef={defaultColDef}
                 rowData={rowData}
                 rowSelection="single"
@@ -114,7 +172,11 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
                 getRowStyle={getRowStyle}
                 animateRows={true}
                 pagination={true}
-                paginationPageSize={20}
+                paginationPageSize={isMobile ? 10 : 20}
+                domLayout="normal"
+                suppressMovableColumns={isMobile}
+                headerHeight={isMobile ? 40 : 48}
+                rowHeight={isMobile ? 40 : 48}
             />
         </div>
     );

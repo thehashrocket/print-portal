@@ -1,3 +1,4 @@
+// ~/
 "use server";
 
 import React from "react";
@@ -37,6 +38,9 @@ export default async function DashboardPage() {
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({
         ...item,
+        amount: item.amount ? item.amount.toString() : null,
+        cost: item.cost ? item.cost.toString() : null,
+        shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
         prepTime: item.prepTime ?? null,
         size: item.size ?? null,
         specialInstructions: item.specialInstructions ?? null,
@@ -44,6 +48,15 @@ export default async function DashboardPage() {
         createdAt: item.createdAt.toISOString(),
         updatedAt: item.updatedAt.toISOString(),
         expectedDate: item.expectedDate?.toISOString() ?? null,
+        Typesetting: item.Typesetting?.map((typesetting: any) => ({
+            ...typesetting,
+            cost: typesetting.cost ? typesetting.cost.toString() : null,
+            createdAt: typesetting.createdAt.toISOString(),
+            updatedAt: typesetting.updatedAt.toISOString(),
+            dateIn: typesetting.dateIn.toISOString(),
+            TypesettingOptions: typesetting.TypesettingOptions ?? [],
+            TypesettingProofs: typesetting.TypesettingProofs ?? []
+        })) ?? [],
         artwork: item.artwork.map((art: any) => ({
             ...art,
             createdAt: art.createdAt.toISOString(),

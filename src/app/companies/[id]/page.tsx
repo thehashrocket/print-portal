@@ -11,12 +11,12 @@ import HeaderClient from "~/app/_components/companies/HeaderClient";
 import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
 
 const Breadcrumbs: React.FC = () => (
-    <div className="text-sm breadcrumbs mb-4">
-        <ul>
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/companies">Companies</Link></li>
-        </ul>
-    </div>
+    <nav className="flex mb-4" aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-2">
+            <li><Link href="/" className="text-sm">Home</Link></li>
+            <li className="text-sm before:content-['>'] before:mx-2">Companies</li>
+        </ol>
+    </nav>
 );
 
 function serializeCompany(company: {
@@ -121,14 +121,24 @@ export default async function CompanyPage(
     });
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <HeaderClient 
-                companyName={serializedCompany.name || "Company"} 
-                companyId={id}
-                quickbooksId={serializedCompany.quickbooksId}
-            />
-            <Breadcrumbs />
-            <IndividualCompanyPage company={serializedCompany} />
+        <div className="flex flex-col min-h-screen bg-base-200">
+            <div className="p-4">
+                <div className="bg-base-100 rounded-lg shadow-lg p-4 mb-4 overflow-hidden">
+                    <div className="w-full overflow-x-auto">
+                        <HeaderClient 
+                            companyName={serializedCompany.name || "Company"} 
+                            companyId={id}
+                            quickbooksId={serializedCompany.quickbooksId}
+                        />
+                    </div>
+                </div>
+
+                <Breadcrumbs />
+
+                <div className="bg-base-100 rounded-lg shadow-lg p-4">
+                    <IndividualCompanyPage company={serializedCompany} />
+                </div>
+            </div>
         </div>
     );
 }
