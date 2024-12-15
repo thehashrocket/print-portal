@@ -30,6 +30,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedWorkOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -75,6 +76,14 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
     ];
 
+    const mobileColumnDefs: ColDef[] = [
+        { headerName: "Job #", field: "workOrderItemNumber", width: 120 },
+        { headerName: "Desc", field: "description", filter: true },
+        { headerName: "Status", field: "status", filter: true, width: 120 },
+        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
+        { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
+    ];
+
     useEffect(() => {
         setRowData(workOrderItems);
         setLoading(false);
@@ -84,6 +93,25 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
             }, 0);
         }
     }, [workOrderItems]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+            if (gridRef.current?.api) {
+                gridRef.current.api.sizeColumnsToFit();
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isMobile = windowWidth <= 768;
+
+    const containerStyle = useMemo(() => ({
+        height: isMobile ? 'calc(100vh - 200px)' : '600px',
+        width: '100%',
+    }), [isMobile]);
 
     const onGridReady = (params: GridReadyEvent) => {
         params.api.sizeColumnsToFit();
@@ -103,10 +131,13 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     }
 
     return (
-        <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+        <div 
+            className="ag-theme-alpine w-full overflow-hidden"
+            style={containerStyle}
+        >
             <AgGridReact
                 ref={gridRef}
-                columnDefs={columnDefs}
+                columnDefs={isMobile ? mobileColumnDefs : columnDefs}
                 defaultColDef={defaultColDef}
                 rowData={rowData}
                 rowSelection="single"
@@ -115,7 +146,9 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
                 getRowStyle={getRowStyle}
                 animateRows={true}
                 pagination={true}
-                paginationPageSize={20}
+                paginationPageSize={isMobile ? 10 : 20}
+                domLayout={isMobile ? 'autoHeight' : undefined}
+                className={isMobile ? 'ag-grid-mobile' : ''}
             />
         </div>
     );

@@ -26,6 +26,7 @@ const WorkOrdersTable: React.FC = () => {
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery();
 
@@ -36,14 +37,17 @@ const WorkOrdersTable: React.FC = () => {
     }), []);
 
     const actionsCellRenderer = (props: { data: SerializedWorkOrder }) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1">
             <Link href={`/workOrders/${props.data.id}`}>
                 <Button
                     variant="default"
                     size="sm"
+                    className="h-8 whitespace-nowrap"
+                    title="View Estimate"
                 >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Estimate
+                    <Eye className="w-4 h-4 mr-1" />
+                    <span className="hidden sm:inline">Estimate</span>
+                    <span className="sm:hidden">Estimate</span>
                 </Button>
             </Link>
             {props.data.Order && (
@@ -51,9 +55,12 @@ const WorkOrdersTable: React.FC = () => {
                     <Button
                         variant="default"
                         size="sm"
+                        className="h-8 whitespace-nowrap"
+                        title="View Order"
                     >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Order
+                        <Eye className="w-4 h-4 mr-1" />
+                        <span className="hidden sm:inline">Order</span>
+                        <span className="sm:hidden">Order</span>
                     </Button>
                 </Link>
             )}
@@ -79,7 +86,17 @@ const WorkOrdersTable: React.FC = () => {
         { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
         { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 150, sortable: false, filter: false },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
+    ];
+
+    const mobileColumnDefs: ColDef[] = [
+        { headerName: "Estimate #", field: "workOrderNumber", filter: true, width: 150 },
+        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
+        { headerName: "Status", field: "status", filter: true, width: 120 },
+        { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
+        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
     ];
 
     useEffect(() => {
@@ -94,6 +111,25 @@ const WorkOrdersTable: React.FC = () => {
             gridRef.current.api.sizeColumnsToFit();
         }
     }, [workOrders]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+            if (gridRef.current?.api) {
+                gridRef.current.api.sizeColumnsToFit();
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isMobile = windowWidth <= 768;
+
+    const containerStyle = useMemo(() => ({
+        height: isMobile ? 'calc(100vh - 200px)' : '600px',
+        width: '100%',
+    }), [isMobile]);
 
     const onGridReady = (params: GridReadyEvent) => {
         params.api.sizeColumnsToFit();
@@ -112,10 +148,13 @@ const WorkOrdersTable: React.FC = () => {
 
     return (
         (rowData && (
-            <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+            <div 
+                className="ag-theme-alpine w-full overflow-hidden"
+                style={containerStyle}
+            >
                 <AgGridReact
                     ref={gridRef}
-                    columnDefs={columnDefs}
+                    columnDefs={isMobile ? mobileColumnDefs : columnDefs}
                     defaultColDef={defaultColDef}
                     rowData={rowData}
                     rowSelection="single"
@@ -124,7 +163,9 @@ const WorkOrdersTable: React.FC = () => {
                     getRowStyle={getRowStyle}
                     animateRows={true}
                     pagination={true}
-                    paginationPageSize={20}
+                    paginationPageSize={isMobile ? 10 : 20}
+                    domLayout={isMobile ? 'autoHeight' : undefined}
+                    className={isMobile ? 'ag-grid-mobile' : ''}
                 />
             </div>
         )) || <div>No work orders found</div>
