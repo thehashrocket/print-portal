@@ -48,17 +48,19 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
     };
 
     return (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <span className={`px-2 py-1 rounded-full text-sm font-semibold w-fit ${getStatusColor(currentStatus)}`}>
                 {currentStatus}
             </span>
-            <SelectField
-                options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}
-                value={currentStatus}
-                onValueChange={(value: string) => handleStatusChange(value as WorkOrderItemStatus)}
-                placeholder="Select status..."
-                required={true}
-            />
+            <div className="w-full md:w-48">
+                <SelectField
+                    options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}
+                    value={currentStatus}
+                    onValueChange={(value: string) => handleStatusChange(value as WorkOrderItemStatus)}
+                    placeholder="Select status..."
+                    required={true}
+                />
+            </div>
         </div>
     );
 };
@@ -69,9 +71,9 @@ type WorkOrderItemPageProps = {
 };
 
 const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title, content }) => (
-    <section className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
+    <section className="mb-4">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">{title}</h2>
+        <div className="bg-gray-50 p-3 md:p-4 rounded-lg">{content}</div>
     </section>
 );
 
@@ -154,29 +156,27 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Job Details</h1>
-                <div className="text-sm breadcrumbs">
-                    <div className="text-sm breadcrumbs">
-                        <ul>
-                            <li><Link href="/">Home</Link></li>
-                            <li><Link href="/workOrders">Estimates</Link></li>
-                            <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
-                            <li>Job {workOrderItem.workOrderItemNumber}</li>
-                        </ul>
-                    </div>
+        <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
+            <div className="mb-6 md:mb-8">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">Job Details</h1>
+                <div className="text-sm breadcrumbs overflow-x-auto">
+                    <ul className="flex flex-wrap gap-1">
+                        <li><Link href="/">Home</Link></li>
+                        <li><Link href="/workOrders">Estimates</Link></li>
+                        <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
+                        <li>Job {workOrderItem.workOrderItemNumber}</li>
+                    </ul>
                 </div>
             </div>
 
-            <div className="rounded-lg bg-white p-6 shadow-md">
-                {/* Row 1 */}
-                <div className="grid grid-cols-3 gap-4 mb-2">
+            <div className="rounded-lg bg-white p-3 md:p-6 shadow-md">
+                {/* Basic Info Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <InfoCard
                         title="Estimate Number"
                         content={workOrder?.workOrderNumber ?? 'N/A'}
                     />
-                     <InfoCard
+                    <InfoCard
                         title="Job Quantity"
                         content={workOrderItem.quantity ?? 'N/A'}
                     />
@@ -184,48 +184,52 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Ink"
                         content={workOrderItem.ink ?? 'N/A'}
                     />
-                    
                 </div>
                 
-                {/* Row 2 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                <InfoCard
+                {/* Company Section */}
+                <div className="mb-6">
+                    <InfoCard
                         title="Company"
                         content={workOrder?.Office?.Company.name ?? 'N/A'}
                     />
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
+
+                {/* Description and Instructions Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="space-y-4">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Job Description</h2>
                         <Textarea
                             value={jobDescription}
                             onChange={handleDescriptionChange}
-                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                            className="bg-gray-50 p-3 rounded-lg w-full mb-2"
                         />
                         <Button
                             variant="default"
                             onClick={updateJobDescription}
+                            className="w-full md:w-auto"
                         >
                             Update Description
                         </Button>
                     </div>
-                    <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Special Instructions</h2>
+                    <div className="space-y-4">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Special Instructions</h2>
                         <Textarea
                             value={specialInstructions}
                             onChange={handleSpecialInstructionsChange}
-                            className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                            className="bg-gray-50 p-3 rounded-lg w-full mb-2"
                         />
                         <Button
                             variant="default"
                             onClick={updateSpecialInstructions}
+                            className="w-full md:w-auto"
                         >
                             Update Special Instructions
                         </Button>
                     </div>
                 </div>
-                {/* Row 3 */}
-                <div className="grid grid-cols-1 gap-4 mb-2">
+
+                {/* Status Section */}
+                <div className="mb-6">
                     <InfoCard
                         title="Status"
                         content={
@@ -237,25 +241,28 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         }
                     />
                 </div>
-                {/* Row 4 */}
-                <div className="grid grid-cols-1 gap-4 mb-2">
+
+                {/* Edit Button */}
+                <div className="mb-6">
                     <Link href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>
                         <Button
                             variant="default"
+                            className="w-full md:w-auto"
                         >
                             <Pencil className="w-4 h-4 mr-2" />
                             Edit Job
                         </Button>
                     </Link>
                 </div>
-                {/* Row 5 */}
-                <div className="grid grid-cols-1 gap-4 mb-2">
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
-                        <div className="grid grid-cols-2 gap-4">
+
+                {/* Artwork Section */}
+                <div className="mb-6">
+                    <div className="rounded-lg bg-white p-4 shadow-md">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Artwork</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {workOrderItem.artwork && workOrderItem.artwork.length > 0 ? (
                                 workOrderItem.artwork.map((artwork) => (
-                                    <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
+                                    <div key={artwork.id} className="rounded-lg bg-white p-4 shadow-md">
                                         <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
                                     </div>
                                 ))
@@ -265,16 +272,18 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         </div>
                     </div>
                 </div>
-                {/* Row 6 */}
-                <div className="grid grid-cols-1 gap-4 mb-2">
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Bindery Options</h2>
+
+                {/* Additional Sections */}
+                <div className="space-y-6">
+                    <div className="rounded-lg bg-white p-4 shadow-md">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Bindery Options</h2>
                         <ProcessingOptionsProvider workOrderItemId={workOrderItem.id}>
                             <ProcessingOptionsComponent workOrderItemId={workOrderItem.id} />
                         </ProcessingOptionsProvider>
                     </div>
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Typesetting</h2>
+
+                    <div className="rounded-lg bg-white p-4 shadow-md">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Typesetting</h2>
                         <TypesettingProvider>
                             <TypesettingComponent
                                 workOrderItemId={workOrderItem.id}
@@ -283,8 +292,9 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                             />
                         </TypesettingProvider>
                     </div>
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Job Stock</h2>
+
+                    <div className="rounded-lg bg-white p-4 shadow-md">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Job Stock</h2>
                         <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
                     </div>
                 </div>

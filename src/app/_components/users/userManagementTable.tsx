@@ -19,6 +19,8 @@ import EditUserRolesModal from './editUserRolesModal';
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Eye, Pencil, Trash } from "lucide-react";
+import { Card, CardContent } from "~/app/_components/ui/card";
+import { useMediaQuery } from "~/hooks/use-media-query"
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -36,6 +38,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const isDesktop = useMediaQuery("(min-width: 768px)");
 
     const { data: updatedUsers } = api.userManagement.getAllUsers.useQuery(undefined, {
         initialData: initialUsers,
@@ -127,6 +130,57 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         handleCloseModal();
     };
 
+    const renderMobileCard = (user: UserWithRoles) => (
+        <Card key={user.id} className="mb-4">
+            <CardContent className="pt-6">
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="font-semibold">Name</h3>
+                        <p>{user.name}</p>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold">Email</h3>
+                        <p>{user.email}</p>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold">Roles</h3>
+                        <p>{user.Roles.map(role => role.name).join(', ')}</p>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleEditRoles(user)}
+                            className="w-full"
+                        >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit Roles
+                        </Button>
+                        <Link href={`/users/${user.id}`} className="w-full">
+                            <Button 
+                                size="sm"
+                                variant="secondary"
+                                className="w-full"
+                            >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View User
+                            </Button>
+                        </Link>
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => console.log("Delete user")}
+                            className="w-full"
+                        >
+                            <Trash className="w-4 h-4 mr-2" />
+                            Delete User
+                        </Button>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -137,20 +191,26 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
 
     return (
         <div>
-            <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
-                <AgGridReact
-                    ref={gridRef}
-                    columnDefs={columnDefs}
-                    defaultColDef={defaultColDef}
-                    rowData={rowData}
-                    rowSelection="single"
-                    onGridReady={onGridReady}
-                    onFilterChanged={onFilterChanged}
-                    animateRows={true}
-                    pagination={true}
-                    paginationPageSize={20}
-                />
-            </div>
+            {isDesktop ? (
+                <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+                    <AgGridReact
+                        ref={gridRef}
+                        columnDefs={columnDefs}
+                        defaultColDef={defaultColDef}
+                        rowData={rowData}
+                        rowSelection="single"
+                        onGridReady={onGridReady}
+                        onFilterChanged={onFilterChanged}
+                        animateRows={true}
+                        pagination={true}
+                        paginationPageSize={20}
+                    />
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {rowData.map((user) => renderMobileCard(user))}
+                </div>
+            )}
 
             {selectedUser && (
                 <EditUserRolesModal

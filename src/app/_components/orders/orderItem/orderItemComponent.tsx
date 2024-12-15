@@ -160,6 +160,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
     return (
         <div className="container mx-auto px-4 py-8">
+            {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Job Details</h1>
                 <PrintButton
@@ -172,7 +173,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         }
                     }}
                 />
-                <div className="text-sm breadcrumbs">
+                <div className="text-sm breadcrumbs overflow-x-auto">
                     <ul>
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/orders">Orders</Link></li>
@@ -182,38 +183,38 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 </div>
             </div>
 
-            <div className="rounded-lg bg-white p-6 shadow-md">
-                {/* Row 1 */}
+            <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+                {/* Row 1 - Basic Info */}
                 <div className="flex flex-col gap-4 mb-2">
-                    <div className="grid grid-cols-5 gap-4 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
                         <InfoCard title="Order Number" content={order.orderNumber} />
                         <InfoCard title="Job Number" content={orderItem.orderItemNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
-                        <InfoCard
-                            title="Job Quantity"
-                            content={orderItem.quantity}
-                        />
-                        <InfoCard
-                            title="Ink"
-                            content={orderItem.ink}
-                        />
+                        <InfoCard title="Job Quantity" content={orderItem.quantity} />
+                        <InfoCard title="Ink" content={orderItem.ink} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4 mb-2">
+                    
+                    {/* Row 2 - Company and Contact */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <InfoCard title="Company" content={order.Office?.Company.name} />
-                        <InfoCard title="Contact Info" content={
-                            <ContactPersonEditor
-                                orderId={order.id}
-                                currentContactPerson={order.contactPerson}
-                                officeId={order.officeId}
-                                onUpdate={() => {
-                                    utils.orders.getByID.invalidate(orderId);
-                                }}
-                            />
-                        } />
+                        <InfoCard 
+                            title="Contact Info" 
+                            content={
+                                <ContactPersonEditor
+                                    orderId={order.id}
+                                    currentContactPerson={order.contactPerson}
+                                    officeId={order.officeId}
+                                    onUpdate={() => {
+                                        utils.orders.getByID.invalidate(orderId);
+                                    }}
+                                />
+                            } 
+                        />
                     </div>
                 </div>
-                {/* Row 2 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
+
+                {/* Row 3 - Description and Instructions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                     <div className="mb-6">
                         <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
                         <Textarea
@@ -221,10 +222,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             onChange={handleDescriptionChange}
                             className="bg-gray-50 p-4 rounded-lg w-full mb-4"
                         />
-                        <Button
-                            variant="default"
-                            onClick={updateJobDescription}
-                        >
+                        <Button variant="default" onClick={updateJobDescription}>
                             Update Description
                         </Button>
                     </div>
@@ -235,42 +233,46 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             onChange={handleSpecialInstructionsChange}
                             className="bg-gray-50 p-4 rounded-lg w-full mb-4"
                         />
-                        <Button
-                            variant="default"
-                            onClick={updateSpecialInstructions}
-                        >
+                        <Button variant="default" onClick={updateSpecialInstructions}>
                             Update Special Instructions
                         </Button>
                     </div>
-
-
                 </div>
-                {/* Row 3 */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                    <InfoCard title="Status" content={
-                        <ItemStatusBadge id={orderItem.id} status={orderItem.status} orderId={orderItem.orderId} />
-                    } />
+
+                {/* Status Section */}
+                <div className="mb-6">
+                    <InfoCard 
+                        title="Status" 
+                        content={
+                            <ItemStatusBadge 
+                                id={orderItem.id} 
+                                status={orderItem.status} 
+                                orderId={orderItem.orderId} 
+                            />
+                        } 
+                    />
                 </div>
-                {/* Row 4 */}
-                <div className="grid grid-cols-1 gap-4 mb-2">
-                    {/* Render OrderItemArtwork */}
-                    <div className="rounded-lg bg-white p-6 shadow-md">
-                        <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
-                        <div className="grid grid-cols-2 gap-4">
-                            {orderItem?.artwork.map((artwork: { id: React.Key | null | undefined; fileUrl: string; description: string | null; }) => (
-                                <div key={artwork.id} className="rounded-lg bg-white p-6 shadow-md">
-                                    <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
-                                </div>
-                            ))}
-                        </div>
+
+                {/* Artwork Section */}
+                <div className="mb-6">
+                    <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {orderItem?.artwork.map((artwork) => (
+                            <div key={artwork.id} className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+                                <ArtworkComponent 
+                                    artworkUrl={artwork.fileUrl} 
+                                    artworkDescription={artwork.description} 
+                                />
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Row 5 */}
-                <div className="space-y-8">
+                {/* Additional Sections */}
+                <div className="space-y-6 md:space-y-8">
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">Typesetting</h2>
-                        <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Typesetting</h2>
+                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <TypesettingProvider>
                                 <TypesettingComponent
                                     workOrderItemId=""
@@ -282,16 +284,17 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">Bindery Options</h2>
-                        <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Bindery Options</h2>
+                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <ProcessingOptionsProvider orderItemId={orderItem.id}>
                                 <ProcessingOptionsComponent orderItemId={orderItem.id} />
                             </ProcessingOptionsProvider>
                         </div>
                     </section>
+
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">Job Stock</h2>
-                        <div className="bg-white rounded-lg shadow-md p-6">
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Job Stock</h2>
+                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <OrderItemStockComponent orderItemId={orderItem.id} />
                         </div>
                     </section>

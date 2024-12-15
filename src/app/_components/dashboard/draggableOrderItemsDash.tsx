@@ -11,12 +11,32 @@ import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 
+const calculateDaysUntilDue = (dateString: string): number => {
+    const targetDate = new Date(dateString);
+    const currentDate = new Date();
+    const timeDiff = targetDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff;
+};
+
+const jobBorderColor = (dateString: string): string => {
+    const daysUntilDue = calculateDaysUntilDue(dateString);
+    if (daysUntilDue === 1) {
+        return 'yellow';
+    } else if (daysUntilDue <= 0) {
+        return 'red';
+    } else {
+        return 'green';
+    }
+};
+
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
     const [originalItems] = useState<SerializedOrderItem[]>(initialOrderItems);
     const [displayedItems, setDisplayedItems] = useState<SerializedOrderItem[]>(initialOrderItems);
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
+    const [selectedMobileStatus, setSelectedMobileStatus] = useState<OrderItemStatus>(OrderItemStatus.Prepress);
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 
@@ -75,7 +95,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
     };
 
     const OrderItemNumberFilter = () => (
-        <div className="mb-4 p-4 bg-gray-700 rounded-lg">
+        <div className="w-full md:w-auto mb-4 p-4 bg-gray-700 rounded-lg">
             <Input
                 type="text"
                 value={orderItemNumber}
@@ -97,28 +117,6 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         const timeDiff = targetDate.getTime() - currentDate.getTime();
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
         return daysDiff <= 7;
-    };
-
-    const calculateDaysUntilDue = (dateString: string): number => {
-        const targetDate = new Date(dateString);
-        const currentDate = new Date();
-        const timeDiff = targetDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff;
-    };
-
-    const jobBorderColor = (dateString: string): string => {
-        const daysUntilDue = calculateDaysUntilDue(dateString);
-        // if the job is due tomorrow then make the border yellow.
-        // if the job is due today or is past due then make the border red.
-        // if the job is due in more than 7 days then make the border green.
-        if (daysUntilDue === 1) {
-            return 'yellow';
-        } else if (daysUntilDue === 0 || daysUntilDue < 0) {
-            return 'red';
-        } else {
-            return 'green';
-        }
     };
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
@@ -218,48 +216,51 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
     }, {} as { [key in OrderItemStatus]?: SerializedOrderItem[] });
 
     return (
-        <div className="flex flex-col p-5 bg-gray-800 text-white min-h-screen">
-            <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                 <CompanyFilter />
                 <OrderItemNumberFilter />
             </div>
-            <div className="flex">
+            
+            {/* Mobile View: Vertical tabs for status columns */}
+            <div className="block md:hidden mb-4">
+                <select 
+                    className="w-full p-2 bg-gray-700 rounded-lg"
+                    value={selectedMobileStatus}
+                    onChange={(e) => setSelectedMobileStatus(e.target.value as OrderItemStatus)}
+                >
+                    {allStatuses.map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                    ))}
+                </select>
+                
+                <div className="mt-4">
+                    {(orderItemsByStatus[selectedMobileStatus as OrderItemStatus] || []).map(orderItem => (
+                        <JobCard 
+                            key={orderItem.id}
+                            orderItem={orderItem}
+                            onDragStart={onDragStart}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            {/* Desktop View: Horizontal columns */}
+            <div className="hidden md:flex gap-4 overflow-x-auto pb-4">
                 {allStatuses.map((status) => (
                     <div key={status}
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-auto min-w-[200px] min-h-[200px]"
+                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
                     >
                         <h3 className="font-semibold mb-2">{status}</h3>
                         {(orderItemsByStatus[status] || []).map(orderItem => (
-                            <div key={orderItem.id}
-                                data-item-container
-                                draggable
-                                onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
-                                className="flex-column p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
-                                style={{
-                                    borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate) : undefined,
-                                    borderWidth: orderItem.expectedDate ? 3 : 1,
-                                    borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
-                                }}
-                            >
-                                <div className='text-sm font-bold mb-2'>{orderItem.Order.Office.Company.name}</div>
-                                <div className='text-sm font-bold mb-2'>Job #: {orderItem.orderItemNumber}</div>
-                                <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
-                                <div className="flex items-center mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 m-2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
-                                    </svg>
-                                    <div className="text-sm">{formatDate(orderItem.expectedDate ?? new Date())}</div>
-                                </div>
-                                <div className="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 m-2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                                    </svg>
-                                    <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline">View Job</a>
-                                </div>
-                            </div>
+                            <JobCard 
+                                key={orderItem.id}
+                                orderItem={orderItem}
+                                onDragStart={onDragStart}
+                            />
                         ))}
                     </div>
                 ))}
@@ -267,5 +268,45 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         </div>
     );
 };
+
+// Create a separate JobCard component for better organization
+interface JobCardProps {
+    orderItem: SerializedOrderItem;
+    onDragStart: (event: React.DragEvent<HTMLDivElement>, id: string, status: OrderItemStatus) => void;
+}
+
+const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
+    <div
+        data-item-container
+        draggable
+        onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
+        className="flex flex-col p-3 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
+        style={{
+            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate) : undefined,
+            borderWidth: orderItem.expectedDate ? 3 : 1,
+            borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
+        }}
+    >
+        <div className='text-sm font-bold mb-1 truncate'>{orderItem.Order.Office.Company.name}</div>
+        <div className='text-sm font-bold mb-1'>Job #: {orderItem.orderItemNumber}</div>
+        <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
+        
+        <div className="flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+            <span className="text-sm">{formatDate(orderItem.expectedDate ?? new Date())}</span>
+        </div>
+        
+        <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+            <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline text-sm">
+                View Job
+            </a>
+        </div>
+    </div>
+);
 
 export default DraggableOrderItemsDash;

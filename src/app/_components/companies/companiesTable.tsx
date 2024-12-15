@@ -18,6 +18,7 @@ import { api } from "~/trpc/react";
 import { type CompanyDashboardData } from "~/types/company";
 import { Button } from "../ui/button";
 import { Eye } from "lucide-react";
+import "~/styles/ag-grid-custom.css";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedCompany = {
@@ -45,6 +46,8 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         resizable: true,
         sortable: true,
         filter: true,
+        minWidth: 100,
+        flex: 1,
     };
 
     const { data: updatedCompanies, refetch } = api.companies.companyDashboard.useQuery(
@@ -74,14 +77,15 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     }, [updatedCompanies]);
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1">
             <Link href={`/companies/${props.data.id}`}>
                 <Button
                     variant="default"
                     size="sm"
+                    className="h-8 px-2 sm:px-3"
                 >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View
+                    <Eye className="w-4 h-4" />
+                    <span className="hidden sm:inline ml-2">View</span>
                 </Button>
             </Link>
             <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess} />
@@ -94,46 +98,91 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     };
 
     const columnDefs: ColDef[] = [
-        { headerName: "Name", field: "name" },
-        { headerName: "Pending Estimates", field: "workOrderTotalPending", valueFormatter: formatNumberAsCurrency },
-        { headerName: "Pending Orders", field: "orderTotalPending", valueFormatter: formatNumberAsCurrency },
-        { headerName: "Completed Orders", field: "orderTotalCompleted", valueFormatter: formatNumberAsCurrency },
+        { 
+            headerName: "Name", 
+            field: "name",
+            minWidth: 120,
+            flex: 1,
+            cellRenderer: (params: { value: string }) => (
+                <div className="truncate max-w-[150px] sm:max-w-none" title={params.value}>
+                    {params.value}
+                </div>
+            )
+        },
+        { 
+            headerName: "Est.", 
+            field: "workOrderTotalPending", 
+            valueFormatter: formatNumberAsCurrency,
+            headerClass: 'hide-below-lg',
+            cellClass: 'hide-below-lg',
+            width: 100,
+        },
+        { 
+            headerName: "Orders", 
+            field: "orderTotalPending", 
+            valueFormatter: formatNumberAsCurrency,
+            headerClass: 'hide-below-md',
+            cellClass: 'hide-below-md',
+            width: 100,
+        },
+        { 
+            headerName: "Done", 
+            field: "orderTotalCompleted", 
+            valueFormatter: formatNumberAsCurrency,
+            headerClass: 'hide-below-md',
+            cellClass: 'hide-below-md',
+            width: 100,
+        },
         {
-            headerName: "QB Status",
+            headerName: "QB",
             field: "quickbooksId",
+            width: 90,
             cellRenderer: (params: { value: string | null }) => (
-                <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
+                <div className={`flex items-center justify-center ${params.value ? "text-green-600" : "text-red-600"}`}>
                     {params.value ? (
-                        <>
-                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <span className="flex items-center" title="Synced with QuickBooks">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
-                            Synced
-                        </>
+                        </span>
                     ) : (
-                        <>
-                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <span className="flex items-center" title="Not synced with QuickBooks">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                             </svg>
-                            Not Synced
-                        </>
+                        </span>
                     )}
                 </div>
             ),
-            sortable: true,
-            filter: true,
         },
         {
-            headerName: "Actions",
+            headerName: "",
             cellRenderer: actionsCellRenderer,
             sortable: false,
             filter: false,
-            width: 250, // Adjust this value as needed
+            width: 140,
+            cellClass: "action-cell",
         },
     ];
 
     const onGridReady = (params: GridReadyEvent) => {
-        params.api.sizeColumnsToFit();
+        const gridApi = params.api;
+        const updateGridSize = () => {
+            setTimeout(() => {
+                gridApi.sizeColumnsToFit();
+            }, 100);
+        };
+
+        // Initial sizing
+        updateGridSize();
+
+        // Add resize listener
+        window.addEventListener('resize', updateGridSize);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('resize', updateGridSize);
+        };
     };
 
     useEffect(() => {
@@ -153,17 +202,21 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     }
 
     return (
-        <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
-            <AgGridReact
-                ref={gridRef}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                rowData={rowData}
-                onGridReady={onGridReady}
-                animateRows={true}
-                pagination={true}
-                paginationPageSize={20}
-            />
+        <div className="w-full">
+            <div className="ag-theme-alpine w-full" style={{ height: 600 }}>
+                <AgGridReact
+                    ref={gridRef}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                    rowData={rowData}
+                    onGridReady={onGridReady}
+                    animateRows={true}
+                    pagination={true}
+                    paginationPageSize={20}
+                    suppressMovableColumns={true}
+                    domLayout="autoHeight"
+                />
+            </div>
         </div>
     );
 };

@@ -21,34 +21,39 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
         setIsAdding(!isAdding);
     };
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) return <div className="flex justify-center items-center p-4">Loading...</div>;
+    if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
 
     return (
-        <>
+        <div className="space-y-4">
             {isAdding ? (
-                <ProcessingOptionsForm
-                    orderItemId={orderItemId}
-                    workOrderItemId={workOrderItemId}
-                    onClose={toggleAdding}
-                    onCancel={toggleAdding}
-                    isActive={isAdding}
-                />
+                <div className="w-full">
+                    <ProcessingOptionsForm
+                        orderItemId={orderItemId}
+                        workOrderItemId={workOrderItemId}
+                        onClose={toggleAdding}
+                        onCancel={toggleAdding}
+                        isActive={isAdding}
+                    />
+                </div>
             ) : (
-                <Button
-                    variant="default"
-                    onClick={toggleAdding}
-                >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add Bindery Option
-                </Button>
+                <div className="w-full">
+                    <Button
+                        variant="default"
+                        onClick={toggleAdding}
+                        className="w-full md:w-auto"
+                    >
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Add Bindery Option
+                    </Button>
+                </div>
             )}
-            <div className="mb-4 mt-4 grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {processingOptions.map((option) => (
                     <ProcessingOptionsItem key={option.id} option={option} />
                 ))}
             </div>
-        </>
+        </div>
     );
 };
 
