@@ -71,7 +71,7 @@
     "jspdf": "^2.5.2",
     "lucide-react": "^0.452.0",
     "next": "^14.2.19",
-    "next-auth": "^4.24.10",
+    "next-auth": "^4.24.11",
     "nodemailer": "^6.9.16",
     "openai": "^4.75.0",
     "react": "18.3.1",
