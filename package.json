@@ -13,7 +13,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
-    "build": "pnpm run build-sw && next build",
+    "build": "next build",
     "build-sw": "node scripts/build-sw.js",
     "db:push": "prisma db push",
     "db-seed": "NODE_ENV=development prisma db seed",
