@@ -38,6 +38,7 @@ export interface SerializedAddress {
 export interface SerializedCompany {
     id: string;
     name: string;
+    isActive: boolean;
     quickbooksId: string | null;
     Offices: SerializedOffice[];
 }
@@ -97,6 +98,7 @@ export interface SerializedOffice {
     updatedAt: string;
     createdById: string;
     companyId: string;
+    isActive: boolean;
     name: string;
     quickbooksCustomerId: string | null;
     Addresses: SerializedAddress[];
