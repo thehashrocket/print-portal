@@ -21,7 +21,8 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
-    "generate-font": "node scripts/generateFontBase64.mjs"
+    "generate-font": "node scripts/generateFontBase64.mjs",
+    "import-quickbooks": "tsx prisma/import-quickbooks.js"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",
@@ -38,7 +39,7 @@
     "@honeybadger-io/react": "^6.1.25",
     "@hookform/resolvers": "^3.9.1",
     "@next/env": "^15.0.3",
-    "@prisma/client": "^6.0.1",
+    "@prisma/client": "^6.1.0",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
@@ -62,6 +63,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
+    "csv-parse": "^5.6.0",
     "dayjs": "^1.11.13",
     "decimal.js": "^10.4.3",
     "fast-xml-parser": "^4.5.0",
@@ -110,7 +112,7 @@
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "prisma": "6.0.1",
+    "prisma": "6.1.0",
     "tailwindcss": "^3.4.16",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",

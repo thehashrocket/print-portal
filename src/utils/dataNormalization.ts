@@ -373,6 +373,8 @@ export function normalizeAddress(address: Address): SerializedAddress {
         officeId: address.officeId,
         line1: address.line1,
         line2: address.line2,
+        line3: address.line3,
+        line4: address.line4,
         city: address.city,
         deleted: address.deleted,
         quickbooksId: address.quickbooksId,

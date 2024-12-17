@@ -59,6 +59,8 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                 id: `temp-${Date.now()}`,
                 line1: "",
                 line2: "",
+                line3: "",
+                line4: "",
                 city: "",
                 state: "",
                 zipCode: "",
@@ -110,6 +112,8 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                     id: addr.id,
                     line1: addr.line1,
                     line2: addr.line2 || undefined,
+                    line3: addr.line3 || undefined,
+                    line4: addr.line4 || undefined,
                     city: addr.city,
                     state: addr.state,
                     zipCode: addr.zipCode,
@@ -184,6 +188,22 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.line2 ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'line2', e.target.value)}
                             placeholder="Address Line 2 (Optional)"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        />
+                        <Input
+                            id="line3"
+                            type="text"
+                            value={address.line3 ?? ""}
+                            onChange={(e) => handleAddressChange(address.id, 'line3', e.target.value)}
+                            placeholder="Address Line 3 (Optional)"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        />
+                        <Input
+                            id="line4"
+                            type="text"
+                            value={address.line4 ?? ""}
+                            onChange={(e) => handleAddressChange(address.id, 'line4', e.target.value)}
+                            placeholder="Address Line 4 (Optional)"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <div className="grid grid-cols-2 gap-2">

@@ -47,6 +47,8 @@ model Address {
   id              String         @id @default(uuid())
   line1           String
   line2           String?
+  line3           String?
+  line4           String?
   Office          Office         @relation(fields: [officeId], references: [id])
   officeId        String
   quickbooksId    String?
@@ -60,7 +62,9 @@ model Address {
 }
 
 model Company {
+  deleted      Boolean  @default(false) // Is this company deleted?
   id           String   @id @default(uuid())
+  isActive     Boolean  @default(true) // Is this company active?
   name         String
   quickbooksId String?  @unique
   syncToken    String?
@@ -127,6 +131,7 @@ model Office {
   deleted              Boolean        @default(false)
   fullyQualifiedName   String?
   id                   String         @id @default(uuid())
+  isActive             Boolean        @default(true) // Is this office active?
   name                 String
   Orders               Order[]
   quickbooksCustomerId String?        @unique

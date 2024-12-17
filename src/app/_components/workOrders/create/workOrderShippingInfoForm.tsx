@@ -32,6 +32,8 @@ const shippingInfoSchema = z.object({
 const addressSchema = z.object({
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
+    line3: z.string().optional(),
+    line4: z.string().optional(),
     city: z.string().min(1, 'City is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().min(1, 'Zip Code is required'),
@@ -275,6 +277,22 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                                 className="input input-bordered w-full"
                             />
                             {addressErrors.line2 && <p className="text-red-500">{addressErrors.line2.message}</p>}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="line3">Address Line 3</Label>
+                            <Input
+                                {...registerAddress('line3')}
+                                className="input input-bordered w-full"
+                            />
+                            {addressErrors.line3 && <p className="text-red-500">{addressErrors.line3.message}</p>}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="line4">Address Line 4</Label>
+                            <Input
+                                {...registerAddress('line4')}
+                                className="input input-bordered w-full"
+                            />
+                            {addressErrors.line4 && <p className="text-red-500">{addressErrors.line4.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="city">City</Label>

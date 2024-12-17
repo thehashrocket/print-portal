@@ -12,6 +12,8 @@ const addressSchema = z.object({
     id: z.string().optional(),
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
+    line3: z.string().optional(),
+    line4: z.string().optional(),
     city: z.string().min(1, 'City is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().min(1, 'Zip Code is required'),
@@ -82,6 +84,8 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                 setValue('address', {
                     line1: selectedAddress.line1,
                     line2: selectedAddress?.line2 ?? '',
+                    line3: selectedAddress?.line3 ?? '',
+                    line4: selectedAddress?.line4 ?? '',
                     city: selectedAddress.city,
                     state: selectedAddress.state,
                     zipCode: selectedAddress.zipCode,
@@ -181,6 +185,14 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                                 <Label htmlFor="line2">Address Line 2</Label>
                                 <Input {...register('address.line2')} className="input input-bordered w-full" />
+                            </div>
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="line3">Address Line 3</Label>
+                                <Input {...register('address.line3')} className="input input-bordered w-full" />
+                            </div>
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="line4">Address Line 4</Label>
+                                <Input {...register('address.line4')} className="input input-bordered w-full" />
                             </div>
                             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                                 <Label htmlFor="city">City</Label>
