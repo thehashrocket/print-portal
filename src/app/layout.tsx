@@ -8,7 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistration';
-import { InstallPWA } from '~/app/_components/installPwa'
+import { InstallPWA } from '~/app/_components/installPWA'
 
 const inter = Inter({
   subsets: ["latin"],
