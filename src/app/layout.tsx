@@ -7,6 +7,8 @@ import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
+import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistration';
+import { InstallPWA } from '~/app/_components/installPWA'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,6 +34,8 @@ export default function RootLayout({
             <Providers>
               <NavBar />
               {children}
+              <InstallPWA />
+              <ServiceWorkerRegistration />
             </Providers>
             <Toaster />
           </TRPCReactProvider>
