@@ -2,6 +2,8 @@
 
 export type CompanyDashboardData = {
     id: string;
+    isActive: boolean;
+    deleted: boolean;
     name: string;
     workOrderTotalPending: number;
     orderTotalPending: number;

@@ -13,6 +13,8 @@ const companyFormSchema = z.object({
     officeName: z.string().min(1, "Required"),
     line1: z.string().min(1, "Required"),
     line2: z.string().optional(),
+    line3: z.string().optional(),
+    line4: z.string().optional(),
     city: z.string().min(1, "Required"),
     state: z.string().min(2, "Required"),
     zipCode: z.string().min(5, "Required"),
@@ -52,9 +54,12 @@ export function CreateCompany() {
             name: data.name,
             Offices: [{
                 name: data.officeName,
+                isActive: true,
                 Addresses: [{
                     line1: data.line1,
                     line2: data.line2 || "",
+                    line3: data.line3 || "",
+                    line4: data.line4 || "",
                     city: data.city,
                     state: data.state,
                     zipCode: data.zipCode,
@@ -103,6 +108,18 @@ export function CreateCompany() {
                                         <span className="label-text">Address Line 2</span>
                                     </label>
                                     <input type="text" {...register("line2")} className="input input-bordered" />
+                                </div>
+                                <div className="form-control">
+                                    <label className="label">
+                                        <span className="label-text">Address Line 3</span>
+                                    </label>
+                                    <input type="text" {...register("line3")} className="input input-bordered" />
+                                </div>
+                                <div className="form-control">
+                                    <label className="label">
+                                        <span className="label-text">Address Line 4</span>
+                                    </label>
+                                    <input type="text" {...register("line4")} className="input input-bordered" />
                                 </div>
                                 <div className="form-control">
                                     <label className="label">
