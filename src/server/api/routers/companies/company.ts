@@ -167,6 +167,8 @@ export const companyRouter = createTRPCRouter({
                 Addresses: z.array(z.object({
                     line1: z.string(),
                     line2: z.string(),
+                    line3: z.string().optional(),
+                    line4: z.string().optional(),
                     city: z.string(),
                     state: z.string(),
                     zipCode: z.string(),
@@ -187,6 +189,7 @@ export const companyRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             name: z.string(),
+            isActive: z.boolean(),
         })).mutation(({ ctx, input }) => {
             return ctx.db.company.update({
                 where: {
@@ -210,6 +213,9 @@ export const companyRouter = createTRPCRouter({
     // Company Dashboard Data
     companyDashboard: protectedProcedure.query(async ({ ctx }) => {
         const companies = await ctx.db.company.findMany({
+            where: {
+                deleted: false,
+            },
             include: {
                 Offices: {
                     include: {
@@ -264,6 +270,7 @@ export const companyRouter = createTRPCRouter({
             return {
                 id: company.id,
                 isActive: company.isActive,
+                deleted: company.deleted,
                 name: company.name,
                 quickbooksId: company.quickbooksId || "",
                 createdAt: company.createdAt,

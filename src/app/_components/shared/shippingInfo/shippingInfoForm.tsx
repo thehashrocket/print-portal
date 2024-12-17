@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ShippingMethod, type Address } from '@prisma/client';
+import { SerializedAddress } from '~/types/serializedTypes';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -43,12 +44,12 @@ type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
 interface ShippingInfoFormProps {
     onSubmit: (data: ShippingInfoFormData) => void;
     officeId: string;
-    getAddressesByOfficeId: (officeId: string) => Promise<Address[]>;
+    getAddressesByOfficeId: (officeId: string) => Promise<SerializedAddress[]>;
 }
 
 const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId, getAddressesByOfficeId }) => {
     const [selectedAddress, setSelectedAddress] = useState<string>('new');
-    const [officeAddresses, setOfficeAddresses] = useState<Address[]>([]);
+    const [officeAddresses, setOfficeAddresses] = useState<SerializedAddress[]>([]);
     const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
     });
@@ -68,8 +69,15 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
             const selectedAddressData = officeAddresses.find(addr => addr.id === selectedAddress);
             if (selectedAddressData) {
                 data.address = {
-                    ...selectedAddressData,
+                    line1: selectedAddressData.line1,
                     line2: selectedAddressData.line2 || '',
+                    line3: selectedAddressData.line3 ?? undefined,
+                    line4: selectedAddressData.line4 ?? undefined,
+                    city: selectedAddressData.city,
+                    state: selectedAddressData.state,
+                    zipCode: selectedAddressData.zipCode,
+                    country: selectedAddressData.country,
+                    id: selectedAddressData.id,
                 };
             }
         }
