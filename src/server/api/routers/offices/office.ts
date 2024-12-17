@@ -80,9 +80,12 @@ export const officeRouter = createTRPCRouter({
         .input(z.object({
             name: z.string(),
             companyId: z.string(),
+            isActive: z.boolean().optional(),
             Addresses: z.array(z.object({
                 line1: z.string(),
                 line2: z.string().optional(),
+                line3: z.string().optional(),
+                line4: z.string().optional(),
                 city: z.string(),
                 state: z.string(),
                 zipCode: z.string(),
@@ -107,6 +110,8 @@ export const officeRouter = createTRPCRouter({
                         create: input.Addresses.map((address) => ({
                             line1: address.line1,
                             line2: address.line2,
+                            line3: address.line3,
+                            line4: address.line4,
                             city: address.city,
                             state: address.state,
                             zipCode: address.zipCode,
@@ -122,6 +127,7 @@ export const officeRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             name: z.string(),
+            isActive: z.boolean().optional(),
             addresses: z.array(z.object({
                 addressType: z.nativeEnum(AddressType),
                 city: z.string(),
@@ -130,6 +136,8 @@ export const officeRouter = createTRPCRouter({
                 id: z.string().optional(), // Optional for new addresses
                 line1: z.string(),
                 line2: z.string().optional(),
+                line3: z.string().optional(),
+                line4: z.string().optional(),
                 officeId: z.string(),
                 state: z.string(),
                 telephoneNumber: z.string(),
@@ -139,7 +147,7 @@ export const officeRouter = createTRPCRouter({
             // First update the office name
             await ctx.db.office.update({
                 where: { id: input.id },
-                data: { name: input.name },
+                data: { name: input.name, isActive: input.isActive },
             });
 
             // Handle addresses
@@ -150,6 +158,8 @@ export const officeRouter = createTRPCRouter({
                         data: {
                             line1: address.line1,
                             line2: address.line2,
+                            line3: address.line3,
+                            line4: address.line4,
                             city: address.city,
                             deleted: address.deleted,
                             state: address.state,
@@ -167,6 +177,8 @@ export const officeRouter = createTRPCRouter({
                         data: {
                             line1: address.line1,
                             line2: address.line2,
+                            line3: address.line3,
+                            line4: address.line4,
                             city: address.city,
                             deleted: address.deleted,
                             state: address.state,
