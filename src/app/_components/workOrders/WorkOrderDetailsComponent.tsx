@@ -242,6 +242,8 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                                         <p className="font-semibold mb-2">{workOrder.Office.Company.name}</p>
                                         <p>{workOrder.ShippingInfo?.Address?.line1}</p>
                                         {workOrder.ShippingInfo?.Address?.line2 && <p>{workOrder.ShippingInfo.Address.line2}</p>}
+                                        {workOrder.ShippingInfo?.Address?.line3 && <p>{workOrder.ShippingInfo.Address.line3}</p>}
+                                        {workOrder.ShippingInfo?.Address?.line4 && <p>{workOrder.ShippingInfo.Address.line4}</p>}
                                         <p>{workOrder.ShippingInfo?.Address?.city}, {workOrder.ShippingInfo?.Address?.state} {workOrder.ShippingInfo?.Address?.zipCode}</p>
                                         <p>{workOrder.ShippingInfo?.Address?.country}</p>
                                         <p className="mt-2"><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>

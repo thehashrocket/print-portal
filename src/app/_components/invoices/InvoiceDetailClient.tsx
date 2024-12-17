@@ -270,6 +270,8 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                                             <>
                                                 <strong>Delivery Location:</strong> {order?.ShippingInfo?.Address?.line1}<br />
                                                 {order?.ShippingInfo?.Address?.line2}<br />
+                                                {order?.ShippingInfo?.Address?.line3}<br />
+                                                {order?.ShippingInfo?.Address?.line4}<br />
                                                 {order?.ShippingInfo?.Address?.city}, {order?.ShippingInfo?.Address?.state} {order?.ShippingInfo?.Address?.zipCode}
                                             </>
                                         )}

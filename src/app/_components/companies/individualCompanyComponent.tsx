@@ -36,6 +36,9 @@ const AddressList: React.FC<{ addresses: SerializedAddress[] }> = ({ addresses }
         {addresses.map((address) => (
             <li key={address.id} className="mb-2">
                 <p>{address.line1}</p>
+                {address.line2 && <p>{address.line2}</p>}
+                {address.line3 && <p>{address.line3}</p>}
+                {address.line4 && <p>{address.line4}</p>}
                 <p>{address.city}, {address.state} {address.zipCode}</p>
             </li>
         ))}
