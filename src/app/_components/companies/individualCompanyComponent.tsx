@@ -7,7 +7,7 @@ import Link from "next/link";
 import { type AddressType, type WorkOrderStatus, type OrderStatus } from "@prisma/client";
 import QuickbooksSyncOrdersButton from "./QuickbooksSyncOrdersButton";
 import { toast } from "react-hot-toast";
-import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
+import { type SerializedCompany, type SerializedOffice, type SerializedAddress } from "~/types/serializedTypes";
 import { formatCurrency } from "~/utils/formatters";
 import { EyeIcon, FilePenLine } from 'lucide-react';
 import { Button } from "../ui/button";
@@ -16,22 +16,11 @@ function convertToCamelCase(str: string): string {
     return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
 }
 
-export interface SerializedAddress {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    officeId: string;
-    line1: string;
-    line2: string | null;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-    telephoneNumber: string;
-    addressType: AddressType;
+interface AddressListProps {
+    addresses: SerializedAddress[];
 }
 
-const AddressList: React.FC<{ addresses: SerializedAddress[] }> = ({ addresses }) => (
+const AddressList: React.FC<AddressListProps> = ({ addresses }) => (
     <ul className="list-none pl-0">
         {addresses.map((address) => (
             <li key={address.id} className="mb-2">
