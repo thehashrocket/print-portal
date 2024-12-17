@@ -10,7 +10,7 @@ import { Button } from '~/app/_components/ui/button';
 
 const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
     const router = useRouter();
-    const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
+    const isAuthenticated = useQuickbooksStore((state: { isAuthenticated: any; }) => state.isAuthenticated);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
         onSuccess: () => {
             toast.success('Company synced with QuickBooks successfully');
@@ -35,9 +35,9 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
     };
 
     return (
-        <div className="navbar bg-base-100 shadow-lg rounded-box mb-4">
-            <div className="flex-1 gap-2">
-                <h1 className="text-2xl font-bold">{companyName}</h1>
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
+            <div className="flex-1">
+                <h1 className="text-2xl font-bold mb-2">{companyName}</h1>
                 <div className={`flex items-center ${quickbooksId ? "text-green-600" : "text-red-600"}`}>
                     {quickbooksId ? (
                         <>
@@ -56,27 +56,30 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                     )}
                 </div>
             </div>
-            <div className="flex-none gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                     variant="outline"
-                    className={`btn btn-sm btn-outline ${syncCompanyMutation.isPending ? 'loading' : ''}`}
+                    className={`w-full sm:w-auto ${syncCompanyMutation.isPending ? 'loading' : ''}`}
                     onClick={handleSyncCompany}
                     disabled={syncCompanyMutation.isPending || !isAuthenticated}
                 >
                     {!syncCompanyMutation.isPending && (
                         <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-4 w-4" 
-                        fill="none" 
-                        viewBox="0 0 24 24" stroke="currentColor">
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-4 w-4 mr-2" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                     )}
                     {syncCompanyMutation.isPending ? 'Syncing...' : 'Sync with QuickBooks'}
                 </Button>
-                <Link href="/companies/create">
+                <Link href="/companies/create" className="w-full sm:w-auto">
                     <Button
                         variant="default"
+                        className="w-full"
                     >
                         Create Company
                     </Button>

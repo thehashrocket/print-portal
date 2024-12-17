@@ -28,9 +28,9 @@ export default async function CompaniesPage() {
 
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Companies</h1>
+        <div className="container mx-auto px-4 py-4 sm:py-8">
+            <div className="mb-4 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2">Companies</h1>
                 <div className="text-sm breadcrumbs">
                     <ul>
                         <li><Link href="/">Home</Link></li>
@@ -38,40 +38,46 @@ export default async function CompaniesPage() {
                     </ul>
                 </div>
             </div>
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex space-x-4">
-                    <div className="stat bg-base-100 shadow">
-                        <div className="stat-title">Total Companies</div>
-                        <div className="stat-value">{totalCompanies}</div>
+
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full sm:w-auto">
+                    <div className="stat bg-base-100 shadow p-4">
+                        <div className="stat-title text-sm">Total Companies</div>
+                        <div className="stat-value text-xl sm:text-2xl">{totalCompanies}</div>
                     </div>
-                    <div className="stat bg-base-100 shadow">
-                        <div className="stat-title">Pending Estimates</div>
-                        <div className="stat-value">${totalPendingWorkOrders.toFixed(2)}</div>
+                    <div className="stat bg-base-100 shadow p-4">
+                        <div className="stat-title text-sm">Pending Estimates</div>
+                        <div className="stat-value text-xl sm:text-2xl">${totalPendingWorkOrders.toFixed(2)}</div>
                     </div>
-                    <div className="stat bg-base-100 shadow">
-                        <div className="stat-title">Pending Orders</div>
-                        <div className="stat-value">${totalPendingOrders.toFixed(2)}</div>
+                    <div className="stat bg-base-100 shadow p-4">
+                        <div className="stat-title text-sm">Pending Orders</div>
+                        <div className="stat-value text-xl sm:text-2xl">${totalPendingOrders.toFixed(2)}</div>
                     </div>
                 </div>
-                <Link href="/companies/create">
+                <Link href="/companies/create" className="w-full sm:w-auto">
                     <Button
                         variant="default"
+                        className="w-full sm:w-auto"
                     >
                         New Company
                     </Button>
                 </Link>
             </div>
 
-            <div className="bg-base-100 shadow-xl rounded-lg p-6 mb-8">
+            <div className="bg-base-100 shadow-xl rounded-lg p-4 sm:p-6 mb-4 sm:mb-8">
                 <Suspense fallback={<div>Loading chart...</div>}>
                     <CompaniesChart companies={serializedData} />
                 </Suspense>
             </div>
 
-            <div className="bg-base-100 shadow-xl rounded-lg p-6">
+            <div className="bg-base-100 shadow-xl rounded-lg p-4 sm:p-6">
                 <Suspense fallback={<div>Loading...</div>}>
                     <div className="mb-4">
-                        <input type="text" placeholder="Search companies..." className="input input-bordered w-full max-w-xs" />
+                        <input 
+                            type="text" 
+                            placeholder="Search companies..." 
+                            className="input input-bordered w-full max-w-xs" 
+                        />
                     </div>
                     {companies.length > 0 ? (
                         <CompaniesTable companies={serializedData} />

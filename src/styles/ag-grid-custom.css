@@ -1,0 +1,155 @@
+/* Base styles */
+.ag-theme-alpine {
+    --ag-grid-size: 4px;
+    --ag-list-item-height: 30px;
+    --ag-header-height: 40px;
+    --ag-row-height: 48px;
+    font-family: inherit;
+}
+
+.ag-theme-alpine .ag-root-wrapper {
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ag-theme-alpine .ag-header {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ag-theme-alpine .ag-row {
+    border-color: #e5e7eb;
+}
+
+.ag-theme-alpine .ag-row-hover {
+    background-color: #f3f4f6;
+}
+
+/* Responsive breakpoints */
+@media screen and (max-width: 1024px) {
+    .hide-below-lg {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hide-below-md {
+        display: none !important;
+    }
+
+    .ag-theme-alpine {
+        --ag-row-height: 44px;
+    }
+
+    .ag-header-cell-label {
+        font-size: 0.875rem;
+    }
+
+    .ag-cell {
+        font-size: 0.875rem;
+        padding: 4px !important;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .ag-theme-alpine {
+        --ag-row-height: 40px;
+    }
+
+    .ag-cell {
+        padding: 2px !important;
+    }
+
+    /* Ensure buttons don't overflow */
+    .action-cell {
+        padding-right: 4px !important;
+    }
+
+    .action-cell button {
+        padding: 0 8px;
+        height: 32px;
+    }
+}
+
+/* General cell improvements */
+.ag-theme-alpine .ag-cell {
+    display: flex;
+    align-items: center;
+}
+
+.ag-header-cell {
+    white-space: normal !important;
+    line-height: 1.2;
+}
+
+/* Pagination controls */
+.ag-theme-alpine .ag-paging-panel {
+    border-top: 1px solid #e5e7eb;
+    padding: 8px;
+    font-size: 0.875rem;
+}
+
+@media screen and (max-width: 480px) {
+    .ag-paging-panel {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+/* Mobile-specific AG Grid styles */
+@media (max-width: 768px) {
+    .ag-grid-mobile .ag-root-wrapper {
+        border: none !important;
+    }
+
+    .ag-grid-mobile .ag-row {
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+
+    .ag-grid-mobile .ag-header {
+        display: none !important;
+    }
+
+    .ag-grid-mobile .ag-cell {
+        padding: 8px !important;
+    }
+
+    /* Improve touch targets */
+    .ag-grid-mobile .ag-row {
+        touch-action: pan-y;
+        min-height: 60px !important;
+    }
+
+    /* Remove horizontal scroll */
+    .ag-grid-mobile .ag-body-horizontal-scroll {
+        display: none !important;
+    }
+} 
+
+/* Add these styles to your existing CSS */
+.action-cell {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 4px !important;
+}
+
+.action-cell a {
+    display: flex;
+    align-items: center;
+}
+
+.action-cell button {
+    min-width: 110px;
+    padding: 0 12px;
+}
+
+@media screen and (max-width: 640px) {
+    .action-cell button {
+        min-width: 42px;
+        padding: 0 8px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+} 

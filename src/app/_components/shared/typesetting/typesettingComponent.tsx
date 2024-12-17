@@ -81,139 +81,169 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
     };
 
     return (
-        <>
-            {/* Buttons and dropdown */}
-            <div className="mb-4 grid grid-cols-4 gap-4">
-                <Button
-                    variant="default"
-                    onClick={() => {
-                        setMode('add');
-                        setIsEditMode(true);
-                    }}
-                >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add Typesetting
-                </Button>
-                <SelectField
-                    options={typesetting.map((type) => ({ value: type.id, label: `${formatDate(type.dateIn)} - ${type.timeIn}` }))}
-                    value={selectedTypeId}
-                    onValueChange={handleChange}
-                    placeholder="Please choose a Typesetting Version to view."
-                    required={true}
-                />
-                <Button
-                    variant="default"
-                    onClick={() => {
-                        setMode('edit');
-                        setIsEditMode(true);
-                    }}
-                >
-                    <Pencil className="w-4 h-4 mr-2" />
-                    Edit Typesetting
-                </Button>
-                <Button
-                    variant="destructive"
-                    onClick={() => setIsEditMode(true)}
-                >
-                    <Trash className="w-4 h-4 mr-2" />
-                    Delete Typesetting
-                </Button>
+        <div className="space-y-6">
+            {/* Controls Section */}
+            <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            setMode('add');
+                            setIsEditMode(true);
+                        }}
+                        className="w-full"
+                    >
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Add Typesetting
+                    </Button>
+
+                    <div className="w-full">
+                        <SelectField
+                            options={typesetting.map((type) => ({
+                                value: type.id,
+                                label: `${formatDate(type.dateIn)} - ${type.timeIn}`
+                            }))}
+                            value={selectedTypeId}
+                            onValueChange={handleChange}
+                            placeholder="Select version..."
+                            required={true}
+                        />
+                    </div>
+
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            setMode('edit');
+                            setIsEditMode(true);
+                        }}
+                        className="w-full"
+                    >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit Typesetting
+                    </Button>
+
+                    <Button
+                        variant="destructive"
+                        onClick={() => setIsEditMode(true)}
+                        className="w-full"
+                    >
+                        <Trash className="w-4 h-4 mr-2" />
+                        Delete Typesetting
+                    </Button>
+                </div>
             </div>
+
             {currentItem && (
                 (isEditMode ? (
-                    <TypesettingForm
-                        typesetting={mode === 'edit' ? currentItem : undefined}
-                        workOrderItemId={workOrderItemId}
-                        orderItemId={orderItemId}
-                        onSubmit={handleNewTypesetting}
-                        onCancel={() => setIsEditMode(false)}
-                    />
+                    <div className="w-full">
+                        <TypesettingForm
+                            typesetting={mode === 'edit' ? currentItem : undefined}
+                            workOrderItemId={workOrderItemId}
+                            orderItemId={orderItemId}
+                            onSubmit={handleNewTypesetting}
+                            onCancel={() => setIsEditMode(false)}
+                        />
+                    </div>
                 ) : (
-                    <>
-                        {/* Display typesetting details */}
-                        <div className="grid grid-cols-4 gap-4 mb-4">
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Date In</p>
+                    <div className="space-y-6">
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Date In</p>
                                 <p className="text-sm">{formatDate(currentItem.dateIn)}</p>
                             </div>
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Time In</p>
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Time In</p>
                                 <p className="text-sm">{currentItem.timeIn}</p>
                             </div>
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Cost</p>
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Cost</p>
                                 <p className="text-sm">{formatCurrency(Number(currentItem.cost))}</p>
                             </div>
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Prep Time</p>
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Prep Time</p>
                                 <p className="text-sm">{currentItem.prepTime}</p>
                             </div>
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Plate Ran</p>
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Plate Ran</p>
                                 <p className="text-sm">{currentItem.plateRan}</p>
                             </div>
-                            <div className="rounded-lg bg-white p-6 shadow-md">
-                                <p className="mb-2 text-gray-600 text-md font-semibold">Approved</p>
+                            <div className="rounded-lg bg-white p-4 shadow-md">
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Approved</p>
                                 <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
                             </div>
                         </div>
-                        {/* Display proofs */}
-                        <div>
-                            <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
-                            <div className="mb-4 grid grid-cols-4 gap-4">
+
+                        {/* Proofs Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-4">
+                                <h3 className="text-lg text-gray-600 font-semibold">Proofs</h3>
                                 <Button
                                     variant="default"
                                     onClick={() => setAddProofMode(true)}
+                                    className="shrink-0"  // This prevents the button from shrinking
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Proof
                                 </Button>
                             </div>
-                            <div className="grid grid-cols-4 gap-4">
-                                {addProofMode && (
+
+                            {addProofMode && (
+                                <div className="w-full">
                                     <TypesettingProofForm
                                         typesettingId={currentItem.id}
-                                        onSubmit={() => {
-                                            setAddProofMode(false);
-                                        }}
-                                        onCancel={() => {
-                                            setAddProofMode(false);
-                                        }}
+                                        onSubmit={() => setAddProofMode(false)}
+                                        onCancel={() => setAddProofMode(false)}
                                     />
-                                )}
-                            </div>
-                            <div className="grid grid-cols-4 gap-4">
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {currentItem.TypesettingProofs?.map((proof) => (
-                                    <div key={proof.id} className="rounded-lg bg-white p-6 shadow-md m-3">
-                                        {proof.artwork.map((artwork) => (
-                                            <ArtworkComponent key={artwork.id} artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
-                                        ))}
-                                        <p className="text-gray-600 text-sm font-semibold">Approved</p>
-                                        <p className="mb-2 text-sm">{proof.approved ? 'Yes' : 'No'}</p>
-                                        <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>
-                                        <p className="mb-2 text-sm">{proof.dateSubmitted ? formatDate(proof.dateSubmitted) : ''}</p>
-                                        <p className="text-gray-600 text-sm font-semibold">Proof Number</p>
-                                        <p className="text-sm">{proof.proofNumber}</p>
-                                        <p className="text-gray-600 text-sm font-semibold">Notes</p>
-                                        <p className="text-sm">{proof.notes}</p>
-                                        <Button 
-                                            variant="default" 
-                                            className="mt-2"
-                                            onClick={() => {
-                                                generateProofPDF(proof);
-                                            }}
-                                        >
-                                            <Printer className="w-4 h-4 mr-2" />
-                                            Print Proof
-                                        </Button>
+                                    <div key={proof.id} className="rounded-lg bg-white p-4 shadow-md">
+                                        <div className="space-y-3">
+                                            {proof.artwork.map((artwork) => (
+                                                <ArtworkComponent
+                                                    key={artwork.id}
+                                                    artworkUrl={artwork.fileUrl}
+                                                    artworkDescription={artwork.description}
+                                                />
+                                            ))}
+                                            <div className="space-y-2">
+                                                <div>
+                                                    <p className="text-gray-600 text-sm font-semibold">Approved</p>
+                                                    <p className="text-sm">{proof.approved ? 'Yes' : 'No'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>
+                                                    <p className="text-sm">{proof.dateSubmitted ? formatDate(proof.dateSubmitted) : ''}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600 text-sm font-semibold">Proof Number</p>
+                                                    <p className="text-sm">{proof.proofNumber}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600 text-sm font-semibold">Notes</p>
+                                                    <p className="text-sm">{proof.notes}</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="default"
+                                                className="w-full mt-3"
+                                                onClick={() => generateProofPDF(proof)}
+                                            >
+                                                <Printer className="w-4 h-4 mr-2" />
+                                                Print Proof
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    </>
+                    </div>
                 ))
             )}
-        </>
+        </div>
     );
 }
 

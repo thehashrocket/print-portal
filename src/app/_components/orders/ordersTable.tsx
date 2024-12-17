@@ -30,7 +30,7 @@ const OrdersTable: React.FC = () => {
   const [rowData, setRowData] = useState<SerializedOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
-  const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
+  const isAuthenticated = useQuickbooksStore((state: { isAuthenticated: any; }) => state.isAuthenticated);
   const utils = api.useUtils();
   const defaultColDef = useMemo(() => ({
     resizable: true,
