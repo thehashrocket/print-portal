@@ -26,6 +26,7 @@ export const companyRouter = createTRPCRouter({
                             Company: {
                                 select: {
                                     name: true,
+                                    isActive: true,
                                 },
                             },
                             WorkOrders: {
@@ -162,6 +163,7 @@ export const companyRouter = createTRPCRouter({
             name: z.string(),
             Offices: z.array(z.object({
                 name: z.string(),
+                isActive: z.boolean(),
                 Addresses: z.array(z.object({
                     line1: z.string(),
                     line2: z.string(),
@@ -176,6 +178,7 @@ export const companyRouter = createTRPCRouter({
             return ctx.db.company.create({
                 data: {
                     name: input.name,
+                    isActive: true,
                 },
             });
         }),
@@ -191,6 +194,7 @@ export const companyRouter = createTRPCRouter({
                 },
                 data: {
                     name: input.name,
+                    isActive: input.isActive,
                 },
             });
         }),
@@ -259,6 +263,7 @@ export const companyRouter = createTRPCRouter({
 
             return {
                 id: company.id,
+                isActive: company.isActive,
                 name: company.name,
                 quickbooksId: company.quickbooksId || "",
                 createdAt: company.createdAt,
