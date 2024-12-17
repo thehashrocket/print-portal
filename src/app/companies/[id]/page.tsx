@@ -23,7 +23,7 @@ function serializeCompany(company: {
     id: string;
     name: string;
     quickbooksId: string | null;
-    syncToken: string | null;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
     Offices: SerializedOffice[];
@@ -32,6 +32,7 @@ function serializeCompany(company: {
         id: company.id,
         name: company.name,
         quickbooksId: company.quickbooksId,
+        isActive: company.isActive,
         Offices: company.Offices
     };
 }
@@ -55,6 +56,7 @@ export default async function CompanyPage(
         ...office,
         createdAt: office.createdAt.toISOString(),
         updatedAt: office.updatedAt.toISOString(),
+        isActive: office.isActive,
         Company: { name: 
             office.Company.name
         },
@@ -62,7 +64,9 @@ export default async function CompanyPage(
             ...address,
             deleted: false,
             createdAt: address.createdAt.toISOString(),
-            updatedAt: address.updatedAt.toISOString()
+            updatedAt: address.updatedAt.toISOString(),
+            line3: null,
+            line4: null,
         })),
         WorkOrders: office.WorkOrders.map(workOrder => ({
             ...workOrder,

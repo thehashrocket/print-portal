@@ -88,7 +88,11 @@ function parseAddressLines(addressLines: string[]): ParsedAddress | null {
     return null;
   }
 
-  // Extract city, state, zip from the found line
+  // Before extracting, check if line exists
+  if (!cleanedLines[cityStateZipIndex]) {
+    return null;
+  }
+
   const { city, state, zipCode } = extractCityStateZip(cleanedLines[cityStateZipIndex]);
 
   // Get all lines before the city/state/zip line for address lines
@@ -216,9 +220,9 @@ async function importData() {
           data: {
             addressType: "Billing",
             line1: parsedBillingAddress.line1,
-            line2: parsedBillingAddress.line2,
-            line3: parsedBillingAddress.line3,
-            line4: parsedBillingAddress.line4,
+            line2: parsedBillingAddress.line2 ?? undefined,
+            line3: parsedBillingAddress.line3 ?? undefined,
+            line4: parsedBillingAddress.line4 ?? undefined,
             city: parsedBillingAddress.city,
             state: parsedBillingAddress.state,
             zipCode: parsedBillingAddress.zipCode,
@@ -249,9 +253,9 @@ async function importData() {
           data: {
             addressType: "Shipping",
             line1: parsedShippingAddress.line1,
-            line2: parsedShippingAddress.line2,
-            line3: parsedShippingAddress.line3,
-            line4: parsedShippingAddress.line4,
+            line2: parsedShippingAddress.line2 ?? undefined,
+            line3: parsedShippingAddress.line3 ?? undefined,
+            line4: parsedShippingAddress.line4 ?? undefined,
             city: parsedShippingAddress.city,
             state: parsedShippingAddress.state,
             zipCode: parsedShippingAddress.zipCode,

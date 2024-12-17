@@ -24,6 +24,8 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 type SerializedCompany = {
     id: string;
     name: string;
+    isActive: boolean;
+    deleted: boolean;
     workOrderTotalPending: number;
     orderTotalPending: number;
     orderTotalCompleted: number;
@@ -53,7 +55,13 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     const { data: updatedCompanies, refetch } = api.companies.companyDashboard.useQuery(
         undefined,
         {
-            initialData: initialCompanies as CompanyDashboardData[], enabled: false,
+            initialData: initialCompanies.map(company => ({
+                ...company,
+                quickbooksId: company.quickbooksId || '',
+                syncToken: company.syncToken || '',
+                deleted: false
+            })),
+            enabled: false,
         }
     );
 
