@@ -43,6 +43,8 @@ const shippingInfoSchema = z.object({
 const addressSchema = z.object({
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
+    line3: z.string().optional(),
+    line4: z.string().optional(),
     city: z.string().min(1, 'City is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().min(1, 'Zip Code is required'),
@@ -336,7 +338,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
-                                    <div className="font-medium">{currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.city}, {currentShippingInfo.Address?.state} {currentShippingInfo.Address?.zipCode}</div>
+                                    <div className="font-medium">{currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.line2}, {currentShippingInfo.Address?.line3}, {currentShippingInfo.Address?.line4}, {currentShippingInfo.Address?.city}, {currentShippingInfo.Address?.state} {currentShippingInfo.Address?.zipCode}</div>
                                 </div>
                             </div>
 
@@ -520,6 +522,16 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="line2">Address Line 2</Label>
                             <Input {...registerAddress('line2')} className="input input-bordered w-full" />
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="line3">Address Line 3</Label>
+                            <Input {...registerAddress('line3')} className="input input-bordered w-full" />
+                            {addressErrors.line3 && <p className="text-red-500">{addressErrors.line3.message}</p>}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="line4">Address Line 4</Label>
+                            <Input {...registerAddress('line4')} className="input input-bordered w-full" />
+                            {addressErrors.line4 && <p className="text-red-500">{addressErrors.line4.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="city">City</Label>

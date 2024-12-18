@@ -25,6 +25,8 @@ export interface SerializedAddress {
     id: string;
     line1: string;
     line2: string | null;
+    line3: string | null;
+    line4: string | null;
     officeId: string;
     quickbooksId: string | null;
     state: string;
