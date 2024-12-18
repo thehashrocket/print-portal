@@ -27,6 +27,8 @@ interface ComboboxProps {
     emptyText: string
     searchPlaceholder: string
     className?: string
+    onSearchChange?: (term: string) => void
+    showSpinner?: boolean
 }
 
 export function CustomComboBox({
@@ -36,9 +38,17 @@ export function CustomComboBox({
     placeholder,
     emptyText,
     searchPlaceholder,
-    className
+    className,
+    onSearchChange,
+    showSpinner = false
 }: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
+
+    const handleSearchChange = (term: string) => {
+        if (onSearchChange) {
+            onSearchChange(term);
+        }
+    };
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +67,7 @@ export function CustomComboBox({
             </PopoverTrigger>
             <PopoverContent className={cn("p-0", className)}>
                 <Command shouldFilter={true}> {/* Add this prop */}
-                    <CommandInput placeholder={searchPlaceholder} />
+                    <CommandInput placeholder={searchPlaceholder} className="..." onValueChange={handleSearchChange} />
                     <CommandList>
                         <CommandEmpty>{emptyText}</CommandEmpty>
                         <CommandGroup>

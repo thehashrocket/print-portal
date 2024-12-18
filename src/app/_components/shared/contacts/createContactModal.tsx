@@ -12,7 +12,7 @@ import { toast } from "~/hooks/use-toast";
 
 const createContactSchema = z.object({
     name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Invalid email'),
+    email: z.string().min(1, 'Email is required').email('Invalid email'),
 });
 
 type CreateContactFormData = z.infer<typeof createContactSchema>;
@@ -21,7 +21,7 @@ interface CreateContactModalProps {
     isOpen: boolean;
     onClose: () => void;
     officeId: string;
-    onContactCreated: (contact: { id: string; name: string }) => void;
+    onContactCreated: (contact: { id: string; name: string; email: string }) => void;
 }
 
 export function CreateContactModal({ isOpen, onClose, officeId, onContactCreated }: CreateContactModalProps) {
@@ -42,6 +42,7 @@ export function CreateContactModal({ isOpen, onClose, officeId, onContactCreated
             onContactCreated({
                 id: newContact.id,
                 name: newContact.name,
+                email: newContact.email,
             });
             toast({
                 title: "Contact Created",
@@ -87,7 +88,9 @@ export function CreateContactModal({ isOpen, onClose, officeId, onContactCreated
                         )}
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="flex gap-1">
+                            Email<span className="text-red-500">*</span>
+                        </Label>
                         <Input
                             id="email"
                             type="email"

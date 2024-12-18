@@ -350,4 +350,22 @@ export const companyRouter = createTRPCRouter({
                 }))
             };
         }),
+    search: protectedProcedure
+        .input(z.object({ searchTerm: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const { searchTerm } = input;
+            
+            return await ctx.db.company.findMany({
+                where: {
+                    name: {
+                        contains: searchTerm,
+                        mode: 'insensitive'
+                    },
+                },
+                take: 100, // Limit results to first 100 matches
+                orderBy: {
+                    name: 'asc'
+                }
+            });
+        }),
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,8 +11,9 @@ import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
 import { Label } from '~/app/_components/ui/label';
 import { cn } from "~/lib/utils";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Loader2 } from "lucide-react";
 import { CreateContactModal } from '~/app/_components/shared/contacts/createContactModal';
+import debounce from "lodash/debounce";
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
@@ -45,7 +46,7 @@ interface Employee {
 }
 
 const WorkOrderForm: React.FC = () => {
-    const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<WorkOrderFormData>({
+    const { register, handleSubmit, formState: { errors }, setValue, watch, clearErrors } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
     });
     const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
@@ -54,7 +55,16 @@ const WorkOrderForm: React.FC = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [offices, setOffices] = useState<Office[]>([]);
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const { data: companyData } = api.companies.getAll.useQuery();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+    const { data: companyData, isFetching: isCompanyFetching } = api.companies.search.useQuery(
+        { searchTerm: debouncedSearchTerm },
+        { 
+            enabled: true,
+            staleTime: 30000, // Cache results for 30 seconds
+            placeholderData: (previousData) => previousData // This replaces keepPreviousData
+        }
+    );
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
     const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
     const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation<SerializedWorkOrder>();
@@ -64,15 +74,15 @@ const WorkOrderForm: React.FC = () => {
     const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
 
-   useEffect(() => {
-    if (companyData) {
-        const formattedCompanies = companyData.map(company => ({
-            id: company.id,
-            name: company.name
-        })).filter(company => company.name); // Filter out any null names
+    useEffect(() => {
+        if (companyData) {
+            const formattedCompanies = companyData.map(company => ({
+                id: company.id,
+                name: company.name
+            })).filter(company => company.name); // Filter out any null names
 
-        setCompanies(formattedCompanies);
-        setIsLoadingCompanies(false);
+            setCompanies(formattedCompanies);
+            setIsLoadingCompanies(false);
         }
     }, [companyData]);
 
@@ -110,6 +120,19 @@ const WorkOrderForm: React.FC = () => {
         }
     }, [employeeData]);
 
+    const debouncedSearch = useMemo(
+        () =>
+            debounce((term: string) => {
+                setDebouncedSearchTerm(term);
+            }, 300),
+        []
+    );
+
+    const handleSearch = (term: string) => {
+        setSearchTerm(term);
+        debouncedSearch(term);
+    };
+
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
         const newWorkOrder = {
             ...data,
@@ -136,18 +159,31 @@ const WorkOrderForm: React.FC = () => {
             <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="company">Company</Label>
-                    <CustomComboBox
-                        options={companies.map(company => ({
-                            value: company.id,
-                            label: company.name ?? 'Unnamed Company'
-                        }))}
-                        value={selectedCompany ?? ""}
-                        onValueChange={setSelectedCompany}
-                        placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
-                        emptyText="No company found."
-                        searchPlaceholder="Search company..."
-                        className="w-[300px]"
-                    />
+                    <div className="relative">
+                        <CustomComboBox
+                            options={companies.map(company => ({
+                                value: company.id,
+                                label: company.name ?? 'Unnamed Company'
+                            }))}
+                            value={selectedCompany ?? ""}
+                            onValueChange={setSelectedCompany}
+                            placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
+                            emptyText={
+                                isCompanyFetching 
+                                    ? "Loading..." 
+                                    : searchTerm 
+                                        ? "No companies found" 
+                                        : "Type to search companies..."
+                            }
+                            searchPlaceholder="Search company..."
+                            className="w-[300px]"
+                            onSearchChange={handleSearch}
+                            showSpinner={isCompanyFetching}
+                        />
+                        {isCompanyFetching && (
+                            <Loader2 className="h-4 w-4 animate-spin absolute right-8 top-3 text-gray-500" />
+                        )}
+                    </div>
                 </div>
 
                 {selectedCompany && (
@@ -180,7 +216,10 @@ const WorkOrderForm: React.FC = () => {
                                     label: employee.name ?? `Employee ${employee.id}`
                                 }))}
                                 value={watch('contactPersonId') ?? ""}
-                                onValueChange={(value) => setValue('contactPersonId', value)}
+                                onValueChange={(value) => {
+                                    setValue('contactPersonId', value);
+                                    clearErrors('contactPersonId');
+                                }}
                                 placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
                                 emptyText="No contact found."
                                 searchPlaceholder="Search contact..."
@@ -290,7 +329,10 @@ const WorkOrderForm: React.FC = () => {
                             { value: 'Both', label: 'Both' }
                         ]}
                         value={watch('invoicePrintEmail') ?? ""}
-                        onValueChange={(value) => setValue('invoicePrintEmail', value as 'Print' | 'Email' | 'Both')}
+                        onValueChange={(value) => {
+                            setValue('invoicePrintEmail', value as 'Print' | 'Email' | 'Both');
+                            clearErrors('invoicePrintEmail');
+                        }}
                         placeholder="Select type..."
                         emptyText="No type found."
                         searchPlaceholder="Search type..."
