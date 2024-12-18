@@ -141,6 +141,27 @@ async function createSystemUser() {
   return systemUser;
 }
 
+function extractFirstValidEmail(emailString: string): string | null {
+  // Split by common separators (comma or semicolon)
+  const emails = emailString.split(/[,;]/)
+    .map(e => e.trim())
+    .filter(e => e.length > 0);
+
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Find first valid email
+  const validEmail = emails.find(email => {
+    // Skip entries that look like phone numbers or don't have @ symbol
+    if (email.match(/^\+?\d[\d\s-]+$/) || !email.includes('@')) {
+      return false;
+    }
+    return emailRegex.test(email);
+  });
+
+  return validEmail || null;
+}
+
 async function importData() {
   // Create system user first
   const systemUser = await createSystemUser();
@@ -272,41 +293,46 @@ async function importData() {
         const name = `${cleanString(row["First Name"])} ${cleanString(row["Last Name"])}`.trim();
 
         if (email) {  // Only proceed if there's an email
-          // Check for existing user
-          const existingUser = await prisma.user.findUnique({
-            where: { email },
-            include: {
-              Roles: true
-            }
-          });
+          const validEmail = extractFirstValidEmail(email);
+          
+          if (validEmail) {  // Only proceed if there's a valid email
+            // Check for existing user
+            const existingUser = await prisma.user.findUnique({
+              where: { email: validEmail },
+              include: {
+                Roles: true
+              }
+            });
 
-          if (existingUser) {
-            // Update existing user
-            await prisma.user.update({
-              where: { id: existingUser.id },
-              data: {
-                name: name || existingUser.name, // Keep existing name if new name is empty
-                officeId: office.id,
-                // Only connect Customer role if it doesn't already exist
-                Roles: !existingUser.Roles.some(role => role.name === "Customer")
-                  ? {
-                      connect: [{ name: "Customer" }]
-                    }
-                  : undefined
-              },
-            });
-          } else {
-            // Create new user
-            await prisma.user.create({
-              data: {
-                name,
-                email,
-                officeId: office.id,
-                Roles: {
-                  connect: [{ name: "Customer" }],
+            if (existingUser) {
+              // Update existing user
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: {
+                  name: name || existingUser.name,
+                  officeId: office.id,
+                  Roles: !existingUser.Roles.some(role => role.name === "Customer")
+                    ? {
+                        connect: [{ name: "Customer" }]
+                      }
+                    : undefined
                 },
-              },
-            });
+              });
+            } else {
+              // Create new user
+              await prisma.user.create({
+                data: {
+                  name,
+                  email: validEmail,
+                  officeId: office.id,
+                  Roles: {
+                    connect: [{ name: "Customer" }],
+                  },
+                },
+              });
+            }
+          } else {
+            console.log(`Skipping user creation for ${name} - invalid email format: ${email}`);
           }
         } else {
           // Handle users without email - you might want to generate a unique email or skip
