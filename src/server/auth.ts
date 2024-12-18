@@ -115,10 +115,105 @@ export const authOptions: NextAuthOptions = {
           subject: "Verification email",
           text: `[Your Subject]`,
           html: `
-          <div style="text-align: center; padding: 50px 0;">
-            <p style="font-weight: bold;"> Sign In to [Your Website]</p>
-            <a style="display: inline-block; background: #FCA311; padding: 12px 16px; border-radius: 8px; color: black; text-decoration: none; font-weight: bold;" href='${url}'>Sign In</a>
-          </div>
+          <html>
+            <head>
+              <title>Thomson Printing</title>
+              <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, sans-serif;
+                }
+                .header {
+                    text-align: center;
+                    padding: 20px;
+                    border-bottom: 1px solid #eee;
+                }
+                .header img {
+                    max-width: 400px;
+                    height: auto;
+                }
+                .footer {
+                    background-color: #235937;
+                    color: white;
+                    text-align: center;
+                    padding: 40px 20px;
+                    margin-top: 40px;
+                }
+                .footer img {
+                    max-width: 300px;
+                    height: auto;
+                    margin-bottom: 20px;
+                }
+                .footer-text {
+                    color: white;
+                    font-size: 18px;
+                    margin: 10px 0;
+                }
+                .footer-link {
+                    color: white;
+                    text-decoration: underline;
+                    font-size: 18px;
+                    margin: 10px 0;
+                    display: block;
+                }
+                .footer-address {
+                    color: white;
+                    font-size: 16px;
+                    margin: 10px 0;
+                }
+                .footer-copyright {
+                    color: white;
+                    font-size: 12px;
+                    margin-top: 20px;
+                    font-style: italic;
+                }
+                .unsubscribe {
+                    font-size: 12px;
+                    color: white;
+                    margin-top: 20px;
+                }
+                .unsubscribe a {
+                    color: white;
+                    text-decoration: none;
+                }
+              </style>
+            </head>
+            <body>
+                <div class="header">
+                    <img src="https://print-portal.thomsonprinting.com/images/thomson-pdf-logo-green.svg" alt="Thomson Printing, Inc. Creative & Graphics" />
+                </div>
+            
+                <div style="text-align: center; padding: 50px 0;">
+                    <p style="font-weight: bold;"> Sign In to Thomson Printing</p>
+                    <a style="display: inline-block; background: #FCA311; padding: 12px 16px; border-radius: 8px; color: black; text-decoration: none; font-weight: bold;" href='${url}'>Sign In</a>
+                </div>
+            
+                <div class="footer">
+                <img src="https://print-portal.thomsonprinting.com/images/thomson-pdf-logo-white.svg" alt="Thomson Printing, Inc. Creative & Graphics" />
+                <div class="footer-text">Commercial Printing since 1905</div>
+                <a href="https://thomsonprinting.com" class="footer-link">THOMSONPRINTING.COM</a>
+                <div class="footer-text">636.946.3525</div>
+                <div class="footer-address">601 N. Kingshighway, St. Charles MO, 63301</div>
+                <div class="footer-copyright">Copyright © 2024 Thomson Printing, Inc., All rights reserved.</div>
+                <div class="unsubscribe">
+                    <div data-role="module-unsubscribe" class="module" role="module" data-type="unsubscribe" style="color:#444444; font-size:12px; line-height:20px; padding:16px 16px 16px 16px; text-align:Center;" data-muid="4e838cf3-9892-4a6d-94d6-170e474d21e5">
+                
+                <p style="font-size:12px; line-height:20px;">
+                  <a class="Unsubscribe--unsubscribeLink" href="{{{unsubscribe}}}" target="_blank" style="font-family:sans-serif;text-decoration:none;">
+                    Unsubscribe
+                  </a>
+                  -
+                  <a href="{{{unsubscribe_preferences}}}" target="_blank" class="Unsubscribe--unsubscribePreferences" style="font-family:sans-serif;text-decoration:none;">
+                    Unsubscribe Preferences
+                  </a>
+                </p>
+              </div>
+                </div>
+            </div>
+              
+            </body>
+          </html>
           `,
         };
         await transporter.sendMail(mailOptions);

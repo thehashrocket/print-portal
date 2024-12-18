@@ -10,18 +10,21 @@ import { CustomComboBox } from '~/app/_components/shared/ui/CustomComboBox';
 import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
 import { Label } from '~/app/_components/ui/label';
+import { cn } from "~/lib/utils";
+import { PlusCircle } from "lucide-react";
+import { CreateContactModal } from '~/app/_components/shared/contacts/createContactModal';
 
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.string().min(1, 'Date In is required'),
     contactPersonId: z.string().min(1, 'Contact Person is required'),
-    estimateNumber: z.string().optional(),
-    inHandsDate: z.string(),
+    estimateNumber: z.string().optional().nullable(),
+    inHandsDate: z.string().min(1, 'In Hands Date is required'),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
-    purchaseOrderNumber: z.string().optional(),
+    purchaseOrderNumber: z.string().optional().nullable(),
     status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
-    workOrderNumber: z.string().optional(),
+    workOrderNumber: z.string().optional().nullable(),
 });
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
@@ -59,6 +62,7 @@ const WorkOrderForm: React.FC = () => {
     const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
     const [isLoadingOffices, setIsLoadingOffices] = useState(false);
     const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+    const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
 
    useEffect(() => {
     if (companyData) {
@@ -166,51 +170,119 @@ const WorkOrderForm: React.FC = () => {
 
                 {selectedOffice && (
                     <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="contactPersonId">Contact Person</Label>
-                        <CustomComboBox
-                            options={employees.map(employee => ({
-                                value: employee.id,
-                                label: employee.name ?? `Employee ${employee.id}`
-                            }))}
-                            value={watch('contactPersonId') ?? ""}
-                            onValueChange={(value) => setValue('contactPersonId', value)}
-                            placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
-                            emptyText="No contact found."
-                            searchPlaceholder="Search contact..."
-                            className="w-[300px]"
+                        <Label htmlFor="contactPersonId" className="flex gap-1">
+                            Contact Person<span className="text-red-500">*</span>
+                        </Label>
+                        <div className="flex gap-2 items-start">
+                            <CustomComboBox
+                                options={employees.map(employee => ({
+                                    value: employee.id,
+                                    label: employee.name ?? `Employee ${employee.id}`
+                                }))}
+                                value={watch('contactPersonId') ?? ""}
+                                onValueChange={(value) => setValue('contactPersonId', value)}
+                                placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
+                                emptyText="No contact found."
+                                searchPlaceholder="Search contact..."
+                                className={cn(
+                                    "w-[300px]",
+                                    errors.contactPersonId && "border-red-500"
+                                )}
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
+                                onClick={() => setIsCreateContactModalOpen(true)}
+                            >
+                                <PlusCircle className="h-4 w-4" />
+                                Create Contact
+                            </Button>
+                        </div>
+                        {errors.contactPersonId && (
+                            <p className="text-sm text-red-500">{errors.contactPersonId.message}</p>
+                        )}
+                        <CreateContactModal
+                            isOpen={isCreateContactModalOpen}
+                            onClose={() => setIsCreateContactModalOpen(false)}
+                            officeId={selectedOffice}
+                            onContactCreated={(newContact) => {
+                                setEmployees(prev => [...prev, newContact]);
+                                setValue('contactPersonId', newContact.id);
+                                refetchEmployees();
+                            }}
                         />
                     </div>
                 )}
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="dateIn">Date In</Label>
-                    <input id="dateIn" type="date" {...register('dateIn')} placeholder="Select date..." />
-                    {errors.dateIn && <p className="text-red-500">{errors.dateIn.message}</p>}
+                    <Label htmlFor="dateIn" className="flex gap-1">
+                        Date In<span className="text-red-500">*</span>
+                    </Label>
+                    <input 
+                        id="dateIn" 
+                        type="date" 
+                        {...register('dateIn')} 
+                        className={cn(
+                            "flex h-10 w-full rounded-md border px-3",
+                            errors.dateIn && "border-red-500"
+                        )}
+                    />
+                    {errors.dateIn && (
+                        <p className="text-sm text-red-500">{errors.dateIn.message}</p>
+                    )}
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="inHandsDate">In Hands Date</Label>
-                    <input id="inHandsDate" type="date" {...register('inHandsDate')} placeholder="Select date..." />
-                    {errors.inHandsDate && <p className="text-red-500">{errors.inHandsDate.message}</p>}
+                    <input 
+                        id="inHandsDate" 
+                        type="date" 
+                        {...register('inHandsDate')} 
+                        className={cn(
+                            "flex h-10 w-full rounded-md border px-3",
+                            errors.inHandsDate && "border-red-500"
+                        )}
+                        placeholder="Select date..." 
+                    />
+                    {errors.inHandsDate && (
+                        <p className="text-sm text-red-500">{errors.inHandsDate.message}</p>
+                    )}
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="estimateNumber">Estimate Number</Label>
-                    <Input id="estimateNumber" {...register('estimateNumber')} placeholder="Enter estimate number..." />
-                    {errors.estimateNumber && <p className="text-red-500">{errors.estimateNumber.message}</p>}
+                    <Input 
+                        id="estimateNumber" 
+                        {...register('estimateNumber', {
+                            setValueAs: v => v === '' ? null : v
+                        })} 
+                        placeholder="Enter estimate number..." 
+                    />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="purchaseOrderNumber">Purchase Order Number</Label>
-                    <Input id="purchaseOrderNumber" {...register('purchaseOrderNumber')} placeholder="Enter purchase order number..." />
-                    {errors.purchaseOrderNumber && <p className="text-red-500">{errors.purchaseOrderNumber.message}</p>}
+                    <Input 
+                        id="purchaseOrderNumber" 
+                        {...register('purchaseOrderNumber', {
+                            setValueAs: v => v === '' ? null : v
+                        })} 
+                        placeholder="Enter purchase order number..." 
+                    />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="workOrderNumber">Job Number</Label>
-                    <Input id="workOrderNumber" {...register('workOrderNumber', {
-                        setValueAs: v => v === '' ? undefined : v
-                    })} placeholder="Enter job number..." />
-                    {errors.workOrderNumber && <p className="text-red-500">{errors.workOrderNumber.message}</p>}
+                    <Input 
+                        id="workOrderNumber" 
+                        {...register('workOrderNumber', {
+                            setValueAs: v => v === '' ? null : v
+                        })} 
+                        placeholder="Enter job number..." 
+                    />
                 </div>
                 <div className="flex flex-col space-y-1.5 mb-4">
-                    <Label htmlFor="invoicePrintEmail">Invoice Type</Label>
+                    <Label htmlFor="invoicePrintEmail" className="flex gap-1">
+                        Invoice Type<span className="text-red-500">*</span>
+                    </Label>
                     <CustomComboBox
                         options={[
                             { value: 'Print', label: 'Print' },
@@ -222,8 +294,14 @@ const WorkOrderForm: React.FC = () => {
                         placeholder="Select type..."
                         emptyText="No type found."
                         searchPlaceholder="Search type..."
-                        className="w-[300px]"
+                        className={cn(
+                            "w-[300px]",
+                            errors.invoicePrintEmail && "border-red-500"
+                        )}
                     />
+                    {errors.invoicePrintEmail && (
+                        <p className="text-sm text-red-500">{errors.invoicePrintEmail.message}</p>
+                    )}
                 </div>
                 <div className="flex flex-col space-y-1.5 mb-4">
                     <Label htmlFor="status">Status</Label>
