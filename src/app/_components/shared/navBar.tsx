@@ -22,24 +22,28 @@ const NavBar = async () => {
           <span className="text-white hover:text-gray-100 transition-colors font-medium">Home</span>
         </Link>
       )}
-      <Link href="/companies">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Companies</span>
-      </Link>
-      <Link href="/dashboard">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Dashboard</span>
-      </Link>
-      <Link href="/workOrders">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Estimates</span>
-      </Link>
-      <Link href="/invoices">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Invoices</span>
-      </Link>
-      <Link href="/orders">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Orders</span>
-      </Link>
-      <Link href="/users">
-        <span className="text-white hover:text-gray-100 transition-colors font-medium">Users</span>
-      </Link>
+      {session?.user && (
+        <>
+          <Link href="/companies">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Companies</span>
+          </Link>
+          <Link href="/dashboard">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Dashboard</span>
+          </Link>
+          <Link href="/workOrders">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Estimates</span>
+          </Link>
+          <Link href="/invoices">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Invoices</span>
+          </Link>
+          <Link href="/orders">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Orders</span>
+          </Link>
+          <Link href="/users">
+            <span className="text-white hover:text-gray-100 transition-colors font-medium">Users</span>
+          </Link>
+        </>
+      )}
     </>
   );
 
@@ -70,7 +74,7 @@ const NavBar = async () => {
           <div className="hidden lg:flex gap-8">
             <NavLinks />
           </div>
-          
+
           <div className="flex items-center gap-6">
             {session?.user ? (
               <>
