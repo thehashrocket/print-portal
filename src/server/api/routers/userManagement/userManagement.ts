@@ -8,6 +8,9 @@ export const userManagementRouter = createTRPCRouter({
     getAllUsers: protectedProcedure
         .query(async ({ ctx }) => {
             return ctx.db.user.findMany({
+                where: {
+                    deleted: false,
+                },
                 include: {
                     Roles: true,
                 },
@@ -18,7 +21,9 @@ export const userManagementRouter = createTRPCRouter({
         .input(z.string())
         .query(async ({ ctx, input }) => {
             const user = await ctx.db.user.findUnique({
-                where: { id: input },
+                where: {
+                    id: input
+                },
                 include: {
                     Roles: true,
                     Office: {
@@ -37,6 +42,15 @@ export const userManagementRouter = createTRPCRouter({
             }
 
             return user;
+        }),
+
+    deleteUser: protectedProcedure
+        .input(z.string())
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.user.update({
+                where: { id: input },
+                data: { deleted: true },
+            });
         }),
 
     updateUser: protectedProcedure

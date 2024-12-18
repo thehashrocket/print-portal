@@ -24,6 +24,9 @@ export const userRouter = createTRPCRouter({
   // Roles has a many-to-many relationship with Permissions through Roles
   getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.db.user.findMany({
+      where: {
+        deleted: false,
+      },
       include: {
         Roles: {
           include: {
@@ -39,6 +42,7 @@ export const userRouter = createTRPCRouter({
     return ctx.db.user.findMany({
       where: {
         officeId: input,
+        deleted: false,
       },
       include: {
         Roles: {

@@ -21,6 +21,8 @@ import { Button } from "../ui/button";
 import { Eye, Pencil, Trash } from "lucide-react";
 import { Card, CardContent } from "~/app/_components/ui/card";
 import { useMediaQuery } from "~/hooks/use-media-query"
+import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -33,6 +35,8 @@ interface UserManagementTableProps {
 }
 
 const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers }) => {
+
+    const utils = api.useUtils();
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<UserWithRoles[]>(initialUsers);
     const [loading, setLoading] = useState(true);
@@ -45,6 +49,17 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         refetchOnMount: false,
         refetchOnWindowFocus: false,
     });
+
+    // Delete User and remove from rowData. User userManagement.deleteUser mutation. Refreshes the user list.
+    const { mutate: deleteUser } = api.userManagement.deleteUser.useMutation(
+        {
+            onSuccess: () => {
+                // Refresh the user list
+                utils.userManagement.getAllUsers.invalidate();
+                toast.success("User deleted");
+            },
+        }
+    );
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -74,7 +89,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
             <Button
                 size="sm"
                 variant="destructive"
-                onClick={() => console.log("Delete user")}
+                onClick={() => deleteUser(props.data.id)}
             >
                 <Trash className="w-4 h-4 mr-2" />
                 Delete User

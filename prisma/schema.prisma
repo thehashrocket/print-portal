@@ -411,6 +411,7 @@ model TypesettingProofArtwork {
 
 model User {
   id                      String               @id @default(cuid())
+  deleted                 Boolean              @default(false)
   name                    String?
   email                   String?              @unique
   emailVerified           DateTime?
