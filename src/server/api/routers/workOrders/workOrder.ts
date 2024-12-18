@@ -70,15 +70,15 @@ export const workOrderRouter = createTRPCRouter({
   createWorkOrder: protectedProcedure
     .input(z.object({
       dateIn: z.date(),
-      estimateNumber: z.string().optional(),
+      estimateNumber: z.string().optional().nullable(),
       contactPersonId: z.string(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
-      purchaseOrderNumber: z.string().optional(),
+      purchaseOrderNumber: z.string().optional().nullable(),
       shippingInfoId: z.string().optional().nullable(),
       status: z.nativeEnum(WorkOrderStatus),
-      workOrderNumber: z.string().optional(),
+      workOrderNumber: z.string().optional().nullable(),
       workOrderItems: z.array(z.object({
         quantity: z.number(),
         description: z.string(),
