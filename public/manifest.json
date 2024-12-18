@@ -1,7 +1,7 @@
 {
-    "name": "Thomson Print Portal",
+    "name": "Print Portal",
     "short_name": "Print Portal",
-    "description": "Print portal for Thomson Printing",
+    "description": "Thomson Printing Platform",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -10,13 +10,7 @@
       {
         "src": "/images/favicon-196x196.png",
         "sizes": "196x196",
-        "type": "image/png",
-        "purpose": "any maskable"
-      },
-      {
-        "src": "/images/thomson-pdf-logo.svg",
-        "sizes": "512x512",
-        "type": "image/svg+xml"
+        "type": "image/png"
       }
     ]
   }
