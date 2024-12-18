@@ -137,4 +137,36 @@ export const userManagementRouter = createTRPCRouter({
                 },
             });
         }),
+
+    createUser: protectedProcedure
+        .input(z.object({
+            name: z.string(),
+            email: z.string().email(),
+            companyId: z.string(),
+            officeId: z.string(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Check if user already exists
+            const existingUser = await ctx.db.user.findUnique({
+                where: { email: input.email },
+            });
+
+            if (existingUser) {
+                throw new TRPCError({
+                    code: 'CONFLICT',
+                    message: 'User with this email already exists',
+                });
+            }
+
+            // Create the user
+            const user = await ctx.db.user.create({
+                data: {
+                    name: input.name,
+                    email: input.email,
+                    officeId: input.officeId,
+                },
+            });
+
+            return user;
+        }),
 });

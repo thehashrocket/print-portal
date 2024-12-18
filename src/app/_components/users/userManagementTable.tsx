@@ -18,11 +18,11 @@ import { api } from "~/trpc/react";
 import EditUserRolesModal from './editUserRolesModal';
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Eye, Pencil, Trash } from "lucide-react";
+import { Eye, Pencil, Trash, Plus } from "lucide-react";
 import { Card, CardContent } from "~/app/_components/ui/card";
 import { useMediaQuery } from "~/hooks/use-media-query"
 import { toast } from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import CreateUserModal from './createUserModal';
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -35,7 +35,6 @@ interface UserManagementTableProps {
 }
 
 const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers }) => {
-
     const utils = api.useUtils();
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<UserWithRoles[]>(initialUsers);
@@ -43,6 +42,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
     const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px)");
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const { data: updatedUsers } = api.userManagement.getAllUsers.useQuery(undefined, {
         initialData: initialUsers,
@@ -145,6 +145,10 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         handleCloseModal();
     };
 
+    const handleCreateSuccess = () => {
+        utils.userManagement.getAllUsers.invalidate();
+    };
+
     const renderMobileCard = (user: UserWithRoles) => (
         <Card key={user.id} className="mb-4">
             <CardContent className="pt-6">
@@ -206,6 +210,16 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
 
     return (
         <div>
+            <div className="mb-4">
+                <Button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="flex items-center"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create User
+                </Button>
+            </div>
+
             {isDesktop ? (
                 <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
                     <AgGridReact
@@ -235,6 +249,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
                     onUpdateRoles={handleUpdateRoles}
                 />
             )}
+
+            <CreateUserModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSuccess={handleCreateSuccess}
+            />
         </div>
     );
 };
