@@ -2,46 +2,72 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Share2 } from 'lucide-react';
 
 export function InstallPWA() {
   const [supportsPWA, setSupportsPWA] = useState(false);
   const [promptInstall, setPromptInstall] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
   
   useEffect(() => {
+    // Check if device is iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    setIsIOS(isIOSDevice);
+    
+    console.log({
+      userAgent: navigator.userAgent,
+      isIOSDevice,
+      isAndroid,
+      hasPromptBeenDismissed: localStorage.getItem('pwaPromptDismissed')
+    });
+
+    // Show banner for iOS if not dismissed before
+    if (isIOSDevice && !localStorage.getItem('pwaPromptDismissed')) {
+      setShowBanner(true);
+      return;
+    }
+
+    // Handle non-iOS devices
     const handler = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
+      console.log('beforeinstallprompt event fired');
       e.preventDefault();
-      // Stash the event so it can be triggered later
       setPromptInstall(e);
       setSupportsPWA(true);
       
-      // Check if user is on mobile and hasn't seen the prompt
-      if (isMobile() && !localStorage.getItem('pwaPromptDismissed')) {
+      // Show banner for Android devices if not dismissed
+      if (isAndroid && !localStorage.getItem('pwaPromptDismissed')) {
         setShowBanner(true);
       }
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    // If it's Android and banner hasn't been dismissed, show it
+    if (isAndroid && !localStorage.getItem('pwaPromptDismissed')) {
+      setShowBanner(true);
+    }
 
+    window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-  };
-
   const handleInstallClick = async () => {
+    if (isIOS) {
+      console.log("IOS device - cannot trigger install prompt");
+      return;
+    }
+
     if (!promptInstall) {
+      console.log("No install prompt available");
       return;
     }
     
+    console.log("Triggering install prompt");
     promptInstall.prompt();
     
     const { outcome } = await promptInstall.userChoice;
+    console.log('User choice outcome:', outcome);
+    
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
     }
@@ -62,15 +88,23 @@ export function InstallPWA() {
       <div className="flex items-center justify-between max-w-screen-xl mx-auto">
         <div className="flex-1">
           <p className="font-semibold">Install Print Portal</p>
-          <p className="text-sm">Add to your home screen for quick access</p>
+          {isIOS ? (
+            <p className="text-sm">
+              Tap the share button <Share2 className="inline w-4 h-4" /> and select 'Add to Home Screen'
+            </p>
+          ) : (
+            <p className="text-sm">Add to your home screen for quick access</p>
+          )}
         </div>
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleInstallClick}
-            className="px-4 py-2 bg-white text-[#6cab1f] rounded-lg font-semibold hover:bg-gray-100"
-          >
-            Install
-          </button>
+          {!isIOS && (
+            <button
+              onClick={handleInstallClick}
+              className="px-4 py-2 bg-white text-[#6cab1f] rounded-lg font-semibold hover:bg-gray-100"
+            >
+              Install
+            </button>
+          )}
           <button
             onClick={handleDismiss}
             className="p-2 hover:bg-[#5a9019] rounded-full"
