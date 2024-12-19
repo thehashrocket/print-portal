@@ -16,7 +16,7 @@ import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
-
+import { WorkOrderShippingInfoEditor } from './workOrderShippingInfo/WorkOrderShippingInfoEditor';
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -84,6 +84,8 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
         initialData: initialWorkOrder,
     });
 
+    const utils = api.useUtils();
+
     useEffect(() => {
         if (workOrder) {
             setWorkOrderItems(workOrder.WorkOrderItems)
@@ -95,6 +97,23 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             setIsWorkOrderItemsLoading(false);
         }
     }, [workOrderItems]);
+
+    useEffect(() => {
+        if (workOrder) {
+            utils.workOrders.getByID.invalidate(workOrderId);
+        }
+    }, [workOrder]);
+
+    useEffect(() => {
+        if (workOrder) {
+            console.log('WorkOrder data:', {
+                id: workOrder.id,
+                shippingInfo: workOrder.ShippingInfo,
+                officeId: workOrder.officeId,
+                companyName: workOrder.Office.Company.name
+            });
+        }
+    }, [workOrder]);
 
     useCopilotReadable({
         description: "The current work order that is being viewed.",
@@ -233,34 +252,20 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         />
                     </div>
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <InfoCard
-                                title="Recipient"
-                                content={
-                                    <div>
-                                        <p className="font-semibold mb-2">{workOrder.Office.Company.name}</p>
-                                        <p>{workOrder.ShippingInfo?.Address?.line1}</p>
-                                        {workOrder.ShippingInfo?.Address?.line2 && <p>{workOrder.ShippingInfo.Address.line2}</p>}
-                                        {workOrder.ShippingInfo?.Address?.line3 && <p>{workOrder.ShippingInfo.Address.line3}</p>}
-                                        {workOrder.ShippingInfo?.Address?.line4 && <p>{workOrder.ShippingInfo.Address.line4}</p>}
-                                        <p>{workOrder.ShippingInfo?.Address?.city}, {workOrder.ShippingInfo?.Address?.state} {workOrder.ShippingInfo?.Address?.zipCode}</p>
-                                        <p>{workOrder.ShippingInfo?.Address?.country}</p>
-                                        <p className="mt-2"><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>
-                                        <p><strong>Telephone:</strong> {workOrder.ShippingInfo?.Address?.telephoneNumber}</p>
-                                    </div>
-                                }
-                            />
-                            <InfoCard
-                                title="Shipping Details"
-                                content={
-                                    <div>
-                                        <p><strong>Shipping Method:</strong> {workOrder.ShippingInfo?.shippingMethod}</p>
-                                        <p><strong>Shipping Cost:</strong> {formatCurrency(workOrder.totalShippingAmount ?? 0)}</p>
-                                    </div>
-                                }
-                            />
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-semibold">Shipping Information</h2>
                         </div>
+                        {workOrder && workOrder.ShippingInfo ? (
+                            <WorkOrderShippingInfoEditor
+                                workOrderId={workOrder.id}
+                                currentShippingInfo={workOrder.ShippingInfo}
+                                officeId={workOrder.officeId}
+                                companyName={workOrder.Office.Company.name}
+                                onUpdate={() => {
+                                    utils.workOrders.getByID.invalidate(workOrderId);
+                                }}
+                            />
+                        ) : null}
                     </section>
 
                     <section>

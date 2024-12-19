@@ -101,7 +101,13 @@ export const workOrderRouter = createTRPCRouter({
           status: input.status,
           workOrderNumber,
           Office: { connect: { id: input.officeId } },
-          ShippingInfo: input.shippingInfoId ? { connect: { id: input.shippingInfoId } } : undefined,
+          ShippingInfo: {
+            create: {
+              shippingMethod: ShippingMethod.Courier, // Default shipping method
+              officeId: input.officeId,
+              createdById: ctx.session.user.id,
+            }
+          },
           contactPerson: { connect: { id: input.contactPersonId } },
           createdBy: { connect: { id: ctx.session.user.id } },
           WorkOrderItems: {
