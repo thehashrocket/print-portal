@@ -78,7 +78,10 @@ export const CreateAddressModal: React.FC<CreateAddressModalProps> = ({
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div>
-                        <Label htmlFor="line1">Address Line 1</Label>
+                        <Label htmlFor="line1" className='flex gap-1'>
+                            Address Line 1
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('line1')} />
                         {errors.line1 && <p className="text-sm text-red-500">{errors.line1.message}</p>}
                     </div>
@@ -99,37 +102,55 @@ export const CreateAddressModal: React.FC<CreateAddressModalProps> = ({
                     </div>
 
                     <div>
-                        <Label htmlFor="city">City</Label>
+                        <Label htmlFor="city" className='flex gap-1'>
+                            City
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('city')} />
                         {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
                     </div>
 
                     <div>
-                        <Label htmlFor="state">State</Label>
+                        <Label htmlFor="state" className='flex gap-1'>
+                            State
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('state')} />
                         {errors.state && <p className="text-sm text-red-500">{errors.state.message}</p>}
                     </div>
 
                     <div>
-                        <Label htmlFor="zipCode">Zip Code</Label>
+                        <Label htmlFor="zipCode" className='flex gap-1'>
+                            Zip Code
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('zipCode')} />
                         {errors.zipCode && <p className="text-sm text-red-500">{errors.zipCode.message}</p>}
                     </div>
 
                     <div>
-                        <Label htmlFor="country">Country</Label>
+                        <Label htmlFor="country" className='flex gap-1'>
+                            Country
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('country')} />
                         {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
                     </div>
 
                     <div>
-                        <Label htmlFor="telephoneNumber">Telephone Number</Label>
+                        <Label htmlFor="telephoneNumber" className='flex gap-1'>
+                            Telephone Number
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <Input {...register('telephoneNumber')} />
                         {errors.telephoneNumber && <p className="text-sm text-red-500">{errors.telephoneNumber.message}</p>}
                     </div>
 
                     <div>
-                        <Label htmlFor="addressType">Address Type</Label>
+                        <Label htmlFor="addressType" className='flex gap-1'>
+                            Address Type
+                            <span className='text-red-500'>*</span>
+                        </Label>
                         <SelectField
                             options={Object.values(AddressType).map(type => ({
                                 value: type,

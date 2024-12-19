@@ -26,6 +26,13 @@ const InfoCard = ({ title, content }: { title: string; content: React.ReactNode 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
     instructions: z.string().optional(),
+    shippingPickup: z.object({
+        contactName: z.string().min(1, 'Contact name is required'),
+        contactPhone: z.string().min(1, 'Contact phone is required'),
+        pickupDate: z.string().min(1, 'Pickup date is required'),
+        pickupTime: z.string().min(1, 'Pickup time is required'),
+        notes: z.string().optional(),
+    }).optional().nullable(),
     shippingCost: z.number().optional(),
     shippingDate: z.string().optional(),
     shippingMethod: z.nativeEnum(ShippingMethod),
@@ -52,13 +59,6 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
     companyName,
     onUpdate,
 }) => {
-    console.log('WorkOrderShippingInfoEditor props:', {
-        workOrderId,
-        currentShippingInfo,
-        officeId,
-        companyName
-    });
-
     const [isEditing, setIsEditing] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [isCreateAddressModalOpen, setIsCreateAddressModalOpen] = useState(false);
@@ -122,6 +122,111 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
             console.error("Error updating shipping info:", error);
         }
     };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        reset(); // This resets the form to its default values
+    };
+
+    const renderPickupForm = () => (
+        <div className="space-y-4 border p-4 rounded-lg bg-gray-50">
+            <h4 className="font-medium text-gray-900">Pickup Information</h4>
+            
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="pickupDate">Pickup Date</Label>
+                <Controller
+                    name="shippingPickup.pickupDate"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            type="date"
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.pickupDate && 
+                    <p className="text-red-500">Pickup date is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="pickupTime">Pickup Time</Label>
+                <Controller
+                    name="shippingPickup.pickupTime"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            type="time"
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.pickupTime && 
+                    <p className="text-red-500">Pickup time is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="contactName">Contact Name</Label>
+                <Controller
+                    name="shippingPickup.contactName"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.contactName && 
+                    <p className="text-red-500">Contact name is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="contactPhone">Contact Phone</Label>
+                <Controller
+                    name="shippingPickup.contactPhone"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <Input
+                            {...field}
+                            value={field.value || ''}
+                            className="input input-bordered w-full"
+                        />
+                    )}
+                />
+                {errors.shippingPickup?.contactPhone && 
+                    <p className="text-red-500">Contact phone is required</p>
+                }
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="notes">Pickup Notes</Label>
+                <Controller
+                    name="shippingPickup.notes"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                        <textarea
+                            {...field}
+                            value={field.value || ''}
+                            className="textarea textarea-bordered w-full"
+                        />
+                    )}
+                />
+            </div>
+        </div>
+    );
 
     if (!isEditing) {
         return (
@@ -240,31 +345,24 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                     {errors.shippingMethod && <p className="text-red-500">{errors.shippingMethod.message}</p>}
                 </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="addressId">Select Address</Label>
-                    <div className="flex gap-2 items-start">
-                        <SelectField
-                            options={addresses.map(address => ({
-                                value: address.id,
-                                label: `${address.line1}, ${address.city}, ${address.state}`
-                            }))}
-                            value={watch('addressId') || ''}
-                            onValueChange={(value) => setValue('addressId', value)}
-                            placeholder="Select Address"
-                        />
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
-                            onClick={() => setIsCreateAddressModalOpen(true)}
-                        >
-                            <FilePenLine className="h-4 w-4" />
-                            Create Address
-                        </Button>
+                {watch('shippingMethod') !== ShippingMethod.Pickup && watch('shippingMethod') !== ShippingMethod.Other && (
+                    <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                        <Label htmlFor="addressId">Select Address</Label>
+                        <div className="flex gap-2 items-start">
+                            <SelectField
+                                options={addresses.map(address => ({
+                                    value: address.id,
+                                    label: `${address.line1}, ${address.city}, ${address.state}`
+                                }))}
+                                value={watch('addressId') || ''}
+                                onValueChange={(value) => setValue('addressId', value)}
+                                placeholder="Select Address"
+                            />
+                        </div>
                     </div>
-                    {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
-                </div>
+                )}
+
+                {watch('shippingMethod') === ShippingMethod.Pickup && renderPickupForm()}
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="instructions">Instructions</Label>

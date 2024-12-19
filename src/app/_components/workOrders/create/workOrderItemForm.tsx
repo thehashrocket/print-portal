@@ -138,22 +138,34 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='amount'>Amount (we bill customer)</Label>
+                            <Label htmlFor='amount' className='flex gap-1'>
+                                Amount (we bill customer)
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id='amount' type='number' {...register('amount', { valueAsNumber: true })} placeholder="Enter amount..." />
                             {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='cost'>Cost (our cost)</Label>
+                            <Label htmlFor='cost' className='flex gap-1'>
+                                Cost (our cost)
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id='cost' type='number' {...register('cost', { valueAsNumber: true })} placeholder="Enter cost..." />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='costPerM'>Cost Per M</Label>
+                            <Label htmlFor='costPerM' className='flex gap-1'>
+                                Cost Per M
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id='costPerM' type='number' {...register('costPerM', { valueAsNumber: true })} placeholder="Enter cost per m..." />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='description'>Description</Label>
+                            <Label htmlFor='description' className='flex gap-1'>
+                                Description
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Textarea
                                 id='description'
                                 {...register('description')}
@@ -178,12 +190,18 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.other && <p className='text-red-500'>{errors.other.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='prepTime'>Prep Time</Label>
+                            <Label htmlFor='prepTime' className='flex gap-1'>
+                                Prep Time
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} placeholder="Enter prep time..." />
                             {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="quantity">Quantity Ordered</Label>
+                            <Label htmlFor="quantity" className='flex gap-1'>
+                                Quantity Ordered
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id="quantity" type="number" {...register('quantity', { valueAsNumber: true })} placeholder="Enter quantity..." />
                             {errors.quantity && <p className="text-red-500">{errors.quantity.message}</p>}
                         </div>
@@ -198,7 +216,10 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.specialInstructions && <p className="text-red-500">{errors.specialInstructions.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="status">Status</Label>
+                            <Label htmlFor="status" className='flex gap-1'>
+                                Status
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <SelectField
                                 options={Object.values(WorkOrderItemStatus).map(status => ({ value: status, label: status }))}
                                 value={watch('status') || ''}
