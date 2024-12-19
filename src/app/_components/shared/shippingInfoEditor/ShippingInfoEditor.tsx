@@ -315,7 +315,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
-                                    <div className="font-medium">{currentShippingInfo.Address?.line1}, {currentShippingInfo.Address?.line2}, {currentShippingInfo.Address?.line3}, {currentShippingInfo.Address?.line4}, {currentShippingInfo.Address?.city}, {currentShippingInfo.Address?.state} {currentShippingInfo.Address?.zipCode}</div>
+                                    <div className="font-medium">
+                                        {currentShippingInfo.Address?.line1}
+                                        {currentShippingInfo.Address?.line2 && `, ${currentShippingInfo.Address.line2}`}
+                                        {currentShippingInfo.Address?.line3 && `, ${currentShippingInfo.Address.line3}`}
+                                        {currentShippingInfo.Address?.line4 && `, ${currentShippingInfo.Address.line4}`}
+                                        {currentShippingInfo.Address?.city && `, ${currentShippingInfo.Address.city}`}
+                                        {currentShippingInfo.Address?.state && `, ${currentShippingInfo.Address.state}`}
+                                        {currentShippingInfo.Address?.zipCode && ` ${currentShippingInfo.Address.zipCode}`}
+                                    </div>
                                 </div>
                             </div>
 
