@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma } from "@prisma/client";
+import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
@@ -408,6 +408,97 @@ export const workOrderRouter = createTRPCRouter({
         calculatedSalesTax: convertedWorkOrder.calculatedSalesTax,
         calculatedSubTotal: convertedWorkOrder.calculatedSubTotal,
         totalShippingAmount: null
+      });
+    }),
+
+  updateShippingInfo: protectedProcedure
+    .input(z.object({
+      workOrderId: z.string(),
+      shippingInfo: z.object({
+        addressId: z.string().optional(),
+        instructions: z.string().optional(),
+        shippingCost: z.number().optional(),
+        shippingDate: z.date().optional(),
+        shippingNotes: z.string().optional(),
+        shippingMethod: z.string(),
+        shippingOther: z.string().optional(),
+        trackingNumber: z.string().optional(),
+        ShippingPickup: z.object({
+          id: z.string().optional(),
+          pickupDate: z.date(),
+          pickupTime: z.string(),
+          contactName: z.string(),
+          contactPhone: z.string(),
+          notes: z.string().optional(),
+        }).optional(),
+      }),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      
+      const { workOrderId, shippingInfo } = input;
+      const workOrder = await ctx.db.workOrder.findUnique({
+        where: { id: workOrderId },
+        select: { officeId: true },
+      });
+
+      if (!workOrder) {
+        throw new Error("Work order not found");
+      }
+
+      return await ctx.db.workOrder.update({
+        where: { id: workOrderId },
+        data: { ShippingInfo: { upsert: {
+          create: {
+            ...shippingInfo,
+            createdById: ctx.session.user.id,
+            officeId: workOrder.officeId,
+            shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+            ShippingPickup: shippingInfo.ShippingPickup ? {
+              create: {
+                ...shippingInfo.ShippingPickup,
+                createdById: ctx.session.user.id,
+              }
+            } : undefined
+          },
+          update: {
+            ...shippingInfo,
+            shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+            ShippingPickup: shippingInfo.ShippingPickup ? {
+              create: {
+                ...shippingInfo.ShippingPickup,
+                createdById: ctx.session.user.id,
+              }
+            } : undefined
+          }
+        } } },
+        include: {
+          contactPerson: true,
+          createdBy: true,
+          Office: { include: { Company: true } },
+          Order: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          WorkOrderItems: {
+            include: {
+              artwork: true,
+              createdBy: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: true,
+                }
+              },
+              ProcessingOptions: true,
+              WorkOrderItemStock: true,
+            },
+          },
+          WorkOrderNotes: true,
+          WorkOrderVersions: true,
+        },
       });
     }),
 });

@@ -12,6 +12,7 @@ import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { toast } from 'react-hot-toast';
+import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -66,8 +67,9 @@ interface ShippingInfoEditorProps {
 const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, currentShippingInfo, officeId, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
-    const [isCreatingNewAddress, setIsCreatingNewAddress] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isCreateAddressModalOpen, setIsCreateAddressModalOpen] = useState(false);
+    const [isAddressBeingCreated, setIsAddressBeingCreated] = useState(false);
 
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
@@ -97,22 +99,10 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         },
     });
 
-    const {
-        register: registerAddress,
-        handleSubmit: handleSubmitAddress,
-        formState: { errors: addressErrors },
-        reset: resetAddressForm,
-        watch: watchAddress,
-        setValue: setValueAddress
-    } = useForm<AddressFormData>({
-        resolver: zodResolver(addressSchema),
-    });
-
     const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
     const updateShippingInfoMutation = api.orders.updateShippingInfo.useMutation({
         onSuccess: () => {
             console.log('Shipping info updated successfully');
-            setIsEditing(false);
             onUpdate();
         },
         onError: (error) => {
@@ -134,7 +124,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         if (isEditing && currentShippingInfo?.shippingDate) {
             setValue('shippingDate', new Date(currentShippingInfo.shippingDate).toISOString().split('T')[0]);
         }
-    }, [isEditing, currentShippingInfo, setValue]);
+    }, [isEditing, currentShippingInfo?.shippingDate, setValue]);
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
@@ -157,6 +147,11 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     }, [shippingMethod, setValue, watch]);
 
     const handleShippingInfoSubmit = async (data: ShippingInfoFormData) => {
+        if (isAddressBeingCreated) {
+            setIsAddressBeingCreated(false);
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             console.log('Submitting shipping info:', data);
@@ -185,28 +180,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 }
             );
             
-            setIsEditing(false);
-            onUpdate();
+            if (!isAddressBeingCreated) {
+                setIsEditing(false);
+            }
+            
         } catch (error) {
             console.error("Error updating shipping info:", error);
             toast.error('Failed to update shipping info');
         } finally {
             setIsSubmitting(false);
-        }
-    };
-
-    const handleAddressSubmit = async (data: AddressFormData) => {
-        try {
-            const newAddress = await createAddressMutation.mutateAsync({
-                ...data,
-                officeId,
-            });
-            setAddresses(prev => [...prev, newAddress]);
-            setValue('addressId', newAddress.id);
-            setIsCreatingNewAddress(false);
-            resetAddressForm();
-        } catch (error) {
-            console.error("Error creating new address:", error);
         }
     };
 
@@ -315,11 +297,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         </div>
     );
 
-    const onSubmit = async (data: ShippingInfoFormData) => {
-        console.log('Form submitted with data:', data);
-        await handleShippingInfoSubmit(data);
-    };
-
     if (!isEditing) {
         return (
             <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
@@ -416,7 +393,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
         <div className="space-y-6">
             <h3 className="text-lg font-semibold mb-2">Edit Shipping Information</h3>
             <form 
-                onSubmit={handleSubmit(onSubmit)} 
+                onSubmit={handleSubmit(handleShippingInfoSubmit)} 
                 className="space-y-4"
             >
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
@@ -439,23 +416,45 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 {shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other && (
                     <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                         <Label htmlFor="addressId">Select Address</Label>
-                        <SelectField
-                            options={[
-                                ...addresses.map(address => ({ value: address.id, label: `${address.line1}, ${address.city}, ${address.state}` })),
-                                { value: 'new', label: 'Create New Address' },
-                            ]}
-                            value={watch('addressId') || ''}
-                            onValueChange={(value) => {
-                                if (value === 'new') {
-                                    setIsCreatingNewAddress(true);
-                                    setValue('addressId', ''); // Clear the address ID when creating new
-                                } else {
+                        <div className="flex gap-2 items-start">
+                            <SelectField
+                                options={addresses.map(address => ({
+                                    value: address.id,
+                                    label: `${address.line1}, ${address.city}, ${address.state}`
+                                }))}
+                                value={watch('addressId') || ''}
+                                onValueChange={(value) => {
                                     setValue('addressId', value);
-                                }
-                            }}
-                            placeholder="Select Address"
-                        />
+                                }}
+                                placeholder="Select Address"
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
+                                onClick={() => setIsCreateAddressModalOpen(true)}
+                            >
+                                <PlusCircle className="h-4 w-4" />
+                                Create Address
+                            </Button>
+                        </div>
                         {errors.addressId && <p className="text-red-500">{errors.addressId.message}</p>}
+                        <CreateAddressModal
+                            isOpen={isCreateAddressModalOpen}
+                            onClose={() => setIsCreateAddressModalOpen(false)}
+                            officeId={officeId}
+                            onAddressCreated={(newAddress) => {
+                                setIsAddressBeingCreated(true);
+                                setAddresses(prev => [...prev, newAddress]);
+                                setValue('addressId', newAddress.id, {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                    shouldValidate: true,
+                                });
+                                setIsCreateAddressModalOpen(false);
+                            }}
+                        />
                     </div>
                 )}
 
@@ -495,7 +494,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                         type="submit"
                         disabled={isSubmitting}
                         variant="default"
-                        onClick={() => console.log('Submit button clicked')}
                     >
                         {isSubmitting ? 'Updating...' : 'Update Shipping Info'}
                     </Button>
@@ -508,81 +506,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                     </Button>
                 </div>
             </form>
-
-            {isCreatingNewAddress && (
-                <div className="mt-6">
-                    <h3 className="text-lg font-medium text-gray-900">Create New Address</h3>
-                    <form onSubmit={handleSubmitAddress(handleAddressSubmit)} className="space-y-4 mt-4">
-                        {/* Address form fields */}
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="line1">Address Line 1</Label>
-                            <Input {...registerAddress('line1')} className="input input-bordered w-full" />
-                            {addressErrors.line1 && <p className="text-red-500">{addressErrors.line1.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="line2">Address Line 2</Label>
-                            <Input {...registerAddress('line2')} className="input input-bordered w-full" />
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="line3">Address Line 3</Label>
-                            <Input {...registerAddress('line3')} className="input input-bordered w-full" />
-                            {addressErrors.line3 && <p className="text-red-500">{addressErrors.line3.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="line4">Address Line 4</Label>
-                            <Input {...registerAddress('line4')} className="input input-bordered w-full" />
-                            {addressErrors.line4 && <p className="text-red-500">{addressErrors.line4.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="city">City</Label>
-                            <Input {...registerAddress('city')} className="input input-bordered w-full" />
-                            {addressErrors.city && <p className="text-red-500">{addressErrors.city.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="state">State</Label>
-                            <Input {...registerAddress('state')} className="input input-bordered w-full" />
-                            {addressErrors.state && <p className="text-red-500">{addressErrors.state.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="zipCode">Zip Code</Label>
-                            <Input {...registerAddress('zipCode')} className="input input-bordered w-full" />
-                            {addressErrors.zipCode && <p className="text-red-500">{addressErrors.zipCode.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="country">Country</Label>
-                            <Input {...registerAddress('country')} className="input input-bordered w-full" />
-                            {addressErrors.country && <p className="text-red-500">{addressErrors.country.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="telephoneNumber">Telephone Number</Label>
-                            <Input {...registerAddress('telephoneNumber')} className="input input-bordered w-full" />
-                            {addressErrors.telephoneNumber && <p className="text-red-500">{addressErrors.telephoneNumber.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="addressType">Address Type</Label>
-                            <SelectField
-                                options={Object.values(AddressType).map(type => ({ value: type, label: type }))}
-                                value={watchAddress('addressType') || AddressType.Other}
-                                onValueChange={(value) => setValueAddress('addressType', value as AddressType)}
-                                placeholder="Select Address Type"
-                            />
-                            {addressErrors.addressType && <p className="text-red-500">{addressErrors.addressType.message}</p>}
-                        </div>
-                        <Button
-                            variant="default"
-                            type="submit"
-                        >
-                            Add Address
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => setIsCreatingNewAddress(false)}
-                        >
-                            Cancel
-                        </Button>
-                    </form>
-                </div>
-            )}
         </div>
     );
 };
