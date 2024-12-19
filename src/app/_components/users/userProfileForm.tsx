@@ -6,23 +6,29 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "~/trpc/react";
-import { type User, type Company, type Office, type Role } from "@prisma/client";
+import { type ExtendedUser } from "~/types/user";
+import { type Company, type Office, type Role } from "@prisma/client";
 import { Button } from "../ui/button";
 import { Pencil, User as UserIcon, Mail, Building2, Building, Users } from "lucide-react";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Input } from "~/app/_components/ui/input";
 import { Label } from "~/app/_components/ui/label";
+import { CustomComboBox } from "../shared/ui/CustomComboBox";
 
 const userProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
-    officeId: z.string().nullable(),
+    officeIds: z.array(z.string()),
     roleIds: z.array(z.string()),
 });
 
-type ExtendedUser = User & {
-    Roles: Role[];
-    Office: (Office & { Company: Company | null }) | null;
+type FormValues = z.infer<typeof userProfileSchema>;
+
+type OfficeAssignment = {
+    officeId: string;
+    companyId: string;
+    officeName: string;
+    companyName: string;
 };
 
 type UserProfileFormProps = {
@@ -33,7 +39,7 @@ type UserProfileFormProps = {
     companies: Company[];
     offices: Office[];
     roles: Role[];
-    onProfileUpdate: () => void;
+    onProfileUpdate: () => Promise<void>;
 };
 
 export default function UserProfileForm({
@@ -47,50 +53,82 @@ export default function UserProfileForm({
     onProfileUpdate,
 }: UserProfileFormProps) {
     const [isEditing, setIsEditing] = useState(false);
-    const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>(user.Office?.Company?.id);
+    const [selectedCompanyId, setSelectedCompanyId] = useState<string>();
+    const [selectedOfficeId, setSelectedOfficeId] = useState<string>();
     const [availableOffices, setAvailableOffices] = useState<Office[]>(offices);
+    const [officeAssignments, setOfficeAssignments] = useState<OfficeAssignment[]>(
+        user.offices.map(office => ({
+            officeId: office.officeId,
+            companyId: office.office.Company?.id || '',
+            officeName: office.office.name,
+            companyName: office.office.Company?.name || '',
+        }))
+    );
 
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(userProfileSchema),
         defaultValues: {
             name: user.name || "",
             email: user.email || "",
-            officeId: user.officeId || null,
+            officeIds: user.offices.map(o => o.officeId),
             roleIds: user.Roles.map(role => role.id),
         },
     });
 
     const updateUser = api.userManagement.updateUser.useMutation();
-    const officeId = watch("officeId");
 
-    useEffect(() => {
-        if (officeId) {
-            const selectedOffice = offices.find(office => office.id === officeId);
-            setSelectedCompanyId(selectedOffice?.companyId);
-            setAvailableOffices(offices.filter(office => office.companyId === selectedOffice?.companyId));
-        }
-    }, [officeId, offices]);
+    const handleCompanyChange = (newCompanyId: string) => {
+        setSelectedCompanyId(newCompanyId);
+        setSelectedOfficeId(undefined);
+        setAvailableOffices(offices.filter(office => office.companyId === newCompanyId));
+    };
 
-    const onSubmit = async (data: z.infer<typeof userProfileSchema>) => {
+    const handleOfficeChange = (officeId: string) => {
+        setSelectedOfficeId(officeId);
+    };
+
+    const addOfficeAssignment = () => {
+        if (!selectedCompanyId || !selectedOfficeId) return;
+
+        const office = offices.find(o => o.id === selectedOfficeId);
+        const company = companies.find(c => c.id === selectedCompanyId);
+        
+        if (!office || !company) return;
+
+        const newAssignment: OfficeAssignment = {
+            officeId: office.id,
+            companyId: company.id,
+            officeName: office.name,
+            companyName: company.name,
+        };
+
+        setOfficeAssignments(prev => [...prev, newAssignment]);
+        setValue('officeIds', [...officeAssignments.map(a => a.officeId), office.id]);
+        
+        // Reset selections
+        setSelectedCompanyId(undefined);
+        setSelectedOfficeId(undefined);
+    };
+
+    const removeOfficeAssignment = (officeId: string) => {
+        setOfficeAssignments(prev => prev.filter(a => a.officeId !== officeId));
+        setValue('officeIds', officeAssignments.filter(a => a.officeId !== officeId).map(a => a.officeId));
+    };
+
+    const onSubmit = async (data: FormValues) => {
         try {
             await updateUser.mutateAsync({
                 id: user.id,
                 name: data.name,
                 email: data.email,
                 roleIds: data.roleIds,
-                officeId: data.officeId || undefined, // Convert null to undefined
+                officeIds: data.officeIds,
             });
             setIsEditing(false);
-            onProfileUpdate();
+            await onProfileUpdate();
         } catch (error) {
             console.error("Failed to update user", error);
         }
-    };
-
-    const handleCompanyChange = (newCompanyId: string) => {
-        setSelectedCompanyId(newCompanyId);
-        setAvailableOffices(offices.filter(office => office.companyId === newCompanyId));
-        setValue("officeId", null); // Reset office selection when company changes
     };
 
     if (!isEditing) {
@@ -113,19 +151,32 @@ export default function UserProfileForm({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <div className="flex items-start gap-3">
+                        <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
                         <div>
-                            <div className="text-sm text-gray-500">Company</div>
-                            <div className="font-medium">{user.Office?.Company?.name || "Not assigned"}</div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Building className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                        <div>
-                            <div className="text-sm text-gray-500">Office</div>
-                            <div className="font-medium">{user.Office?.name || "Not assigned"}</div>
+                            <div className="text-sm text-gray-500">Companies & Offices</div>
+                            {user.offices.length > 0 ? (
+                                <div className="space-y-2 mt-1">
+                                    {user.offices.map((officeAssignment) => (
+                                        <div 
+                                            key={officeAssignment.officeId}
+                                            className="bg-gray-50 rounded-md p-2"
+                                        >
+                                            <div className="font-medium">
+                                                {officeAssignment.office.Company?.name}
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                                {officeAssignment.office.name}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                                Assigned: {new Date(officeAssignment.assignedAt).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-gray-500 italic">No offices assigned</div>
+                            )}
                         </div>
                     </div>
 
@@ -177,29 +228,72 @@ export default function UserProfileForm({
             </div>
 
             {canAssignCompanyAndOffice && (
-                <>
-                    <div>
-                        <Label htmlFor="companyId">Company</Label>
-                        <SelectField
-                            options={companies.map(company => ({ value: company.id, label: company.name }))}
-                            value={selectedCompanyId ?? ''}
-                            onValueChange={(value: string) => handleCompanyChange(value)}
-                            placeholder="Select a company"
-                            required={true}
-                        />
+                <div className="space-y-4">
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <Label htmlFor="companyId">Company</Label>
+                            <CustomComboBox
+                                options={companies.map(company => ({
+                                    value: company.id,
+                                    label: company.name
+                                }))}
+                                value={selectedCompanyId ?? ''}
+                                onValueChange={handleCompanyChange}
+                                placeholder="Select a company"
+                                emptyText="No companies found"
+                                searchPlaceholder="Search companies"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <Label htmlFor="officeId">Office</Label>
+                            <CustomComboBox
+                                options={availableOffices.map(office => ({
+                                    value: office.id,
+                                    label: office.name
+                                }))}
+                                value={selectedOfficeId ?? ''}
+                                onValueChange={handleOfficeChange}
+                                placeholder="Select an office"
+                                emptyText="No offices found"
+                                searchPlaceholder="Search offices"
+                            />
+                        </div>
+                        <Button
+                            type="button"
+                            onClick={addOfficeAssignment}
+                            disabled={!selectedCompanyId || !selectedOfficeId}
+                            className="mt-6"
+                        >
+                            Add Office
+                        </Button>
                     </div>
 
-                    <div>
-                        <Label htmlFor="officeId">Office</Label>
-                        <SelectField
-                            options={availableOffices.map(office => ({ value: office.id, label: office.name }))}
-                            value={watch("officeId") ?? ''}
-                            onValueChange={(value: string) => setValue("officeId", value)}
-                            placeholder="Select an office"
-                            required={true}
-                        />
+                    <div className="mt-4">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">Assigned Offices</h3>
+                        <div className="space-y-2">
+                            {officeAssignments.map((assignment) => (
+                                <div
+                                    key={assignment.officeId}
+                                    className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                                >
+                                    <div>
+                                        <span className="font-medium">{assignment.companyName}</span>
+                                        <span className="mx-2">•</span>
+                                        <span>{assignment.officeName}</span>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeOfficeAssignment(assignment.officeId)}
+                                    >
+                                        Remove
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </>
+                </div>
             )}
 
             {canAssignRole && (

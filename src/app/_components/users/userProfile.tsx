@@ -4,12 +4,8 @@
 import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import UserProfileForm from "~/app/_components/users/userProfileForm";
+import { type ExtendedUser } from "~/types/user";
 import { type User, type Company, type Office, type Role } from "@prisma/client";
-
-type ExtendedUser = User & {
-    Roles: Role[];
-    Office: (Office & { Company: Company | null }) | null;
-};
 
 type SessionUser = {
     id: string;
@@ -36,7 +32,7 @@ export default function UserProfileComponent({ params, session }: UserProfileCom
     const { data: rolesData } = api.roles.getAll.useQuery();
 
     useEffect(() => {
-        if (userData) setUser(userData);
+        if (userData) setUser(userData as ExtendedUser);
         if (companiesData) setCompanies(companiesData);
         if (officesData) setOffices(officesData);
         if (rolesData) setRoles(rolesData);

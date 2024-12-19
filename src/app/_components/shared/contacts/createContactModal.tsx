@@ -41,8 +41,8 @@ export function CreateContactModal({ isOpen, onClose, officeId, onContactCreated
             });
             onContactCreated({
                 id: newContact.id,
-                name: newContact.name,
-                email: newContact.email,
+                name: newContact.name ?? '',
+                email: newContact.email ?? '',
             });
             toast({
                 title: "Contact Created",

@@ -41,8 +41,12 @@ export const userRouter = createTRPCRouter({
   getByOfficeId: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
     return ctx.db.user.findMany({
       where: {
-        officeId: input,
         deleted: false,
+        offices: {
+          some: {
+            officeId: input
+          }
+        }
       },
       include: {
         Roles: {

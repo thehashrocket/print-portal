@@ -6,7 +6,7 @@ import { api } from '~/trpc/react';
 import { ShippingMethod, type Address } from '@prisma/client';
 import { type SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
-import { FilePenLine, Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText } from 'lucide-react';
+import { FilePenLine, Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, PlusCircle } from 'lucide-react';
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
@@ -358,6 +358,16 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                                 onValueChange={(value) => setValue('addressId', value)}
                                 placeholder="Select Address"
                             />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
+                                onClick={() => setIsCreateAddressModalOpen(true)}
+                            >
+                                <PlusCircle className="h-4 w-4" />
+                                Create Address
+                            </Button>
                         </div>
                     </div>
                 )}

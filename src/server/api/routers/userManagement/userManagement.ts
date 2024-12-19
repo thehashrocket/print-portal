@@ -19,30 +19,25 @@ export const userManagementRouter = createTRPCRouter({
 
     getUserById: protectedProcedure
         .input(z.string())
-        .query(async ({ ctx, input }) => {
-            const user = await ctx.db.user.findUnique({
-                where: {
-                    id: input
-                },
+        .query(({ ctx, input }) => {
+          return ctx.db.user.findUnique({
+            where: {
+              id: input,
+            },
+            include: {
+              Roles: true,
+              offices: {
                 include: {
-                    Roles: true,
-                    Office: {
-                        include: {
-                            Company: true,
-                        },
+                  office: {
+                    include: {
+                      Company: true,
                     },
+                  },
                 },
-            });
-
-            if (!user) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: "User not found",
-                });
-            }
-
-            return user;
-        }),
+              },
+            },
+          });
+        }), 
 
     deleteUser: protectedProcedure
         .input(z.string())
@@ -57,53 +52,47 @@ export const userManagementRouter = createTRPCRouter({
         .input(z.object({
             id: z.string(),
             name: z.string(),
-            email: z.string().email(),
-            officeId: z.string().optional(),
+            email: z.string(),
             roleIds: z.array(z.string()),
+            officeIds: z.array(z.string()),
         }))
         .mutation(async ({ ctx, input }) => {
-            const { id, roleIds, ...updateData } = input;
+            // Delete existing office assignments
+            await ctx.db.usersOnOffices.deleteMany({
+                where: {
+                    userId: input.id,
+                },
+            });
 
-            // Check if the user has permission to update
-            const isOwnProfile = ctx.session.user.id === id;
-            const isAdmin = ctx.session.user.Roles.includes("Admin");
-            const hasEditPermission = isAdmin || ctx.session.user.Permissions.some((p: string) =>
-                ["user_create", "user_update", "user_edit"].includes(p)
-            );
-
-            if (!isOwnProfile && !hasEditPermission) {
-                throw new TRPCError({
-                    code: "FORBIDDEN",
-                    message: "You don't have permission to update this user",
-                });
-            }
-
-            // If not an admin or doesn't have edit permission, remove office and role updates
-            if (!hasEditPermission) {
-                delete updateData.officeId;
-            }
-
-            const updatedUser = await ctx.db.user.update({
-                where: { id },
+            return ctx.db.user.update({
+                where: { id: input.id },
                 data: {
-                    ...updateData,
-                    ...(hasEditPermission && {
-                        Roles: {
-                            set: roleIds.map(id => ({ id })),
-                        },
-                    }),
+                    name: input.name,
+                    email: input.email,
+                    Roles: {
+                        set: input.roleIds.map(id => ({ id })),
+                    },
+                    offices: {
+                        create: input.officeIds.map(officeId => ({
+                            office: {
+                                connect: { id: officeId }
+                            }
+                        }))
+                    },
                 },
                 include: {
                     Roles: true,
-                    Office: {
+                    offices: {
                         include: {
-                            Company: true,
+                            office: {
+                                include: {
+                                    Company: true,
+                                },
+                            },
                         },
                     },
                 },
             });
-
-            return updatedUser;
         }),
 
     updateUserRoles: protectedProcedure
@@ -163,7 +152,13 @@ export const userManagementRouter = createTRPCRouter({
                 data: {
                     name: input.name,
                     email: input.email,
-                    officeId: input.officeId,
+                    offices: {
+                        create: {
+                            office: {
+                                connect: { id: input.officeId }
+                            }
+                        }
+                    },
                 },
             });
 

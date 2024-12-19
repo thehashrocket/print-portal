@@ -4,10 +4,11 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { toast } from 'react-hot-toast';
-import { CheckCircle, LucideIcon } from 'lucide-react';
+import { CheckCircle, LucideIcon, PlusCircle } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Label } from '../../ui/label';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
+import { CreateContactModal } from '../contacts/createContactModal';
 
 interface ContactPersonEditorProps {
     orderId: string;
@@ -20,7 +21,8 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
     const [selectedUserId, setSelectedUserId] = useState(currentContactPerson?.id || '');
     const [message, setMessage] = useState<string | null>(null);
     const [isError, setIsError] = useState(false);
-    const { data: users, isLoading } = api.users.getByOfficeId.useQuery(officeId);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const { data: users, isLoading, refetch } = api.users.getByOfficeId.useQuery(officeId);
     const updateContactPersonMutation = api.orders.updateContactPerson.useMutation();
 
     const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -43,6 +45,11 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
         }
     };
 
+    const handleContactCreated = async (newContact: { id: string; name: string; email: string }) => {
+        await refetch();
+        setSelectedUserId(newContact.id);
+    };
+
     if (isLoading) {
         return <p>Loading users...</p>;
     }
@@ -50,7 +57,17 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
     return (
         <div className="p-4 bg-white shadow-md rounded-md">
             <div className="mb-4">
-                <Label htmlFor="contactPerson">Select Contact Person</Label>
+                <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="contactPerson">Select Contact Person</Label>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsCreateModalOpen(true)}
+                    >
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Create Contact
+                    </Button>
+                </div>
                 <SelectField
                     options={users?.map(user => ({ value: user.id, label: user.name || user.email || user.id })) || []}
                     value={selectedUserId}
@@ -70,13 +87,19 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
                     {message}
                 </p>
             )}
-            {/* Show Address and Phone Number for Contact Person */}
             {currentContactPerson && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-md">
                     <p className="text-sm font-medium text-gray-900">{currentContactPerson.name}</p>
                     <p className="text-sm text-gray-500">{currentContactPerson.email}</p>
                 </div>
             )}
+
+            <CreateContactModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                officeId={officeId}
+                onContactCreated={handleContactCreated}
+            />
         </div>
     );
 };

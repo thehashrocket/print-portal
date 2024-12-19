@@ -310,7 +310,11 @@ async function importData() {
                 where: { id: existingUser.id },
                 data: {
                   name: name || existingUser.name,
-                  officeId: office.id,
+                  offices: {
+                    create: {
+                      officeId: office.id
+                    }
+                  },
                   Roles: !existingUser.Roles.some(role => role.name === "Customer")
                     ? {
                         connect: [{ name: "Customer" }]
@@ -324,7 +328,11 @@ async function importData() {
                 data: {
                   name,
                   email: validEmail,
-                  officeId: office.id,
+                  offices: {
+                    create: {
+                      officeId: office.id
+                    }
+                  },
                   Roles: {
                     connect: [{ name: "Customer" }],
                   },

@@ -1,28 +1,13 @@
-import { type User } from "@prisma/client";
+import { type User, type Company, type Office, type Role } from "@prisma/client";
 
-export type Permission = {
-    id: string;
-    name: string;
-    description: string;
-};
-
-export type Role = {
-    id: string;
-    name: string;
-    description: string;
-    Permissions: Permission[];
-};
-
-export type UserData = {
-    id: string;
-    name: string;
-    email: string;
+export type ExtendedUser = User & {
     Roles: Role[];
-};
-
-// Define a type that includes the Roles relationship
-export type UserWithRoles = User & {
-    Roles: (Role & {
-        Permissions: Permission[]
-    })[]
+    offices: {
+        office: Office & {
+            Company: Company | null;
+        };
+        userId: string;
+        officeId: string;
+        assignedAt: Date;
+    }[];
 };

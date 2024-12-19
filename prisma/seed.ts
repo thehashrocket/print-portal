@@ -433,39 +433,40 @@ async function createRolesAndPermissions() {
 async function createUser(roleName: RoleName, officeId: string | null = null) {
   const hashedPassword = await hashPassword("your-password");
 
-  // First, find the role by its name
   const role = await prismaClient.role.findUnique({
     where: {
-      name: roleName, // Make sure roleName matches one of the RoleName enum values
+      name: roleName,
     },
   });
 
-  // Ensure the role exists before attempting to create a user and connect them
   if (!role) {
     console.error(`Role not found: ${roleName}`);
     return;
   }
 
-  // Create the user
-  // if officeId is null, the user is an internal user
-  // if officeId is not null, the user is an external user
-  // if officeId is null, then ignore the officeId field in the data object
-  if (officeId === null) {
-    console.log("officeId is null, this is an internal user.");
-  } else {
-    console.log("officeId ", officeId ?? null);
-  }
-  const user = await prismaClient.user.create({
-    data: {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      // ignore officeID field if officeId is null
-      officeId: officeId,
-      // Correct way to connect the user to roles in a many-to-many relationship
-      Roles: {
-        connect: [{ id: role.id }], // Use the role's ID directly for connecting
-      },
+  const userData = {
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    Roles: {
+      connect: [{ id: role.id }],
     },
+  };
+
+  // If officeId is provided, prepare the offices connection
+  if (officeId) {
+    Object.assign(userData, {
+      offices: {
+        create: [{
+          office: {
+            connect: { id: officeId }
+          }
+        }]
+      }
+    });
+  }
+
+  const user = await prismaClient.user.create({
+    data: userData,
   });
 
   console.log(`User created: ${user.name}`);
