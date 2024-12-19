@@ -12,7 +12,7 @@ interface ConvertWorkOrderButtonProps {
 export default function ConvertWorkOrderButton({ workOrderId, officeId }: ConvertWorkOrderButtonProps) {
     const [isConverting, setIsConverting] = useState(false);
     const convertMutation = api.workOrders.convertWorkOrderToOrder.useMutation();
-
+    const utils = api.useUtils();
     const handleConvert = async () => {
         setIsConverting(true);
         try {
@@ -24,6 +24,7 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
             alert('Failed to send Order to Production');
         } finally {
             setIsConverting(false);
+            await utils.workOrders.getByID.invalidate(workOrderId);
         }
     };
 

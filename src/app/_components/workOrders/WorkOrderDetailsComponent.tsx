@@ -269,6 +269,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             <Link href={`/workOrders/create/${workOrder.id}`}>
                                 <Button
                                     variant="default"
+                                    disabled={workOrder.status === WorkOrderStatus.Approved}
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Estimate Job
