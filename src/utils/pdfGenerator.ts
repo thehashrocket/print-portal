@@ -94,7 +94,7 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
 
     // Add Thomson logo/header
     try {
-        const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';
+        const logoUrl = window.location.origin + '/images/thomson-pdf-logo-green.svg';
         const logoDataUrl = await loadSVG(logoUrl);
         doc.addImage(logoDataUrl, 'PNG', leftMargin - 20, yPos - 12, 90 * 0.8, 30 * 0.8);
     } catch (error) {
@@ -103,12 +103,28 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
 
     // Add content to the PDF
 
+    // doc.setTextColor(61, 0, 38, 65)
+    doc.setTextColor('#235937')
     doc.setFontSize(25).text('Order Details', 120, 20);
     yPos += 20;
+    doc.setTextColor(0, 0, 0, 100)
     doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, yPos);
     yPos += 10;
     doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
-    yPos += 10;
+    yPos += 5;
+    doc.setFont('helvetica', 'normal')
+    if (order.ShippingInfo?.Address?.line1) {
+        doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
+        yPos += 5;
+    }
+    if (order.ShippingInfo?.Address?.line2) {
+        doc.text(`${order.ShippingInfo?.Address?.line2}`, 20, yPos);
+        yPos += 5;
+    }
+    if (order.ShippingInfo?.Address?.city) {
+        doc.text(`${order.ShippingInfo?.Address?.city}, ${order.ShippingInfo?.Address?.state} ${order.ShippingInfo?.Address?.zipCode}`, 20, yPos);
+        yPos += 20;
+    }
 
 
     // Left column
@@ -198,7 +214,7 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
 
         // Add Thomson logo/header
         try {
-            const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';
+            const logoUrl = window.location.origin + '/images/thomson-pdf-logo-green.svg';
             const logoDataUrl = await loadSVG(logoUrl);
             doc.addImage(logoDataUrl, 'PNG', leftMargin - 20, yPos - 12, 90 * 0.8, 30 * 0.8);
         } catch (error) {
@@ -206,12 +222,28 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         }
 
         // Add content to the PDF
+        // doc.setTextColor(61, 0, 38, 65)
+        doc.setTextColor('#235937')
         doc.setFontSize(25).text('Order Details', 120, 20);
         yPos += 20;
+        doc.setTextColor(0, 0, 0, 100)
         doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, yPos);
         yPos += 10;
         doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
-        yPos += 10;
+        yPos += 5;
+        doc.setFont('helvetica', 'normal')
+        if (order.ShippingInfo?.Address?.line1) {
+            doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
+            yPos += 5;
+        }
+        if (order.ShippingInfo?.Address?.line2) {
+            doc.text(`${order.ShippingInfo?.Address?.line2}`, 20, yPos);
+            yPos += 5;
+        }
+        if (order.ShippingInfo?.Address?.city) {
+            doc.text(`${order.ShippingInfo?.Address?.city}, ${order.ShippingInfo?.Address?.state} ${order.ShippingInfo?.Address?.zipCode}`, 20, yPos);
+            yPos += 20;
+        }
 
         // Left column
         let leftY = yPos;
