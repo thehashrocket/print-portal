@@ -20,6 +20,7 @@ import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEdit
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
 import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
+import { Input } from "../ui/input";
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -143,6 +144,7 @@ interface OrderDetailsProps {
 export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProps) {
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
+    const [recipientEmail, setRecipientEmail] = useState('');
     const utils = api.useUtils();
 
     const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
@@ -335,56 +337,74 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 {/* Send Order by Email */}
                                 <InfoCard
                                     title="Send Order by Email"
-                                    content={<Button
-                                        variant="default"
-                                        onClick={async () => {
-                                            try {
-                                                console.log('Testing PDF generation...');
-                                                // Test PDF generation first
-                                                const testOrder = await utils.orders.getByID.fetch(order.id);
-                                                if (!testOrder) {
-                                                    console.error('Could not fetch order');
-                                                    return;
-                                                }
+                                    content={
 
-                                                // Try to generate PDF and log the result
-                                                const testPdf = await generateOrderPDFData(testOrder);
-                                                console.log('PDF generated successfully:', {
-                                                    hasContent: !!testPdf,
-                                                    length: testPdf?.length,
-                                                    firstFewChars: testPdf?.substring(0, 50)
-                                                });
+                                        <div className="flex flex-col gap-2">
+                                            <Input
+                                                type="email"
+                                                placeholder="Recipient Email"
+                                                value={recipientEmail}
+                                                onChange={(e) => setRecipientEmail(e.target.value)}
+                                            />
 
-                                                // Only proceed with email if PDF generation worked
-                                                if (testPdf) {
-                                                    console.log('Proceeding with email send...');
-                                                    // Extract base64 content from data URI
-                                                    const base64Content = testPdf?.split(',')[1] ?? '';
+                                            <Button
+                                                variant="default"
+                                                onClick={async () => {
+                                                    try {
+                                                        console.log('Testing PDF generation...');
+                                                        // Test PDF generation first
+                                                        const testOrder = await utils.orders.getByID.fetch(order.id);
+                                                        if (!testOrder) {
+                                                            console.error('Could not fetch order');
+                                                            return;
+                                                        }
+                                                        // If recipient email is not set, use the contact person email
+                                                        const emailToUse = recipientEmail || testOrder.contactPerson?.email;
+                                                        if (!emailToUse) {
+                                                            toast.error('No recipient email provided');
+                                                            return;
+                                                        }
 
-                                                    await sendOrderEmail({
-                                                        orderId: order.id,
-                                                        recipientEmail: 'jason.shultz@1905newmedia.com',
-                                                        pdfContent: base64Content
-                                                    });
-                                                    console.log('Email sent successfully');
-                                                } else {
-                                                    console.error('PDF generation failed');
-                                                    toast.error('Failed to generate PDF');
-                                                }
-                                            } catch (error) {
-                                                console.error('Error in button click handler:', error);
-                                                if (error instanceof Error) {
-                                                    console.error('Error details:', {
-                                                        message: error.message,
-                                                        stack: error.stack
-                                                    });
-                                                }
-                                                toast.error('Failed to process request');
-                                            }
-                                        }}
-                                    >
-                                        <Send className="w-4 h-4" /> Send Order by Email
-                                    </Button>}
+                                                        // Try to generate PDF and log the result
+                                                        const testPdf = await generateOrderPDFData(testOrder);
+                                                        console.log('PDF generated successfully:', {
+                                                            hasContent: !!testPdf,
+                                                            length: testPdf?.length,
+                                                            firstFewChars: testPdf?.substring(0, 50)
+                                                        });
+
+                                                        // Only proceed with email if PDF generation worked
+                                                        if (testPdf) {
+                                                            console.log('Proceeding with email send...');
+                                                            // Extract base64 content from data URI
+                                                            const base64Content = testPdf?.split(',')[1] ?? '';
+
+                                                            await sendOrderEmail({
+                                                                orderId: order.id,
+                                                                recipientEmail: emailToUse,
+                                                                pdfContent: base64Content
+                                                            });
+                                                            console.log('Email sent successfully');
+                                                        } else {
+                                                            console.error('PDF generation failed');
+                                                            toast.error('Failed to generate PDF');
+                                                        }
+                                                    } catch (error) {
+                                                        console.error('Error in button click handler:', error);
+                                                        if (error instanceof Error) {
+                                                            console.error('Error details:', {
+                                                                message: error.message,
+                                                                stack: error.stack
+                                                            });
+                                                        }
+                                                        toast.error('Failed to process request');
+                                                    }
+                                                }}
+                                            >
+                                                <Send className="w-4 h-4" /> Send Order by Email
+                                            </Button>
+                                        </div>
+                                    }
                                 />
                             </div>
                         </div>
