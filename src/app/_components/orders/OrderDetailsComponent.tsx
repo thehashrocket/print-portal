@@ -25,7 +25,6 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: stri
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
         onSuccess: (data) => {
-            console.log('data', data);
             utils.orders.getByID.invalidate(orderId);
             toast.success('Status updated successfully');
         },

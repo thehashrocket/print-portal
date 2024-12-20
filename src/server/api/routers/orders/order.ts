@@ -5,7 +5,7 @@ import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/uti
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { generateEmailOrderPDF } from "~/utils/pdfGenerator";
-import { sendOrderEmail } from "~/utils/sengrid";
+import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 
 export const orderRouter = createTRPCRouter({
@@ -640,11 +640,19 @@ export const orderRouter = createTRPCRouter({
             <p>If you have any questions, please contact us.</p>
         `;
 
-        await sendOrderEmail(
+        const dynamicTemplateData = {
+          subject: `Order ${updatedOrder.orderNumber} Status Update`,
+          html: emailHtml,
+          orderNumber: updatedOrder.orderNumber.toString(),
+          status: input.status,
+          trackingNumber: trackingNumber || null,
+          shippingMethod: shippingMethod || null,
+        };
+
+        await sendOrderStatusEmail(
           emailToSend,
           `Order ${updatedOrder.orderNumber} Status Update`,
-          emailHtml,
-          '' // No attachment needed for status update
+          dynamicTemplateData,
         );
       }
 
