@@ -15,15 +15,23 @@ interface ContactPersonEditorProps {
     currentContactPerson: { id: string; name: string | null; email: string | null } | null;
     officeId: string;
     onUpdate: () => void;
+    isWorkOrder?: boolean;
 }
 
-const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, currentContactPerson, officeId, onUpdate }) => {
+const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ 
+    orderId, 
+    currentContactPerson, 
+    officeId, 
+    onUpdate,
+    isWorkOrder = false 
+}) => {
     const [selectedUserId, setSelectedUserId] = useState(currentContactPerson?.id || '');
     const [message, setMessage] = useState<string | null>(null);
     const [isError, setIsError] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const { data: users, isLoading, refetch } = api.users.getByOfficeId.useQuery(officeId);
-    const updateContactPersonMutation = api.orders.updateContactPerson.useMutation();
+    const orderMutation = api.orders.updateContactPerson.useMutation();
+    const workOrderMutation = api.workOrders.updateContactPerson.useMutation();
 
     const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUserId(event.target.value);
@@ -31,10 +39,17 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ orderId, curr
 
     const handleUpdateContactPerson = async () => {
         try {
-            await updateContactPersonMutation.mutateAsync({ 
-                orderId, 
-                contactPersonId: selectedUserId 
-            });
+            if (isWorkOrder) {
+                await workOrderMutation.mutateAsync({ 
+                    workOrderId: orderId, 
+                    contactPersonId: selectedUserId 
+                });
+            } else {
+                await orderMutation.mutateAsync({ 
+                    orderId: orderId, 
+                    contactPersonId: selectedUserId 
+                });
+            }
             setMessage('Contact person updated successfully');
             setIsError(false);
             onUpdate();

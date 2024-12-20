@@ -417,6 +417,21 @@ export const workOrderRouter = createTRPCRouter({
       });
     }),
 
+  updateContactPerson: protectedProcedure
+    .input(z.object({
+      workOrderId: z.string(),
+      contactPersonId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const updatedWorkOrder = await ctx.db.workOrder.update({
+        where: { id: input.workOrderId },
+        data: {
+          contactPersonId: input.contactPersonId,
+        },
+      });
+      return updatedWorkOrder;
+    }),
+
   updateShippingInfo: protectedProcedure
     .input(z.object({
       workOrderId: z.string(),
@@ -440,7 +455,7 @@ export const workOrderRouter = createTRPCRouter({
       }),
     }))
     .mutation(async ({ ctx, input }) => {
-      
+
       const { workOrderId, shippingInfo } = input;
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: workOrderId },
@@ -453,30 +468,34 @@ export const workOrderRouter = createTRPCRouter({
 
       return await ctx.db.workOrder.update({
         where: { id: workOrderId },
-        data: { ShippingInfo: { upsert: {
-          create: {
-            ...shippingInfo,
-            createdById: ctx.session.user.id,
-            officeId: workOrder.officeId,
-            shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-            ShippingPickup: shippingInfo.ShippingPickup ? {
+        data: {
+          ShippingInfo: {
+            upsert: {
               create: {
-                ...shippingInfo.ShippingPickup,
+                ...shippingInfo,
                 createdById: ctx.session.user.id,
+                officeId: workOrder.officeId,
+                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                ShippingPickup: shippingInfo.ShippingPickup ? {
+                  create: {
+                    ...shippingInfo.ShippingPickup,
+                    createdById: ctx.session.user.id,
+                  }
+                } : undefined
+              },
+              update: {
+                ...shippingInfo,
+                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                ShippingPickup: shippingInfo.ShippingPickup ? {
+                  create: {
+                    ...shippingInfo.ShippingPickup,
+                    createdById: ctx.session.user.id,
+                  }
+                } : undefined
               }
-            } : undefined
-          },
-          update: {
-            ...shippingInfo,
-            shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-            ShippingPickup: shippingInfo.ShippingPickup ? {
-              create: {
-                ...shippingInfo.ShippingPickup,
-                createdById: ctx.session.user.id,
-              }
-            } : undefined
+            }
           }
-        } } },
+        },
         include: {
           contactPerson: true,
           createdBy: true,

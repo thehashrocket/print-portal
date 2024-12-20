@@ -17,6 +17,7 @@ import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { WorkOrderShippingInfoEditor } from './workOrderShippingInfo/WorkOrderShippingInfoEditor';
+import ContactPersonEditor from '../shared/ContactPersonEditor/ContactPersonEditor';
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -244,7 +245,17 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         />
                         <InfoCard
                             title="Contact Person"
-                            content={<p>{workOrder.contactPerson?.name}</p>}
+                            content={
+                                <ContactPersonEditor
+                                    orderId={workOrder.id}
+                                    currentContactPerson={workOrder.contactPerson}
+                                    officeId={workOrder.officeId}
+                                    onUpdate={() => {
+                                        utils.workOrders.getByID.invalidate(workOrderId);
+                                    }}
+                                    isWorkOrder={true}
+                                />
+                            }
                         />
                         <InfoCard
                             title="In Hands Date"

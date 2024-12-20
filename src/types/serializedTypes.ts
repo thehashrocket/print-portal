@@ -375,6 +375,7 @@ export interface SerializedWorkOrder {
     contactPerson: {
         id: string;
         name: string | null;
+        email: string | null;
     };
     createdBy: {
         id: string;
