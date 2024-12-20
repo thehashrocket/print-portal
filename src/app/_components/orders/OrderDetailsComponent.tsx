@@ -181,58 +181,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         createQuickbooksInvoice({ orderId: orderId });
     };
 
-    const handleSendOrderByEmail = async (orderId: string) => {
-        console.log('handleSendOrderByEmail called with orderId:', orderId);
-
-        if (!orderId) {
-            console.error('No orderId provided');
-            toast.error('Invalid order ID');
-            return;
-        }
-
-        try {
-            // First, get the order data
-            console.log('Fetching order data...');
-            const order = await utils.orders.getByID.fetch(orderId);
-            console.log('Fetched order:', order);
-
-            if (!order) {
-                console.error('Order not found');
-                toast.error('Order not found');
-                return;
-            }
-
-            // Generate the PDF
-            console.log('Generating PDF for order:', order.orderNumber);
-            const pdfContent = await generateOrderPDFData(order);
-            console.log('PDF content generated:', !!pdfContent, 'Length:', pdfContent?.length);
-
-            if (!pdfContent) {
-                console.error('PDF generation failed - no content returned');
-                toast.error('Failed to generate PDF');
-                return;
-            }
-
-            // Send the email with the PDF
-            console.log('Sending email with PDF content length:', pdfContent.length);
-            await sendOrderEmail({
-                orderId,
-                recipientEmail: 'jason.shultz@1905newmedia.com',
-                pdfContent: pdfContent
-            });
-
-            console.log('Email sent successfully');
-        } catch (error) {
-            console.error('Error in handleSendOrderByEmail:', error);
-            if (error instanceof Error) {
-                console.error('Error details:', error.message);
-                console.error('Error stack:', error.stack);
-            }
-            toast.error('Failed to send order by email');
-            throw error; // Re-throw to be caught by the button click handler
-        }
-    };
-
     useEffect(() => {
         if (order) {
             setOrderItems(order.OrderItems);
