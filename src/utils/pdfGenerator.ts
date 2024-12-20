@@ -43,6 +43,7 @@ export async function generateInvoicePDF(invoice: SerializedInvoice): Promise<st
     });
 }
 
+// this is used to print the order to the printer
 export const generateOrderPDF = async (order: SerializedOrder) => {
 
     const loadSVG = async (url: string): Promise<HTMLImageElement> => {
@@ -148,42 +149,41 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     doc.save('order.pdf');
 }
 
-export async function generateEmailOrderPDF(order: SerializedOrder): Promise<string> {
+// This is used to send the order to the customer via email
+export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<string> => {
+    try {
+        console.log('Starting generateEmailOrderPDF for order:', order.orderNumber);
+        const loadSVG = async (url: string): Promise<HTMLImageElement> => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
 
-    const loadSVG = async (url: string): Promise<HTMLImageElement> => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx?.drawImage(img, 0, 0);
 
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx?.drawImage(img, 0, 0);
+                    const newImg = new Image();
+                    newImg.onload = () => resolve(newImg);
+                    newImg.onerror = (e) => reject(e);
+                    newImg.src = canvas.toDataURL('image/png');
+                };
 
-                const newImg = new Image();
-                newImg.onload = () => resolve(newImg);
-                newImg.onerror = (e) => reject(e);
-                newImg.src = canvas.toDataURL('image/png');
-            };
+                img.onerror = (e) => reject(e);
+                img.src = url;
+            });
+        };
 
-            img.onerror = (e) => reject(e);
-            img.src = url;
-        });
-    };
-
-    return new Promise(async (resolve, reject) => {
         const doc = new jsPDF();
         let buffers: Uint8Array[] = [];
+        
         // Two-column layout for top section
         const addField = (label: string, value: string, x: number, currentY: number, spacing: number = 10, labelWidth: number = 20) => {
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
             doc.text(label, x, currentY);
 
-            // Calculate value position based on label length
-            // const labelWidth = doc.getTextWidth(label);
-            // const labelWidth = 20;
             const valueX = x + labelWidth + 10;
 
             doc.setFont('helvetica', 'normal');
@@ -206,14 +206,12 @@ export async function generateEmailOrderPDF(order: SerializedOrder): Promise<str
         }
 
         // Add content to the PDF
-
         doc.setFontSize(25).text('Order Details', 120, 20);
         yPos += 20;
         doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, yPos);
         yPos += 10;
         doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
         yPos += 10;
-
 
         // Left column
         let leftY = yPos;
@@ -243,14 +241,17 @@ export async function generateEmailOrderPDF(order: SerializedOrder): Promise<str
         order.OrderItems.forEach((item: any) => {
             tableRow += 10;
             doc.setFont('helvetica', 'normal');
-            // Truncate description to 20 characters
             const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
             doc.text(truncatedDescription, 20, tableTop + tableRow);
             doc.text(item.quantity.toString(), 150, tableTop + tableRow);
             doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
         });
 
-        doc.save('order.pdf');
-
-    });
-}
+        const pdfContent = doc.output('datauristring');
+        console.log('Generated PDF content length:', pdfContent.length);
+        return pdfContent;
+    } catch (error) {
+        console.error('Error in generateEmailOrderPDF:', error);
+        throw error;
+    }
+};

@@ -4,7 +4,7 @@ import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
-import { generateEmailOrderPDF } from "~/utils/pdfGenerator";
+import * as pdfGenerator from "~/utils/pdfGenerator";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 
@@ -744,97 +744,86 @@ export const orderRouter = createTRPCRouter({
     .input(z.object({
       orderId: z.string(),
       recipientEmail: z.string().email(),
-      
+      pdfContent: z.string().min(1, "PDF content cannot be empty"),
     }))
     .mutation(async ({ ctx, input }) => {
-      const order = await ctx.db.order.findUnique({
-        where: { id: input.orderId },
-        include: {
-          Office: {
-            include: {
-              Company: true,
-            }
-          },
-          OrderItems: {
-            include: {
-              artwork: true,
-              OrderItemStock: true,
-              Order: {
-                select: {
-                  Office: {
-                    select: {
-                      Company: true,
-                    }
-                  },
-                  WorkOrder: {
-                    select: {
-                      purchaseOrderNumber: true,
+      try {
+        console.log('Received PDF content length:', input.pdfContent.length);
+        const order = await ctx.db.order.findUnique({
+          where: { id: input.orderId },
+          include: {
+            Office: {
+              include: {
+                Company: true,
+              }
+            },
+            OrderItems: {
+              include: {
+                artwork: true,
+                OrderItemStock: true,
+                Order: {
+                  select: {
+                    Office: {
+                      select: {
+                        Company: true,
+                      }
+                    },
+                    WorkOrder: {
+                      select: {
+                        purchaseOrderNumber: true,
+                      }
                     }
                   }
                 }
-              }
+              },
             },
-          },
-          OrderPayments: true,
-          contactPerson: true,
-          createdBy: true,
-          WorkOrder: true,
-        }
-      });
-
-      if (!order) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Order not found',
+            OrderPayments: true,
+            contactPerson: true,
+            createdBy: true,
+            WorkOrder: true,
+          }
         });
-      }
 
-      const nonCancelledOrderItems = order.OrderItems.filter(item => item.status !== 'Cancelled');
-      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
-      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
-      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
-      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
-      const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
-      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
-      const balance = totalAmount.sub(totalPaid);
+        if (!order) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Order not found',
+          });
+        }
 
-      const normalizedOrder = normalizeOrder({
-        ...order,
-        calculatedSalesTax,
-        calculatedSubTotal,
-        totalAmount,
-        totalCost,
-        totalItemAmount,
-        totalShippingAmount,
-        balance,
-        totalPaid,
-        OrderItems: order.OrderItems.map(item => ({
-          ...item,
-          artwork: item.artwork,
-          Order: {
-            Office: order.Office,
-            WorkOrder: order.WorkOrder,
-          },
-          OrderItemStock: item.OrderItemStock,
-        })),
-      });
+        const emailHtml = `
+          <h1>Order ${order.orderNumber}</h1>
+          <p>Please find attached the order for your recent order.</p>
+        `;
 
-      const pdfContent = await generateEmailOrderPDF(normalizedOrder);
-      const emailHtml = `
-        <h1>Order ${order.orderNumber}</h1>
-        <p>Please find attached the order for your recent order.</p>
-      `;
+        const dynamicTemplateData = {
+          subject: `Order ${order.orderNumber} from ${order.Office.Company.name}`,
+          html: emailHtml,
+          orderNumber: order.orderNumber.toString(),
+          companyName: order.Office.Company.name,
+          officeName: order.Office.name,
+        };
 
-      const emailSent = await sendOrderEmail(input.recipientEmail, `Order ${order.orderNumber} from ${order.Office.Company.name}`, emailHtml, pdfContent);
+        const emailSent = await sendOrderEmail(
+          input.recipientEmail,
+          `Order ${order.orderNumber} from ${order.Office.Company.name}`,
+          dynamicTemplateData,
+          input.pdfContent
+        );
 
-      if (emailSent) {
+        if (!emailSent) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to send email',
+          });
+        }
+
         return { success: true, message: 'Order sent successfully' };
-      } else {
+      } catch (error) {
+        console.error('Error in sendOrderEmail:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to send order email',
+          message: error instanceof Error ? error.message : 'Failed to send order email',
         });
       }
     })

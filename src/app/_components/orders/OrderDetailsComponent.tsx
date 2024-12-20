@@ -19,6 +19,7 @@ import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
 import { Button } from "../ui/button";
+import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -148,6 +149,17 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         initialData: initialOrder,
     });
 
+    // Use sendOrderEmail from orders/order.ts
+    const { mutate: sendOrderEmail } = api.orders.sendOrderEmail.useMutation({
+        onSuccess: () => {
+            toast.success('Order sent by email');
+        },
+        onError: (error) => {
+            console.error('Failed to send order by email:', error);
+            toast.error('Failed to send order by email');
+        }
+    });
+
     useCopilotReadable({
         description: "The current order that is being viewed.",
         value: order,
@@ -167,10 +179,55 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         createQuickbooksInvoice({ orderId: orderId });
     };
 
-    const handlePrintOrder = (orderId: string) => {
-        // sendOrderEmail({ orderId: orderId, recipientEmail: order?.contactPerson?.email ?? "" });
-        if (order) {
-            const pdfContent = generateOrderPDF(order);
+    const handleSendOrderByEmail = async (orderId: string) => {
+        console.log('handleSendOrderByEmail called with orderId:', orderId);
+
+        if (!orderId) {
+            console.error('No orderId provided');
+            toast.error('Invalid order ID');
+            return;
+        }
+
+        try {
+            // First, get the order data
+            console.log('Fetching order data...');
+            const order = await utils.orders.getByID.fetch(orderId);
+            console.log('Fetched order:', order);
+
+            if (!order) {
+                console.error('Order not found');
+                toast.error('Order not found');
+                return;
+            }
+
+            // Generate the PDF
+            console.log('Generating PDF for order:', order.orderNumber);
+            const pdfContent = await generateOrderPDFData(order);
+            console.log('PDF content generated:', !!pdfContent, 'Length:', pdfContent?.length);
+
+            if (!pdfContent) {
+                console.error('PDF generation failed - no content returned');
+                toast.error('Failed to generate PDF');
+                return;
+            }
+
+            // Send the email with the PDF
+            console.log('Sending email with PDF content length:', pdfContent.length);
+            await sendOrderEmail({
+                orderId,
+                recipientEmail: 'jason.shultz@1905newmedia.com',
+                pdfContent: pdfContent
+            });
+
+            console.log('Email sent successfully');
+        } catch (error) {
+            console.error('Error in handleSendOrderByEmail:', error);
+            if (error instanceof Error) {
+                console.error('Error details:', error.message);
+                console.error('Error stack:', error.stack);
+            }
+            toast.error('Failed to send order by email');
+            throw error; // Re-throw to be caught by the button click handler
         }
     };
 
@@ -247,6 +304,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="grid-cols-1 gap-4">
+                            {/* Status Badge */}
                             <InfoCard
                                 title="Status"
                                 content={<ItemStatusBadge
@@ -255,23 +313,80 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     orderId={order.id}
                                 />}
                             />
-                            <InfoCard
-                                title="Print Order"
-                                content={<Button
-                                    variant="default"
-                                    onClick={async () => {
-                                        try {
-                                            console.log('Generating order PDF', order);
-                                            await generateOrderPDF(order);
-                                        } catch (error) {
-                                            console.error('Error generating PDF:', error);
-                                            toast.error('Error generating PDF');
-                                        }
-                                    }}
-                                >
-                                    <Printer className="w-4 h-4" /> Print Order
-                                </Button>}
-                            />
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Print Order */}
+                                <InfoCard
+                                    title="Print Order"
+                                    content={<Button
+                                        variant="default"
+                                        onClick={async () => {
+                                            try {
+                                                console.log('Generating order PDF', order);
+                                                await generateOrderPDF(order);
+                                            } catch (error) {
+                                                console.error('Error generating PDF:', error);
+                                                toast.error('Error generating PDF');
+                                            }
+                                        }}
+                                    >
+                                        <Printer className="w-4 h-4" /> Print Order
+                                    </Button>}
+                                />
+                                {/* Send Order by Email */}
+                                <InfoCard
+                                    title="Send Order by Email"
+                                    content={<Button
+                                        variant="default"
+                                        onClick={async () => {
+                                            try {
+                                                console.log('Testing PDF generation...');
+                                                // Test PDF generation first
+                                                const testOrder = await utils.orders.getByID.fetch(order.id);
+                                                if (!testOrder) {
+                                                    console.error('Could not fetch order');
+                                                    return;
+                                                }
+
+                                                // Try to generate PDF and log the result
+                                                const testPdf = await generateOrderPDFData(testOrder);
+                                                console.log('PDF generated successfully:', {
+                                                    hasContent: !!testPdf,
+                                                    length: testPdf?.length,
+                                                    firstFewChars: testPdf?.substring(0, 50)
+                                                });
+
+                                                // Only proceed with email if PDF generation worked
+                                                if (testPdf) {
+                                                    console.log('Proceeding with email send...');
+                                                    // Extract base64 content from data URI
+                                                    const base64Content = testPdf?.split(',')[1] ?? '';
+
+                                                    await sendOrderEmail({
+                                                        orderId: order.id,
+                                                        recipientEmail: 'jason.shultz@1905newmedia.com',
+                                                        pdfContent: base64Content
+                                                    });
+                                                    console.log('Email sent successfully');
+                                                } else {
+                                                    console.error('PDF generation failed');
+                                                    toast.error('Failed to generate PDF');
+                                                }
+                                            } catch (error) {
+                                                console.error('Error in button click handler:', error);
+                                                if (error instanceof Error) {
+                                                    console.error('Error details:', {
+                                                        message: error.message,
+                                                        stack: error.stack
+                                                    });
+                                                }
+                                                toast.error('Failed to process request');
+                                            }
+                                        }}
+                                    >
+                                        <Send className="w-4 h-4" /> Send Order by Email
+                                    </Button>}
+                                />
+                            </div>
                         </div>
                         <div className="grid-flow-dense">
                             <InfoCard

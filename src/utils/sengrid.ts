@@ -45,18 +45,26 @@ export async function sendInvoiceEmail(
 export async function sendOrderEmail(
     to: string,
     subject: string,
-    html: string,
+    dynamicTemplateData: {
+        subject: string,
+        html: string,
+        orderNumber: string,
+        companyName: string,
+        officeName: string,
+    },
     pdfContent: string
 ) {
     const msg = {
         to,
         from: process.env.SENDGRID_EMAIL_FROM as string,
-        templateId: process.env.SENDGRID_INVOICE_TEMPLATE_ID as string,
-        html,
+        templateId: process.env.SENDGRID_ORDER_TEMPLATE_ID as string,
         subject,
         dynamicTemplateData: {
-          subject: subject,
-          html: html,
+          subject: dynamicTemplateData.subject,
+          html: dynamicTemplateData.html,
+          orderNumber: dynamicTemplateData.orderNumber,
+          companyName: dynamicTemplateData.companyName,
+          officeName: dynamicTemplateData.officeName,
         },
         attachments: [
             {
