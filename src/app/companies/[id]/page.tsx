@@ -81,7 +81,7 @@ export default async function CompanyPage(
             totalItemAmount: workOrder.totalItemAmount?.toString() ?? "0",
             totalShippingAmount: workOrder.totalShippingAmount?.toString() ?? "0",
             totalCost: workOrder.totalCost?.toString() ?? "0",
-            contactPerson: { id: "", name: null },
+            contactPerson: { id: "", name: null, email: null },
             createdBy: { id: "", name: null },
             Office: { Company: { name: office.name }, id: office.id, name: office.name },
             Order: null,

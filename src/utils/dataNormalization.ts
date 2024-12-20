@@ -488,7 +488,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     calculatedSalesTax: Prisma.Decimal | null;
     calculatedSubTotal: Prisma.Decimal | null;
     totalShippingAmount: Prisma.Decimal | null;
-    contactPerson: { id: string; name: string | null };
+    contactPerson: { id: string; name: string | null; email: string | null };
     createdBy: { id: string; name: string | null };
     Office: {
         id: string;
@@ -540,7 +540,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         workOrderNumber: workOrder.workOrderNumber.toString(),
         contactPerson: {
             id: workOrder.contactPerson.id,
-            name: workOrder.contactPerson.name
+            name: workOrder.contactPerson.name,
+            email: workOrder.contactPerson.email
         },
         createdBy: {
             id: workOrder.createdBy.id,
