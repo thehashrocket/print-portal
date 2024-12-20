@@ -5,6 +5,8 @@ import { Input } from '../../ui/input';
 import { ShippingMethod } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
+import { Save } from 'lucide-react';
+import { Disc } from 'lucide-react';
 
 export interface StatusBadgeProps<T extends string> {
     id: string;
@@ -111,7 +113,7 @@ export function StatusBadge<T extends string>({
                         setIsSaving(false);
                     }}
                 >
-                    Save
+                    <Save className="w-4 h-4" /> Save
                 </Button>
             </div>
         </div>

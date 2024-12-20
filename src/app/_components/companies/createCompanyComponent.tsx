@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
 import { Button } from "~/app/_components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 const companyFormSchema = z.object({
     name: z.string().min(1, "Required"),
@@ -163,6 +164,7 @@ export function CreateCompany() {
                                         variant="default"
                                         disabled={isLoading}
                                     >
+                                        <PlusCircle className="w-4 h-4" />
                                         {isLoading ? "Creating..." : "Create Company"}
                                     </Button>
                                 </div>

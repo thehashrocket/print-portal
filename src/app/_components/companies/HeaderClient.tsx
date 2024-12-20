@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Button } from '~/app/_components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
 const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
     const router = useRouter();
@@ -81,6 +82,7 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                         variant="default"
                         className="w-full"
                     >
+                        <PlusCircle className="w-4 h-4" />
                         Create Company
                     </Button>
                 </Link>

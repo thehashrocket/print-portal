@@ -10,6 +10,7 @@ import CompaniesChart from "../_components/companies/CompaniesChart";
 import { type CompanyDashboardData } from "~/types/company";
 import NoPermission from "~/app/_components/noPermission/noPermission";
 import { Button } from "../_components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 export default async function CompaniesPage() {
     const session = await getServerAuthSession();
@@ -59,7 +60,7 @@ export default async function CompaniesPage() {
                         variant="default"
                         className="w-full sm:w-auto"
                     >
-                        New Company
+                        <PlusCircle className="w-4 h-4" /> Create Company
                     </Button>
                 </Link>
             </div>

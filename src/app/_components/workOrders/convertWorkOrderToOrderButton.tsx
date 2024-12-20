@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "~/trpc/react"; // use client to fetch data instead of server
 import { Button } from '~/app/_components/ui/button';
+import { Send } from "lucide-react";
 
 interface ConvertWorkOrderButtonProps {
     workOrderId: string;
@@ -34,6 +35,7 @@ export default function ConvertWorkOrderButton({ workOrderId, officeId }: Conver
             onClick={handleConvert}
             disabled={isConverting}
         >
+            <Send className="w-4 h-4" />
             {isConverting ? 'Converting...' : 'Send Order to Production'}
         </Button>
     );

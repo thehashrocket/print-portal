@@ -13,7 +13,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/Ship
 import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { Printer, Send } from "lucide-react";
+import { FilePlus2, Printer, Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
@@ -130,7 +130,7 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
             disabled={isInvoiceCreated}
             onClick={handleCreateInvoice}
         >
-            <FileText className="w-4 h-4" />
+            <FilePlus2 className="w-4 h-4" />
             {buttonText}
         </Button>
     );
@@ -228,7 +228,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             <Button
                                 variant="default"
                             >
-                                Create Order
+                                <FilePlus2 className="w-4 h-4" /> Create Order
                             </Button>
                         </Link>
                     </div>

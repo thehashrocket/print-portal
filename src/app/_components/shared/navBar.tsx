@@ -5,7 +5,7 @@ import Link from "next/link";
 import QuickbooksStatus from "~/app/_components/quickbooks/QuickbooksStatus";
 import { getServerAuthSession } from "~/server/auth";
 import { Button } from "../ui/button";
-import { PlusIcon, UserIcon, MenuIcon } from "lucide-react";
+import { PlusIcon, UserIcon, MenuIcon, FilePlus2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -92,7 +92,7 @@ const NavBar = async () => {
                     variant="navOutline"
                     className="hidden sm:flex"
                   >
-                    <PlusIcon className="w-4 h-4 sm:mr-2" />
+                    <FilePlus2 className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Create Order</span>
                   </Button>
                 </Link>
