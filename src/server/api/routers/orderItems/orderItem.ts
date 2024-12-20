@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderItemStatus } from "@prisma/client";
-import { sendOrderEmail } from "~/utils/sengrid";
+import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 
 export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
@@ -145,11 +145,19 @@ export const orderItemRouter = createTRPCRouter({
                     <p>If you have any questions, please contact us.</p>
                 `;
 
-                await sendOrderEmail(
+                const dynamicTemplateData = {
+                    subject: `Job Status Update`,
+                    html: emailHtml,
+                    orderNumber: updatedItem.Order?.orderNumber.toString() || '',
+                    status: input.status,
+                    trackingNumber: null,
+                    shippingMethod: null,
+                };
+
+                await sendOrderStatusEmail(
                     emailToSend,
                     `Job Status Update`,
-                    emailHtml,
-                    '' // No attachment needed for status update
+                    dynamicTemplateData,
                 );
             }
 
