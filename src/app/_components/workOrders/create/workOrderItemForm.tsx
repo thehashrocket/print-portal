@@ -19,13 +19,13 @@ import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { Textarea } from '../../ui/textarea';
 
 const workOrderItemSchema = z.object({
-    amount: z.number().min(1, 'Amount is required'),
+    amount: z.number().default(1).optional(),
     artwork: z.array(z.object({
         fileUrl: z.string(),
         description: z.string().optional(),
     })).optional(),
-    cost: z.number().optional(),
-    costPerM: z.number().min(1, 'Cost Per M is required'),
+    cost: z.number().default(1).optional(),
+    costPerM: z.number().default(1).optional(),
     description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
     ink: z.string().optional(),
@@ -140,25 +140,43 @@ const WorkOrderItemForm: React.FC = () => {
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='amount' className='flex gap-1'>
                                 Amount (we bill customer)
-                                <span className='text-red-500'>*</span>
                             </Label>
-                            <Input id='amount' type='number' {...register('amount', { valueAsNumber: true })} placeholder="Enter amount..." />
+                            <Input 
+                                id='amount' 
+                                type='number' 
+                                {...register('amount', { 
+                                    setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
+                                })} 
+                                placeholder="Enter amount..." 
+                            />
                             {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='cost' className='flex gap-1'>
                                 Cost (our cost)
-                                <span className='text-red-500'>*</span>
                             </Label>
-                            <Input id='cost' type='number' {...register('cost', { valueAsNumber: true })} placeholder="Enter cost..." />
+                            <Input 
+                                id='cost' 
+                                type='number' 
+                                {...register('cost', { 
+                                    setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
+                                })} 
+                                placeholder="Enter cost..." 
+                            />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='costPerM' className='flex gap-1'>
                                 Cost Per M
-                                <span className='text-red-500'>*</span>
                             </Label>
-                            <Input id='costPerM' type='number' {...register('costPerM', { valueAsNumber: true })} placeholder="Enter cost per m..." />
+                            <Input 
+                                id='costPerM' 
+                                type='number' 
+                                {...register('costPerM', { 
+                                    setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
+                                })} 
+                                placeholder="Enter cost per m..." 
+                            />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

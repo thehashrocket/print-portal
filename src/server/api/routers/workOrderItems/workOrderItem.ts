@@ -62,9 +62,9 @@ export const workOrderItemRouter = createTRPCRouter({
 
     createWorkOrderItem: protectedProcedure
         .input(z.object({
-            amount: z.number(),
+            amount: z.number().default(1),
             artwork: z.array(artworkSchema),
-            cost: z.number().optional(),
+            cost: z.number().default(1),
             description: z.string(),
             expectedDate: z.date(),
             ink: z.string().optional(),
