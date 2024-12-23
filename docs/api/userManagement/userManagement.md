@@ -34,10 +34,32 @@ Retrieves get all users
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getAllUsers.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getAllUsers.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getAllUsers.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getUserById`
@@ -56,10 +78,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getUserById.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getUserById.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getUserById.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `deleteUser`
@@ -78,10 +122,74 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.deleteUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.deleteUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.string()) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.deleteUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.deleteUser.cancel();
+    const previousData = utils.deleteUser.getData();
+
+    utils.deleteUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.deleteUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.deleteUser.invalidate();
+  },
+});
 ```
 
 ### `updateUser`
@@ -106,10 +214,80 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.updateUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  roleIds: z.array(),
+  officeIds: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateUser.cancel();
+    const previousData = utils.updateUser.getData();
+
+    utils.updateUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateUser.invalidate();
+  },
+});
 ```
 
 ### `updateUserRoles`
@@ -131,10 +309,77 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.updateUserRoles.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateUserRoles.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  userId: z.string(),
+  roleNames: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateUserRoles.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateUserRoles.cancel();
+    const previousData = utils.updateUserRoles.getData();
+
+    utils.updateUserRoles.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateUserRoles.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateUserRoles.invalidate();
+  },
+});
 ```
 
 ### `createUser`
@@ -158,10 +403,79 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.createUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.createUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  name: z.string(),
+  email: unknown,
+  companyId: z.string(),
+  officeId: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.createUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.createUser.cancel();
+    const previousData = utils.createUser.getData();
+
+    utils.createUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.createUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.createUser.invalidate();
+  },
+});
 ```
 
 ### `getAllUsers`
@@ -177,10 +491,32 @@ Retrieves get all users
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getAllUsers.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getAllUsers.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getAllUsers.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getUserById`
@@ -199,10 +535,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getUserById.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getUserById.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getUserById.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `deleteUser`
@@ -221,10 +579,74 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.deleteUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.deleteUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.string()) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.deleteUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.deleteUser.cancel();
+    const previousData = utils.deleteUser.getData();
+
+    utils.deleteUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.deleteUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.deleteUser.invalidate();
+  },
+});
 ```
 
 ### `updateUser`
@@ -249,10 +671,80 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.updateUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  roleIds: z.array(),
+  officeIds: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateUser.cancel();
+    const previousData = utils.updateUser.getData();
+
+    utils.updateUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateUser.invalidate();
+  },
+});
 ```
 
 ### `updateUserRoles`
@@ -274,10 +766,77 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.updateUserRoles.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateUserRoles.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  userId: z.string(),
+  roleNames: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateUserRoles.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateUserRoles.cancel();
+    const previousData = utils.updateUserRoles.getData();
+
+    utils.updateUserRoles.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateUserRoles.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateUserRoles.invalidate();
+  },
+});
 ```
 
 ### `createUser`
@@ -301,10 +860,79 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.createUser.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.createUser.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  name: z.string(),
+  email: unknown,
+  companyId: z.string(),
+  officeId: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.createUser.useMutation({
+  onMutate: async (newData) => {
+    await utils.createUser.cancel();
+    const previousData = utils.createUser.getData();
+
+    utils.createUser.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.createUser.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.createUser.invalidate();
+  },
+});
 ```
 
 ## Error Handling

@@ -37,10 +37,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getByID.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getByID.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getByID.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getByOfficeId`
@@ -59,10 +81,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getByOfficeId.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getByOfficeId.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getByOfficeId.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getAll`
@@ -78,10 +122,32 @@ Retrieves get all
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getAll.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getAll.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getAll.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `create`
@@ -112,10 +178,86 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.create.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.create.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  city: z.string(),
+  country: z.string(),
+  line1: z.string(),
+  line2: unknown,
+  line3: unknown,
+  line4: unknown,
+  officeId: z.string(),
+  telephoneNumber: z.string(),
+  zipCode: z.string(),
+  state: z.string(),
+  addressType: z.nativeEnum()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.create.useMutation({
+  onMutate: async (newData) => {
+    await utils.create.cancel();
+    const previousData = utils.create.getData();
+
+    utils.create.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.create.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.create.invalidate();
+  },
+});
 ```
 
 ### `update`
@@ -145,10 +287,16 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.update.query(z.object({
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.update.useQuery(z.object({
   id: "example",
   city: "example",
   country: "example",
@@ -160,6 +308,33 @@ const result = await trpc.update.query(z.object({
   zipCode: "example",
   state: "example"
 }));
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.update.query(z.object({
+  id: "example",
+  city: "example",
+  country: "example",
+  line1: "example",
+  line2: unknown,
+  line3: unknown,
+  line4: unknown,
+  officeId: "example",
+  zipCode: "example",
+  state: "example"
+}));
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `delete`
@@ -178,10 +353,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.delete.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.delete.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.delete.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getByID`
@@ -200,10 +397,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getByID.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getByID.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getByID.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getByOfficeId`
@@ -222,10 +441,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getByOfficeId.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getByOfficeId.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getByOfficeId.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getAll`
@@ -241,10 +482,32 @@ Retrieves get all
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getAll.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getAll.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getAll.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `create`
@@ -275,10 +538,86 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.create.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.create.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  city: z.string(),
+  country: z.string(),
+  line1: z.string(),
+  line2: unknown,
+  line3: unknown,
+  line4: unknown,
+  officeId: z.string(),
+  telephoneNumber: z.string(),
+  zipCode: z.string(),
+  state: z.string(),
+  addressType: z.nativeEnum()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.create.useMutation({
+  onMutate: async (newData) => {
+    await utils.create.cancel();
+    const previousData = utils.create.getData();
+
+    utils.create.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.create.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.create.invalidate();
+  },
+});
 ```
 
 ### `update`
@@ -308,10 +647,16 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.update.query(z.object({
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.update.useQuery(z.object({
   id: "example",
   city: "example",
   country: "example",
@@ -323,6 +668,33 @@ const result = await trpc.update.query(z.object({
   zipCode: "example",
   state: "example"
 }));
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.update.query(z.object({
+  id: "example",
+  city: "example",
+  country: "example",
+  line1: "example",
+  line2: unknown,
+  line3: unknown,
+  line4: unknown,
+  officeId: "example",
+  zipCode: "example",
+  state: "example"
+}));
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `delete`
@@ -341,10 +713,32 @@ z.string()
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.delete.query("example");
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.delete.useQuery("example");
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.delete.query("example");
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ## Error Handling

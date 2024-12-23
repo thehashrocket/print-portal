@@ -368,26 +368,5 @@ function formatRouterName(name: string): string {
         .join(' - ');
 }
 
-function getProcedureName(node: any): string | undefined {
-    // Handle different procedure definition patterns
-    if (node.parent?.type === 'AssignmentExpression') {
-        return node.parent.left?.property?.name;
-    }
-    if (node.parent?.type === 'Property') {
-        return node.parent.key?.name;
-    }
-    return node.callee.object?.property?.name;
-}
-
-function getProcedureType(node: any): ProcedureType | undefined {
-    if (node.callee.property?.name === 'query' || node.parent?.property?.name === 'query') {
-        return 'query';
-    }
-    if (node.callee.property?.name === 'mutation' || node.parent?.property?.name === 'mutation') {
-        return 'mutation';
-    }
-    return undefined;
-}
-
 // Run the script
 main().catch(console.error); 

@@ -30,13 +30,38 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getCustomers.query(z.object({
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getCustomers.useQuery(z.object({
   lastSyncTime: unknown,
   pageSize: unknown
 }));
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getCustomers.query(z.object({
+  lastSyncTime: unknown,
+  pageSize: unknown
+}));
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getCustomers`
@@ -58,13 +83,38 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getCustomers.query(z.object({
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getCustomers.useQuery(z.object({
   lastSyncTime: unknown,
   pageSize: unknown
 }));
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getCustomers.query(z.object({
+  lastSyncTime: unknown,
+  pageSize: unknown
+}));
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ## Error Handling

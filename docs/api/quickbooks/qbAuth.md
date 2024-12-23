@@ -38,10 +38,32 @@ Retrieves check quickbooks auth status
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.checkQuickbooksAuthStatus.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.checkQuickbooksAuthStatus.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.checkQuickbooksAuthStatus.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getAccessToken`
@@ -62,10 +84,76 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getAccessToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getAccessToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  code: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getAccessToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.getAccessToken.cancel();
+    const previousData = utils.getAccessToken.getData();
+
+    utils.getAccessToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getAccessToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getAccessToken.invalidate();
+  },
+});
 ```
 
 ### `getIntuitSignInUrl`
@@ -81,10 +169,74 @@ Updates get intuit sign in url
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getIntuitSignInUrl.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getIntuitSignInUrl.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getIntuitSignInUrl.useMutation({
+  onMutate: async (newData) => {
+    await utils.getIntuitSignInUrl.cancel();
+    const previousData = utils.getIntuitSignInUrl.getData();
+
+    utils.getIntuitSignInUrl.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getIntuitSignInUrl.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getIntuitSignInUrl.invalidate();
+  },
+});
 ```
 
 ### `getUserInfo`
@@ -100,10 +252,74 @@ Updates get user info
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getUserInfo.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getUserInfo.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getUserInfo.useMutation({
+  onMutate: async (newData) => {
+    await utils.getUserInfo.cancel();
+    const previousData = utils.getUserInfo.getData();
+
+    utils.getUserInfo.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getUserInfo.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getUserInfo.invalidate();
+  },
+});
 ```
 
 ### `handleCallback`
@@ -126,10 +342,78 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.handleCallback.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.handleCallback.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  code: z.string(),
+  realmId: z.string(),
+  state: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.handleCallback.useMutation({
+  onMutate: async (newData) => {
+    await utils.handleCallback.cancel();
+    const previousData = utils.handleCallback.getData();
+
+    utils.handleCallback.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.handleCallback.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.handleCallback.invalidate();
+  },
+});
 ```
 
 ### `initializeAuth`
@@ -145,10 +429,74 @@ Updates initialize auth
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.initializeAuth.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.initializeAuth.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.initializeAuth.useMutation({
+  onMutate: async (newData) => {
+    await utils.initializeAuth.cancel();
+    const previousData = utils.initializeAuth.getData();
+
+    utils.initializeAuth.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.initializeAuth.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.initializeAuth.invalidate();
+  },
+});
 ```
 
 ### `refreshToken`
@@ -164,10 +512,74 @@ Updates refresh token
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.refreshToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.refreshToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.refreshToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.refreshToken.cancel();
+    const previousData = utils.refreshToken.getData();
+
+    utils.refreshToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.refreshToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.refreshToken.invalidate();
+  },
+});
 ```
 
 ### `revokeToken`
@@ -183,10 +595,74 @@ Updates revoke token
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.revokeToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.revokeToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.revokeToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.revokeToken.cancel();
+    const previousData = utils.revokeToken.getData();
+
+    utils.revokeToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.revokeToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.revokeToken.invalidate();
+  },
+});
 ```
 
 ### `checkQuickbooksAuthStatus`
@@ -202,10 +678,32 @@ Retrieves check quickbooks auth status
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.checkQuickbooksAuthStatus.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.checkQuickbooksAuthStatus.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.checkQuickbooksAuthStatus.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getAccessToken`
@@ -226,10 +724,76 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getAccessToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getAccessToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  code: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getAccessToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.getAccessToken.cancel();
+    const previousData = utils.getAccessToken.getData();
+
+    utils.getAccessToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getAccessToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getAccessToken.invalidate();
+  },
+});
 ```
 
 ### `getIntuitSignInUrl`
@@ -245,10 +809,74 @@ Updates get intuit sign in url
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getIntuitSignInUrl.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getIntuitSignInUrl.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getIntuitSignInUrl.useMutation({
+  onMutate: async (newData) => {
+    await utils.getIntuitSignInUrl.cancel();
+    const previousData = utils.getIntuitSignInUrl.getData();
+
+    utils.getIntuitSignInUrl.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getIntuitSignInUrl.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getIntuitSignInUrl.invalidate();
+  },
+});
 ```
 
 ### `getUserInfo`
@@ -264,10 +892,74 @@ Updates get user info
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.getUserInfo.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.getUserInfo.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.getUserInfo.useMutation({
+  onMutate: async (newData) => {
+    await utils.getUserInfo.cancel();
+    const previousData = utils.getUserInfo.getData();
+
+    utils.getUserInfo.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.getUserInfo.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.getUserInfo.invalidate();
+  },
+});
 ```
 
 ### `handleCallback`
@@ -290,10 +982,78 @@ z.object({
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.handleCallback.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.handleCallback.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  code: z.string(),
+  realmId: z.string(),
+  state: z.string()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.handleCallback.useMutation({
+  onMutate: async (newData) => {
+    await utils.handleCallback.cancel();
+    const previousData = utils.handleCallback.getData();
+
+    utils.handleCallback.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.handleCallback.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.handleCallback.invalidate();
+  },
+});
 ```
 
 ### `initializeAuth`
@@ -309,10 +1069,74 @@ Updates initialize auth
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.initializeAuth.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.initializeAuth.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.initializeAuth.useMutation({
+  onMutate: async (newData) => {
+    await utils.initializeAuth.cancel();
+    const previousData = utils.initializeAuth.getData();
+
+    utils.initializeAuth.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.initializeAuth.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.initializeAuth.invalidate();
+  },
+});
 ```
 
 ### `refreshToken`
@@ -328,10 +1152,74 @@ Updates refresh token
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.refreshToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.refreshToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.refreshToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.refreshToken.cancel();
+    const previousData = utils.refreshToken.getData();
+
+    utils.refreshToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.refreshToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.refreshToken.invalidate();
+  },
+});
 ```
 
 ### `revokeToken`
@@ -347,10 +1235,74 @@ Updates revoke token
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const mutation = trpc.revokeToken.useMutation();
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.revokeToken.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: any) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.revokeToken.useMutation({
+  onMutate: async (newData) => {
+    await utils.revokeToken.cancel();
+    const previousData = utils.revokeToken.getData();
+
+    utils.revokeToken.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.revokeToken.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.revokeToken.invalidate();
+  },
+});
 ```
 
 ## Error Handling

@@ -24,10 +24,32 @@ Retrieves get company info
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getCompanyInfo.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getCompanyInfo.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getCompanyInfo.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ### `getCompanyInfo`
@@ -43,10 +65,32 @@ Retrieves get company info
 unknown
 ```
 
-**Example:**
+**Usage Examples:**
+
+
+#### Client Component
 ```typescript
-// Using React Query hooks
-const result = await trpc.getCompanyInfo.query({});
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.getCompanyInfo.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.getCompanyInfo.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
 ```
 
 ## Error Handling
