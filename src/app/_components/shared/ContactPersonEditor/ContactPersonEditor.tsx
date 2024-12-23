@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '~/trpc/react';
 import { toast } from 'react-hot-toast';
-import { CheckCircle, LucideIcon, PlusCircle } from 'lucide-react';
+import { CheckCircle, Info, LucideIcon, PlusCircle } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Label } from '../../ui/label';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
@@ -18,12 +18,12 @@ interface ContactPersonEditorProps {
     isWorkOrder?: boolean;
 }
 
-const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({ 
-    orderId, 
-    currentContactPerson, 
-    officeId, 
+const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({
+    orderId,
+    currentContactPerson,
+    officeId,
     onUpdate,
-    isWorkOrder = false 
+    isWorkOrder = false
 }) => {
     const [selectedUserId, setSelectedUserId] = useState(currentContactPerson?.id || '');
     const [message, setMessage] = useState<string | null>(null);
@@ -40,14 +40,14 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({
     const handleUpdateContactPerson = async () => {
         try {
             if (isWorkOrder) {
-                await workOrderMutation.mutateAsync({ 
-                    workOrderId: orderId, 
-                    contactPersonId: selectedUserId 
+                await workOrderMutation.mutateAsync({
+                    workOrderId: orderId,
+                    contactPersonId: selectedUserId
                 });
             } else {
-                await orderMutation.mutateAsync({ 
-                    orderId: orderId, 
-                    contactPersonId: selectedUserId 
+                await orderMutation.mutateAsync({
+                    orderId: orderId,
+                    contactPersonId: selectedUserId
                 });
             }
             setMessage('Contact person updated successfully');
@@ -70,8 +70,14 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({
     }
 
     return (
-        <div className="p-4 bg-white shadow-md rounded-md">
+        <div className="">
             <div className="mb-4">
+                <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                    <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                    <p className="text-blue-700">
+                        Select a contact person for this order.
+                    </p>
+                </div>
                 <div className="flex justify-between items-center mb-2">
                     <Label htmlFor="contactPerson">Select Contact Person</Label>
                     <Button

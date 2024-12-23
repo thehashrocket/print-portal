@@ -171,7 +171,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             shippingAmount: null,
             size: null,
             specialInstructions: null,
-            status: OrderItemStatus.Pending,
+            status: OrderItemStatus.Prepress,
         },
     });
 

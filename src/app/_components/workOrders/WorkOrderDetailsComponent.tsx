@@ -11,7 +11,7 @@ import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrde
 import { api } from "~/trpc/react";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { DollarSign, PlusCircle } from "lucide-react";
+import { DollarSign, Eye, Info, PlusCircle } from "lucide-react";
 import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
@@ -50,19 +50,29 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
     }, [status]);
 
     return (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
-                {currentStatus}
-            </span>
-            <SelectField
-                options={Object.values(WorkOrderStatus).map((status) => ({ value: status, label: status }))}
-                value={currentStatus}
-                onValueChange={(value: string) => handleStatusChange(value as WorkOrderStatus)}
-                placeholder="Select status..."
-                required={true}
-            />
-            {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
-        </div>
+        <>
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Status is the current status of the estimate.
+                    You can change the status of the estimate by selecting a new status from the dropdown.
+                    When you convert an estimate to an order, the status of the work order will be set to "Approved".
+                </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                    {currentStatus}
+                </span>
+                <SelectField
+                    options={Object.values(WorkOrderStatus).map((status) => ({ value: status, label: status }))}
+                    value={currentStatus}
+                    onValueChange={(value: string) => handleStatusChange(value as WorkOrderStatus)}
+                    placeholder="Select status..."
+                    required={true}
+                />
+                {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
+            </div>  
+        </>
     );
 };
 
@@ -156,14 +166,16 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             {workOrder.Order === null && (
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
-                            <Link href="/workOrders/create">
-                                <Button
-                                    variant="default"
-                                >
-                                    <PlusCircle className="w-4 h-4 mr-2" />
-                                    Create Estimate
-                                </Button>
-                            </Link>
+                            {workOrder.Order !== null && (
+                                <Link href={`/orders/${workOrder.Order.id}`}>
+                                    <Button
+                                        variant="default"
+                                    >
+                                        <Eye className="w-4 h-4 mr-2" />
+                                        View Order
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
@@ -193,46 +205,46 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             title="Order Price Details"
                             content={
                                 <div className="space-y-3">
-                                                <div className="flex items-center gap-2">
-                                                    <Receipt className="w-5 h-5 text-blue-600" />
-                                                    <div>
-                                                        <div className="text-sm text-gray-500">Item Total</div>
-                                                        <div className="font-semibold">{formatCurrency(workOrder.totalItemAmount ?? "")}</div>
-                                                    </div>
-                                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <Receipt className="w-5 h-5 text-blue-600" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Item Total</div>
+                                            <div className="font-semibold">{formatCurrency(workOrder.totalItemAmount ?? "")}</div>
+                                        </div>
+                                    </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <Truck className="w-5 h-5 text-blue-600" />
-                                                    <div>
-                                                        <div className="text-sm text-gray-500">Shipping Amount</div>
-                                                        <div className="font-semibold">{formatCurrency(workOrder.totalShippingAmount ?? "")}</div>
-                                                    </div>
-                                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <Truck className="w-5 h-5 text-blue-600" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Shipping Amount</div>
+                                            <div className="font-semibold">{formatCurrency(workOrder.totalShippingAmount ?? "")}</div>
+                                        </div>
+                                    </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <Calculator className="w-5 h-5 text-blue-600" />
-                                                    <div>
-                                                        <div className="text-sm text-gray-500">Subtotal</div>
-                                                        <div className="font-semibold">{formatCurrency(workOrder.calculatedSubTotal ?? "")}</div>
-                                                    </div>
-                                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <Calculator className="w-5 h-5 text-blue-600" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Subtotal</div>
+                                            <div className="font-semibold">{formatCurrency(workOrder.calculatedSubTotal ?? "")}</div>
+                                        </div>
+                                    </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <Percent className="w-5 h-5 text-blue-600" />
-                                                    <div>
-                                                        <div className="text-sm text-gray-500">Sales Tax</div>
-                                                        <div className="font-semibold">{formatCurrency(workOrder.calculatedSalesTax ?? "")}</div>
-                                                    </div>
-                                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <Percent className="w-5 h-5 text-blue-600" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Sales Tax</div>
+                                            <div className="font-semibold">{formatCurrency(workOrder.calculatedSalesTax ?? "")}</div>
+                                        </div>
+                                    </div>
 
-                                                <div className="flex items-center gap-2 pt-2 border-t">
-                                                    <DollarSign className="w-5 h-5 text-green-600" />
-                                                    <div>
-                                                        <div className="text-sm text-gray-500">Total Amount</div>
-                                                        <div className="text-lg font-bold text-green-600">{formatCurrency(workOrder.totalAmount ?? "")}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div className="flex items-center gap-2 pt-2 border-t">
+                                        <DollarSign className="w-5 h-5 text-green-600" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Total Amount</div>
+                                            <div className="text-lg font-bold text-green-600">{formatCurrency(workOrder.totalAmount ?? "")}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             }
                         />
                         <InfoCard

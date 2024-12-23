@@ -5,7 +5,7 @@ import { Input } from '../../ui/input';
 import { ShippingMethod } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
-import { Save } from 'lucide-react';
+import { Info, Save } from 'lucide-react';
 import { Disc } from 'lucide-react';
 
 export interface StatusBadgeProps<T extends string> {
@@ -46,6 +46,15 @@ export function StatusBadge<T extends string>({
 
     return (
         <div className="space-y-4">
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Status is the current status of the order.
+                    You can change the status of the order by selecting a new status from the dropdown.
+                    You can toggle whether to notify the customer via email by toggling the switch.
+                    You can override the email address to notify by entering an email address in the input field.
+                </p>
+            </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
                     {currentStatus}
