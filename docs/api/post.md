@@ -8,6 +8,190 @@ The Post router provides the following endpoints:
 
 | Endpoint | Type | Description |
 |----------|------|-------------|
+| `hello` | query | Retrieves hello |
+| `create` | mutation | Updates create |
+| `getLatest` | query | Retrieves get latest |
+| `getSecretMessage` | query | Retrieves get secret message |
+| `hello` | query | Retrieves hello |
+| `create` | mutation | Updates create |
+| `getLatest` | query | Retrieves get latest |
+| `getSecretMessage` | query | Retrieves get secret message |
+
+### `hello`
+
+**Type:** `query`
+
+Retrieves hello
+
+**Input:**
+```typescript
+z.object({
+  text: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.hello.query(z.object({
+  text: "example"
+}));
+```
+
+### `create`
+
+**Type:** `mutation`
+
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  name: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.create.useMutation();
+```
+
+### `getLatest`
+
+**Type:** `query`
+
+Retrieves get latest
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.getLatest.query({});
+```
+
+### `getSecretMessage`
+
+**Type:** `query`
+
+Retrieves get secret message
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.getSecretMessage.query({});
+```
+
+### `hello`
+
+**Type:** `query`
+
+Retrieves hello
+
+**Input:**
+```typescript
+z.object({
+  text: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.hello.query(z.object({
+  text: "example"
+}));
+```
+
+### `create`
+
+**Type:** `mutation`
+
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  name: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.create.useMutation();
+```
+
+### `getLatest`
+
+**Type:** `query`
+
+Retrieves get latest
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.getLatest.query({});
+```
+
+### `getSecretMessage`
+
+**Type:** `query`
+
+Retrieves get secret message
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const result = await trpc.getSecretMessage.query({});
+```
 
 ## Error Handling
 

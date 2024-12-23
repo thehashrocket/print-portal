@@ -1,29 +1,31 @@
-# User Router
+# Contacts/contact Router
 
-This documentation describes all the available endpoints in the User router.
+This documentation describes all the available endpoints in the Contacts/contact router.
 
 ## Overview
 
-The User router provides the following endpoints:
+The Contacts/contact router provides the following endpoints:
 
 | Endpoint | Type | Description |
 |----------|------|-------------|
-| `getByID` | query | Retrieves get by i d |
-| `getAll` | query | Retrieves get all |
+| `createContact` | mutation | Updates create contact |
 | `getByOfficeId` | query | Retrieves get by office id |
-| `getByID` | query | Retrieves get by i d |
-| `getAll` | query | Retrieves get all |
+| `createContact` | mutation | Updates create contact |
 | `getByOfficeId` | query | Retrieves get by office id |
 
-### `getByID`
+### `createContact`
 
-**Type:** `query`
+**Type:** `mutation`
 
-Retrieves get by i d
+Updates create contact
 
 **Input:**
 ```typescript
-z.string()
+z.object({
+  name: z.string(),
+  email: unknown,
+  officeId: z.string()
+})
 ```
 
 **Returns:**
@@ -34,26 +36,7 @@ unknown
 **Example:**
 ```typescript
 // Using React Query hooks
-const result = await trpc.getByID.query("example");
-```
-
-### `getAll`
-
-**Type:** `query`
-
-Retrieves get all
-
-**Input:** None required
-
-**Returns:**
-```typescript
-unknown
-```
-
-**Example:**
-```typescript
-// Using React Query hooks
-const result = await trpc.getAll.query({});
+const mutation = trpc.createContact.useMutation();
 ```
 
 ### `getByOfficeId`
@@ -78,15 +61,19 @@ unknown
 const result = await trpc.getByOfficeId.query("example");
 ```
 
-### `getByID`
+### `createContact`
 
-**Type:** `query`
+**Type:** `mutation`
 
-Retrieves get by i d
+Updates create contact
 
 **Input:**
 ```typescript
-z.string()
+z.object({
+  name: z.string(),
+  email: unknown,
+  officeId: z.string()
+})
 ```
 
 **Returns:**
@@ -97,26 +84,7 @@ unknown
 **Example:**
 ```typescript
 // Using React Query hooks
-const result = await trpc.getByID.query("example");
-```
-
-### `getAll`
-
-**Type:** `query`
-
-Retrieves get all
-
-**Input:** None required
-
-**Returns:**
-```typescript
-unknown
-```
-
-**Example:**
-```typescript
-// Using React Query hooks
-const result = await trpc.getAll.query({});
+const mutation = trpc.createContact.useMutation();
 ```
 
 ### `getByOfficeId`

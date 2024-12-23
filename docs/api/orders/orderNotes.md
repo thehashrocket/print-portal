@@ -1,19 +1,23 @@
-# User Router
+# Orders/order Notes Router
 
-This documentation describes all the available endpoints in the User router.
+This documentation describes all the available endpoints in the Orders/order Notes router.
 
 ## Overview
 
-The User router provides the following endpoints:
+The Orders/order Notes router provides the following endpoints:
 
 | Endpoint | Type | Description |
 |----------|------|-------------|
 | `getByID` | query | Retrieves get by i d |
 | `getAll` | query | Retrieves get all |
-| `getByOfficeId` | query | Retrieves get by office id |
+| `create` | mutation | Updates create |
+| `update` | mutation | Updates update |
+| `delete` | mutation | Updates delete |
 | `getByID` | query | Retrieves get by i d |
 | `getAll` | query | Retrieves get all |
-| `getByOfficeId` | query | Retrieves get by office id |
+| `create` | mutation | Updates create |
+| `update` | mutation | Updates update |
+| `delete` | mutation | Updates delete |
 
 ### `getByID`
 
@@ -56,11 +60,61 @@ unknown
 const result = await trpc.getAll.query({});
 ```
 
-### `getByOfficeId`
+### `create`
 
-**Type:** `query`
+**Type:** `mutation`
 
-Retrieves get by office id
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  note: z.string(),
+  orderId: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.create.useMutation();
+```
+
+### `update`
+
+**Type:** `mutation`
+
+Updates update
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  note: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.update.useMutation();
+```
+
+### `delete`
+
+**Type:** `mutation`
+
+Updates delete
 
 **Input:**
 ```typescript
@@ -75,7 +129,7 @@ unknown
 **Example:**
 ```typescript
 // Using React Query hooks
-const result = await trpc.getByOfficeId.query("example");
+const mutation = trpc.delete.useMutation();
 ```
 
 ### `getByID`
@@ -119,11 +173,61 @@ unknown
 const result = await trpc.getAll.query({});
 ```
 
-### `getByOfficeId`
+### `create`
 
-**Type:** `query`
+**Type:** `mutation`
 
-Retrieves get by office id
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  note: z.string(),
+  orderId: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.create.useMutation();
+```
+
+### `update`
+
+**Type:** `mutation`
+
+Updates update
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  note: z.string()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Example:**
+```typescript
+// Using React Query hooks
+const mutation = trpc.update.useMutation();
+```
+
+### `delete`
+
+**Type:** `mutation`
+
+Updates delete
 
 **Input:**
 ```typescript
@@ -138,7 +242,7 @@ unknown
 **Example:**
 ```typescript
 // Using React Query hooks
-const result = await trpc.getByOfficeId.query("example");
+const mutation = trpc.delete.useMutation();
 ```
 
 ## Error Handling
