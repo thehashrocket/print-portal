@@ -23,7 +23,8 @@
     "lint": "next lint",
     "start": "next start",
     "generate-font": "node scripts/generateFontBase64.mjs",
-    "import-quickbooks": "tsx prisma/import-quickbooks.js"
+    "import-quickbooks": "tsx prisma/import-quickbooks.js",
+    "generate-docs": "tsx scripts/generateApiDocs.ts"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",
@@ -109,6 +110,7 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
+    "@typescript-eslint/typescript-estree": "^8.18.2",
     "autoprefixer": "10.4.20",
     "daisyui": "^4.12.22",
     "esbuild": "^0.24.0",

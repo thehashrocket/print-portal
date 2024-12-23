@@ -15,3 +15,9 @@ If you are not familiar with the different technologies used in this project, pl
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+# API Documentation
+
+You can generate the API documentation by running `pnpm run generate-docs`.
+You can also find the documentation in the `docs/api` directory.
+[API Documentation](./docs/api/README.md)
