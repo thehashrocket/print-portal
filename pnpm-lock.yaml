@@ -108,8 +108,8 @@ importers:
         specifier: ^10.3.3
         version: 10.3.3(ag-charts-community@10.3.3)(react@18.3.1)
       ag-grid-community:
-        specifier: ^32.3.3
-        version: 32.3.3
+        specifier: ^33.0.3
+        version: 33.0.3
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -2310,8 +2310,11 @@ packages:
   ag-charts-types@10.3.3:
     resolution: {integrity: sha512-8rmyquaTkwfP4Lzei/W/cbkq9wwEl8+grIo3z97mtxrMIXh9sHJK1oJipd/u08MmBZrca5Jjtn5F1+UNPu/4fQ==}
 
-  ag-grid-community@32.3.3:
-    resolution: {integrity: sha512-KhSJ3B6mwRFA4cLjNjOZkDndJBh8o83794ZHl4Q7xP9MJf43oCN9qoZ8pyBanohgpVfLcP0scYYCr9xIlzjdiA==}
+  ag-charts-types@11.0.3:
+    resolution: {integrity: sha512-q7O2viQXPyO014QVH7KjFCUmQ/NvMBx9ReZtramQ44u+/aAa0ttLi/coK+V0Hse4/MG1eB/2XhgymdooQ0Kalg==}
+
+  ag-grid-community@33.0.3:
+    resolution: {integrity: sha512-HZeVmVieZ5Gm9j09Itecqm+OIX8X6cU4TJToUbsXv3DxdO9SK5/s8aAJAwBHtNRXOhHrhqQYwrY2yc3OtzWwcQ==}
 
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -7413,9 +7416,11 @@ snapshots:
 
   ag-charts-types@10.3.3: {}
 
-  ag-grid-community@32.3.3:
+  ag-charts-types@11.0.3: {}
+
+  ag-grid-community@33.0.3:
     dependencies:
-      ag-charts-types: 10.3.3
+      ag-charts-types: 11.0.3
 
   agent-base@6.0.2:
     dependencies:
