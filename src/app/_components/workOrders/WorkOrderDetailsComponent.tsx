@@ -50,7 +50,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
     }, [status]);
 
     return (
-        <>
+        <div className="space-y-4">
             <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
                 <Info className="w-4 h-4 text-blue-500 mt-0.5" />
                 <p className="text-blue-700">
@@ -60,7 +60,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
                 </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                <span className={`px-2 py-1 rounded-full text-sm font-semibold w-48 flex items-center justify-center ${getStatusColor(currentStatus)}`}>
                     {currentStatus}
                 </span>
                 <SelectField
@@ -71,13 +71,13 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: 
                     required={true}
                 />
                 {isError && <p className="text-red-500 mt-2">Failed to update status. Please try again.</p>}
-            </div>  
-        </>
+            </div>
+        </div>
     );
 };
 
 const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="mb-6">
+    <section className="mb-6 bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
         <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
     </section>
@@ -274,11 +274,12 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             content={<p>{formatDate(workOrder.inHandsDate)}</p>}
                         />
                     </div>
-                    <section>
+
+                    <section className="bg-white p-4 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Shipping Information</h2>
                         </div>
-                        {workOrder && workOrder.ShippingInfo ? (
+                        <div className="bg-gray-50 p-4 rounded-lg">
                             <WorkOrderShippingInfoEditor
                                 workOrderId={workOrder.id}
                                 currentShippingInfo={workOrder.ShippingInfo}
@@ -288,10 +289,10 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                                     utils.workOrders.getByID.invalidate(workOrderId);
                                 }}
                             />
-                        ) : null}
+                        </div>
                     </section>
 
-                    <section>
+                    <section className="bg-white p-4 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
                             <Link href={`/workOrders/create/${workOrder.id}`}>

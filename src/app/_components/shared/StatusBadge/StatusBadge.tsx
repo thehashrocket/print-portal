@@ -56,7 +56,8 @@ export function StatusBadge<T extends string>({
                 </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <span className={`px-2 py-1 rounded-full text-sm font-semibold ${getStatusColor(currentStatus)}`}>
+                {/* center status text inside span */}
+                <span className={`px-2 py-1 rounded-full text-sm font-semibold w-48 flex items-center justify-center ${getStatusColor(currentStatus)}`}>
                     {currentStatus}
                 </span>
                 <SelectField

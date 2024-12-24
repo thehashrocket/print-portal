@@ -81,7 +81,7 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: stri
 }
 
 const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="mb-6">
+    <section className="mb-6 bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
         <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
     </section>
@@ -256,7 +256,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         <div className="grid-cols-1 gap-4">
                             {/* Status Badge */}
                             <InfoCard
-                                title="Status"
+                                title="Estimate Status"
                                 content={<ItemStatusBadge
                                     id={order.id}
                                     status={order.status}
@@ -475,20 +475,24 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         />
                     </div>
 
-                    <section>
-                        <h2 className="text-2xl font-semibold mb-4">Shipping Information</h2>
-                        <ShippingInfoEditor
-                            orderId={order.id}
-                            currentShippingInfo={order.ShippingInfo}
-                            officeId={order.officeId}
-                            onUpdate={() => {
-                                console.log("Shipping info updated");
-                                utils.orders.getByID.invalidate(orderId);
-                            }}
-                        />
+                    <section className="bg-white p-4 rounded-lg shadow-md">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-semibold">Shipping Information</h2>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <ShippingInfoEditor
+                                orderId={order.id}
+                                currentShippingInfo={order.ShippingInfo}
+                                officeId={order.officeId}
+                                onUpdate={() => {
+                                    console.log("Shipping info updated");
+                                    utils.orders.getByID.invalidate(orderId);
+                                }}
+                            />
+                        </div>
                     </section>
 
-                    <section>
+                    <section className="bg-white p-4 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">Order Jobs</h2>
                         </div>
