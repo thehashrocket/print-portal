@@ -29,11 +29,11 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
 
     const steps = [
         <>
-            <h3 className='mb-2 text-gray-600 text-l font-semibold'>Shipping Information</h3>
+            <h2 className="text-2xl font-semibold">Shipping Information</h2>
             <WorkOrderShippingInfoForm />
         </>,
         <>
-            <h3 className='mb-2 text-gray-600 text-l font-semibold'>Estimate Jobs</h3>
+            <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
             <WorkOrderItemForm />
         </>,
     ];

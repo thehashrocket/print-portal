@@ -27,7 +27,8 @@ import {
     type WorkOrderVersion,
     type Prisma,
     User,
-    OrderStatus
+    OrderStatus,
+    PaperProduct
 } from "@prisma/client";
 
 import {
@@ -38,6 +39,7 @@ import {
     type SerializedShippingInfo,
     type SerializedShippingPickup,
     type SerializedProcessingOptions,
+    type SerializedPaperProduct,
     type SerializedTypesetting,
     type SerializedTypesettingOption,
     type SerializedTypesettingProof,
@@ -53,7 +55,7 @@ import {
     type SerializedOrderNote,
     type SerializedOrderPayment,
     type SerializedWorkOrderNote,
-    type SerializedWorkOrderVersion
+    type SerializedWorkOrderVersion,
 } from "~/types/serializedTypes";
 
 export function normalizeInvoice(invoice: Invoice & {
@@ -296,24 +298,28 @@ export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): Serialized
     };
 }
 
-export function normalizeOrderItemStock(stock: OrderItemStock): SerializedOrderItemStock {
+export function normalizeOrderItemStock(stock: OrderItemStock & {
+    PaperProduct?: PaperProduct | null;
+}): SerializedOrderItemStock {
     return {
-        costPerM: stock.costPerM.toString(),
-        createdAt: stock.createdAt.toISOString(),
-        createdById: stock.createdById,
-        expectedDate: stock.expectedDate?.toISOString() ?? null,
-        from: stock.from,
         id: stock.id,
-        notes: stock.notes,
+        stockQty: stock.stockQty,
+        costPerM: stock.costPerM.toString(),
+        totalCost: stock.totalCost?.toString() ?? null,
+        from: stock.from,
+        expectedDate: stock.expectedDate?.toISOString() ?? null,
         orderedDate: stock.orderedDate?.toISOString() ?? null,
-        orderItemId: stock.orderItemId,
         received: stock.received,
         receivedDate: stock.receivedDate?.toISOString() ?? null,
-        stockQty: stock.stockQty,
+        notes: stock.notes,
         stockStatus: stock.stockStatus,
-        supplier: stock.supplier,
-        totalCost: stock.totalCost?.toString() ?? null,
+        createdAt: stock.createdAt.toISOString(),
         updatedAt: stock.updatedAt.toISOString(),
+        orderItemId: stock.orderItemId,
+        createdById: stock.createdById,
+        supplier: stock.supplier,
+        paperProductId: stock.paperProductId,
+        PaperProduct: stock.PaperProduct ? normalizePaperProduct(stock.PaperProduct) : null
     };
 }
 
@@ -614,7 +620,9 @@ export function normalizeWorkOrderItemArtwork(artwork: WorkOrderItemArtwork): Se
     };
 }
 
-export function normalizeWorkOrderItemStock(stock: WorkOrderItemStock): SerializedWorkOrderItemStock {
+export function normalizeWorkOrderItemStock(stock: WorkOrderItemStock & {
+    PaperProduct?: PaperProduct | null;
+}): SerializedWorkOrderItemStock {
     return {
         id: stock.id,
         stockQty: stock.stockQty,
@@ -632,6 +640,20 @@ export function normalizeWorkOrderItemStock(stock: WorkOrderItemStock): Serializ
         workOrderItemId: stock.workOrderItemId,
         createdById: stock.createdById,
         supplier: stock.supplier,
+        paperProductId: stock.paperProductId,
+        PaperProduct: stock.PaperProduct ? normalizePaperProduct(stock.PaperProduct) : null
+    };
+}
+
+export function normalizePaperProduct(product: PaperProduct): SerializedPaperProduct {
+    return {
+        id: product.id,
+        brand: product.brand,
+        paperType: product.paperType,
+        finish: product.finish,
+        weightLb: product.weightLb,
+        caliper: product.caliper,
+        size: product.size,
     };
 }
 

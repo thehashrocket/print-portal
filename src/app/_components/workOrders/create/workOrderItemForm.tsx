@@ -111,8 +111,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
-
+            
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
                 onItemClick={setExpandedItemId}

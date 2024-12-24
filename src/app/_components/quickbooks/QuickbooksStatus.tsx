@@ -7,7 +7,7 @@ import { api } from "~/trpc/react";
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import { toast } from 'react-hot-toast';
 import { Button } from '../ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plug, Unplug } from 'lucide-react';
 
 const QuickbooksStatus: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -75,25 +75,31 @@ const QuickbooksStatus: React.FC = () => {
     return (
         <div className="flex items-center">
             {isAuthenticated ? (
-                <Button
-                    variant="navOutline"
-                    title="Refresh QuickBooks Token"
-                    aria-label="Refresh QuickBooks Token"
-                    onClick={handleRefreshToken}
-                    disabled={refreshTokenMutation.isPending}
-                >
-                    {refreshTokenMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connected to QuickBooks'}
-                </Button>
+                <>
+                    <Button
+                        variant="navOutline"
+                        title="Refresh QuickBooks Token"
+                        aria-label="Refresh QuickBooks Token"
+                        onClick={handleRefreshToken}
+                        disabled={refreshTokenMutation.isPending}
+                    >
+                    <Plug className="w-4 h-4 mr-2" />
+                        {refreshTokenMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connected to QuickBooks'}
+                    </Button>
+                </>
             ) : (
-                <Button
-                    title="Connect to QuickBooks"
-                    aria-label="Connect to QuickBooks"
-                    onClick={handleConnectClick}
-                    variant="navOutline"
-                    disabled={initializeAuthMutation.isPending}
-                >
-                    {initializeAuthMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect to QuickBooks'}
-                </Button>
+                <>
+                    <Button
+                        title="Connect to QuickBooks"
+                        aria-label="Connect to QuickBooks"
+                        onClick={handleConnectClick}
+                        variant="navOutline"
+                        disabled={initializeAuthMutation.isPending}
+                    >
+                    <Unplug className="w-4 h-4 mr-2" />
+                        {initializeAuthMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect to QuickBooks'}
+                    </Button>
+                </>
             )}
         </div>
     );

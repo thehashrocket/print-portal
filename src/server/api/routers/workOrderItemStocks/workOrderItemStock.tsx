@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { type SerializedWorkOrderItemStock } from "~/types/serializedTypes";
 import { normalizeWorkOrderItemStock } from "~/utils/dataNormalization";
-import { StockStatus } from "@prisma/client";
+import { PaperType, PaperFinish, StockStatus, PaperBrand } from "@prisma/client";
 
 const workOrderItemStockSchema = z.object({
     costPerM: z.number(),
@@ -20,6 +20,7 @@ const workOrderItemStockSchema = z.object({
     supplier: z.string().optional(),
     totalCost: z.number().optional(),
     workOrderItemId: z.string(),
+    paperProductId: z.string().optional()
 });
 
 export const workOrderItemStockRouter = createTRPCRouter({
@@ -28,6 +29,7 @@ export const workOrderItemStockRouter = createTRPCRouter({
         .query(async ({ ctx, input }): Promise<SerializedWorkOrderItemStock | null> => {
             const stock = await ctx.db.workOrderItemStock.findUnique({
                 where: { id: input },
+                include: { PaperProduct: true },
             });
             return stock ? normalizeWorkOrderItemStock(stock) : null;
         }),
@@ -36,29 +38,39 @@ export const workOrderItemStockRouter = createTRPCRouter({
         .query(async ({ ctx, input }): Promise<SerializedWorkOrderItemStock[]> => {
             const stocks = await ctx.db.workOrderItemStock.findMany({
                 where: { workOrderItemId: input },
+                include: { PaperProduct: true },
             });
             return stocks.map(normalizeWorkOrderItemStock);
         }),
     create: protectedProcedure
         .input(workOrderItemStockSchema)
         .mutation(async ({ ctx, input }) => {
+            const { paperProductId, workOrderItemId, ...rest } = input;
             const stock = await ctx.db.workOrderItemStock.create({
                 data: {
-                    ...input,
-                    createdById: ctx.session.user.id,
-                },
+                    ...rest,
+                    createdBy: {
+                        connect: { id: ctx.session.user.id }
+                    },
+                    WorkOrderItem: {
+                        connect: { id: workOrderItemId }
+                    }
+                }
             });
             return normalizeWorkOrderItemStock(stock);
         }),
     update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            data: workOrderItemStockSchema,
+            data: workOrderItemStockSchema.omit({ workOrderItemId: true }),
         }))
         .mutation(async ({ ctx, input }) => {
+            const { paperProductId, ...rest } = input.data;
             const stock = await ctx.db.workOrderItemStock.update({
                 where: { id: input.id },
-                data: input.data,
+                data: {
+                    ...rest,
+                }
             });
             return normalizeWorkOrderItemStock(stock);
         }),
@@ -67,6 +79,7 @@ export const workOrderItemStockRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const stock = await ctx.db.workOrderItemStock.delete({
                 where: { id: input },
+                include: { PaperProduct: true }
             });
             return normalizeWorkOrderItemStock(stock);
         }),

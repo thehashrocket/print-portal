@@ -273,7 +273,9 @@ const WorkOrderForm: React.FC = () => {
                     )}
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="inHandsDate">In Hands Date</Label>
+                    <Label htmlFor="inHandsDate" className="flex gap-1">
+                        In Hands Date <span className="text-red-500">*</span>
+                    </Label>
                     <input 
                         id="inHandsDate" 
                         type="date" 

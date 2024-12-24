@@ -62,7 +62,11 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
                         },
                     },
                     ProcessingOptions: true,
-                    WorkOrderItemStock: true,
+                    WorkOrderItemStock: {
+                        include: {
+                            PaperProduct: true,
+                        },
+                    },
                 },
             },
             ShippingInfo: {
@@ -240,6 +244,7 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
                 stockStatus: stock.stockStatus,
                 createdById: stock.createdById,
                 orderItemId,
+                paperProductId: stock.paperProductId,
             },
         });
     }

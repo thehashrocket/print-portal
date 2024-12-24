@@ -22,9 +22,10 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
+    "generate-docs": "tsx scripts/generateApiDocs.ts",
     "generate-font": "node scripts/generateFontBase64.mjs",
-    "import-quickbooks": "tsx prisma/import-quickbooks.js",
-    "generate-docs": "tsx scripts/generateApiDocs.ts"
+    "import-paper-products": "tsx scripts/importPaperProducts.ts",
+    "import-quickbooks": "tsx prisma/import-quickbooks.js"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",

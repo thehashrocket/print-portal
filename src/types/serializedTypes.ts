@@ -14,6 +14,9 @@ import {
     type TypesettingStatus,
     type WorkOrderItemStatus,
     type WorkOrderStatus,
+    PaperFinish,
+    PaperType,
+    PaperBrand,
 } from "@prisma/client";
 
 export interface SerializedAddress {
@@ -221,6 +224,8 @@ export interface SerializedOrderItemStock {
     supplier: string | null;
     totalCost: string | null;
     updatedAt: string;
+    paperProductId: string | null;
+    PaperProduct: SerializedPaperProduct | null;
 }
 
 export interface SerializedOrderNote {
@@ -238,6 +243,16 @@ export interface SerializedOrderPayment {
     paymentDate: string;
     paymentMethod: PaymentMethod;
     orderId: string;
+}
+
+export interface SerializedPaperProduct {
+    id: string;
+    brand: PaperBrand;
+    paperType: PaperType;
+    finish: PaperFinish;
+    weightLb: number;
+    caliper: number;
+    size: string;
 }
 
 export interface SerializedProcessingOptions {
@@ -450,6 +465,8 @@ export interface SerializedWorkOrderItemStock {
     totalCost: string | null;
     updatedAt: string;
     workOrderItemId: string;
+    paperProductId: string | null;
+    PaperProduct: SerializedPaperProduct | null;
 }
 
 export interface SerializedWorkOrderNote {
