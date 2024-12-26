@@ -72,12 +72,12 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.setTextColor(0, 0, 0);
     doc.text(`${orderItem.status}`, rightColStart + 50, yPos);
     
-    // Job Details header
+    // Item Details header
     yPos += 20;
     doc.setFontSize(20);
-    doc.text('JOB DETAILS', leftMargin, yPos);
+    doc.text('ITEM DETAILS', leftMargin, yPos);
 
-    // Add dates to the right of Job Details
+    // Add dates to the right of Item Details
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('DATE STARTED', rightColStart, yPos);
@@ -289,5 +289,5 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     }
 
     // Save the PDF
-    doc.save(`job_details_${order.orderNumber}_${orderItem.orderItemNumber}.pdf`);
+    doc.save(`item_details_${order.orderNumber}_${orderItem.orderItemNumber}.pdf`);
 };

@@ -94,12 +94,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [specialInstructions, setSpecialInstructions] = useState("");
     const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
         onSuccess: () => {
-            toast.success('Job description updated successfully');
+            toast.success('Item description updated successfully');
             utils.orderItems.getByID.invalidate(orderItemId);
         },
         onError: (error) => {
-            console.error('Failed to update job description:', error);
-            toast.error('Failed to update job description');
+            console.error('Failed to update item description:', error);
+            toast.error('Failed to update item description');
         }
     });
 
@@ -149,7 +149,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     }
 
     if (orderError || itemError || !order || !orderItem) {
-        return <div className="text-red-500 text-center mt-8">Error loading job details.</div>;
+        return <div className="text-red-500 text-center mt-8">Error loading item details.</div>;
     }
 
 
@@ -162,7 +162,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         <div className="container mx-auto px-4 py-8">
             {/* Header Section */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Job Details</h1>
+                <h1 className="text-3xl font-bold mb-2">Item Details</h1>
                 <PrintButton
                     onClick={async () => {
                         try {
@@ -178,7 +178,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/orders">Orders</Link></li>
                         <li><Link href={`/orders/${orderId}`}>Order {order.orderNumber}</Link></li>
-                        <li>Job {orderItem.orderItemNumber}</li>
+                        <li>Item {orderItem.orderItemNumber}</li>
                     </ul>
                 </div>
             </div>
@@ -188,9 +188,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="flex flex-col gap-4 mb-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
                         <InfoCard title="Order Number" content={order.orderNumber} />
-                        <InfoCard title="Job Number" content={orderItem.orderItemNumber} />
+                        <InfoCard title="Item Number" content={orderItem.orderItemNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
-                        <InfoCard title="Job Quantity" content={orderItem.quantity} />
+                        <InfoCard title="Item Quantity" content={orderItem.quantity} />
                         <InfoCard title="Ink" content={orderItem.ink} />
                     </div>
                     
@@ -216,7 +216,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 {/* Row 3 - Description and Instructions */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                     <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Job Description</h2>
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">Item Description</h2>
                         <Textarea
                             value={jobDescription}
                             onChange={handleDescriptionChange}
@@ -293,7 +293,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     </section>
 
                     <section>
-                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Job Stock</h2>
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Item Stock</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <OrderItemStockComponent orderItemId={orderItem.id} />
                         </div>

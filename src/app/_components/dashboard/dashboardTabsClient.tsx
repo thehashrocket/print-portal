@@ -19,7 +19,7 @@ export default function DashboardTabsClient({ orderItems }: DashboardTabsClientP
                     className={`tab ${activeTab === "orderItems" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
                     onClick={() => setActiveTab("orderItems")}
                 >
-                    Jobs
+                    Items
                 </a>
             </div>
             <div className="flex-grow">

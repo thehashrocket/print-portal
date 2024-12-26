@@ -35,7 +35,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Job Stock</h3>
+            <h3 className="text-lg font-semibold">Item Stock</h3>
 
             {/* List of existing stocks */}
             {stocks && stocks.length > 0 && (

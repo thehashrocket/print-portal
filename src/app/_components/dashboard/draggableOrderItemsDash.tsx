@@ -100,7 +100,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                 type="text"
                 value={orderItemNumber}
                 onChange={handleOrderItemNumberChange}  
-                placeholder="Filter by Job Number..."
+                placeholder="Filter by Item Number..."
                 className="w-[300px] mb-2"
             />
             <div className="flex gap-2">
@@ -303,7 +303,7 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
             </svg>
             <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline text-sm">
-                View Job
+                View Item
             </a>
         </div>
     </div>

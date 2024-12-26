@@ -85,7 +85,7 @@ const WorkOrderItemForm: React.FC = () => {
             reset(); // Reset form after successful creation
             setArtworks([]); // Clear artworks after successful creation
         } catch (error) {
-            console.error('Error saving work job', error);
+            console.error('Error saving estimate item', error);
         }
     };
 
@@ -124,7 +124,7 @@ const WorkOrderItemForm: React.FC = () => {
                 />
             ) : (
                 <>
-                    <h3 className="text-xl font-semibold">Add New Estimate Job</h3>
+                    <h3 className="text-xl font-semibold">Add New Estimate Item</h3>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div>
                             <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
@@ -250,7 +250,7 @@ const WorkOrderItemForm: React.FC = () => {
                             variant="default"
                             type="submit"
                         >
-                            Add Estimate Job
+                            Add Item to Estimate
                         </Button>
                     </form>
                 </>

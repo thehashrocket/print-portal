@@ -294,14 +294,14 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
 
                     <section className="bg-white p-4 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
+                            <h2 className="text-2xl font-semibold">Estimate Items</h2>
                             <Link href={`/workOrders/create/${workOrder.id}`}>
                                 <Button
                                     variant="default"
                                     disabled={workOrder.status === WorkOrderStatus.Approved}
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
-                                    Add Estimate Job
+                                    Add Item to Estimate
                                 </Button>
                             </Link>
                         </div>

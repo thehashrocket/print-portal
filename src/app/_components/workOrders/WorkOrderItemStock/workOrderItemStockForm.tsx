@@ -9,7 +9,10 @@ import { api } from '~/trpc/react';
 import { StockStatus } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
-
+import { Input } from '~/app/_components/ui/input';
+import { Label } from '../../ui/label';
+import { Textarea } from '../../ui/textarea';
+import { CustomComboBox } from '../../../_components/shared/ui/CustomComboBox';
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -18,6 +21,7 @@ const workOrderItemStockSchema = z.object({
     from: z.string().optional(),
     expectedDate: z.string().optional(),
     orderedDate: z.string().optional(),
+    paperProductId: z.string().optional(),
     received: z.boolean(),
     receivedDate: z.string().optional(),
     notes: z.string().optional(),
@@ -58,6 +62,8 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         { enabled: !!stockId }
     );
 
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+
     const createStock = api.workOrderItemStocks.create.useMutation({
         onSuccess: () => {
             console.log("Stock created successfully");
@@ -89,6 +95,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 from: existingStock.from || undefined,
                 expectedDate: existingStock.expectedDate ? existingStock.expectedDate.toString().split('T')[0] : undefined,
                 orderedDate: existingStock.orderedDate ? existingStock.orderedDate.toString().split('T')[0] : undefined,
+                paperProductId: existingStock.paperProductId || undefined,
                 received: existingStock.received,
                 receivedDate: existingStock.receivedDate ? existingStock.receivedDate.toString().split('T')[0] : undefined,
                 notes: existingStock.notes || undefined,
@@ -128,32 +135,49 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         }} className="space-y-4">
 
             <div>
-                <label className="label">
-                    <span className="label-text">Quantity</span>
-                </label>
-                <input type="number" {...register('stockQty', { valueAsNumber: true })} className="input input-bordered w-full" />
+                <Label>
+                    Paper Product
+                </Label>
+                {/* Provide a list of PaperProducts to select from using SelectField */}
+                {paperProducts && (
+                    <CustomComboBox
+                        options={paperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.size + ' ' + paperProduct.paperType + ' ' + paperProduct.finish }))}
+                        value={watch('paperProductId') ?? ''}
+                        onValueChange={(value: string) => setValue('paperProductId', value)}
+                        placeholder="Select paper product..."
+                        emptyText="No paper products found"
+                        searchPlaceholder="Search paper products..."
+                        className="w-full"
+                    />
+                )}
+            </div>
+            <div>
+                <Label>
+                    Quantity
+                </Label>
+                <Input type="number" {...register('stockQty', { valueAsNumber: true })} />
                 {errors.stockQty && <p className="text-red-500">{errors.stockQty.message}</p>}
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Cost Per M</span>
-                </label>
-                <input type="number" step="0.01" {...register('costPerM', { valueAsNumber: true })} className="input input-bordered w-full" />
+                <Label>
+                    Cost Per M
+                </Label>
+                <Input type="number" step="0.01" {...register('costPerM', { valueAsNumber: true })} />
                 {errors.costPerM && <p className="text-red-500">{errors.costPerM.message}</p>}
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Supplier</span>
-                </label>
-                <input type="text" {...register('supplier')} className="input input-bordered w-full" />
+                <Label>
+                    Supplier
+                </Label>
+                <Input {...register('supplier')} />
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Stock Status</span>
-                </label>
+                <Label>
+                    Stock Status
+                </Label>
                 <SelectField
                     options={Object.values(StockStatus).map((status) => ({ value: status, label: status }))}
                     value={watch('stockStatus')}
@@ -164,38 +188,38 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Expected Date</span>
-                </label>
-                <input type="date" {...register('expectedDate')} className="input input-bordered w-full" />
+                <Label>
+                    Expected Date
+                </Label>
+                <Input type="date" {...register('expectedDate')} />
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Ordered Date</span>
-                </label>
-                <input type="date" {...register('orderedDate')} className="input input-bordered w-full" />
+                <Label>
+                    Ordered Date
+                </Label>
+                <Input type="date" {...register('orderedDate')} />
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Received</span>
-                </label>
+                <Label>
+                    Received
+                </Label>
                 <input type="checkbox" {...register('received')} className="checkbox" />
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Received Date</span>
-                </label>
-                <input type="date" {...register('receivedDate')} className="input input-bordered w-full" />
+                <Label>
+                    Received Date
+                </Label>
+                <Input type="date" {...register('receivedDate')} />
             </div>
 
             <div>
-                <label className="label">
-                    <span className="label-text">Notes</span>
-                </label>
-                <textarea {...register('notes')} className="textarea textarea-bordered w-full" />
+                <Label>
+                    Notes
+                </Label>
+                <Textarea {...register('notes')} />
             </div>
 
             <div className="flex justify-end space-x-2">

@@ -33,7 +33,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
             <WorkOrderShippingInfoForm />
         </>,
         <>
-            <h2 className="text-2xl font-semibold">Estimate Jobs</h2>
+            <h2 className="text-2xl font-semibold">Estimate Items</h2>
             <WorkOrderItemForm />
         </>,
     ];
@@ -87,7 +87,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
                         Shipping Information
                     </div>
                     <div className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>
-                        Estimate Jobs
+                        Estimate Items
                     </div>
                 </div>
             </div>

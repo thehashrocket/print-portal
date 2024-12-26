@@ -92,12 +92,12 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
 
     const { mutate: updateDescription } = api.workOrderItems.updateDescription.useMutation({
         onSuccess: () => {
-            toast.success('Job description updated successfully');
+            toast.success('Item description updated successfully');
             utils.workOrderItems.getByID.invalidate(workOrderItemId);
         },
         onError: (error) => {
-            console.error('Failed to update job description:', error);
-            toast.error('Failed to update job description');
+            console.error('Failed to update item description:', error);
+            toast.error('Failed to update item description');
         }
     });
 
@@ -158,13 +158,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     return (
         <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
             <div className="mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">Job Details</h1>
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">Item Details</h1>
                 <div className="text-sm breadcrumbs overflow-x-auto">
                     <ul className="flex flex-wrap gap-1">
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/workOrders">Estimates</Link></li>
                         <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
-                        <li>Job {workOrderItem.workOrderItemNumber}</li>
+                        <li>Item {workOrderItem.workOrderItemNumber}</li>
                     </ul>
                 </div>
             </div>
@@ -177,7 +177,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         content={workOrder?.workOrderNumber ?? 'N/A'}
                     />
                     <InfoCard
-                        title="Job Quantity"
+                        title="Item Quantity"
                         content={workOrderItem.quantity ?? 'N/A'}
                     />
                     <InfoCard
@@ -250,7 +250,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                             className="w-full md:w-auto"
                         >
                             <Pencil className="w-4 h-4 mr-2" />
-                            Edit Job
+                            Edit Item
                         </Button>
                     </Link>
                 </div>
@@ -294,7 +294,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
 
                     <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Job Stock</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Item Stock</h2>
                         <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
                     </div>
                 </div>

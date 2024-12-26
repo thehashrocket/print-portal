@@ -67,7 +67,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     };
 
     const columnDefs: ColDef[] = [
-        { headerName: "Job #", field: "workOrderItemNumber", width: 120 },
+        { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Status", field: "status", filter: true, width: 150 },
@@ -77,7 +77,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     ];
 
     const mobileColumnDefs: ColDef[] = [
-        { headerName: "Job #", field: "workOrderItemNumber", width: 120 },
+        { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
         { headerName: "Desc", field: "description", filter: true },
         { headerName: "Status", field: "status", filter: true, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },

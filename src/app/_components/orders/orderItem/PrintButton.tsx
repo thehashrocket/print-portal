@@ -6,10 +6,10 @@ export const PrintButton = ({ onClick }: { onClick: () => void }) => {
         <Button
             variant="default"
             onClick={onClick}
-            title="Print Job Details"
+            title="Print Item Details"
         >
             <Printer className="w-4 h-4 mr-2" />
-            Print Job Details
+            Print Item Details
         </Button>
     );
 };
