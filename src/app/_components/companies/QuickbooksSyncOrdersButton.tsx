@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Office } from '@prisma/client';
 import { Button } from '../ui/button';
+import { RefreshCcw } from 'lucide-react';
 
 const QuickbooksSyncOrdersButton: React.FC<{ office: Office; onSyncSuccess: () => void }> = ({ office, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
@@ -55,8 +56,12 @@ const QuickbooksSyncOrdersButton: React.FC<{ office: Office; onSyncSuccess: () =
             variant="default"
             size="sm"
             onClick={handleSyncOffice}
+            disabled={syncOfficeMutation.isPending || !isAuthenticated}
         >
-            {syncButtonText}
+            {!syncOfficeMutation.isPending && (
+                <RefreshCcw className="w-4 h-4" />
+            )}
+            {syncOfficeMutation.isPending ? 'Syncing...' : syncButtonText}
         </Button>
     );
 };

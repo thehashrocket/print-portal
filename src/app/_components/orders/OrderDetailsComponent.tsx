@@ -21,6 +21,7 @@ import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon,
 import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
 import { Input } from "../ui/input";
+import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -146,7 +147,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
     const [recipientEmail, setRecipientEmail] = useState('');
     const utils = api.useUtils();
-
+    const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
     });
@@ -427,6 +428,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                 {!order.quickbooksInvoiceId && (
                                                     <Button
                                                         variant="default"
+                                                        disabled={!isAuthenticated}
                                                         onClick={() => handleCreateQuickbooksInvoice(order.id)}
                                                     >
                                                         <PlusCircle className="w-4 h-4" />
