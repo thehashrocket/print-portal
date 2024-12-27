@@ -347,18 +347,18 @@ export const orderRouter = createTRPCRouter({
       });
     }),
 
-    updateContactPerson: protectedProcedure
+  updateContactPerson: protectedProcedure
     .input(z.object({
-        orderId: z.string(),
-        contactPersonId: z.string(),
+      orderId: z.string(),
+      contactPersonId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-        const updatedOrder = await ctx.db.order.update({
-            where: { id: input.orderId },
-            data: { contactPersonId: input.contactPersonId },
-        });
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: input.orderId },
+        data: { contactPersonId: input.contactPersonId },
+      });
 
-        return updatedOrder;
+      return updatedOrder;
     }),
 
   updateShippingInfo: protectedProcedure
@@ -385,7 +385,7 @@ export const orderRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
       console.log('Updating shipping info:', input);
-      
+
       const { orderId, shippingInfo } = input;
 
       const order = await ctx.db.order.findUnique({
@@ -506,7 +506,7 @@ export const orderRouter = createTRPCRouter({
             }
           },
         });
-        
+
         console.log('Order updated successfully:', updatedOrder);
         return updatedOrder;
       } catch (error) {
@@ -520,93 +520,93 @@ export const orderRouter = createTRPCRouter({
 
   updateStatus: protectedProcedure
     .input(z.object({
-        id: z.string(),
-        status: z.nativeEnum(OrderStatus),
-        sendEmail: z.boolean(),
-        emailOverride: z.string(),
-        shippingDetails: z.object({
-            trackingNumber: z.string().optional(),
-            shippingMethod: z.nativeEnum(ShippingMethod).optional(),
-        }).optional(),
+      id: z.string(),
+      status: z.nativeEnum(OrderStatus),
+      sendEmail: z.boolean(),
+      emailOverride: z.string(),
+      shippingDetails: z.object({
+        trackingNumber: z.string().optional(),
+        shippingMethod: z.nativeEnum(ShippingMethod).optional(),
+      }).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-        const { id, status, sendEmail, emailOverride, shippingDetails } = input;
+      const { id, status, sendEmail, emailOverride, shippingDetails } = input;
 
-        // Update order status
-        const updatedOrder = await ctx.db.order.update({
-          where: { id: input.id },
-          data: { 
-            status: input.status,
-            ShippingInfo: {
-              update: {
-                trackingNumber: shippingDetails?.trackingNumber,
-                shippingMethod: shippingDetails?.shippingMethod,
-              },
+      // Update order status
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: input.id },
+        data: {
+          status: input.status,
+          ShippingInfo: {
+            update: {
+              trackingNumber: shippingDetails?.trackingNumber,
+              shippingMethod: shippingDetails?.shippingMethod,
             },
           },
-          include: {
-            Office: {
-              include: {
-                Company: true,
-              },
+        },
+        include: {
+          Office: {
+            include: {
+              Company: true,
             },
-            OrderItems: {
-              include: {
-                artwork: true,
-                OrderItemStock: true,
-                Order: {
-                  select: {
-                    Office: {
-                      select: {
-                        Company: true,
-                      }
-                    },
-                    WorkOrder: {
-                      select: {
-                        purchaseOrderNumber: true,
-                      }
+          },
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
                     }
                   }
                 }
-              },
-            },
-            contactPerson: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-            OrderPayments: true,
-            ShippingInfo: {
-              include: {
-                Address: true,
-                ShippingPickup: true,
-              },
-            },
-            Invoice: {
-              include: {
-                InvoiceItems: true,
-                InvoicePayments: true,
-                createdBy: true,
-              },
-            },
-            OrderNotes: true,
-            WorkOrder: {
-              select: {
-                purchaseOrderNumber: true,
               }
-            }
+            },
           },
-        });
+          contactPerson: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          OrderPayments: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+              createdBy: true,
+            },
+          },
+          OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          }
+        },
+      });
 
-        // If sendEmail is true, send status update email
+      // If sendEmail is true, send status update email
       // If emailOverride is provided, send to that email address instead of the customer's email address
       const emailToSend = input.emailOverride || updatedOrder.contactPerson?.email;
 
@@ -687,36 +687,15 @@ export const orderRouter = createTRPCRouter({
       });
     }),
 
+  // Order Dashbaord
+  // Shows all orders, their status, and the company they are associated with
+  // Includes OrderItemStatus, returns the status that all OrderItems equal,
+  // otherwise, it returns the lowest status of all OrderItems
   dashboard: protectedProcedure
-    .query(async ({ ctx }): Promise<SerializedOrderItem[]> => {
-      // Get all orders that are not cancelled or completed
+    .query(async ({ ctx }) => {
       const orders = await ctx.db.order.findMany({
-        where: {
-          status: {
-            notIn: ['Cancelled', 'Completed']
-          }
-        },
         include: {
-          OrderItems: {
-            include: {
-              artwork: true,
-              OrderItemStock: true,
-              Order: {
-                select: {
-                  Office: {
-                    select: {
-                      Company: true,
-                    }
-                  },
-                  WorkOrder: {
-                    select: {
-                      purchaseOrderNumber: true,
-                    }
-                  }
-                }
-              }
-            }
-          },
+          OrderItems: true,
           Office: {
             include: {
               Company: true
@@ -724,20 +703,24 @@ export const orderRouter = createTRPCRouter({
           }
         }
       });
+      return orders.map(order => {
+        const orderItemStatuses = order.OrderItems.map(orderItem => orderItem.status);
+        // Loop through OrderItems and find the status that is the lowest
+        // If all OrderItems are the same, return that status
+        // Otherwise, return the lowest status
+        const orderStatus = orderItemStatuses.every(status => status === orderItemStatuses[0]) ?
+          orderItemStatuses[0] :
+          orderItemStatuses.reduce((prev, current) => prev < current ? prev : current);
 
-      const allOrderItems: SerializedOrderItem[] = orders.flatMap(order =>
-        order.OrderItems.map(item => {
-          const normalizedItem = normalizeOrderItem(item);
-          return {
-            ...normalizedItem,
-            officeId: order.officeId,
-            officeName: order.Office.name,
-            companyName: order.Office.Company.name,
-          };
-        })
-      );
-
-      return allOrderItems;
+        // Loop through the OrderItems, sort by expectedDate, and return the first one  
+        const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
+        return {
+          ...order,
+          OrderItemStatus: orderStatus,
+          inHandsDate: firstOrderItem?.expectedDate,
+          companyName: order.Office.Company.name,
+        };
+      });
     }),
 
   sendOrderEmail: protectedProcedure

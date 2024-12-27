@@ -9,9 +9,12 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
-import { type SerializedOrderItem } from "~/types/serializedTypes";
+import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 import NoPermission from "../_components/noPermission/noPermission";
 import { Button } from "../_components/ui/button";
+import { formatDate } from "~/utils/formatters";
+import { OrderItemStatus, OrderStatus } from "@prisma/client";
+import { OrderDashboard } from "~/types/orderDashboard";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,6 +38,17 @@ export default async function DashboardPage() {
             return new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime();
         });
     });
+
+    const orderDashboard = await api.orders.dashboard();
+
+    const serializedOrderData: OrderDashboard[] = orderDashboard.map((order) => ({
+        status: order.status as OrderStatus,
+        orderItemStatus: order.OrderItemStatus as OrderItemStatus,
+        id: order.id,
+        companyName: order.Office.Company.name,
+        inHandsDate: order.inHandsDate ? formatDate(order.inHandsDate) : null,
+        orderItems: order.OrderItems,
+    }));
 
     const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({
         ...item,
@@ -64,6 +78,8 @@ export default async function DashboardPage() {
         })),
     }));
 
+    
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="navbar bg-base-100">
@@ -83,7 +99,7 @@ export default async function DashboardPage() {
                     </Button>
                 </div>
             </div>
-            <DashboardTabsClient orderItems={serializedOrderItemsData} />
+            <DashboardTabsClient orderItems={serializedOrderItemsData} orders={serializedOrderData} />
         </div>
     );
 }
