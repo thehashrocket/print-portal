@@ -115,17 +115,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
         }
     }, [workOrder]);
 
-    useEffect(() => {
-        if (workOrder) {
-            console.log('WorkOrder data:', {
-                id: workOrder.id,
-                shippingInfo: workOrder.ShippingInfo,
-                officeId: workOrder.officeId,
-                companyName: workOrder.Office.Company.name
-            });
-        }
-    }, [workOrder]);
-
     useCopilotReadable({
         description: "The current work order that is being viewed.",
         value: workOrder,

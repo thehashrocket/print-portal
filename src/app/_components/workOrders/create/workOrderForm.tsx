@@ -16,10 +16,9 @@ import { CreateContactModal } from '~/app/_components/shared/contacts/createCont
 import debounce from "lodash/debounce";
 
 const workOrderSchema = z.object({
-    costPerM: z.number().default(0),
     dateIn: z.string().min(1, 'Date In is required'),
     officeId: z.string().min(1, 'Office is required'),
-    contactPersonId: z.string().min(1, 'Contact Person is required'),
+    contactPersonId: z.string().optional().nullable(),
     estimateNumber: z.string().optional().nullable(),
     inHandsDate: z.string().min(1, 'In Hands Date is required'),
     invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
@@ -135,17 +134,27 @@ const WorkOrderForm: React.FC = () => {
     };
 
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
+        console.log('Form submitted with data:', data);
+        console.log('Form errors:', errors);
+        
+        if (!selectedOffice) {
+            console.error('No office selected');
+            return;
+        }
+
         const newWorkOrder = {
             ...data,
-            officeId: selectedOffice ? selectedOffice : '',
+            officeId: selectedOffice,
             shippingInfoId: null,
             createdById: '',
             dateIn: data.dateIn ? new Date(data.dateIn) : new Date(),
             inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : new Date(),
         };
+        console.log('Submitting work order:', newWorkOrder);
 
         createWorkOrderMutation.mutate(newWorkOrder, {
             onSuccess: (createdWorkOrder: SerializedWorkOrder) => {
+                console.log('Work order created successfully:', createdWorkOrder);
                 setWorkOrder(createdWorkOrder);
                 router.push(`/workOrders/create/${createdWorkOrder.id}`)
             },
@@ -153,11 +162,15 @@ const WorkOrderForm: React.FC = () => {
                 console.error('Error creating work order:', error);
             },
         });
+    }, (errors) => {
+        console.log('Form validation errors:', errors);
+        return false;
     });
 
     return (
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* Company Section */}
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="company">Company <span className="text-red-500">*</span></Label>
                     <div className="relative">
@@ -187,6 +200,7 @@ const WorkOrderForm: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Office Section */}
                 {selectedCompany && (
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="office">Office <span className="text-red-500">*</span></Label>
@@ -196,7 +210,11 @@ const WorkOrderForm: React.FC = () => {
                                 label: office.name ?? 'Unnamed Office'
                             }))}
                             value={selectedOffice ?? ""}
-                            onValueChange={setSelectedOffice}
+                            onValueChange={(value) => {
+                                setSelectedOffice(value);
+                                setValue('officeId', value);
+                                clearErrors('officeId');
+                            }}
                             placeholder={isLoadingOffices ? "Loading..." : "Select office..."}
                             emptyText="No office found."
                             searchPlaceholder="Search office..."
@@ -205,10 +223,11 @@ const WorkOrderForm: React.FC = () => {
                     </div>
                 )}
 
+                {/* Contact Person Section */}
                 {selectedOffice && (
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="contactPersonId" className="flex gap-1">
-                            Contact Person<span className="text-red-500">*</span>
+                            Contact Person
                         </Label>
                         <div className="flex gap-2 items-start">
                             <CustomComboBox

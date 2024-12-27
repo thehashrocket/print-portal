@@ -238,11 +238,11 @@ export const orderRouter = createTRPCRouter({
             id: order.createdBy.id,
             name: order.createdBy.name,
           },
-          contactPerson: {
+          contactPerson: order.contactPerson ? {
             id: order.contactPerson.id,
             name: order.contactPerson.name,
             email: order.contactPerson.email,
-          },
+          } : null,
         });
       }));
     }),
@@ -344,6 +344,17 @@ export const orderRouter = createTRPCRouter({
         totalShippingAmount,
         totalPaid,
         balance,
+        WorkOrder: {
+          purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null
+        },
+        OrderItems: updatedOrder.OrderItems.map(item => ({
+          ...item,
+          Order: {
+            Office: updatedOrder.Office,
+            WorkOrder: updatedOrder.WorkOrder,
+          },
+        })),
+        contactPerson: updatedOrder.contactPerson || null
       });
     }),
 

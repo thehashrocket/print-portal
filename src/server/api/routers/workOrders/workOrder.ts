@@ -63,7 +63,12 @@ export const workOrderRouter = createTRPCRouter({
         totalAmount,
         totalItemAmount,
         totalCost,
-        totalShippingAmount
+        totalShippingAmount,
+        contactPerson: workOrder.contactPerson || {
+          id: workOrder.contactPersonId || '',
+          name: null,
+          email: null
+        }
       });
     }),
 
@@ -71,7 +76,7 @@ export const workOrderRouter = createTRPCRouter({
     .input(z.object({
       dateIn: z.date(),
       estimateNumber: z.string().optional().nullable(),
-      contactPersonId: z.string(),
+      contactPersonId: z.string().optional().nullable(),
       inHandsDate: z.date(),
       invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
@@ -91,32 +96,34 @@ export const workOrderRouter = createTRPCRouter({
       const estimateNumber = input.estimateNumber ? input.estimateNumber : `EST-${Date.now()}`;
       const workOrderNumber = input.workOrderNumber ? input.workOrderNumber : `WO-${Date.now()}`;
       const purchaseOrderNumber = input.purchaseOrderNumber ? input.purchaseOrderNumber : `PO-${Date.now()}`;
-      const createdWorkOrder = await ctx.db.workOrder.create({
-        data: {
-          dateIn: input.dateIn,
-          estimateNumber,
-          inHandsDate: input.inHandsDate,
-          invoicePrintEmail: input.invoicePrintEmail,
-          purchaseOrderNumber,
-          status: input.status,
-          workOrderNumber,
-          Office: { connect: { id: input.officeId } },
-          ShippingInfo: {
-            create: {
-              shippingMethod: ShippingMethod.Courier, // Default shipping method
-              officeId: input.officeId,
-              createdById: ctx.session.user.id,
-            }
-          },
-          contactPerson: { connect: { id: input.contactPersonId } },
-          createdBy: { connect: { id: ctx.session.user.id } },
-          WorkOrderItems: {
-            create: input.workOrderItems?.map(item => ({
-              ...item,
-              createdBy: { connect: { id: ctx.session.user.id } },
-            })) || [],
-          },
+      const data: Prisma.WorkOrderCreateInput = {
+        dateIn: input.dateIn,
+        estimateNumber,
+        inHandsDate: input.inHandsDate,
+        invoicePrintEmail: input.invoicePrintEmail,
+        purchaseOrderNumber,
+        status: input.status,
+        workOrderNumber,
+        Office: { connect: { id: input.officeId } },
+        ShippingInfo: {
+          create: {
+            shippingMethod: ShippingMethod.Courier,
+            officeId: input.officeId,
+            createdById: ctx.session.user.id,
+          }
         },
+        contactPerson: input.contactPersonId ? { connect: { id: input.contactPersonId } } : {},
+        createdBy: { connect: { id: ctx.session.user.id } },
+        WorkOrderItems: {
+          create: input.workOrderItems?.map(item => ({
+            ...item,
+            createdBy: { connect: { id: ctx.session.user.id } },
+          })) || [],
+        },
+      };
+
+      const createdWorkOrder = await ctx.db.workOrder.create({
+        data,
         include: {
           contactPerson: true,
           createdBy: true,
@@ -150,23 +157,22 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
 
-      // Calculate totalAmount and totalCost
       const totalItemAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalCost = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const totalShippingAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
       const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
       const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-      const totalAmount = totalItemAmount.add(totalShippingAmount);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
 
       return normalizeWorkOrder({
         ...createdWorkOrder,
-        calculatedSalesTax,
-        calculatedSubTotal,
         totalAmount,
         totalCost,
         totalItemAmount,
+        calculatedSalesTax,
+        calculatedSubTotal,
         totalShippingAmount,
-        Order: null, // Since this is a new work order, it won't have an associated order yet
+        Order: null
       });
     }),
 

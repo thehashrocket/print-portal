@@ -152,7 +152,7 @@ export function normalizeOrder(order: Order & {
                 };
             };
             WorkOrder: {
-                purchaseOrderNumber: string;
+                purchaseOrderNumber: string | null;
             };
         };
         OrderItemStock: OrderItemStock[];
@@ -161,7 +161,7 @@ export function normalizeOrder(order: Order & {
         id: string;
         name: string | null;
         email: string | null;
-    };
+    } | null;
     createdBy: {
         id: string;
         name: string | null;
@@ -181,20 +181,24 @@ export function normalizeOrder(order: Order & {
     }) | null;
     OrderNotes?: OrderNote[];
     WorkOrder: {
-        purchaseOrderNumber: string;
+        purchaseOrderNumber: string | null;
     };
 }): SerializedOrder {
     return {
         calculatedSalesTax: order.calculatedSalesTax ? order.calculatedSalesTax.toString() : null,
         calculatedSubTotal: order.calculatedSubTotal ? order.calculatedSubTotal.toString() : null,
-        contactPersonId: order.contactPersonId,
+        contactPersonId: order.contactPersonId ?? null,
         createdAt: order.createdAt.toISOString(),
         quickbooksInvoiceId: order.quickbooksInvoiceId,
         syncToken: order.syncToken,
-        contactPerson: {
+        contactPerson: order.contactPerson ? {
             id: order.contactPerson.id,
             name: order.contactPerson.name,
             email: order.contactPerson.email
+        } : {
+            id: order.contactPersonId || '',
+            name: null,
+            email: null
         },
         createdBy: {
             id: order.createdBy.id,
@@ -226,7 +230,7 @@ export function normalizeOrder(order: Order & {
         workOrderId: order.workOrderId,
         pressRun: order.pressRun,
         WorkOrder: {
-            purchaseOrderNumber: order.WorkOrder.purchaseOrderNumber
+            purchaseOrderNumber: order.WorkOrder.purchaseOrderNumber ?? null
         },
         OrderItems: order.OrderItems ? order.OrderItems.map(normalizeOrderItem) : [],
         OrderPayments: order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [],
@@ -246,7 +250,7 @@ export function normalizeOrderItem(item: OrderItem & {
             };
         };
         WorkOrder: {
-            purchaseOrderNumber: string;
+            purchaseOrderNumber: string | null;
         };
     };
 }): SerializedOrderItem {
@@ -267,7 +271,7 @@ export function normalizeOrderItem(item: OrderItem & {
                 },
             },
             WorkOrder: {
-                purchaseOrderNumber: item.Order.WorkOrder.purchaseOrderNumber
+                purchaseOrderNumber: item.Order.WorkOrder.purchaseOrderNumber ?? null
             }
         },
         orderId: item.orderId,
@@ -494,7 +498,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     calculatedSalesTax: Prisma.Decimal | null;
     calculatedSubTotal: Prisma.Decimal | null;
     totalShippingAmount: Prisma.Decimal | null;
-    contactPerson: { id: string; name: string | null; email: string | null };
+    contactPerson: { id: string; name: string | null; email: string | null } | null;
     createdBy: { id: string; name: string | null };
     Office: {
         id: string;
@@ -525,16 +529,16 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     return {
         calculatedSalesTax: workOrder.calculatedSalesTax ? workOrder.calculatedSalesTax.toString() : null,
         calculatedSubTotal: workOrder.calculatedSubTotal ? workOrder.calculatedSubTotal.toString() : null,
-        contactPersonId: workOrder.contactPersonId,
+        contactPersonId: workOrder.contactPersonId ?? null,
         createdAt: workOrder.createdAt.toISOString(),
         createdById: workOrder.createdById,
         dateIn: workOrder.dateIn.toISOString(),
-        estimateNumber: workOrder.estimateNumber,
+        estimateNumber: workOrder.estimateNumber ?? null,
         id: workOrder.id,
         inHandsDate: workOrder.inHandsDate.toISOString(),
         invoicePrintEmail: workOrder.invoicePrintEmail,
         officeId: workOrder.officeId,
-        purchaseOrderNumber: workOrder.purchaseOrderNumber,
+        purchaseOrderNumber: workOrder.purchaseOrderNumber ?? null,
         shippingInfoId: workOrder.shippingInfoId,
         status: workOrder.status,
         totalAmount: workOrder.totalAmount?.toString() ?? null,
@@ -544,10 +548,10 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         updatedAt: workOrder.updatedAt.toISOString(),
         version: workOrder.version,
         workOrderNumber: workOrder.workOrderNumber.toString(),
-        contactPerson: {
-            id: workOrder.contactPerson.id,
-            name: workOrder.contactPerson.name,
-            email: workOrder.contactPerson.email
+        contactPerson: workOrder.contactPerson || {
+            id: workOrder.contactPersonId || '',
+            name: null,
+            email: null
         },
         createdBy: {
             id: workOrder.createdBy.id,
