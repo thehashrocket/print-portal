@@ -17,6 +17,7 @@ import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { Textarea } from '../../ui/textarea';
+import { CustomComboBox } from '../../shared/ui/CustomComboBox';
 
 const workOrderItemSchema = z.object({
     amount: z.number().default(1).optional(),
@@ -30,6 +31,7 @@ const workOrderItemSchema = z.object({
     expectedDate: z.string().optional(),
     ink: z.string().optional(),
     other: z.string().optional(),
+    paperProductId: z.string().optional(),
     prepTime: z.number().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
     size: z.string().optional(),
@@ -55,6 +57,12 @@ const WorkOrderItemForm: React.FC = () => {
     const { data: existingWorkOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
         { workOrderId: workOrder.id },
         { enabled: !!workOrder.id }
+    );
+
+    // Retrieve all paper products, then reduce the list to only include the paper products to remove the duplicates based on the brand, size, paperType, finish, and weightLb
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
+        index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
     );
 
     useEffect(() => {
@@ -190,6 +198,23 @@ const WorkOrderItemForm: React.FC = () => {
                                 rows={4}
                             />
                             {errors.description && <p className='text-red-500'>{errors.description.message}</p>}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='paperProductId' className='flex gap-1'>
+                                Paper Product
+                            </Label>
+                            {/* Provide a list of PaperProducts to select from using SelectField */}
+                            {uniquePaperProducts && (
+                                <CustomComboBox
+                                    options={uniquePaperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.finish + ' ' + paperProduct.paperType + ' ' + paperProduct.size + ' ' + paperProduct.finish + ' ' + paperProduct.weightLb + 'lbs.' }))}
+                                    value={watch('paperProductId') ?? ''}
+                                    onValueChange={(value: string) => setValue('paperProductId', value)}
+                                    placeholder="Select paper product..."
+                                    emptyText="No paper products found"
+                                    searchPlaceholder="Search paper products..."
+                                    className="w-full"
+                                />
+                            )}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='ink'>Ink</Label>

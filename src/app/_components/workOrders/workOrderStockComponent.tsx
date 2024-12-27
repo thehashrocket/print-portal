@@ -1,4 +1,4 @@
-// ~/src/app/_components/workOrders/WorkOrderCharts.tsx
+// ~/src/app/_components/workOrders/WorkOrderStockComponent.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";

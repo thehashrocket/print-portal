@@ -175,34 +175,36 @@ model Order {
 }
 
 model OrderItem {
-  id                  String              @id @default(uuid())
-  orderId             String
-  finishedQty         Int
-  pressRun            String
-  size                String?
   amount              Decimal?            @db.Decimal(10, 2)
-  specialInstructions String?
-  status              OrderItemStatus     @default(Pending)
+  artwork             OrderItemArtwork[]
+  cost                Decimal?            @db.Decimal(10, 2)
   createdAt           DateTime            @default(now())
+  createdBy           User                @relation(fields: [createdById], references: [id])
   createdById         String
-  updatedAt           DateTime            @updatedAt
+  deleted             Boolean             @default(false)
   description         String              @default("")
   expectedDate        DateTime            @default(now())
-  cost                Decimal?            @db.Decimal(10, 2)
-  prepTime            Int?
-  other               String?
-  shippingAmount      Decimal?            @db.Decimal(10, 2)
-  quantity            Int                 @default(1)
+  finishedQty         Int
+  id                  String              @id @default(uuid())
   ink                 String?             @default("")
-  orderItemNumber     Int                 @default(autoincrement())
-  deleted             Boolean             @default(false)
   InvoiceItems        InvoiceItem[]
-  createdBy           User                @relation(fields: [createdById], references: [id])
   Order               Order               @relation(fields: [orderId], references: [id])
-  artwork             OrderItemArtwork[]
+  orderId             String
+  orderItemNumber     Int                 @default(autoincrement())
   OrderItemStock      OrderItemStock[]
+  other               String?
+  PaperProduct        PaperProduct?       @relation(fields: [paperProductId], references: [id])
+  paperProductId      String?
+  prepTime            Int?
+  pressRun            String
   ProcessingOptions   ProcessingOptions[]
+  quantity            Int                 @default(1)
+  shippingAmount      Decimal?            @db.Decimal(10, 2)
+  size                String?
+  specialInstructions String?
+  status              OrderItemStatus     @default(Pending)
   Typesetting         Typesetting[]
+  updatedAt           DateTime            @updatedAt
 }
 
 model OrderPayment {
@@ -236,26 +238,26 @@ model OrderNote {
 }
 
 model OrderItemStock {
-  id           String      @id @default(uuid())
-  stockQty     Int
   costPerM     Decimal     @default(0) @db.Decimal(10, 2)
-  totalCost    Decimal?    @db.Decimal(10, 2)
-  from         String?
+  createdAt    DateTime    @default(now())
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  createdById  String
   expectedDate DateTime?
+  from         String?
+  id           String      @id @default(uuid())
+  notes        String?
   orderedDate  DateTime?
+  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
+  orderItemId  String
+  PaperProduct  PaperProduct? @relation(fields: [paperProductId], references: [id])
+  paperProductId String?
   received     Boolean     @default(false)
   receivedDate DateTime?
-  notes        String?
+  stockQty     Int
   stockStatus  StockStatus
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  orderItemId  String
-  createdById  String
   supplier     String?
-  createdBy    User        @relation(fields: [createdById], references: [id])
-  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
-  paperProductId String?
-  PaperProduct  PaperProduct? @relation(fields: [paperProductId], references: [id])
+  totalCost    Decimal?    @db.Decimal(10, 2)
+  updatedAt    DateTime    @updatedAt
 }
 
 model PaperProduct {
@@ -278,6 +280,8 @@ model PaperProduct {
   deleted           Boolean             @default(false)
   OrderItemStock    OrderItemStock[]
   WorkOrderItemStock WorkOrderItemStock[]
+  WorkOrderItem     WorkOrderItem[]
+  OrderItem         OrderItem[]
 
   @@index([brand, paperType, finish, weightLb])
   @@index([size, weightLb, finish])
@@ -510,31 +514,32 @@ model WorkOrder {
 }
 
 model WorkOrderItem {
-  id                  String                 @id @default(uuid())
-  workOrderId         String?
-  paperProductId      String?
-  other               String?
-  size                String?
   amount              Decimal?               @db.Decimal(10, 2)
-  specialInstructions String?
-  status              WorkOrderItemStatus    @default(Pending)
+  artwork             WorkOrderItemArtwork[]
+  cost                Decimal?               @db.Decimal(10, 2)
   createdAt           DateTime               @default(now())
+  createdBy           User                   @relation(fields: [createdById], references: [id])
   createdById         String
-  updatedAt           DateTime               @updatedAt
+  deleted             Boolean                @default(false)
   description         String                 @default("")
   expectedDate        DateTime               @default(now())
-  cost                Decimal?               @db.Decimal(10, 2)
-  prepTime            Int?
-  shippingAmount      Decimal?               @db.Decimal(10, 2)
-  quantity            Int                    @default(1)
+  id                  String                 @id @default(uuid())
   ink                 String?                @default("")
-  workOrderItemNumber Int                    @default(autoincrement())
-  deleted             Boolean                @default(false)
+  other               String?
+  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
+  paperProductId      String?
+  prepTime            Int?
   ProcessingOptions   ProcessingOptions[]
+  quantity            Int                    @default(1)
+  shippingAmount      Decimal?               @db.Decimal(10, 2)
+  size                String?
+  specialInstructions String?
+  status              WorkOrderItemStatus    @default(Pending)
   Typesetting         Typesetting[]
-  createdBy           User                   @relation(fields: [createdById], references: [id])
+  updatedAt           DateTime               @updatedAt
   WorkOrder           WorkOrder?             @relation(fields: [workOrderId], references: [id])
-  artwork             WorkOrderItemArtwork[]
+  workOrderId         String?
+  workOrderItemNumber Int                    @default(autoincrement())
   WorkOrderItemStock  WorkOrderItemStock[]
 }
 
@@ -560,26 +565,26 @@ model WorkOrderNote {
 }
 
 model WorkOrderItemStock {
-  id              String        @id @default(uuid())
-  stockQty        Int
   costPerM        Decimal       @default(0) @db.Decimal(10, 2)
-  totalCost       Decimal?      @db.Decimal(10, 2)
-  from            String?
+  createdAt       DateTime      @default(now())
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  createdById     String
   expectedDate    DateTime?
+  from            String?
+  id              String        @id @default(uuid())
+  notes           String?
   orderedDate     DateTime?
+  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
+  paperProductId  String?
   received        Boolean       @default(false)
   receivedDate    DateTime?
-  notes           String?
+  stockQty        Int
   stockStatus     StockStatus
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  workOrderItemId String
-  createdById     String
   supplier        String?
-  createdBy       User          @relation(fields: [createdById], references: [id])
+  totalCost       Decimal?      @db.Decimal(10, 2)
+  updatedAt       DateTime      @updatedAt
   WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
-  paperProductId  String?
-  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
+  workOrderItemId String
 }
 
 model WorkOrderVersion {

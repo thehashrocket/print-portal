@@ -20,6 +20,7 @@ export const workOrderItemRouter = createTRPCRouter({
                 where: { id: input },
                 include: {
                     artwork: true,
+                    PaperProduct: true,
                     createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
@@ -38,11 +39,11 @@ export const workOrderItemRouter = createTRPCRouter({
             return workOrderItem ? normalizeWorkOrderItem(workOrderItem) : null;
         }),
 
-    getAll: protectedProcedure.query(async ({ ctx }): Promise<SerializedWorkOrderItem[]> => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         const workOrderItems = await ctx.db.workOrderItem.findMany({
             include: {
                 artwork: true,
-                createdBy: true,
+                PaperProduct: true,
                 ProcessingOptions: true,
                 Typesetting: {
                     include: {
@@ -51,11 +52,17 @@ export const workOrderItemRouter = createTRPCRouter({
                             include: {
                                 artwork: true,
                             }
-                        },
+                        }
                     }
                 },
                 WorkOrderItemStock: true,
-            },
+                createdBy: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
         });
         return workOrderItems.map(normalizeWorkOrderItem);
     }),
@@ -69,6 +76,7 @@ export const workOrderItemRouter = createTRPCRouter({
             expectedDate: z.date(),
             ink: z.string().optional(),
             other: z.string(),
+            paperProductId: z.string().optional(),
             quantity: z.number(),
             size: z.string(),
             specialInstructions: z.string(),
@@ -84,17 +92,19 @@ export const workOrderItemRouter = createTRPCRouter({
                     description: input.description,
                     expectedDate: input.expectedDate,
                     other: input.other,
+                    paperProductId: input.paperProductId,
                     size: input.size,
                     specialInstructions: input.specialInstructions,
                     status: input.status,
                     workOrderId: input.workOrderId,
                     artwork: {
                         create: input.artwork,
-                    },
+                    }
                 },
                 include: {
                     artwork: true,
                     createdBy: true,
+                    PaperProduct: true,
                     ProcessingOptions: true,
                     Typesetting: {
                         include: {
@@ -114,13 +124,14 @@ export const workOrderItemRouter = createTRPCRouter({
 
     getByWorkOrderId: protectedProcedure
         .input(z.object({
-            workOrderId: z.string(),
+            workOrderId: z.string()
         }))
         .query(async ({ ctx, input }): Promise<SerializedWorkOrderItem[]> => {
             const workOrderItems = await ctx.db.workOrderItem.findMany({
                 where: { workOrderId: input.workOrderId },
                 include: {
                     artwork: true,
+                    PaperProduct: true,
                     createdBy: true,
                     ProcessingOptions: true,
                     Typesetting: {
