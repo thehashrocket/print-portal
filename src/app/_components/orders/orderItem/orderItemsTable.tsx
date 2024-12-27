@@ -79,7 +79,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
 
     const mobileColumnDefs: ColDef[] = [
         { 
-            headerName: "Job #", 
+            headerName: "Item #", 
             field: "orderItemNumber", 
             width: 70,
             maxWidth: 70
@@ -117,7 +117,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     ];
 
     const desktopColumnDefs: ColDef[] = [
-        { headerName: "Job #", field: "orderItemNumber", width: 120 },
+        { headerName: "Item #", field: "orderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },

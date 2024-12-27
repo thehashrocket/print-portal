@@ -18,6 +18,7 @@ import debounce from "lodash/debounce";
 const workOrderSchema = z.object({
     costPerM: z.number().default(0),
     dateIn: z.string().min(1, 'Date In is required'),
+    officeId: z.string().min(1, 'Office is required'),
     contactPersonId: z.string().min(1, 'Contact Person is required'),
     estimateNumber: z.string().optional().nullable(),
     inHandsDate: z.string().min(1, 'In Hands Date is required'),
@@ -158,7 +159,7 @@ const WorkOrderForm: React.FC = () => {
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="company">Company</Label>
+                    <Label htmlFor="company">Company <span className="text-red-500">*</span></Label>
                     <div className="relative">
                         <CustomComboBox
                             options={companies.map(company => ({
@@ -188,7 +189,7 @@ const WorkOrderForm: React.FC = () => {
 
                 {selectedCompany && (
                     <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="office">Office</Label>
+                        <Label htmlFor="office">Office <span className="text-red-500">*</span></Label>
                         <CustomComboBox
                             options={offices.map(office => ({
                                 value: office.id,
@@ -311,13 +312,13 @@ const WorkOrderForm: React.FC = () => {
                     />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="workOrderNumber">Job Number</Label>
+                    <Label htmlFor="workOrderNumber">Item Number</Label>
                     <Input 
                         id="workOrderNumber" 
                         {...register('workOrderNumber', {
                             setValueAs: v => v === '' ? null : v
                         })} 
-                        placeholder="Enter job number..." 
+                        placeholder="Enter item number..." 
                     />
                 </div>
                 <div className="flex flex-col space-y-1.5 mb-4">

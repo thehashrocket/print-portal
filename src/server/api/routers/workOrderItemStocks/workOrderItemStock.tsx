@@ -46,6 +46,7 @@ export const workOrderItemStockRouter = createTRPCRouter({
         .input(workOrderItemStockSchema)
         .mutation(async ({ ctx, input }) => {
             const { paperProductId, workOrderItemId, ...rest } = input;
+            console.log("Creating work order item stock with paper product ID:", paperProductId);
             const stock = await ctx.db.workOrderItemStock.create({
                 data: {
                     ...rest,
@@ -66,6 +67,7 @@ export const workOrderItemStockRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const { paperProductId, ...rest } = input.data;
+            console.log("Updating work order item stock with paper product ID:", paperProductId);
             const stock = await ctx.db.workOrderItemStock.update({
                 where: { id: input.id },
                 data: {

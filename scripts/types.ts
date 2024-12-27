@@ -7,4 +7,4 @@ export interface ProcedureInfo {
   input?: string;
   output?: string;
   exampleInput?: string;
-} 
+}

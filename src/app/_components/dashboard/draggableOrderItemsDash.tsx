@@ -5,11 +5,14 @@ import React, { useState, useMemo } from 'react';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from '@prisma/client';
 import type { SerializedOrderItem } from "~/types/serializedTypes";
+import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { CalendarDays, Eye } from 'lucide-react';
+import { randomUUID } from 'crypto';
 
 const calculateDaysUntilDue = (dateString: string): number => {
     const targetDate = new Date(dateString);
@@ -30,10 +33,10 @@ const jobBorderColor = (dateString: string): string => {
     }
 };
 
-const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem[] }> = ({ initialOrderItems }) => {
+const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
-    const [originalItems] = useState<SerializedOrderItem[]>(initialOrderItems);
-    const [displayedItems, setDisplayedItems] = useState<SerializedOrderItem[]>(initialOrderItems);
+    const [originalItems] = useState<OrderItemDashboard[]>(initialOrderItems);
+    const [displayedItems, setDisplayedItems] = useState<OrderItemDashboard[]>(initialOrderItems);
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
     const [selectedMobileStatus, setSelectedMobileStatus] = useState<OrderItemStatus>(OrderItemStatus.Prepress);
@@ -43,7 +46,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
     // Extract unique companies from original items
     const companies = useMemo(() => {
         const uniqueCompanies = new Set(
-            originalItems.map(item => item.Order.Office.Company.name)
+            originalItems.map(item => item.companyName)
         );
         return Array.from(uniqueCompanies).map(name => ({
             value: name,
@@ -56,7 +59,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         setSelectedCompany(companyName);
         if (companyName) {
             const filtered = originalItems.filter(
-                item => item.Order.Office.Company.name === companyName
+                item => item.companyName === companyName
             );
             setDisplayedItems(filtered);
         } else {
@@ -67,6 +70,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
     const CompanyFilter = () => (
         <div className="mb-4 p-4 bg-gray-700 rounded-lg">
             <CustomComboBox
+                key='1'
                 options={[{ value: "", label: "All Companies" }, ...companies]}
                 value={selectedCompany}
                 onValueChange={handleCompanyChange}
@@ -100,7 +104,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                 type="text"
                 value={orderItemNumber}
                 onChange={handleOrderItemNumberChange}  
-                placeholder="Filter by Job Number..."
+                placeholder="Filter by Item Number..."
                 className="w-[300px] mb-2"
             />
             <div className="flex gap-2">
@@ -145,7 +149,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                 const draggedItemIndex = items.findIndex(item => item.id === id);
                 if (draggedItemIndex === -1) return;  // Exit if item not found
 
-                const draggedItem = items[draggedItemIndex] as SerializedOrderItem;
+                const draggedItem = items[draggedItemIndex] as OrderItemDashboard;
                 items.splice(draggedItemIndex, 1);
 
                 // Find the drop target's index
@@ -163,7 +167,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
 
                 const updatedItems = displayedItems.map(item => {
                     if (item.id === id) {
-                        return { ...item, status: newStatus } as SerializedOrderItem;
+                        return { ...item, status: newStatus } as OrderItemDashboard;
                     }
                     return item;
                 });
@@ -213,7 +217,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
         const statusGroup = acc[orderItem.status] || [];
         acc[orderItem.status] = [...statusGroup, orderItem];
         return acc;
-    }, {} as { [key in OrderItemStatus]?: SerializedOrderItem[] });
+    }, {} as { [key in OrderItemStatus]?: OrderItemDashboard[] });
 
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
@@ -240,6 +244,8 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                             key={orderItem.id}
                             orderItem={orderItem}
                             onDragStart={onDragStart}
+                            JobNumberInList={orderItem.position || 0}
+                            jobTotalItems={orderItem.totalItems || 0}
                         />
                     ))}
                 </div>
@@ -260,6 +266,8 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
                                 key={orderItem.id}
                                 orderItem={orderItem}
                                 onDragStart={onDragStart}
+                                JobNumberInList={orderItem.position || 0}
+                                jobTotalItems={orderItem.totalItems || 0}
                             />
                         ))}
                     </div>
@@ -271,39 +279,38 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: SerializedOrderItem
 
 // Create a separate JobCard component for better organization
 interface JobCardProps {
-    orderItem: SerializedOrderItem;
+    orderItem: OrderItemDashboard;
     onDragStart: (event: React.DragEvent<HTMLDivElement>, id: string, status: OrderItemStatus) => void;
+    JobNumberInList: number; // The number of the job in the list
+    jobTotalItems: number; // The total number of items in the job
 }
 
-const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
+const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart, JobNumberInList, jobTotalItems }) => (
     <div
         data-item-container
         draggable
         onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
         className="flex flex-col p-3 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
         style={{
-            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate) : undefined,
+            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate.toISOString()) : undefined,
             borderWidth: orderItem.expectedDate ? 3 : 1,
             borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
         }}
     >
-        <div className='text-sm font-bold mb-1 truncate'>{orderItem.Order.Office.Company.name}</div>
+        <div className='text-sm font-bold mb-1 truncate'>{orderItem.companyName}</div>
         <div className='text-sm font-bold mb-1'>Job #: {orderItem.orderItemNumber}</div>
+        <div className='text-sm font-bold mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
         <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
         
         <div className="flex items-center mb-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
+            <CalendarDays className="w-5 h-5 mr-2" />
             <span className="text-sm">{formatDate(orderItem.expectedDate ?? new Date())}</span>
         </div>
         
         <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-            </svg>
+            <Eye className="w-5 h-5 mr-2" />
             <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline text-sm">
-                View Job
+                View Item
             </a>
         </div>
     </div>

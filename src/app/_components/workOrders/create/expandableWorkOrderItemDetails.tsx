@@ -36,7 +36,7 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
     return (
         <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Job Details</h3>
+                <h3 className="text-xl font-semibold">Item Details</h3>
                 <Button
                     variant="secondary"
                     onClick={onClose}

@@ -72,12 +72,12 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.setTextColor(0, 0, 0);
     doc.text(`${orderItem.status}`, rightColStart + 50, yPos);
     
-    // Job Details header
+    // Item Details header
     yPos += 20;
     doc.setFontSize(20);
-    doc.text('JOB DETAILS', leftMargin, yPos);
+    doc.text('ITEM DETAILS', leftMargin, yPos);
 
-    // Add dates to the right of Job Details
+    // Add dates to the right of Item Details
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('DATE STARTED', rightColStart, yPos);
@@ -256,7 +256,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         let currentY = typesettingY;
         currentY = addDetailsField('Date In', formatDate(ts.dateIn), leftMargin, currentY, pageWidth/2 - 20);
         currentY = addDetailsField('Status', ts.status, leftMargin, currentY + 2, pageWidth/2 - 20);
-        currentY = addDetailsField('Prep Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
+        currentY = addDetailsField('Design Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
     }
 
     // Bindery Options (right column)
@@ -289,5 +289,5 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     }
 
     // Save the PDF
-    doc.save(`job_details_${order.orderNumber}_${orderItem.orderItemNumber}.pdf`);
+    doc.save(`item_details_${order.orderNumber}_${orderItem.orderItemNumber}.pdf`);
 };

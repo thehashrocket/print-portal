@@ -496,7 +496,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
                     <section className="bg-white p-4 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold">Order Jobs</h2>
+                            <h2 className="text-2xl font-semibold">Order Items</h2>
                         </div>
 
                         <div className="bg-white p-4 rounded-lg shadow-md">

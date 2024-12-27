@@ -161,7 +161,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 <p className="text-sm">{formatCurrency(Number(currentItem.cost))}</p>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Prep Time</p>
+                                <p className="mb-2 text-gray-600 text-sm font-semibold">Design Time</p>
                                 <p className="text-sm">{currentItem.prepTime}</p>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
