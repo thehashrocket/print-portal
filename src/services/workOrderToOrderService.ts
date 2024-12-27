@@ -125,6 +125,11 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         totalItemAmount,
         totalShippingAmount,
         Order: workOrder.Order ? { id: workOrder.Order.id } : null,
+        contactPerson: {
+            id: workOrder.contactPerson?.id ?? '',
+            name: workOrder.contactPerson?.name ?? null,
+            email: workOrder.contactPerson?.email ?? null,
+        },
     };
 
     return normalizeWorkOrder(workOrderData);
@@ -134,15 +139,15 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
     const order = await tx.order.create({
         data: {
             officeId,
-            shippingInfoId: workOrder.shippingInfoId ?? undefined,
             status: OrderStatus.Pending,
             createdById: workOrder.createdById,
-            contactPersonId: workOrder.contactPersonId,
             workOrderId: workOrder.id,
             version: 1,
             dateInvoiced: null,
             inHandsDate: new Date(workOrder.inHandsDate),
             invoicePrintEmail: workOrder.invoicePrintEmail,
+            contactPersonId: workOrder.contactPersonId || undefined,
+            shippingInfoId: workOrder.shippingInfoId || undefined,
         },
     });
 

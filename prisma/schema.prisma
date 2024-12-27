@@ -159,12 +159,12 @@ model Order {
   inHandsDate         DateTime?
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
   createdById         String
-  contactPersonId     String
+  contactPersonId     String?
   pressRun            String?                  @default("")
   quickbooksInvoiceId String?                  @unique
   syncToken           String?
   Invoice             Invoice?
-  contactPerson       User                     @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
+  contactPerson       User?                    @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
   createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
@@ -238,50 +238,50 @@ model OrderNote {
 }
 
 model OrderItemStock {
-  costPerM     Decimal     @default(0) @db.Decimal(10, 2)
-  createdAt    DateTime    @default(now())
-  createdBy    User        @relation(fields: [createdById], references: [id])
-  createdById  String
-  expectedDate DateTime?
-  from         String?
-  id           String      @id @default(uuid())
-  notes        String?
-  orderedDate  DateTime?
-  OrderItem    OrderItem   @relation(fields: [orderItemId], references: [id])
-  orderItemId  String
-  PaperProduct  PaperProduct? @relation(fields: [paperProductId], references: [id])
+  costPerM       Decimal       @default(0) @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now())
+  createdBy      User          @relation(fields: [createdById], references: [id])
+  createdById    String
+  expectedDate   DateTime?
+  from           String?
+  id             String        @id @default(uuid())
+  notes          String?
+  orderedDate    DateTime?
+  OrderItem      OrderItem     @relation(fields: [orderItemId], references: [id])
+  orderItemId    String
+  PaperProduct   PaperProduct? @relation(fields: [paperProductId], references: [id])
   paperProductId String?
-  received     Boolean     @default(false)
-  receivedDate DateTime?
-  stockQty     Int
-  stockStatus  StockStatus
-  supplier     String?
-  totalCost    Decimal?    @db.Decimal(10, 2)
-  updatedAt    DateTime    @updatedAt
+  received       Boolean       @default(false)
+  receivedDate   DateTime?
+  stockQty       Int
+  stockStatus    StockStatus
+  supplier       String?
+  totalCost      Decimal?      @db.Decimal(10, 2)
+  updatedAt      DateTime      @updatedAt
 }
 
 model PaperProduct {
-  id                String              @id @default(uuid())
-  brand             PaperBrand
-  paperType         PaperType
-  finish            PaperFinish
-  weightLb          Int                 // The # in "80# Cover"
-  caliper           Float               // Stored in points (e.g., 3.2)
-  size              String              // e.g., "12x18"
-  width             Float               // in inches
-  height            Float               // in inches
-  mWeight           Float               // M Weight from spreadsheet
-  sheetsPerUnit     Int
-  referenceId       String              @unique    // REF# from spreadsheet
-  isHPIndigo        Boolean             @default(false)
-  supplier          String              @default("Midland Paper")
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  deleted           Boolean             @default(false)
-  OrderItemStock    OrderItemStock[]
+  id                 String               @id @default(uuid())
+  brand              PaperBrand
+  paperType          PaperType
+  finish             PaperFinish
+  weightLb           Int // The # in "80# Cover"
+  caliper            Float // Stored in points (e.g., 3.2)
+  size               String // e.g., "12x18"
+  width              Float // in inches
+  height             Float // in inches
+  mWeight            Float // M Weight from spreadsheet
+  sheetsPerUnit      Int
+  referenceId        String               @unique // REF# from spreadsheet
+  isHPIndigo         Boolean              @default(false)
+  supplier           String               @default("Midland Paper")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  deleted            Boolean              @default(false)
+  OrderItemStock     OrderItemStock[]
   WorkOrderItemStock WorkOrderItemStock[]
-  WorkOrderItem     WorkOrderItem[]
-  OrderItem         OrderItem[]
+  WorkOrderItem      WorkOrderItem[]
+  OrderItem          OrderItem[]
 
   @@index([brand, paperType, finish, weightLb])
   @@index([size, weightLb, finish])
@@ -492,8 +492,8 @@ model WorkOrder {
   officeId            String
   dateIn              DateTime
   inHandsDate         DateTime
-  estimateNumber      String
-  purchaseOrderNumber String
+  estimateNumber      String?
+  purchaseOrderNumber String?
   version             Int                      @default(autoincrement())
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
@@ -502,9 +502,9 @@ model WorkOrder {
   status              WorkOrderStatus          @default(Draft)
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
   createdById         String
-  contactPersonId     String
+  contactPersonId     String?
   Order               Order?
-  contactPerson       User                     @relation("WorkOrderContactPerson", fields: [contactPersonId], references: [id])
+  contactPerson       User?                    @relation("WorkOrderContactPerson", fields: [contactPersonId], references: [id])
   createdBy           User                     @relation("WorkOrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
@@ -526,7 +526,7 @@ model WorkOrderItem {
   id                  String                 @id @default(uuid())
   ink                 String?                @default("")
   other               String?
-  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
+  PaperProduct        PaperProduct?          @relation(fields: [paperProductId], references: [id])
   paperProductId      String?
   prepTime            Int?
   ProcessingOptions   ProcessingOptions[]

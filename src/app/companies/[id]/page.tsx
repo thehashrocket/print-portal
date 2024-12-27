@@ -74,6 +74,8 @@ export default async function CompanyPage(
             createdAt: workOrder.createdAt.toISOString(),
             updatedAt: workOrder.updatedAt.toISOString(),
             dateIn: workOrder.dateIn.toISOString(),
+            estimateNumber: workOrder.estimateNumber?.toString() ?? "",
+            purchaseOrderNumber: workOrder.purchaseOrderNumber?.toString() ?? "",
             inHandsDate: workOrder.inHandsDate.toISOString(),
             calculatedSalesTax: workOrder.calculatedSalesTax?.toString() ?? "0",
             calculatedSubTotal: workOrder.calculatedSubTotal?.toString() ?? "0",

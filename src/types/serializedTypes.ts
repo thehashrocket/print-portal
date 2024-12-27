@@ -116,7 +116,7 @@ export interface SerializedOrder {
     balance: string | null;
     calculatedSalesTax: string | null;
     calculatedSubTotal: string | null;
-    contactPersonId: string;
+    contactPersonId: string | null;
     createdAt: string;
     createdById: string;
     dateInvoiced: string | null;
@@ -140,7 +140,7 @@ export interface SerializedOrder {
     version: number;
     workOrderId: string;
     WorkOrder: {
-        purchaseOrderNumber: string;
+        purchaseOrderNumber: string | null;
     };
     contactPerson: {
         id: string;
@@ -180,7 +180,7 @@ export interface SerializedOrderItem {
             };
         };
         WorkOrder: {
-            purchaseOrderNumber: string;
+            purchaseOrderNumber: string | null;
         };
     };
     orderId: string;
@@ -368,16 +368,16 @@ export interface SerializedTypesettingProofArtwork {
 export interface SerializedWorkOrder {
     calculatedSalesTax: string | null;
     calculatedSubTotal: string | null;
-    contactPersonId: string;
+    contactPersonId: string | null;
     createdAt: string;
     createdById: string;
     dateIn: string;
-    estimateNumber: string;
+    estimateNumber: string | null;
     id: string;
     inHandsDate: string;
     invoicePrintEmail: InvoicePrintEmailOptions;
     officeId: string;
-    purchaseOrderNumber: string;
+    purchaseOrderNumber: string | null;
     shippingInfoId: string | null;
     status: WorkOrderStatus;
     totalAmount: string | null;
