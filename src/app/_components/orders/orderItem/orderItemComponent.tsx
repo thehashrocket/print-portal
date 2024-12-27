@@ -186,12 +186,24 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
                 {/* Row 1 - Basic Info */}
                 <div className="flex flex-col gap-4 mb-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-2">
                         <InfoCard title="Order Number" content={order.orderNumber} />
                         <InfoCard title="Item Number" content={orderItem.orderItemNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
                         <InfoCard title="Item Quantity" content={orderItem.quantity} />
                         <InfoCard title="Ink" content={orderItem.ink} />
+                        <InfoCard
+                            title="Paper Product"
+                            content={
+                                orderItem.PaperProduct ? (
+                                <div>
+                                    <p><strong>Paper Type:</strong> {orderItem.PaperProduct.paperType}</p>
+                                    <p><strong>Finish:</strong> {orderItem.PaperProduct.finish}</p>
+                                    <p><strong>Weight:</strong> {orderItem.PaperProduct.weightLb} lbs</p>
+                                </div>
+                            ) : 'N/A'
+                        }
+                    />
                     </div>
                     
                     {/* Row 2 - Company and Contact */}

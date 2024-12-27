@@ -169,6 +169,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             description: workOrderItem.description,
             expectedDate: new Date(workOrderItem.expectedDate),
             finishedQty: 0,
+            paperProductId: workOrderItem.paperProductId,
             prepTime: null,
             pressRun: '0',
             quantity: workOrderItem.quantity,

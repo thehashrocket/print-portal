@@ -184,6 +184,18 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Ink"
                         content={workOrderItem.ink ?? 'N/A'}
                     />
+                    <InfoCard
+                        title="Paper Product"
+                        content={
+                            workOrderItem.PaperProduct ? (
+                                <div>
+                                    <p><strong>Paper Type:</strong> {workOrderItem.PaperProduct.paperType}</p>
+                                    <p><strong>Finish:</strong> {workOrderItem.PaperProduct.finish}</p>
+                                    <p><strong>Weight:</strong> {workOrderItem.PaperProduct.weightLb} lbs</p>
+                                </div>
+                            ) : 'N/A'
+                        }
+                    />
                 </div>
                 
                 {/* Company Section */}

@@ -14,6 +14,7 @@ export const orderItemRouter = createTRPCRouter({
                 },
                 include: {
                     artwork: true,
+                    PaperProduct: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -48,7 +49,8 @@ export const orderItemRouter = createTRPCRouter({
                             }
                         }
                     },
-                    ProcessingOptions: true
+                    ProcessingOptions: true,
+                    PaperProduct: true,
                 }
             })
         }),
