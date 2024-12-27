@@ -423,6 +423,7 @@ export interface SerializedWorkOrderItem {
     ink: string | null;
     other: string | null;
     quantity: number;
+    paperProductId: string | null;
     size: string | null;
     specialInstructions: string | null;
     status: WorkOrderItemStatus;
@@ -437,6 +438,7 @@ export interface SerializedWorkOrderItem {
         id: string;
         name: string | null;
     };
+    PaperProduct: SerializedPaperProduct | null;
 }
 
 export interface SerializedWorkOrderItemArtwork {

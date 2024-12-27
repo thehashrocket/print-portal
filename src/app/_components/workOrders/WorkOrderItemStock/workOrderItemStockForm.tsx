@@ -13,6 +13,7 @@ import { Input } from '~/app/_components/ui/input';
 import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../../_components/shared/ui/CustomComboBox';
+
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -62,7 +63,11 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         { enabled: !!stockId }
     );
 
+    // Retrieve all paper products, then reduce the list to only include the paper products to remove the duplicates based on the brand, size, paperType, finish, and weightLb
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
+        index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
+    );
 
     const createStock = api.workOrderItemStocks.create.useMutation({
         onSuccess: () => {
@@ -139,9 +144,9 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                     Paper Product
                 </Label>
                 {/* Provide a list of PaperProducts to select from using SelectField */}
-                {paperProducts && (
+                {uniquePaperProducts && (
                     <CustomComboBox
-                        options={paperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.size + ' ' + paperProduct.paperType + ' ' + paperProduct.finish }))}
+                        options={uniquePaperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.finish + ' ' + paperProduct.paperType + ' ' + paperProduct.size + ' ' + paperProduct.finish + ' ' + paperProduct.weightLb + 'lbs.' }))}
                         value={watch('paperProductId') ?? ''}
                         onValueChange={(value: string) => setValue('paperProductId', value)}
                         placeholder="Select paper product..."

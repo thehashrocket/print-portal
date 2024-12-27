@@ -13,6 +13,7 @@ const workOrderItemStockSchema = z.object({
     from: z.string().optional(),
     notes: z.string().optional(),
     orderedDate: z.date().optional(),
+    paperProductId: z.string().optional(),
     received: z.boolean(),
     receivedDate: z.date().optional(),
     stockQty: z.number(),
@@ -20,7 +21,6 @@ const workOrderItemStockSchema = z.object({
     supplier: z.string().optional(),
     totalCost: z.number().optional(),
     workOrderItemId: z.string(),
-    paperProductId: z.string().optional()
 });
 
 export const workOrderItemStockRouter = createTRPCRouter({
@@ -45,6 +45,7 @@ export const workOrderItemStockRouter = createTRPCRouter({
     create: protectedProcedure
         .input(workOrderItemStockSchema)
         .mutation(async ({ ctx, input }) => {
+            console.log("Creating work order item stock with input:", input);
             const { paperProductId, workOrderItemId, ...rest } = input;
             console.log("Creating work order item stock with paper product ID:", paperProductId);
             const stock = await ctx.db.workOrderItemStock.create({
@@ -55,7 +56,10 @@ export const workOrderItemStockRouter = createTRPCRouter({
                     },
                     WorkOrderItem: {
                         connect: { id: workOrderItemId }
-                    }
+                    },
+                    PaperProduct: paperProductId ? {
+                        connect: { id: paperProductId }
+                    } : undefined
                 }
             });
             return normalizeWorkOrderItemStock(stock);
@@ -72,6 +76,9 @@ export const workOrderItemStockRouter = createTRPCRouter({
                 where: { id: input.id },
                 data: {
                     ...rest,
+                    PaperProduct: paperProductId ? {
+                        connect: { id: paperProductId }
+                    } : undefined
                 }
             });
             return normalizeWorkOrderItemStock(stock);

@@ -570,6 +570,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
 
 export function normalizeWorkOrderItem(item: WorkOrderItem & {
     artwork: WorkOrderItemArtwork[];
+    PaperProduct?: PaperProduct | null;
     ProcessingOptions: ProcessingOptions[];
     Typesetting: (Typesetting & {
         TypesettingOptions: TypesettingOption[];
@@ -595,6 +596,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         ink: item.ink,
         expectedDate: item.expectedDate.toISOString(),
         other: item.other,
+        paperProductId: item.paperProductId,
         quantity: item.quantity,
         size: item.size,
         specialInstructions: item.specialInstructions,
@@ -602,6 +604,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         updatedAt: item.updatedAt.toISOString(),
         workOrderId: item.workOrderId,
         artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
+        PaperProduct: item.PaperProduct ? normalizePaperProduct(item.PaperProduct) : null,
         ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
         Typesetting: item.Typesetting.map(normalizeTypesetting),
         workOrderItemNumber: item.workOrderItemNumber,
