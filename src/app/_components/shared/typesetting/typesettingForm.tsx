@@ -150,7 +150,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
                     {errors.plateRan && <span className="text-error">{errors.plateRan.message}</span>}
                 </div>
                 <div className="form-control">
-                    <Label htmlFor="prepTime">Prep Time</Label>
+                    <Label htmlFor="prepTime">Design Time</Label>
                     <input
                         type="number"
                         className="input input-bordered"

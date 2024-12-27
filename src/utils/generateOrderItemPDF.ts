@@ -256,7 +256,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         let currentY = typesettingY;
         currentY = addDetailsField('Date In', formatDate(ts.dateIn), leftMargin, currentY, pageWidth/2 - 20);
         currentY = addDetailsField('Status', ts.status, leftMargin, currentY + 2, pageWidth/2 - 20);
-        currentY = addDetailsField('Prep Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
+        currentY = addDetailsField('Design Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
     }
 
     // Bindery Options (right column)

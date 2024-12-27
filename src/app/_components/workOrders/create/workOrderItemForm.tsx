@@ -111,7 +111,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            
+
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
                 onItemClick={setExpandedItemId}
@@ -140,13 +140,13 @@ const WorkOrderItemForm: React.FC = () => {
                             <Label htmlFor='amount' className='flex gap-1'>
                                 Amount (we bill customer)
                             </Label>
-                            <Input 
-                                id='amount' 
-                                type='number' 
-                                {...register('amount', { 
+                            <Input
+                                id='amount'
+                                type='number'
+                                {...register('amount', {
                                     setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
-                                })} 
-                                placeholder="Enter amount..." 
+                                })}
+                                placeholder="Enter amount..."
                             />
                             {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                         </div>
@@ -154,13 +154,13 @@ const WorkOrderItemForm: React.FC = () => {
                             <Label htmlFor='cost' className='flex gap-1'>
                                 Cost (our cost)
                             </Label>
-                            <Input 
-                                id='cost' 
-                                type='number' 
-                                {...register('cost', { 
+                            <Input
+                                id='cost'
+                                type='number'
+                                {...register('cost', {
                                     setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
-                                })} 
-                                placeholder="Enter cost..." 
+                                })}
+                                placeholder="Enter cost..."
                             />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                         </div>
@@ -168,13 +168,13 @@ const WorkOrderItemForm: React.FC = () => {
                             <Label htmlFor='costPerM' className='flex gap-1'>
                                 Cost Per M
                             </Label>
-                            <Input 
-                                id='costPerM' 
-                                type='number' 
-                                {...register('costPerM', { 
+                            <Input
+                                id='costPerM'
+                                type='number'
+                                {...register('costPerM', {
                                     setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
-                                })} 
-                                placeholder="Enter cost per m..." 
+                                })}
+                                placeholder="Enter cost per m..."
                             />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                         </div>
@@ -208,10 +208,10 @@ const WorkOrderItemForm: React.FC = () => {
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='prepTime' className='flex gap-1'>
-                                Prep Time
+                                Design Time
                                 <span className='text-red-500'>*</span>
                             </Label>
-                            <Input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} placeholder="Enter prep time..." />
+                            <Input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} placeholder="Enter design time..." />
                             {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
