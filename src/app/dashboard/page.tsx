@@ -10,6 +10,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
 import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
+import { OrderItemDashboard } from "~/types/orderItemDashboard";
 import NoPermission from "../_components/noPermission/noPermission";
 import { Button } from "../_components/ui/button";
 import { formatDate } from "~/utils/formatters";
@@ -33,7 +34,7 @@ export default async function DashboardPage() {
         )
     }
 
-    const orderItems = await api.orderItems.getAll().then((items) => {
+    const orderItems = await api.orderItems.dashboard().then((items) => {
         return items.sort((a, b) => {
             return new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime();
         });
@@ -49,35 +50,6 @@ export default async function DashboardPage() {
         inHandsDate: order.inHandsDate ? formatDate(order.inHandsDate) : null,
         orderItems: order.OrderItems,
     }));
-
-    const serializedOrderItemsData: SerializedOrderItem[] = orderItems.map((item: any) => ({
-        ...item,
-        amount: item.amount ? item.amount.toString() : null,
-        cost: item.cost ? item.cost.toString() : null,
-        shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
-        prepTime: item.prepTime ?? null,
-        size: item.size ?? null,
-        specialInstructions: item.specialInstructions ?? null,
-        OrderItemStock: item.OrderItemStock ?? [],
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
-        expectedDate: item.expectedDate?.toISOString() ?? null,
-        Typesetting: item.Typesetting?.map((typesetting: any) => ({
-            ...typesetting,
-            cost: typesetting.cost ? typesetting.cost.toString() : null,
-            createdAt: typesetting.createdAt.toISOString(),
-            updatedAt: typesetting.updatedAt.toISOString(),
-            dateIn: typesetting.dateIn.toISOString(),
-            TypesettingOptions: typesetting.TypesettingOptions ?? [],
-            TypesettingProofs: typesetting.TypesettingProofs ?? []
-        })) ?? [],
-        artwork: item.artwork.map((art: any) => ({
-            ...art,
-            createdAt: art.createdAt.toISOString(),
-            updatedAt: art.updatedAt.toISOString(),
-        })),
-    }));
-
     
 
     return (
@@ -99,7 +71,7 @@ export default async function DashboardPage() {
                     </Button>
                 </div>
             </div>
-            <DashboardTabsClient orderItems={serializedOrderItemsData} orders={serializedOrderData} />
+            <DashboardTabsClient orderItems={orderItems} orders={serializedOrderData} />
         </div>
     );
 }

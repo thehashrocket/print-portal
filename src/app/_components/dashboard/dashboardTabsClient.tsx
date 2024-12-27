@@ -2,12 +2,12 @@
 "use client";
 import React, { useState } from "react";
 import DraggableOrderItemsDash from "./draggableOrderItemsDash";
-import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
 import DraggableOrdersDash from "./draggableOrdersDash";
 import { OrderDashboard } from "~/types/orderDashboard";
+import { OrderItemDashboard } from "~/types/orderItemDashboard";
 // Update the component props to match the actual data being passed
 interface DashboardTabsClientProps {
-    orderItems: SerializedOrderItem[];
+    orderItems: OrderItemDashboard[];
     orders: OrderDashboard[];
 }
 

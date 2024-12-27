@@ -53,8 +53,8 @@ export const orderItemRouter = createTRPCRouter({
             })
         }),
     // Get all OrderItems
-    getAll: protectedProcedure.query(({ ctx }) => {
-        return ctx.db.orderItem.findMany({
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+        const orderItems = await ctx.db.orderItem.findMany({
             include: {
                 artwork: true,
                 Order: {
@@ -72,7 +72,8 @@ export const orderItemRouter = createTRPCRouter({
                             select: {
                                 purchaseOrderNumber: true,
                             }
-                        }
+                        },
+                        OrderItems: true
                     },
                 },
                 Typesetting: {
@@ -88,6 +89,54 @@ export const orderItemRouter = createTRPCRouter({
                 ProcessingOptions: true
             }
         });
+
+        return orderItems;
+    }),
+    dashboard: protectedProcedure.query(async ({ ctx }) => {
+        const orderItems = await ctx.db.orderItem.findMany({
+            include: {
+                artwork: true,
+                Order: {
+                    select: {
+                        Office: {
+                            select: {
+                                Company: {
+                                    select: {
+                                        name: true,
+                                    }
+                                }
+                            }
+                        },
+                        WorkOrder: {
+                            select: {
+                                purchaseOrderNumber: true,
+                            }
+                        },
+                        OrderItems: true
+                    },
+                },
+            }
+        });
+
+        // for each order item, find what the order item's position is in the list of order items for the order it belongs to
+        // and add it to the order item as a new property
+        // also add the total number of items in the order to the order item as a new property
+        const orderItemPositions = orderItems.map((item, index) => ({
+            id: item.id,
+            orderId: item.orderId,
+            orderItemNumber: item.orderItemNumber,
+            position: item.Order?.OrderItems.findIndex(orderItem => orderItem.id === item.id) + 1 || 0,
+            totalItems: item.Order?.OrderItems.length || 0,
+            expectedDate: item.expectedDate,
+            status: item.status,
+            description: item.description,
+            companyName: item.Order?.Office?.Company?.name || '',
+            purchaseOrderNumber: item.Order?.WorkOrder?.purchaseOrderNumber || '',
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+        }));
+
+        return orderItemPositions;
     }),
     updateDescription: protectedProcedure
         .input(z.object({
