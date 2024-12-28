@@ -1,5 +1,6 @@
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
+import * as bcrypt from 'bcryptjs';
 
 // Get a User by ID
 // Get the User's Roles and Permissions
@@ -33,6 +34,20 @@ export const userRouter = createTRPCRouter({
             Permissions: true,
           },
         },
+      },
+    });
+  }),
+
+  // Create a new user using the email and password
+  create: publicProcedure.input(z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+  })).mutation(({ ctx, input }) => {
+    const hashedPassword = bcrypt.hashSync(input.password, 10);
+    return ctx.db.user.create({
+      data: {
+        email: input.email,
+        password: hashedPassword,
       },
     });
   }),

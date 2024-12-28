@@ -7,15 +7,17 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import QuickBooksProvider from "./auth/quickbooksProvider";
-
+import * as bcrypt from 'bcryptjs';
 import { env } from "~/env";
 import { db } from "~/server/db";
 import nodemailer from "nodemailer";
 import { getVerificationEmailTemplate } from "~/utils/emailTemplates";
 import { sendAdminNotification } from "~/utils/notifications";
+import { redirect } from "next/navigation";
 
 // We're augmenting the Session type to include user roles and permissions in the session object.
 // We're defining the user object to have an id, roles, and permissions.
@@ -28,22 +30,28 @@ import { sendAdminNotification } from "~/utils/notifications";
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: async ({ session, user }) => {
+    session: async ({ session, token, user }) => {
+      // If using JWT strategy, user data comes from token
+      const userId = token.sub ?? user?.id;
+      
       // Fetch user roles and their permissions
       const userWithRolesAndPermissions = await db.user.findUnique({
-        where: { id: user.id },
+        where: { id: userId },
         include: {
           Roles: {
             include: {
-              Permissions: true, // Include permissions for each role
+              Permissions: true,
             },
           },
         },
       });
 
       if (userWithRolesAndPermissions) {
-        session.user.id = user.id;
+        session.user.id = userId;
         // Map roles to their names
         session.user.Roles = userWithRolesAndPermissions.Roles.map(
           (role) => role.name,
@@ -62,6 +70,12 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -69,10 +83,6 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
-    }),
-    QuickBooksProvider({
-      clientId: env.QUICKBOOKS_CLIENT_ID,
-      clientSecret: env.QUICKBOOKS_CLIENT_SECRET,
     }),
     EmailProvider({
       server: {
@@ -219,6 +229,41 @@ export const authOptions: NextAuthOptions = {
         await transporter.sendMail(mailOptions);
       },
     }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (credentials) => {
+        if (!credentials) {
+          console.log('No credentials provided');
+          throw new Error("Invalid credentials");
+        }
+        const user = await db.user.findUnique({
+          where: { email: credentials.email },
+        });
+        if (!user) {
+          console.log('User not found');
+          throw new Error("RegisterRequired");
+        }
+        // Verify the password
+        const isPasswordValid = bcrypt.compareSync(credentials.password, user.password ?? '');
+        if (!isPasswordValid) {
+          console.log('Invalid password');
+          throw new Error("Invalid password");
+        }
+        console.log('User found and password is valid');
+
+        // Return the user object in the format NextAuth expects
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name ?? undefined,
+          image: user.image ?? undefined,
+        };
+      },
+    }),
     /**
      * ...add more providers here.
      *
@@ -229,6 +274,13 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  pages: {
+    // signIn: "/auth/signin",
+    // signOut: "/auth/signout",
+    error: "/auth/error",
+    // verifyRequest: "/auth/verify-request",
+    newUser: "/users/registration",
+  }
 };
 
 /**

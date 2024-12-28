@@ -454,6 +454,7 @@ model User {
   quickbooksTokenExpiry   DateTime?
   quickbooksAuthState     String?
   deleted                 Boolean              @default(false)
+  password                String?
   accounts                Account[]
   Invoice                 Invoice[]
   CreatedOffices          Office[]             @relation("CreatedBy")
