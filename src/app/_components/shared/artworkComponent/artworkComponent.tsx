@@ -12,6 +12,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { FileImage, FileText } from "lucide-react";
 
 type ArtworkComponentProps = {
     artworkUrl: string;
@@ -35,13 +36,12 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
             )}
             {isPdf && (
                 <div>
-                    {/* Show SVG Image for PDF */}
-                    <svg className="h-10 w-10 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <rect width="6" height="6" x="14" y="5" rx="1" />  <line x1="4" y1="7" x2="10" y2="7" />  <line x1="4" y1="11" x2="10" y2="11" />  <line x1="4" y1="15" x2="20" y2="15" />  <line x1="4" y1="19" x2="20" y2="19" /></svg>
+                    <FileText className="h-10 w-10 text-red-500" />
                 </div>
             )}
             {isPSD && (
                 <div>
-                    <svg className="h-10 w-10 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />  <circle cx="8.5" cy="8.5" r="1.5" />  <polyline points="21 15 16 10 5 21" /></svg>
+                    <FileImage className="h-10 w-10 text-red-500" />
                 </div>
             )}
             <p><strong>Artwork: </strong>{artworkUrl ? artworkUrl : ''}</p>

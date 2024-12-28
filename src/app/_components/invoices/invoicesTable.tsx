@@ -18,6 +18,7 @@ import { Invoice, InvoicePayment, InvoiceStatus } from "@prisma/client";
 import { SerializedInvoice } from "~/types/serializedTypes";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 import { api } from "~/trpc/react";
+import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface InvoicesTableProps {
@@ -73,9 +74,7 @@ const InvoicesTable: React.FC= () => {
     const actionCellRenderer = (props: { data: SerializedInvoice }) => (
         <div className="flex gap-2">
         <Link href={`/invoices/${props.data.id}`} className="btn btn-xs btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-            </svg>
+            <Eye className="w-4 h-4 mr-1" />
             Invoice
             </Link>
             <QuickbooksInvoiceButton invoice={props.data} onSyncSuccess={handleSyncSuccess}/>
@@ -95,16 +94,12 @@ const InvoicesTable: React.FC= () => {
                 <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
                     {params.value ? (
                         <>
-                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+                            <RefreshCcw className="w-4 h-4 mr-2" />
                             Synced
                         </>
                     ) : (
                         <>
-                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                            </svg>
+                            <RefreshCwOff className="w-4 h-4 mr-2" />
                             Not Synced
                         </>
                     )}

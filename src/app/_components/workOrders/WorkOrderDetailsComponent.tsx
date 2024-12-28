@@ -11,7 +11,7 @@ import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrde
 import { api } from "~/trpc/react";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { DollarSign, Eye, Info, PlusCircle } from "lucide-react";
+import { DollarSign, Eye, Info, PlusCircle, RefreshCcw } from "lucide-react";
 import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
@@ -125,9 +125,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             <>
                 <div className="flex justify-center items-center h-screen">
                     <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
-                        <svg className="w-16 h-16" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
-                        </svg>
+                        <RefreshCcw className="w-16 h-16" />
                     </div>
                 </div>
             </>

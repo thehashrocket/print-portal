@@ -13,7 +13,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/Ship
 import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { FilePlus2, Printer, Send } from "lucide-react";
+import { FilePlus2, Printer, RefreshCcw, Send } from "lucide-react";
 import { generateOrderPDF } from "~/utils/pdfGenerator";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
@@ -199,9 +199,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             <>
                 <div className="flex justify-center items-center h-screen">
                     <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
-                        <svg className="w-16 h-16" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M12 22C17.523 22 22 17.523 22 12H19V7h-2v5H15V7h-2v5H11V7H9v5H7V7H5v5H3V12c0 5.523 4.477 10 10 10z" />
-                        </svg>
+                        <RefreshCcw className="w-16 h-16" />
                     </div>
                 </div>
             </>
