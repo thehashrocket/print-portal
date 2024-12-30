@@ -19,7 +19,7 @@ import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField
 import { WorkOrderShippingInfoEditor } from './workOrderShippingInfo/WorkOrderShippingInfoEditor';
 import ContactPersonEditor from '../shared/ContactPersonEditor/ContactPersonEditor';
 
-const StatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
+const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
@@ -185,8 +185,8 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             content={<p className="text-2xl">{workOrder.Office.Company.name}</p>}
                         />
                         <InfoCard
-                            title="Order Status"
-                            content={<StatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}
+                            title="Estimate Status"
+                            content={<EstimateStatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}
                         />
                         <InfoCard
                             title="Order Price Details"

@@ -41,7 +41,16 @@ export default function UserRegistration() {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const createUserMutation = api.users.create.useMutation();
+    const createUserMutation = api.users.create.useMutation({
+        onSuccess: () => {
+            toast.success("Registration successful! Please sign in.");
+            router.push("/api/auth/signin");
+        },
+        onError: (error: TRPCClientErrorLike<AppRouter>) => {
+            toast.error(error.message ?? "Failed to create account");
+            setIsSubmitting(false);
+        }
+    });
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -62,24 +71,14 @@ export default function UserRegistration() {
             createUserMutation.mutate({
                 email: validatedData.email,
                 password: validatedData.password,
-            }, {
-                onSuccess: () => {
-                    toast.success("Registration successful! Please sign in.");
-                    router.push("/api/auth/signin");
-                },
-                onError: (error: TRPCClientErrorLike<AppRouter>) => {
-                    toast.error(error.message);
-                    setIsSubmitting(false);
-                }
             });
 
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const formattedErrors: { [key: string]: string } = {};
                 error.errors.forEach((err) => {
-                    const path = err.path[0];
-                    if (path) {
-                        formattedErrors[path.toString()] = err.message;
+                    if (err.path[0] !== undefined) {
+                        formattedErrors[err.path[0].toString()] = err.message;
                     }
                 });
                 setErrors(formattedErrors);

@@ -23,7 +23,7 @@ import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator
 import { Input } from "../ui/input";
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 
-const ItemStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
+const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
@@ -255,8 +255,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         <div className="grid-cols-1 gap-4">
                             {/* Status Badge */}
                             <InfoCard
-                                title="Estimate Status"
-                                content={<ItemStatusBadge
+                                title="Order Status"
+                                content={<OrderStatusBadge
                                     id={order.id}
                                     status={order.status}
                                     orderId={order.id}

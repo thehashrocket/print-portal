@@ -25,7 +25,8 @@
     "generate-docs": "tsx scripts/generateApiDocs.ts",
     "generate-font": "node scripts/generateFontBase64.mjs",
     "import-paper-products": "tsx scripts/importPaperProducts.ts",
-    "import-quickbooks": "tsx prisma/import-quickbooks.js"
+    "import-quickbooks": "tsx prisma/import-quickbooks.js",
+    "import-compass-health-locations": "tsx prisma/import-compass-health-locations.js"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",
