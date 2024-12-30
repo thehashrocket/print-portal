@@ -11,6 +11,7 @@ import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField
 
 const addressSchema = z.object({
     id: z.string().optional(),
+    name: z.string().optional(),
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
     line3: z.string().optional(),
@@ -69,6 +70,7 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
             const selectedAddressData = officeAddresses.find(addr => addr.id === selectedAddress);
             if (selectedAddressData) {
                 data.address = {
+                    name: selectedAddressData.name ?? undefined,
                     line1: selectedAddressData.line1,
                     line2: selectedAddressData.line2 || '',
                     line3: selectedAddressData.line3 ?? undefined,
@@ -90,6 +92,7 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
             const selectedAddress = officeAddresses.find(addr => addr.id === addressId);
             if (selectedAddress) {
                 setValue('address', {
+                    name: selectedAddress.name ?? undefined,
                     line1: selectedAddress.line1,
                     line2: selectedAddress?.line2 ?? '',
                     line3: selectedAddress?.line3 ?? '',
@@ -175,7 +178,7 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
                         <SelectField
                             options={[
                                 { value: 'new', label: 'Create New Address' },
-                                ...officeAddresses.map(address => ({ value: address.id, label: `${address.line1}, ${address.city}, ${address.state}` })),
+                                ...officeAddresses.map(address => ({ value: address.id, label: `${address.name ?? ''}, ${address.line1}, ${address.city}, ${address.state}` })),
                             ]}
                             value={selectedAddress}
                             onValueChange={handleAddressChange}
@@ -185,6 +188,10 @@ const ShippingInfoForm: React.FC<ShippingInfoFormProps> = ({ onSubmit, officeId,
 
                     {selectedAddress === 'new' && (
                         <>
+                            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                                <Label htmlFor="name">Name</Label>
+                                <Input {...register('address.name')} className="input input-bordered w-full" />
+                            </div>
                             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                                 <Label htmlFor="line1">Address Line 1</Label>
                                 <Input {...register('address.line1')} className="input input-bordered w-full" />

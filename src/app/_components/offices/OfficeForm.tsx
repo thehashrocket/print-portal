@@ -57,6 +57,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
             ...prev,
             addresses: [...prev.addresses, {
                 id: `temp-${Date.now()}`,
+                name: "",
                 line1: "",
                 line2: "",
                 line3: "",
@@ -110,6 +111,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                 name: formData.name,
                 addresses: formData.addresses.map(addr => ({
                     id: addr.id,
+                    name: addr.name ?? undefined,
                     line1: addr.line1,
                     line2: addr.line2 || undefined,
                     line3: addr.line3 || undefined,
@@ -173,6 +175,15 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 <Trash className="w-4 h-4" />
                             </Button>
                         </div>
+
+                        <Input
+                            id="name"
+                            type="text"
+                            value={address.name ?? ''}
+                            onChange={(e) => handleAddressChange(address.id, 'name', e.target.value)}
+                            placeholder="Address Name"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        />
 
                         <Input
                             id="line1"

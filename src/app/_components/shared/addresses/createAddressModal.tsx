@@ -16,6 +16,7 @@ import { Label } from '~/app/_components/ui/label';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 
 const addressSchema = z.object({
+    name: z.string().optional(),
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
     line3: z.string().optional(),
@@ -77,6 +78,13 @@ export const CreateAddressModal: React.FC<CreateAddressModalProps> = ({
                     <DialogTitle>Create New Address</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div>
+                        <Label htmlFor="name" className='flex gap-1'>
+                            Name
+                        </Label>
+                        <Input {...register('name')} />
+                    </div>
+
                     <div>
                         <Label htmlFor="line1" className='flex gap-1'>
                             Address Line 1

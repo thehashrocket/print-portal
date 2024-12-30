@@ -42,6 +42,7 @@ const shippingInfoSchema = z.object({
 });
 
 const addressSchema = z.object({
+    name: z.string().optional(),
     line1: z.string().min(1, 'Address Line 1 is required'),
     line2: z.string().optional(),
     line3: z.string().optional(),
@@ -316,6 +317,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
                                     <div className="font-medium">
+                                        {currentShippingInfo.Address?.name ?? ''}
                                         {currentShippingInfo.Address?.line1}
                                         {currentShippingInfo.Address?.line2 && `, ${currentShippingInfo.Address.line2}`}
                                         {currentShippingInfo.Address?.line3 && `, ${currentShippingInfo.Address.line3}`}

@@ -82,6 +82,7 @@ export const officeRouter = createTRPCRouter({
             companyId: z.string(),
             isActive: z.boolean().optional(),
             Addresses: z.array(z.object({
+                name: z.string().optional(),
                 line1: z.string(),
                 line2: z.string().optional(),
                 line3: z.string().optional(),
@@ -108,6 +109,7 @@ export const officeRouter = createTRPCRouter({
                     },
                     Addresses: {
                         create: input.Addresses.map((address) => ({
+                            name: address.name ?? '',
                             line1: address.line1,
                             line2: address.line2,
                             line3: address.line3,
@@ -138,6 +140,7 @@ export const officeRouter = createTRPCRouter({
                 line2: z.string().optional(),
                 line3: z.string().optional(),
                 line4: z.string().optional(),
+                name: z.string().optional(),
                 officeId: z.string(),
                 state: z.string(),
                 telephoneNumber: z.string(),
@@ -156,6 +159,7 @@ export const officeRouter = createTRPCRouter({
                     // Create new address
                     await ctx.db.address.create({
                         data: {
+                            name: address.name ?? '',
                             line1: address.line1,
                             line2: address.line2,
                             line3: address.line3,
@@ -172,21 +176,26 @@ export const officeRouter = createTRPCRouter({
                     });
                 } else if (address.id) {
                     // Update existing address
+                    const updateData: Record<string, any> = {
+                        line1: address.line1,
+                        city: address.city,
+                        state: address.state,
+                        zipCode: address.zipCode,
+                        country: address.country,
+                        telephoneNumber: address.telephoneNumber,
+                        addressType: address.addressType,
+                    };
+
+                    // Only add optional fields if they are defined
+                    if (address.name !== undefined) updateData.name = address.name;
+                    if (address.line2 !== undefined) updateData.line2 = address.line2;
+                    if (address.line3 !== undefined) updateData.line3 = address.line3;
+                    if (address.line4 !== undefined) updateData.line4 = address.line4;
+                    if (address.deleted !== undefined) updateData.deleted = address.deleted;
+
                     await ctx.db.address.update({
                         where: { id: address.id },
-                        data: {
-                            line1: address.line1,
-                            line2: address.line2,
-                            line3: address.line3,
-                            line4: address.line4,
-                            city: address.city,
-                            deleted: address.deleted,
-                            state: address.state,
-                            zipCode: address.zipCode,
-                            country: address.country,
-                            telephoneNumber: address.telephoneNumber,
-                            addressType: address.addressType,
-                        },
+                        data: updateData,
                     });
                 }
             }

@@ -55,6 +55,7 @@ model Address {
   deleted         Boolean        @default(false)
   line3           String?
   line4           String?
+  name            String?
   Office          Office         @relation(fields: [officeId], references: [id])
   ShippingInfo    ShippingInfo[]
 

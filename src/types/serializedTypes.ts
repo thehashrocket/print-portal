@@ -20,6 +20,7 @@ import {
 } from "@prisma/client";
 
 export interface SerializedAddress {
+    name: string | null;
     addressType: AddressType;
     city: string;
     country: string;

@@ -381,6 +381,7 @@ export function normalizeAddress(address: Address): SerializedAddress {
     return {
         id: address.id,
         officeId: address.officeId,
+        name: address.name,
         line1: address.line1,
         line2: address.line2,
         line3: address.line3,
