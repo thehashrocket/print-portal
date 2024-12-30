@@ -181,7 +181,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         content={workOrderItem.quantity ?? 'N/A'}
                     />
                     <InfoCard
-                        title="Ink"
+                        title="Color"
                         content={workOrderItem.ink ?? 'N/A'}
                     />
                     <InfoCard

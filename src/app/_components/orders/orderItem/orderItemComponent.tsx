@@ -191,7 +191,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         <InfoCard title="Item Number" content={orderItem.orderItemNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
                         <InfoCard title="Item Quantity" content={orderItem.quantity} />
-                        <InfoCard title="Ink" content={orderItem.ink} />
+                        <InfoCard title="Color" content={orderItem.ink} />
                         <InfoCard
                             title="Paper Product"
                             content={

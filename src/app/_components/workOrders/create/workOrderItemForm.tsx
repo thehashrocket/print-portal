@@ -217,8 +217,8 @@ const WorkOrderItemForm: React.FC = () => {
                             )}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='ink'>Ink</Label>
-                            <Input id='ink' {...register('ink')} placeholder="Enter ink..." />
+                            <Label htmlFor='ink'>Color</Label>
+                            <Input id='ink' {...register('ink')} placeholder="Enter color..." />
                             {errors.ink && <p className='text-red-500'>{errors.ink.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
