@@ -321,6 +321,16 @@ model ProcessingOptions {
   WorkOrderItem   WorkOrderItem? @relation(fields: [workOrderItemId], references: [id])
 }
 
+model ProductType {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  description   String          @default("")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deleted       Boolean         @default(false)
+  WorkOrderItem WorkOrderItem[]
+}
+
 model Role {
   id          String       @id @default(uuid())
   name        RoleName     @unique
@@ -530,6 +540,8 @@ model WorkOrderItem {
   other               String?
   PaperProduct        PaperProduct?          @relation(fields: [paperProductId], references: [id])
   paperProductId      String?
+  ProductType         ProductType?           @relation(fields: [productTypeId], references: [id])
+  productTypeId       String?
   prepTime            Int?
   ProcessingOptions   ProcessingOptions[]
   quantity            Int                    @default(1)
