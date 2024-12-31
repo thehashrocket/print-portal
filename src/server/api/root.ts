@@ -12,6 +12,7 @@ import { postRouter } from "~/server/api/routers/post";
 import { rolesRouter } from "./routers/roles/roles";
 import { orderItemStockRouter } from "./routers/orderItemStocks/orderItemStock";
 import { paperProductsRouter } from "./routers/shared/paperProducts/paperProducts";
+import { productTypeRouter } from "./routers/shared/productTypes/productType";
 import { qbAuthRouter } from "./routers/quickbooks/qbAuth";
 import { qbCompanyRouter } from "./routers/quickbooks/qbCompany";
 import { qbCustomerRouter } from "./routers/quickbooks/qbCustomer";
@@ -48,6 +49,7 @@ export const appRouter = createTRPCRouter({
   paperProducts: paperProductsRouter,
   post: postRouter,
   processingOptions: processingOptionsRouter,
+  productTypes: productTypeRouter,
   qbAuth: qbAuthRouter,
   qbCompany: qbCompanyRouter,
   qbCustomers: qbCustomerRouter,

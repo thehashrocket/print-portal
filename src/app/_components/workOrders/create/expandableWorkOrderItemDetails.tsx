@@ -46,6 +46,11 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
             </div>
 
             <div className="mb-4">
+                <h4 className="text-lg font-medium mb-2">Product Type</h4>
+                <p>{workOrderItem.ProductType?.name ?? 'N/A'}</p>
+            </div>
+            
+            <div className="mb-4">
                 <h4 className="text-lg font-medium mb-2">Description</h4>
                 <p>{workOrderItem.description}</p>
             </div>

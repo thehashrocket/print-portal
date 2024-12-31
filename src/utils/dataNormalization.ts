@@ -619,6 +619,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         expectedDate: item.expectedDate.toISOString(),
         other: item.other,
         paperProductId: item.paperProductId,
+        productTypeId: item.productTypeId,
         quantity: item.quantity,
         size: item.size,
         specialInstructions: item.specialInstructions,

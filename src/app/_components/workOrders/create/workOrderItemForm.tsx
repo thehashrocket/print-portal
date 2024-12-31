@@ -32,6 +32,7 @@ const workOrderItemSchema = z.object({
     ink: z.string().optional(),
     other: z.string().optional(),
     paperProductId: z.string().optional(),
+    productTypeId: z.string().optional(),
     prepTime: z.number().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
     size: z.string().optional(),
@@ -61,6 +62,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     // Retrieve all paper products, then reduce the list to only include the paper products to remove the duplicates based on the brand, size, paperType, finish, and weightLb
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const { data: productTypes } = api.productTypes.getAll.useQuery();
     const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
         index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
     );
@@ -185,6 +187,19 @@ const WorkOrderItemForm: React.FC = () => {
                                 placeholder="Enter cost per m..."
                             />
                             {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor='productTypeId' className='flex gap-1'>
+                                Product Type
+                            </Label>
+                            {productTypes && (
+                                <SelectField
+                                    options={productTypes.map(productType => ({ value: productType.id, label: productType.name }))}
+                                value={watch('productTypeId') ?? ''}
+                                onValueChange={(value) => setValue('productTypeId', value)}
+                                placeholder="Select product type..."
+                                />
+                            )}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='description' className='flex gap-1'>

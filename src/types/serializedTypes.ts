@@ -434,6 +434,7 @@ export interface SerializedWorkOrderItem {
     other: string | null;
     quantity: number;
     paperProductId: string | null;
+    productTypeId: string | null;
     size: string | null;
     specialInstructions: string | null;
     status: WorkOrderItemStatus;

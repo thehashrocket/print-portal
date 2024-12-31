@@ -109,11 +109,11 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
         }
     }, [workOrderItems]);
 
-    useEffect(() => {
-        if (workOrder) {
-            utils.workOrders.getByID.invalidate(workOrderId);
-        }
-    }, [workOrder]);
+    // useEffect(() => {
+    //     if (workOrder) {
+    //         utils.workOrders.getByID.invalidate(workOrderId);
+    //     }
+    // }, [workOrder]);
 
     useCopilotReadable({
         description: "The current work order that is being viewed.",

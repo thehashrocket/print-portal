@@ -171,7 +171,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
 
             <div className="rounded-lg bg-white p-3 md:p-6 shadow-md">
                 {/* Basic Info Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <InfoCard
                         title="Estimate Number"
                         content={workOrder?.workOrderNumber ?? 'N/A'}
@@ -185,6 +185,10 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         content={workOrderItem.ink ?? 'N/A'}
                     />
                     <InfoCard
+                        title="Product Type"
+                        content={workOrderItem.ProductType?.name ?? 'N/A'}
+                    />
+                    <InfoCard
                         title="Paper Product"
                         content={
                             workOrderItem.PaperProduct ? (
@@ -196,6 +200,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                             ) : 'N/A'
                         }
                     />
+                    
                 </div>
                 
                 {/* Company Section */}
