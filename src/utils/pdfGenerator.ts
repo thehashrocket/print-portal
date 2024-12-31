@@ -111,7 +111,7 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, yPos);
     yPos += 10;
     doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
-    yPos += 5;
+    yPos += 10;
     doc.setFont('helvetica', 'normal')
     if (order.ShippingInfo?.Address?.line1) {
         doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);

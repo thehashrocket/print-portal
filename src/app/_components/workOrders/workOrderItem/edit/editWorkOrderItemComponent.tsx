@@ -20,7 +20,9 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
     const [error, setError] = useState<string | null>(null);
 
     const { data: fetchedWorkOrderItem, isLoading, error: fetchError } = api.workOrderItems.getByID.useQuery(workOrderItemId);
-
+    
+    const { data: productTypes } = api.productTypes.getAll.useQuery();
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const updateWorkOrderItemMutation = api.workOrderItems.update.useMutation({
         onSuccess: (updatedItem) => {
             utils.workOrderItems.getByID.invalidate(updatedItem.id ?? '');
@@ -44,13 +46,16 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (workOrderItem) {
-            const { id,
+            const {
+                id,
                 amount,
                 cost,
                 description,
                 expectedDate,
                 ink,
                 other,
+                paperProductId,
+                productTypeId,
                 quantity,
                 size,
                 status,
@@ -65,7 +70,9 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     expectedDate: expectedDate ? new Date(expectedDate) : undefined,
                     ink: ink ?? undefined,
                     other: other ?? undefined,
-                    quantity: quantity ?? undefined,
+                    paperProductId: paperProductId ?? undefined,
+                    productTypeId: productTypeId ?? undefined,
+                    quantity: quantity !== null ? Number(quantity) : undefined,
                     size: size ?? undefined,
                     status: status ?? undefined,
                     specialInstructions: specialInstructions ?? undefined,
@@ -76,7 +83,11 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setWorkOrderItem(prev => prev ? { ...prev, [name]: value } : null);
+        if (name === 'quantity' || name === 'amount' || name === 'cost') {
+            setWorkOrderItem(prev => prev ? { ...prev, [name]: value === '' ? null : Number(value) } : null);
+        } else {
+            setWorkOrderItem(prev => prev ? { ...prev, [name]: value } : null);
+        }
     };
 
     return (
@@ -107,6 +118,30 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                         className="w-full p-2 border rounded"
                         required
                     />
+                </div>
+                <div>
+                    <label htmlFor="productTypeId" className="block mb-1">Product Type</label>
+                    {productTypes && (
+                        <SelectField
+                            options={productTypes.map(productType => ({ value: productType.id, label: productType.name }))}
+                            value={workOrderItem.productTypeId ?? ''}
+                        onValueChange={(value) => setWorkOrderItem(prev => prev ? { ...prev, productTypeId: value } : null)}
+                        placeholder="Select product type..."
+                            required={true}
+                        />
+                    )}
+                </div>
+                <div>
+                    <label htmlFor="paperProductId" className="block mb-1">Paper Product</label>
+                    {paperProducts && (
+                        <SelectField
+                            options={paperProducts.map(paperProduct => ({ value: paperProduct.id, label: `${paperProduct.brand} ${paperProduct.paperType} ${paperProduct.finish} ${paperProduct.weightLb} lbs` }))}
+                            value={workOrderItem.paperProductId ?? ''}
+                            onValueChange={(value) => setWorkOrderItem(prev => prev ? { ...prev, paperProductId: value } : null)}
+                            placeholder="Select paper product..."
+                            required={true}
+                        />
+                    )}
                 </div>
                 <div>
                     <label htmlFor="description" className="block mb-1">Description</label>

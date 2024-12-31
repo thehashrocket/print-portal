@@ -168,13 +168,52 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.text(splitDescription, leftMargin, yPos);
     yPos += splitDescription.length * 7 + 10; // More space after description
 
+    doc.setFont('helvetica', 'normal');
+    if (orderItem.ProductType) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Product Type', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(orderItem.ProductType.name, leftMargin, yPos);
+    } else {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Product Type', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text('N/A', leftMargin, yPos);
+    }
+    yPos += 20;
+    if (orderItem.PaperProduct) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Paper Stock', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(orderItem.PaperProduct.paperType + ' ' + orderItem.PaperProduct.finish + ' ' + orderItem.PaperProduct.weightLb + ' lbs', leftMargin, yPos);
+    } else {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Paper Stock', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text('N/A', leftMargin, yPos);
+    }
+    yPos += 20;
+    
+
     // Process Typesetting Proofs with proper sizing
     if (typesetting?.length > 0) {
         let proofCount = 0;
         let lastImageHeight = 0; // Track the height of the last row of images
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('PROOFFILE NAME(S)', leftMargin, yPos);
+        doc.text('PROOF FILE NAME(S)', leftMargin, yPos);
         yPos += 10;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
