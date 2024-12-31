@@ -271,6 +271,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                         onClick={async () => {
                                             try {
                                                 console.log('Generating order PDF', order);
+                                                console.log('ShippingInfo', order.ShippingInfo);
                                                 await generateOrderPDF(order);
                                             } catch (error) {
                                                 console.error('Error generating PDF:', error);

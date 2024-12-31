@@ -247,6 +247,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
                                     <div className="font-medium">
+                                        {currentShippingInfo.Address?.name && `${currentShippingInfo.Address.name}, `}
                                         {currentShippingInfo.Address?.line1}
                                         {currentShippingInfo.Address?.line2 && `, ${currentShippingInfo.Address.line2}`}
                                         {currentShippingInfo.Address?.line3 && `, ${currentShippingInfo.Address.line3}`}
@@ -352,7 +353,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             <SelectField
                                 options={addresses.map(address => ({
                                     value: address.id,
-                                    label: `${address.line1}, ${address.city}, ${address.state}`
+                                    label: `${address.name ? address.name + ', ' : ''}, ${address.line1}, ${address.city}, ${address.state}`
                                 }))}
                                 value={watch('addressId') || ''}
                                 onValueChange={(value) => setValue('addressId', value)}

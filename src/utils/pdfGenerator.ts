@@ -113,6 +113,10 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
     yPos += 10;
     doc.setFont('helvetica', 'normal')
+    if (order.ShippingInfo?.Address?.name) {
+        doc.text(`${order.ShippingInfo?.Address?.name}`, 20, yPos);
+        yPos += 5;
+    }
     if (order.ShippingInfo?.Address?.line1) {
         doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
         yPos += 5;
@@ -232,6 +236,9 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
         yPos += 5;
         doc.setFont('helvetica', 'normal')
+        if (order.ShippingInfo) {
+            console.log('ShippingInfo', order.ShippingInfo);
+        }
         if (order.ShippingInfo?.Address?.line1) {
             doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
             yPos += 5;
