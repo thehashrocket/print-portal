@@ -127,6 +127,11 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     }
     if (order.ShippingInfo?.Address?.city) {
         doc.text(`${order.ShippingInfo?.Address?.city}, ${order.ShippingInfo?.Address?.state} ${order.ShippingInfo?.Address?.zipCode}`, 20, yPos);
+        yPos += 5;
+    }
+
+    if (order.ShippingInfo?.shippingMethod) {
+        doc.text(`Shipping Method: ${order.ShippingInfo?.shippingMethod}`, 20, yPos);
         yPos += 20;
     }
 
@@ -137,7 +142,7 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     leftY = addField('Contact', order.contactPerson?.name || 'N/A', leftMargin, leftY);
     leftY = addField('Email', order.contactPerson?.email || 'N/A', leftMargin, leftY);
     leftY = addField('Date', formatDate(order.updatedAt), leftMargin, leftY);
-
+    
     // Right column
     let rightY = yPos;
     rightY = addField('Item Total', formatCurrency(order.calculatedSubTotal ?? 0), rightColStart, rightY);
@@ -239,6 +244,10 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         if (order.ShippingInfo) {
             console.log('ShippingInfo', order.ShippingInfo);
         }
+        if (order.ShippingInfo?.Address?.name) {
+            doc.text(`${order.ShippingInfo?.Address?.name}`, 20, yPos);
+            yPos += 5;
+        }
         if (order.ShippingInfo?.Address?.line1) {
             doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
             yPos += 5;
@@ -249,6 +258,11 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         }
         if (order.ShippingInfo?.Address?.city) {
             doc.text(`${order.ShippingInfo?.Address?.city}, ${order.ShippingInfo?.Address?.state} ${order.ShippingInfo?.Address?.zipCode}`, 20, yPos);
+            yPos += 5;
+        }
+
+        if (order.ShippingInfo?.shippingMethod) {
+            doc.text(`Shipping Method: ${order.ShippingInfo?.shippingMethod}`, 20, yPos);
             yPos += 20;
         }
 
