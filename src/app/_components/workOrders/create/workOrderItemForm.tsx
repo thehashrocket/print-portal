@@ -35,7 +35,7 @@ const workOrderItemSchema = z.object({
     productTypeId: z.string().optional(),
     prepTime: z.number().optional(),
     quantity: z.number().min(1, 'Quantity is required'),
-    size: z.string().optional(),
+    size: z.string(),
     specialInstructions: z.string().optional(),
     status: z.nativeEnum(WorkOrderItemStatus),
 });
@@ -263,7 +263,10 @@ const WorkOrderItemForm: React.FC = () => {
                             {errors.quantity && <p className="text-red-500">{errors.quantity.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="size">Size</Label>
+                            <Label htmlFor="size" className='flex gap-1'>
+                                Size
+                                <span className='text-red-500'>*</span>
+                            </Label>
                             <Input id="size" {...register('size')} placeholder="Enter size..." />
                             {errors.size && <p className="text-red-500">{errors.size.message}</p>}
                         </div>
