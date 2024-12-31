@@ -38,6 +38,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
               createdBy: true,
             },
@@ -149,6 +150,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
             },
           },
@@ -205,6 +207,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
             },
           },
@@ -270,6 +273,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
             },
           },
@@ -341,6 +345,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
             },
           },
@@ -402,6 +407,7 @@ export const workOrderRouter = createTRPCRouter({
                 }
               },
               ProcessingOptions: true,
+              ProductType: true,
               WorkOrderItemStock: true,
             },
           },

@@ -197,6 +197,7 @@ export interface SerializedOrderItem {
     updatedAt: string;
     artwork: SerializedOrderItemArtwork[];
     OrderItemStock: SerializedOrderItemStock[];
+    ProductType: SerializedProductType | null;
 }
 
 export interface SerializedOrderItemArtwork {
@@ -276,6 +277,14 @@ export interface SerializedProcessingOptions {
     stitching: string | null;
     binderyTime: number | null;
     binding: BindingType | null;
+}
+
+export interface SerializedProductType {
+    id: string;
+    name: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface SerializedShippingInfo {
@@ -432,6 +441,7 @@ export interface SerializedWorkOrderItem {
     workOrderId: string | null;
     artwork: SerializedWorkOrderItemArtwork[];
     ProcessingOptions: SerializedProcessingOptions[];
+    ProductType: SerializedProductType | null;
     Typesetting: SerializedTypesetting[];
     workOrderItemNumber: number;
     WorkOrderItemStock: SerializedWorkOrderItemStock[];

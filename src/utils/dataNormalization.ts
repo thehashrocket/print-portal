@@ -28,7 +28,8 @@ import {
     type Prisma,
     User,
     OrderStatus,
-    PaperProduct
+    PaperProduct,
+    ProductType
 } from "@prisma/client";
 
 import {
@@ -56,6 +57,7 @@ import {
     type SerializedOrderPayment,
     type SerializedWorkOrderNote,
     type SerializedWorkOrderVersion,
+    SerializedProductType,
 } from "~/types/serializedTypes";
 
 export function normalizeInvoice(invoice: Invoice & {
@@ -156,6 +158,7 @@ export function normalizeOrder(order: Order & {
             };
         };
         OrderItemStock: OrderItemStock[];
+        ProductType: ProductType | null;
     })[];
     contactPerson: {
         id: string;
@@ -243,6 +246,7 @@ export function normalizeOrder(order: Order & {
 export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
     OrderItemStock: OrderItemStock[];
+    ProductType: ProductType | null;
     Order: {
         Office: {
             Company: {
@@ -286,7 +290,8 @@ export function normalizeOrderItem(item: OrderItem & {
         status: item.status,
         updatedAt: item.updatedAt.toISOString(),
         artwork: item.artwork.map(normalizeOrderItemArtwork),
-        OrderItemStock: item.OrderItemStock.map(normalizeOrderItemStock)
+        OrderItemStock: item.OrderItemStock.map(normalizeOrderItemStock),
+        ProductType: item.ProductType ? normalizeProductType(item.ProductType) : null,
     };
 }
 
@@ -396,6 +401,16 @@ export function normalizeAddress(address: Address): SerializedAddress {
         addressType: address.addressType,
         createdAt: address.createdAt.toISOString(),
         updatedAt: address.updatedAt.toISOString(),
+    };
+}
+
+export function normalizeProductType(productType: ProductType): SerializedProductType {
+    return {
+        id: productType.id,
+        name: productType.name,
+        description: productType.description,
+        createdAt: productType.createdAt.toISOString(),
+        updatedAt: productType.updatedAt.toISOString(),
     };
 }
 
@@ -513,6 +528,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     }) | null;
     WorkOrderItems: (WorkOrderItem & {
         artwork: WorkOrderItemArtwork[];
+        ProductType: ProductType | null;
         Typesetting: (Typesetting & {
             TypesettingOptions: TypesettingOption[];
             TypesettingProofs: TypesettingProof[];
@@ -577,6 +593,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
     artwork: WorkOrderItemArtwork[];
     PaperProduct?: PaperProduct | null;
     ProcessingOptions: ProcessingOptions[];
+    ProductType: ProductType | null;
     Typesetting: (Typesetting & {
         TypesettingOptions: TypesettingOption[];
         TypesettingProofs: TypesettingProof[];
@@ -611,6 +628,7 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
         PaperProduct: item.PaperProduct ? normalizePaperProduct(item.PaperProduct) : null,
         ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
+        ProductType: item.ProductType ? normalizeProductType(item.ProductType) : null,
         Typesetting: item.Typesetting.map(normalizeTypesetting),
         workOrderItemNumber: item.workOrderItemNumber,
         WorkOrderItemStock: item.WorkOrderItemStock.map(normalizeWorkOrderItemStock),

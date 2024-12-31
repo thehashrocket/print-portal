@@ -23,6 +23,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     PaperProduct: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -45,6 +46,7 @@ export const workOrderItemRouter = createTRPCRouter({
                 artwork: true,
                 PaperProduct: true,
                 ProcessingOptions: true,
+                ProductType: true,
                 Typesetting: {
                     include: {
                         TypesettingOptions: true,
@@ -106,6 +108,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     createdBy: true,
                     PaperProduct: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -134,6 +137,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     PaperProduct: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -174,6 +178,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     artwork: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -228,6 +233,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     artwork: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -257,6 +263,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     artwork: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -287,6 +294,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     artwork: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -318,6 +326,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     artwork: true,
                     createdBy: true,
                     ProcessingOptions: true,
+                    ProductType: true,
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,

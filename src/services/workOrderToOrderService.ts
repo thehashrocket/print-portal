@@ -62,6 +62,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
                         },
                     },
                     ProcessingOptions: true,
+                    ProductType: true,
                     WorkOrderItemStock: {
                         include: {
                             PaperProduct: true,
@@ -175,6 +176,7 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             expectedDate: new Date(workOrderItem.expectedDate),
             finishedQty: 0,
             paperProductId: workOrderItem.paperProductId,
+            productTypeId: workOrderItem.ProductType?.id,
             prepTime: null,
             pressRun: '0',
             quantity: workOrderItem.quantity,

@@ -24,6 +24,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              ProductType: true,
               Order: {
                 select: {
                   Office: {
@@ -111,6 +112,7 @@ export const orderRouter = createTRPCRouter({
         OrderItems: order.OrderItems.map(item => ({
           ...item,
           artwork: item.artwork,
+          ProductType: item.ProductType,
           Order: {
             Office: order.Office,
             WorkOrder: order.WorkOrder,
@@ -144,6 +146,7 @@ export const orderRouter = createTRPCRouter({
           OrderItems: {
             include: {
               artwork: true,
+              ProductType: true,
               OrderItemStock: true,
               Order: {
                 select: {
@@ -271,6 +274,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              ProductType: true,
               Order: {
                 select: {
                   Office: {
@@ -466,6 +470,7 @@ export const orderRouter = createTRPCRouter({
               include: {
                 artwork: true,
                 OrderItemStock: true,
+                ProductType: true,
                 Order: {
                   select: {
                     Office: {
@@ -565,6 +570,7 @@ export const orderRouter = createTRPCRouter({
             include: {
               artwork: true,
               OrderItemStock: true,
+              ProductType: true,
               Order: {
                 select: {
                   Office: {

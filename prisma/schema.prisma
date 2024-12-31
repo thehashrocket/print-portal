@@ -199,6 +199,8 @@ model OrderItem {
   prepTime            Int?
   pressRun            String
   ProcessingOptions   ProcessingOptions[]
+  ProductType         ProductType?       @relation(fields: [productTypeId], references: [id])
+  productTypeId       String?
   quantity            Int                 @default(1)
   shippingAmount      Decimal?            @db.Decimal(10, 2)
   size                String?
@@ -328,6 +330,7 @@ model ProductType {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   deleted       Boolean         @default(false)
+  OrderItem     OrderItem[]
   WorkOrderItem WorkOrderItem[]
 }
 
