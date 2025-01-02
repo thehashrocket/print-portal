@@ -543,10 +543,10 @@ model WorkOrderItem {
   other               String?
   PaperProduct        PaperProduct?          @relation(fields: [paperProductId], references: [id])
   paperProductId      String?
-  ProductType         ProductType?           @relation(fields: [productTypeId], references: [id])
-  productTypeId       String?
   prepTime            Int?
   ProcessingOptions   ProcessingOptions[]
+  ProductType         ProductType?           @relation(fields: [productTypeId], references: [id])
+  productTypeId       String?
   quantity            Int                    @default(1)
   shippingAmount      Decimal?               @db.Decimal(10, 2)
   size                String?

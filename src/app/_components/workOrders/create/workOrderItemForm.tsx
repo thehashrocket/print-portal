@@ -26,14 +26,13 @@ const workOrderItemSchema = z.object({
         description: z.string().optional(),
     })).optional(),
     cost: z.number().default(1).optional(),
-    costPerM: z.number().default(1).optional(),
     description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
     ink: z.string().optional(),
     other: z.string().optional(),
     paperProductId: z.string().optional(),
     productTypeId: z.string().optional(),
-    prepTime: z.number().optional(),
+    prepTime: z.number().min(0, 'Design time must be a positive number'),
     quantity: z.number().min(1, 'Quantity is required'),
     size: z.string(),
     specialInstructions: z.string().optional(),
@@ -173,20 +172,6 @@ const WorkOrderItemForm: React.FC = () => {
                                 placeholder="Enter cost..."
                             />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
-                        </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='costPerM' className='flex gap-1'>
-                                Cost Per M
-                            </Label>
-                            <Input
-                                id='costPerM'
-                                type='number'
-                                {...register('costPerM', {
-                                    setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
-                                })}
-                                placeholder="Enter cost per m..."
-                            />
-                            {errors.costPerM && <p className='text-red-500'>{errors.costPerM.message}</p>}
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='productTypeId' className='flex gap-1'>
