@@ -33,6 +33,7 @@ const loadImage = async (url: string): Promise<HTMLImageElement> => {
     });
 };
 
+// Check if we need a new page and add it if necessary
 const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): number => {
     const pageHeight = doc.internal.pageSize.height;
     if (yPos + requiredSpace > pageHeight - 20) {
@@ -301,47 +302,81 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     // Typesetting Details section
     if (typesetting?.length > 0) {
         const ts = typesetting[0];
-        let currentY = typesettingY;
+        let leftY = typesettingY;
+        let rightY = typesettingY;
         
-        const typesettingWidth = pageWidth/2 - 20;
+        const typesettingWidth = pageWidth/2 - 30; // Slightly reduced width for better spacing
+        const keys = Object.keys(ts).filter(key => {
+            const skipKeys = ["createdAt", "updatedAt", "createdById", "orderItemId", "id", "workOrderItemId", "TypesettingOptions", "TypesettingProofs"];
+            return !skipKeys.includes(key);
+        });
 
-        for (const key in ts) {
-            // Format the key to be more readable (e.g., "bindingType" -> "Binding Type")
+        // Split keys into two arrays for left and right columns
+        const midPoint = Math.ceil(keys.length / 2);
+        const leftKeys = keys.slice(0, midPoint);
+        const rightKeys = keys.slice(midPoint);
+
+        // Process left column
+        for (const key of leftKeys) {
             const formattedKey = key.replace(/([A-Z])/g, ' $1')
                 .replace(/^./, str => str.toUpperCase());
-            // If formattedKey is "Created At", "Updated At", "Created By Id", "Order Item Id", "Id" then skip it.
-            if (formattedKey === "Created At" || formattedKey === "Updated At" || formattedKey === "Created By Id" || formattedKey === "Order Item Id" || formattedKey === "Id") {
-                continue;
-            }
-            currentY = addDetailsField(formattedKey, ts[key], leftMargin, currentY, typesettingWidth);
+            leftY = addDetailsField(formattedKey, ts[key], leftMargin, leftY, typesettingWidth);
         }
+
+        // Process right column
+        for (const key of rightKeys) {
+            const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase());
+            rightY = addDetailsField(formattedKey, ts[key], rightColStart, rightY, typesettingWidth);
+        }
+
+        // Update yPos to the maximum height of both columns
+        yPos = Math.max(leftY, rightY) + 10;
     }
     
 
-    // Bindery Options (right column)
+    // Bindery Options section
+    yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
+
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('BINDERY OPTIONS', rightColStart, yPos);
+    doc.text('BINDERY OPTIONS', leftMargin, yPos);
     doc.setFontSize(9);
-    // Bindery Options section
+
     if (orderItem.ProcessingOptions?.length > 0) {
         const options = orderItem.ProcessingOptions[0];
-        let currentY = typesettingY;
+        let leftY = yPos + 8;
+        let rightY = yPos + 8;
         
-        const binderyWidth = pageWidth - rightColStart - leftMargin;
+        const binderyWidth = pageWidth/2 - 30; // Match typesetting width
+        const keys = Object.keys(options).filter(key => {
+            const skipKeys = ["createdAt", "updatedAt", "createdById", "orderItemId", "id"];
+            return !skipKeys.includes(key) && options[key]; // Only include keys with values
+        });
 
-        for (const key in options) {
-            if (options[key]) {
-                // Format the key to be more readable (e.g., "bindingType" -> "Binding Type")
-                const formattedKey = key.replace(/([A-Z])/g, ' $1')
-                    .replace(/^./, str => str.toUpperCase());
-                // If formattedKey is "Created At", "Updated At", "Created By Id", "Order Item Id", "Id" then skip it.
-                if (formattedKey === "Created At" || formattedKey === "Updated At" || formattedKey === "Created By Id" || formattedKey === "Order Item Id" || formattedKey === "Id") {
-                    continue;
-                }
-                currentY = addDetailsField(formattedKey, options[key], rightColStart, currentY, binderyWidth);
-            }
+        // Split keys into two arrays for left and right columns
+        const midPoint = Math.ceil(keys.length / 2);
+        const leftKeys = keys.slice(0, midPoint);
+        const rightKeys = keys.slice(midPoint);
+
+        // Process left column
+        for (const key of leftKeys) {
+            leftY = checkAndAddPage(doc, leftY, 10);
+            const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase());
+            leftY = addDetailsField(formattedKey, options[key], leftMargin, leftY, binderyWidth);
         }
+
+        // Process right column
+        for (const key of rightKeys) {
+            rightY = checkAndAddPage(doc, rightY, 10);
+            const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase());
+            rightY = addDetailsField(formattedKey, options[key], rightColStart, rightY, binderyWidth);
+        }
+
+        // Update yPos to the maximum height of both columns
+        yPos = Math.max(leftY, rightY) + 10;
     }
 
     // Add page numbers with proper alignment
