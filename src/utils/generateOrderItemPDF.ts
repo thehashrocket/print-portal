@@ -247,20 +247,23 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.setFontSize(12);
     
     // Modified addDetailsField with tighter alignment
-    const addDetailsField = (label: string, value: string, x: number, currentY: number, maxWidth: number): number => {
+    const addDetailsField = (label: string, value: any, x: number, currentY: number, maxWidth: number): number => {
         // Draw label
         doc.setFont('helvetica', 'bold');
         doc.text(label, x, currentY);
         
-        // Calculate label width and position value right after it with small gap
-        // const labelWidth = doc.getTextWidth(label);
         const labelWidth = 20;
-        const valueX = x + labelWidth + 10; // Keep the 10 unit gap after label
+        const valueX = x + labelWidth + 10;
         
         doc.setFont('helvetica', 'normal');
         
+        // Convert value to string and handle different types
+        const valueStr = (typeof value === 'boolean') 
+            ? (value ? 'Yes' : 'No')
+            : String(value || 'N/A');
+        
         // For multi-line text, split by words and control the wrapping
-        const words = value.split(' ');
+        const words = valueStr.split(' ');
         let currentLine = '';
         let yOffset = 0;
         const lineHeight = 5;
@@ -302,18 +305,26 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('BINDERY OPTIONS', rightColStart, yPos);
-    doc.setFontSize(12);
+    doc.setFontSize(9);
 
     if (orderItem.ProcessingOptions?.length > 0) {
         const options = orderItem.ProcessingOptions[0];
         let currentY = typesettingY;
         
         const binderyWidth = pageWidth - rightColStart - leftMargin;
-        
-        currentY = addDetailsField('Cutting', options.cutting || 'N/A', rightColStart, currentY, binderyWidth);
-        currentY = addDetailsField('Folding', options.folding || 'N/A', rightColStart, currentY + 2, binderyWidth);
-        currentY = addDetailsField('Binding', options.binding || 'N/A', rightColStart, currentY + 2, binderyWidth);
-        currentY = addDetailsField('Stitching', options.stitching || 'N/A', rightColStart, currentY + 2, binderyWidth);
+
+        for (const key in options) {
+            if (options[key]) {
+                // Format the key to be more readable (e.g., "bindingType" -> "Binding Type")
+                const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, str => str.toUpperCase());
+                // If formattedKey is "Created At", "Updated At", "Created By Id", "Order Item Id", "Id" then skip it.
+                if (formattedKey === "Created At" || formattedKey === "Updated At" || formattedKey === "Created By Id" || formattedKey === "Order Item Id" || formattedKey === "Id") {
+                    continue;
+                }
+                currentY = addDetailsField(formattedKey, options[key], rightColStart, currentY, binderyWidth);
+            }
+        }
     }
 
     // Add page numbers with proper alignment
