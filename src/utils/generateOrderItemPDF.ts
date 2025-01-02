@@ -74,11 +74,11 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     
     // Item Details header
     yPos += 20;
-    doc.setFontSize(20);
+    doc.setFontSize(15);
     doc.text('ITEM DETAILS', leftMargin, yPos);
 
     // Add dates to the right of Item Details
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('DATE STARTED', rightColStart, yPos);
     doc.setFont('helvetica', 'normal');
@@ -91,9 +91,61 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
     yPos += 15; // Space after headers
 
+    // Modified addDetailsField with tighter alignment
+    const addDetailsField = (label: string, value: any, x: number, currentY: number, maxWidth: number): number => {
+        // Draw label
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, x, currentY);
+        
+        const labelWidth = 20;
+        const valueX = x + labelWidth + 10;
+        
+        doc.setFont('helvetica', 'normal');
+        
+        // Convert value to string and handle different types
+        let valueStr;
+        if (typeof value === 'boolean') {
+            valueStr = value ? 'Yes' : 'No';
+        } else if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
+            // Handle ISO date strings
+            valueStr = formatDate(new Date(value));
+        } else {
+            valueStr = String(value || 'N/A');
+        }
+        
+        // For multi-line text, split by words and control the wrapping
+        const words = valueStr.split(' ');
+        let currentLine = '';
+        let yOffset = 0;
+        const lineHeight = 5;
+
+        words.forEach((word, index) => {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const testWidth = doc.getTextWidth(testLine);
+
+            // Increase available width by reducing right margin
+            const availableWidth = maxWidth - (valueX - x) + 10; // Increased from -20 to +10
+            if (testWidth > availableWidth && index > 0) {
+                doc.text(currentLine, valueX, currentY + yOffset);
+                currentLine = word;
+                yOffset += lineHeight;
+            } else {
+                currentLine = testLine;
+            }
+        });
+
+        // Draw the last line
+        if (currentLine) {
+            doc.text(currentLine, valueX, currentY + yOffset);
+            yOffset += lineHeight;
+        }
+
+        return currentY + Math.max(yOffset, lineHeight + 2);
+    };
+
     // Two-column layout for top section
-    const addField = (label: string, value: string, x: number, currentY: number, spacing: number = 10, labelWidth: number = 20) => {
-        doc.setFontSize(14);
+    const addField = (label: string, value: string, x: number, currentY: number, spacing: number = 10, labelWidth: number = 20, fontSize: number = 14) => {
+        doc.setFontSize(fontSize);
         doc.setFont('helvetica', 'bold');
         doc.text(label, x, currentY);
         
@@ -186,7 +238,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         doc.setFontSize(12);
         doc.text('N/A', leftMargin, yPos);
     }
-    yPos += 20;
+    yPos += 10;
     if (orderItem.PaperProduct) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -204,7 +256,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         doc.setFontSize(12);
         doc.text('N/A', leftMargin, yPos);
     }
-    yPos += 20;
+    yPos += 10;
     
 
     // Process Typesetting Proofs with proper sizing
@@ -237,76 +289,41 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         yPos += 20; // Changed from 40 to 20
     }
 
-    // Typesetting and Bindery Options with proper alignment
+    // Typesetting and Bindery Options with proper alignment (left column)
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     
     // Typesetting Details (left column)
     doc.text('TYPESETTING DETAILS', leftMargin, yPos);
     const typesettingY = yPos + 8;
-    doc.setFontSize(12);
-    
-    // Modified addDetailsField with tighter alignment
-    const addDetailsField = (label: string, value: any, x: number, currentY: number, maxWidth: number): number => {
-        // Draw label
-        doc.setFont('helvetica', 'bold');
-        doc.text(label, x, currentY);
-        
-        const labelWidth = 20;
-        const valueX = x + labelWidth + 10;
-        
-        doc.setFont('helvetica', 'normal');
-        
-        // Convert value to string and handle different types
-        const valueStr = (typeof value === 'boolean') 
-            ? (value ? 'Yes' : 'No')
-            : String(value || 'N/A');
-        
-        // For multi-line text, split by words and control the wrapping
-        const words = valueStr.split(' ');
-        let currentLine = '';
-        let yOffset = 0;
-        const lineHeight = 5;
-
-        words.forEach((word, index) => {
-            const testLine = currentLine + (currentLine ? ' ' : '') + word;
-            const testWidth = doc.getTextWidth(testLine);
-
-            // Increase available width by reducing right margin
-            const availableWidth = maxWidth - (valueX - x) + 10; // Increased from -20 to +10
-            if (testWidth > availableWidth && index > 0) {
-                doc.text(currentLine, valueX, currentY + yOffset);
-                currentLine = word;
-                yOffset += lineHeight;
-            } else {
-                currentLine = testLine;
-            }
-        });
-
-        // Draw the last line
-        if (currentLine) {
-            doc.text(currentLine, valueX, currentY + yOffset);
-            yOffset += lineHeight;
-        }
-
-        return currentY + Math.max(yOffset, lineHeight + 2);
-    };
+    doc.setFontSize(9);
     
     // Typesetting Details section
     if (typesetting?.length > 0) {
         const ts = typesetting[0];
         let currentY = typesettingY;
-        currentY = addDetailsField('Date In', formatDate(ts.dateIn), leftMargin, currentY, pageWidth/2 - 20);
-        currentY = addDetailsField('Status', ts.status, leftMargin, currentY + 2, pageWidth/2 - 20);
-        currentY = addDetailsField('Design Time', `${ts.prepTime || 0} Hours`, leftMargin, currentY + 2, pageWidth/2 - 20);
+        
+        const typesettingWidth = pageWidth/2 - 20;
+
+        for (const key in ts) {
+            // Format the key to be more readable (e.g., "bindingType" -> "Binding Type")
+            const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase());
+            // If formattedKey is "Created At", "Updated At", "Created By Id", "Order Item Id", "Id" then skip it.
+            if (formattedKey === "Created At" || formattedKey === "Updated At" || formattedKey === "Created By Id" || formattedKey === "Order Item Id" || formattedKey === "Id") {
+                continue;
+            }
+            currentY = addDetailsField(formattedKey, ts[key], leftMargin, currentY, typesettingWidth);
+        }
     }
+    
 
     // Bindery Options (right column)
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('BINDERY OPTIONS', rightColStart, yPos);
     doc.setFontSize(9);
-
+    // Bindery Options section
     if (orderItem.ProcessingOptions?.length > 0) {
         const options = orderItem.ProcessingOptions[0];
         let currentY = typesettingY;
