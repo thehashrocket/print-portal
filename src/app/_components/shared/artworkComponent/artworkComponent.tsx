@@ -12,7 +12,8 @@
 
 import React from "react";
 import Image from "next/image";
-import { FileImage, FileText } from "lucide-react";
+import { FileImage, FileText, FileSpreadsheet, DownloadIcon } from "lucide-react";
+import { Button } from "../../ui/button";
 
 type ArtworkComponentProps = {
     artworkUrl: string;
@@ -23,31 +24,52 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
     artworkUrl,
     artworkDescription,
 }) => {
-    const isImage = artworkUrl.match(/\.(jpeg|jpg|gif|png)$/) != null;
-    const isPdf = artworkUrl.match(/\.(pdf)$/) != null;
-    const isPSD = artworkUrl.match(/\.(psd)$/) != null;
-    const NEXTAUTH_URL = process.env.GOOGLE_CLIENT_ID;
+    const fileExtension = artworkUrl.split('.').pop()?.toLowerCase();
+
+    const getFileType = (ext: string | undefined) => {
+        if (!ext) return 'Unknown';
+        if (['jpeg', 'jpg', 'gif', 'png'].includes(ext)) return 'Image';
+        if (['pdf', 'doc', 'docx', 'rtf'].includes(ext)) return 'Document';
+        if (['xls', 'xlsx', 'csv'].includes(ext)) return 'Spreadsheet';
+        if (ext === 'psd') return 'PSD';
+        return 'Unknown';
+    };
+
+    const renderFileIcon = () => {
+        const type = getFileType(fileExtension);
+        switch (type) {
+            case 'Image':
+                return <FileImage className="h-10 w-10 text-blue-500" />;
+            case 'Spreadsheet':
+                return <FileSpreadsheet className="h-10 w-10 text-green-500" />;
+            default:
+                return <FileText className="h-10 w-10 text-red-500" />;
+        }
+    };
 
     return (
         <div>
-            {isImage && (
-                <img src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
-                // <Image src={artworkUrl ? artworkUrl : ''} alt={artworkDescription ? artworkDescription : ''} width={200} height={200} />
-            )}
-            {isPdf && (
-                <div>
-                    <FileText className="h-10 w-10 text-red-500" />
+            {getFileType(fileExtension) === 'Image' ? (
+                <img 
+                    src={artworkUrl} 
+                    alt={artworkDescription ?? ''} 
+                    width={200} 
+                    height={200} 
+                />
+            ) : (
+                <div className="flex flex-col items-center">
+                    {renderFileIcon()}
+                    <p className="text-sm text-gray-600 mt-2">
+                        {fileExtension?.toUpperCase()} File
+                    </p>
                 </div>
             )}
-            {isPSD && (
-                <div>
-                    <FileImage className="h-10 w-10 text-red-500" />
-                </div>
-            )}
-            <p><strong>Artwork: </strong>{artworkUrl ? artworkUrl : ''}</p>
-            <p><strong>Description: </strong>{artworkDescription ? artworkDescription : ''}</p>
-            {/* Show File Type */}
-            <p><strong>File Type: </strong>{isImage ? 'Image' : isPdf ? 'PDF' : isPSD ? 'PSD' : 'Unknown'}</p>
+            <p><strong>Artwork: </strong>{artworkUrl}</p>
+            <p><strong>Description: </strong>{artworkDescription ?? ''}</p>
+            <p><strong>File Type: </strong>{getFileType(fileExtension)}</p>
+            <Button variant="outline" size="icon" onClick={() => window.open(artworkUrl, '_blank')}>
+                <DownloadIcon className="h-4 w-4" />
+            </Button>
         </div>
     );
 };

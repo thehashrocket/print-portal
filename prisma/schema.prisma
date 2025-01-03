@@ -223,6 +223,7 @@ model OrderItemArtwork {
   id          String    @id @default(cuid())
   orderItemId String
   fileUrl     String
+  fileType    FileType  @default(Image)
   description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -564,6 +565,7 @@ model WorkOrderItemArtwork {
   id              String        @id @default(cuid())
   workOrderItemId String
   fileUrl         String
+  fileType        FileType      @default(Image)
   description     String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -639,6 +641,20 @@ enum BindingType {
   CoilBound
   WireO
   Other
+}
+
+enum FileType {
+  CSV
+  Excel
+  Image
+  JPEG
+  JPG
+  Other
+  PDF
+  PNG
+  PSD
+  RTF
+  Word
 }
 
 enum InvoicePrintEmailOptions {

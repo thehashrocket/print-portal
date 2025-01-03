@@ -290,11 +290,13 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         yPos += 20; // Changed from 40 to 20
     }
 
-    // Typesetting and Bindery Options with proper alignment (left column)
+    yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
+
+    // Typesetting and Bindery Options with proper alignment
+    
+    // Typesetting Details
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    
-    // Typesetting Details (left column)
     doc.text('TYPESETTING DETAILS', leftMargin, yPos);
     const typesettingY = yPos + 8;
     doc.setFontSize(9);
@@ -332,12 +334,16 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
         // Update yPos to the maximum height of both columns
         yPos = Math.max(leftY, rightY) + 10;
+    } else {
+        yPos += 10;
+        doc.text('N/A', leftMargin, yPos);
+        yPos += 10;
     }
     
 
-    // Bindery Options section
     yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
-
+    
+    // Bindery Options section
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text('BINDERY OPTIONS', leftMargin, yPos);
@@ -377,6 +383,10 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
         // Update yPos to the maximum height of both columns
         yPos = Math.max(leftY, rightY) + 10;
+    } else {
+        yPos += 10;
+        doc.text('N/A', leftMargin, yPos);
+        yPos += 10;
     }
 
     // Add page numbers with proper alignment
