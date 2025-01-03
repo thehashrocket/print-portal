@@ -64,7 +64,7 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
                     </p>
                 </div>
             )}
-            <p><strong>Artwork: </strong>{artworkUrl}</p>
+            <p><strong>File: </strong>{artworkUrl}</p>
             <p><strong>Description: </strong>{artworkDescription ?? ''}</p>
             <p><strong>File Type: </strong>{getFileType(fileExtension)}</p>
             <Button variant="outline" size="icon" onClick={() => window.open(artworkUrl, '_blank')}>

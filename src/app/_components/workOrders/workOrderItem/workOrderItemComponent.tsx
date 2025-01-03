@@ -275,7 +275,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 {/* Artwork Section */}
                 <div className="mb-6">
                     <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Artwork</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Files</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {workOrderItem.artwork && workOrderItem.artwork.length > 0 ? (
                                 workOrderItem.artwork.map((artwork) => (

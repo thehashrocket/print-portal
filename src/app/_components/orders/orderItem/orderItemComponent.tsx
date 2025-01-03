@@ -268,7 +268,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
                 {/* Artwork Section */}
                 <div className="mb-6">
-                    <h2 className="mb-2 text-gray-600 text-xl font-semibold">Artwork</h2>
+                    <h2 className="mb-2 text-gray-600 text-xl font-semibold">Files</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {orderItem?.artwork.map((artwork) => (
                             <div key={artwork.id} className="rounded-lg bg-white p-4 md:p-6 shadow-md">
