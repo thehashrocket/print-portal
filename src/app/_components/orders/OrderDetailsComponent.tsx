@@ -14,7 +14,7 @@ import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { FilePlus2, Printer, RefreshCcw, Send } from "lucide-react";
-import { generateOrderPDF } from "~/utils/pdfGenerator";
+import { generateOrderPDF } from "~/utils/generateOrderPDF";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';

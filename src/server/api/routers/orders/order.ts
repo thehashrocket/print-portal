@@ -4,7 +4,7 @@ import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
-import * as pdfGenerator from "~/utils/pdfGenerator";
+import * as pdfGenerator from "~/utils/generateOrderPDF";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 

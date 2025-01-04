@@ -1,7 +1,7 @@
 "use client";
 
 import { type SerializedOrder } from "~/types/serializedTypes";
-import { generateEmailOrderPDF } from "~/utils/pdfGenerator";
+import { generateEmailOrderPDF } from "~/utils/generateOrderPDF";
 
 export async function generateOrderPDFData(order: SerializedOrder): Promise<string> {
     try {

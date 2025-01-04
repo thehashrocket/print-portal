@@ -171,7 +171,7 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
         doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
     });
 
-    doc.save('order.pdf');
+    doc.save(`order_${order.orderNumber}.pdf`);
 }
 
 // This is used to send the order to the customer via email

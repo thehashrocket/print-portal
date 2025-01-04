@@ -20,12 +20,12 @@ import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../shared/ui/CustomComboBox';
 
 const workOrderItemSchema = z.object({
-    amount: z.number().default(1).optional(),
+    amount: z.number().multipleOf(0.01).default(1).optional(),
     artwork: z.array(z.object({
         fileUrl: z.string(),
         description: z.string().optional(),
     })).optional(),
-    cost: z.number().default(1).optional(),
+    cost: z.number().multipleOf(0.01).default(1).optional(),
     description: z.string().min(1, 'Description is required'),
     expectedDate: z.string().optional(),
     ink: z.string().optional(),
@@ -152,6 +152,7 @@ const WorkOrderItemForm: React.FC = () => {
                             <Input
                                 id='amount'
                                 type='number'
+                                step="0.01"
                                 {...register('amount', {
                                     setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
                                 })}
@@ -166,6 +167,7 @@ const WorkOrderItemForm: React.FC = () => {
                             <Input
                                 id='cost'
                                 type='number'
+                                step="0.01"
                                 {...register('cost', {
                                     setValueAs: (v: string) => v === '' ? 0 : parseFloat(v),
                                 })}

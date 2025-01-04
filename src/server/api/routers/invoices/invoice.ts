@@ -7,7 +7,7 @@ import {
 } from "~/server/api/trpc";
 import { InvoiceStatus, OrderStatus, PaymentMethod, Order, Invoice } from "@prisma/client";
 import { sendInvoiceEmail } from "~/utils/sengrid"
-import { generateInvoicePDF } from "~/utils/pdfGenerator"
+import { generateInvoicePDF } from "~/utils/generateOrderPDF"
 import { TRPCError } from "@trpc/server";
 import { normalizeInvoice, normalizeInvoiceItem, normalizeInvoicePayment } from "~/utils/dataNormalization";
 import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
@@ -19,7 +19,7 @@ function formatItemDescription(item: any): string {
 
     if (item.OrderItemStock && item.OrderItemStock.length > 0) {
         const stock = item.OrderItemStock[0];
-        description += ` | Paper: ${stock.description || 'N/A'}`;
+        description += ` | Paper: ${stock.PaperProduct.brand} ${stock.PaperProduct.paperType} ${stock.PaperProduct.finish} ${stock.PaperProduct.weightLb} lbs`;
     }
 
     if (item.ProcessingOptions && item.ProcessingOptions.length > 0) {

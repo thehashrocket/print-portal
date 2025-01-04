@@ -8,6 +8,8 @@ import { WorkOrderItemStatus } from "@prisma/client";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "~/app/_components/ui/textarea";
+import { Input } from "~/app/_components/ui/input";
+import { Label } from "~/app/_components/ui/label";
 
 interface EditWorkOrderItemProps {
     workOrderItemId: string;
@@ -64,15 +66,15 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
             updateWorkOrderItemMutation.mutate({
                 id,
                 data: {
-                    amount: amount !== null ? Number(amount) : undefined,
-                    cost: cost !== null ? Number(cost) : undefined,
+                    amount: amount ? parseFloat(amount) : undefined,
+                    cost: cost ? parseFloat(cost) : undefined,
                     description,
                     expectedDate: expectedDate ? new Date(expectedDate) : undefined,
                     ink: ink ?? undefined,
                     other: other ?? undefined,
                     paperProductId: paperProductId ?? undefined,
                     productTypeId: productTypeId ?? undefined,
-                    quantity: quantity !== null ? Number(quantity) : undefined,
+                    quantity,
                     size: size ?? undefined,
                     status: status ?? undefined,
                     specialInstructions: specialInstructions ?? undefined,
@@ -83,8 +85,11 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        if (name === 'quantity' || name === 'amount' || name === 'cost') {
-            setWorkOrderItem(prev => prev ? { ...prev, [name]: value === '' ? null : Number(value) } : null);
+        if (name === 'quantity') {
+            const numValue = value === '' ? 1 : parseInt(value, 10);
+            setWorkOrderItem(prev => prev ? { ...prev, quantity: numValue } : null);
+        } else if (name === 'amount' || name === 'cost') {
+            setWorkOrderItem(prev => prev ? { ...prev, [name]: value === '' ? null : value } : null);
         } else {
             setWorkOrderItem(prev => prev ? { ...prev, [name]: value } : null);
         }
@@ -96,8 +101,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
             {error && <div className="text-red-500 mb-4">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="amount" className="block mb-1">Amount</label>
-                    <input
+                    <Label htmlFor="amount" className="block mb-1">Amount</Label>
+                    <Input
                         type="number"
                         id="amount"
                         name="amount"
@@ -105,11 +110,13 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                         onChange={handleInputChange}
                         className="w-full p-2 border rounded"
                         required
+                        step="0.01"
+                        min="0"
                     />
                 </div>
                 <div>
-                    <label htmlFor="cost" className="block mb-1">Cost</label>
-                    <input
+                    <Label htmlFor="cost" className="block mb-1">Cost</Label>
+                    <Input
                         type="number"
                         id="cost"
                         name="cost"
@@ -117,10 +124,12 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                         onChange={handleInputChange}
                         className="w-full p-2 border rounded"
                         required
+                        step="0.01"
+                        min="0"
                     />
                 </div>
                 <div>
-                    <label htmlFor="productTypeId" className="block mb-1">Product Type</label>
+                    <Label htmlFor="productTypeId" className="block mb-1">Product Type</Label>
                     {productTypes && (
                         <SelectField
                             options={productTypes.map(productType => ({ value: productType.id, label: productType.name }))}
@@ -132,7 +141,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     )}
                 </div>
                 <div>
-                    <label htmlFor="paperProductId" className="block mb-1">Paper Product</label>
+                    <Label htmlFor="paperProductId" className="block mb-1">Paper Product</Label>
                     {paperProducts && (
                         <SelectField
                             options={paperProducts.map(paperProduct => ({ value: paperProduct.id, label: `${paperProduct.brand} ${paperProduct.paperType} ${paperProduct.finish} ${paperProduct.weightLb} lbs` }))}
@@ -144,7 +153,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     )}
                 </div>
                 <div>
-                    <label htmlFor="description" className="block mb-1">Description</label>
+                    <Label htmlFor="description" className="block mb-1">Description</Label>
                     <Textarea
                         id="description"
                         name="description"
@@ -157,8 +166,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="expectedDate" className="block mb-1">Expected Date</label>
-                    <input
+                    <Label htmlFor="expectedDate" className="block mb-1">Expected Date</Label>
+                    <Input
                         type="date"
                         id="expectedDate"
                         name="expectedDate"
@@ -169,8 +178,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="ink" className="block mb-1">Ink</label>
-                    <input
+                    <Label htmlFor="ink" className="block mb-1">Ink</Label>
+                    <Input
                         type="text"
                         id="ink"
                         name="ink"
@@ -180,8 +189,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="other" className="block mb-1">Other</label>
-                    <input
+                    <Label htmlFor="other" className="block mb-1">Other</Label>
+                    <Input
                         type="text"
                         id="other"
                         name="other"
@@ -191,8 +200,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="quantity" className="block mb-1">Quantity</label>
-                    <input
+                    <Label htmlFor="quantity" className="block mb-1">Quantity</Label>
+                    <Input
                         type="number"
                         id="quantity"
                         name="quantity"
@@ -203,8 +212,8 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="size" className="block mb-1">Size</label>
-                    <input
+                    <Label htmlFor="size" className="block mb-1">Size</Label>
+                    <Input
                         type="text"
                         id="size"
                         name="size"
@@ -214,7 +223,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="status" className="block mb-1">Status</label>
+                    <Label htmlFor="status" className="block mb-1">Status</Label>
                     <SelectField
                         options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}
                         value={workOrderItem.status}
@@ -224,7 +233,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     />
                 </div>
                 <div>
-                    <label htmlFor="specialInstructions" className="block mb-1">Special Instructions</label>
+                    <Label htmlFor="specialInstructions" className="block mb-1">Special Instructions</Label>
                     <Textarea
                         id="specialInstructions"
                         name="specialInstructions"
