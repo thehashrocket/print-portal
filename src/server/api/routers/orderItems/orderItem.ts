@@ -139,6 +139,10 @@ export const orderItemRouter = createTRPCRouter({
             purchaseOrderNumber: item.Order?.WorkOrder?.purchaseOrderNumber || '',
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
+            // Convert Decimal values to numbers
+            amount: item.amount ? Number(item.amount) : null,
+            cost: item.cost ? Number(item.cost) : null,
+            shippingAmount: item.shippingAmount ? Number(item.shippingAmount) : null,
         }));
 
         return orderItemPositions;

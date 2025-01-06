@@ -732,6 +732,14 @@ export const orderRouter = createTRPCRouter({
         const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
         return {
           ...order,
+          // Convert Decimal values to numbers
+          deposit: Number(order.deposit),
+          OrderItems: order.OrderItems.map(item => ({
+            ...item,
+            amount: item.amount ? Number(item.amount) : null,
+            cost: item.cost ? Number(item.cost) : null,
+            shippingAmount: item.shippingAmount ? Number(item.shippingAmount) : null,
+          })),
           OrderItemStatus: orderStatus,
           inHandsDate: firstOrderItem?.expectedDate,
           companyName: order.Office.Company.name,

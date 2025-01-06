@@ -14,4 +14,7 @@ export interface OrderItemDashboard {
     purchaseOrderNumber: string;
     createdAt: Date;
     updatedAt: Date;
+    amount: number | null;
+    cost: number | null;
+    shippingAmount: number | null;
 }
