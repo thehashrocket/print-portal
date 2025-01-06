@@ -2,9 +2,9 @@
 // trpc endpoint for getting, updating, and deleting an office
 // offices are nested under companies
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { Address, AddressType, Office } from "@prisma/client"; // Import the Office model
+import { AddressType } from "@prisma/client"; // Import the Office model
 import { TRPCError } from "@trpc/server";
 
 export const officeRouter = createTRPCRouter({

@@ -18,24 +18,27 @@ import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { WorkOrderShippingInfoEditor } from './workOrderShippingInfo/WorkOrderShippingInfoEditor';
 import ContactPersonEditor from '../shared/ContactPersonEditor/ContactPersonEditor';
+import { toast } from "react-hot-toast";
+import { type TRPCClientErrorLike } from "@trpc/client";
+import { type AppRouter } from "~/server/api/root";
 
 const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus, isError } = api.workOrders.updateStatus.useMutation({
-        onSuccess: (updatedWorkOrder) => {
+        onSuccess: () => {
             utils.workOrders.getByID.invalidate(workOrderId);
         },
-        onError: (error) => {
-            console.error('Failed to update status:', error);
+        onError: (error: TRPCClientErrorLike<AppRouter>) => {
+            toast.error(error.message ?? "Failed to update status. Please try again.");
         }
     });
 
     const getStatusColor = (status: WorkOrderStatus): string => {
         switch (status) {
-            case "Approved": return "bg-green-100 text-green-800";
-            case "Cancelled": return "bg-red-100 text-red-800";
-            case "Pending": return "bg-yellow-100 text-yellow-800";
+            case WorkOrderStatus.Approved: return "bg-green-100 text-green-800";
+            case WorkOrderStatus.Cancelled: return "bg-red-100 text-red-800";
+            case WorkOrderStatus.Pending: return "bg-yellow-100 text-yellow-800";
             default: return "bg-blue-100 text-blue-800";
         }
     };
@@ -56,7 +59,7 @@ const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workO
                 <p className="text-blue-700">
                     Status is the current status of the estimate.
                     You can change the status of the estimate by selecting a new status from the dropdown.
-                    When you convert an estimate to an order, the status of the work order will be set to "Approved".
+                    When you convert an estimate to an order, the status of the work order will be set to Approved.
                 </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -270,8 +273,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             <WorkOrderShippingInfoEditor
                                 workOrderId={workOrder.id}
                                 currentShippingInfo={workOrder.ShippingInfo}
-                                officeId={workOrder.officeId}
-                                companyName={workOrder.Office.Company.name}
+                                officeId={workOrder.Office.id}
                                 onUpdate={() => {
                                     utils.workOrders.getByID.invalidate(workOrderId);
                                 }}

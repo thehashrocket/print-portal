@@ -15,9 +15,8 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import Link from "next/link";
 import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
-import { type CompanyDashboardData } from "~/types/company";
 import { Button } from "../ui/button";
-import { CheckCircle, CircleX, Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
+import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
 import "~/styles/ag-grid-custom.css";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 

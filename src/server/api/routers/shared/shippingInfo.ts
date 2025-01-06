@@ -12,7 +12,7 @@
 
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
-import { ShippingInfo, ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from '@prisma/client';
 
 export const shippingInfoRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {

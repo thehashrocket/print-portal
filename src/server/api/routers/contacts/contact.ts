@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { TRPCError } from "@trpc/server";
 
 export const contactRouter = createTRPCRouter({
     createContact: protectedProcedure

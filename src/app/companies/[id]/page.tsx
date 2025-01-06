@@ -37,8 +37,13 @@ function serializeCompany(company: {
     };
 }
 
-export default async function CompanyPage(
-    { params: { id } }: { params: { id: string } }) {
+export default async function CompanyPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
+
+    const {
+        id
+    } = params;
+
     const session = await getServerAuthSession();
     const company = await api.companies.getByID(id);
 

@@ -1,7 +1,6 @@
 // ~/src/app/invoices/page.tsx
 import React from "react";
 import { getServerAuthSession } from "~/server/auth";
-import Link from "next/link";
 import InvoicesTable from "../_components/invoices/invoicesTable";
 
 export default async function InvoicesPage() {

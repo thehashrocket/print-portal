@@ -3,21 +3,17 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
   getServerSession,
-  type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-import QuickBooksProvider from "./auth/quickbooksProvider";
 import * as bcrypt from 'bcryptjs';
 import { env } from "~/env";
 import { db } from "~/server/db";
 import nodemailer from "nodemailer";
-import { getVerificationEmailTemplate } from "~/utils/emailTemplates";
 import { sendAdminNotification } from "~/utils/notifications";
-import { redirect } from "next/navigation";
 
 // We're augmenting the Session type to include user roles and permissions in the session object.
 // We're defining the user object to have an id, roles, and permissions.
@@ -96,9 +92,7 @@ export const authOptions: NextAuthOptions = {
       from: process.env.SENDGRID_EMAIL_FROM,
       sendVerificationRequest: async ({
         identifier: email,
-        url,
-        token,
-        provider,
+        url
       }) => {
         // Check if the user exists in the database
         const existingUser = await db.user.findUnique({

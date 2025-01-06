@@ -1,15 +1,14 @@
 // ~/src/app/_components/invoices/invoiceForm.tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { InvoiceStatus, Order, OrderItem, Office } from '@prisma/client';
-import { SerializedOrder, SerializedOrderItem } from '~/types/serializedTypes';
+import { InvoiceStatus } from '@prisma/client';
+import { type SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency } from '~/utils/formatters';
-import { Decimal } from 'decimal.js';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { SelectField } from '../shared/ui/SelectField/SelectField';
@@ -75,10 +74,6 @@ const InvoiceForm: React.FC = () => {
         }
     );
 
-    const { data: office } = api.offices.getById.useQuery(selectedOrder?.officeId ?? '', {
-        enabled: !!selectedOrder?.officeId,
-    });
-
     const onSubmit = async (data: InvoiceFormData) => {
         try {
             await createInvoice.mutateAsync(data);
@@ -90,7 +85,7 @@ const InvoiceForm: React.FC = () => {
         }
     };
 
-    const calculateTotals = () => {
+    const calculateTotals = useCallback(() => {
         const items = watch('items');
         const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
         const taxRate = watch('taxRate') || 0;
@@ -100,11 +95,11 @@ const InvoiceForm: React.FC = () => {
         setValue('subtotal', subtotal);
         setValue('taxAmount', taxAmount);
         setValue('total', total);
-    };
+    }, [watch, setValue]);
 
     useEffect(() => {
         calculateTotals();
-    }, [watch('items'), watch('taxRate')]);
+    }, [calculateTotals]);
 
     useEffect(() => {
         if (orderItems.length > 0) {
@@ -130,10 +125,7 @@ const InvoiceForm: React.FC = () => {
                 dateInvoiced: order.dateInvoiced ? new Date(order.dateInvoiced).toISOString() : null,
                 deposit: order.deposit ? order.deposit.toString() : '',
                 inHandsDate: order.inHandsDate ? new Date(order.inHandsDate).toISOString() : null,
-                // Remove totalCost from here
             });
-            const totalCost = Number(order.totalCost) || 0; // Handle totalCost separately
-            // Use totalCost as needed
         } else {
             setSelectedOrder(null);
         }

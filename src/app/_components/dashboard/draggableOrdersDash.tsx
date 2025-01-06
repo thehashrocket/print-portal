@@ -2,11 +2,9 @@
 
 "use client";
 import React, { useState } from 'react';
-import { OrderStatus, OrderItemStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 import { api } from "~/trpc/react";
-import { OrderDashboard } from "~/types/orderDashboard";
-import { Building2, CalendarDays, Eye } from 'lucide-react';
-import { formatDate } from '~/utils/formatters';
+import { type OrderDashboard } from "~/types/orderDashboard";
 import OrderCard from './OrderCard';
 
 const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {

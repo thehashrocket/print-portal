@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { WorkOrderContext } from '~/app/contexts/workOrderContext';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
 import { type SerializedWorkOrder } from '~/types/serializedTypes';
@@ -49,7 +48,6 @@ const WorkOrderForm: React.FC = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch, clearErrors } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
     });
-    const { setCurrentStep, setWorkOrder } = useContext(WorkOrderContext);
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -155,7 +153,6 @@ const WorkOrderForm: React.FC = () => {
         createWorkOrderMutation.mutate(newWorkOrder, {
             onSuccess: (createdWorkOrder: SerializedWorkOrder) => {
                 console.log('Work order created successfully:', createdWorkOrder);
-                setWorkOrder(createdWorkOrder);
                 router.push(`/workOrders/create/${createdWorkOrder.id}`)
             },
             onError: (error) => {

@@ -16,7 +16,6 @@ import { api } from "~/trpc/react";
 import { z } from "zod";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { TRPCClientError } from "@trpc/client";
 import { Button } from "~/app/_components/ui/button";
 import { Input } from "~/app/_components/ui/input";
 import { Card, CardHeader, CardContent, CardFooter } from "~/app/_components/ui/card";

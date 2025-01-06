@@ -38,9 +38,7 @@ export const generateProofPDF = async (proof: any) => {
     
     let yPos = 20;
     const leftMargin = 20;
-    const rightCol = 110;
     const doc = new jsPDF();
-    const pageHeight = doc.internal.pageSize.height;
 
     try {
         const logoUrl = window.location.origin + '/images/thomson-pdf-logo.svg';

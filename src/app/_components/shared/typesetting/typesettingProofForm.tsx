@@ -13,7 +13,6 @@ import ArtworkComponent from "../artworkComponent/artworkComponent";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
-import { Checkbox } from "../../ui/checkbox";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 const typesettingProofFormSchema = z.object({

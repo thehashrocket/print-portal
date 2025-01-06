@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
-import { AddressType, ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
@@ -31,24 +31,10 @@ const shippingInfoSchema = z.object({
     pickupNotes: z.string().optional(),
 });
 
-const addressSchema = z.object({
-    line1: z.string().min(1, 'Address Line 1 is required'),
-    line2: z.string().optional(),
-    line3: z.string().optional(),
-    line4: z.string().optional(),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    zipCode: z.string().min(1, 'Zip Code is required'),
-    country: z.string().min(1, 'Country is required'),
-    telephoneNumber: z.string().min(1, 'Telephone Number is required'),
-    addressType: z.nativeEnum(AddressType),
-});
-
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
-type AddressFormData = z.infer<typeof addressSchema>;
 
 const WorkOrderShippingInfoForm: React.FC = () => {
-    const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
+    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
         defaultValues: {
             // shippingMethod: ShippingMethod.Courier,
@@ -56,11 +42,8 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     });
     const { workOrder, setWorkOrder, setCurrentStep } = useContext(WorkOrderContext);
     const [addresses, setAddresses] = useState<any[]>([]);
-    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-    const [isCreatingNewAddress, setIsCreatingNewAddress] = useState(false);
     const createShippingInfoMutation = api.shippingInfo.create.useMutation();
     const addShippingInfoToWorkOrderMutation = api.workOrders.addShippingInfo.useMutation();
-    const createAddressMutation = api.addresses.create.useMutation();
     const { data: officeData } = api.offices.getById.useQuery(workOrder.officeId, { enabled: !!workOrder.officeId });
     const [isCreateAddressModalOpen, setIsCreateAddressModalOpen] = useState(false);
 
@@ -76,8 +59,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
         // Reset irrelevant fields when shipping method changes
         if (shippingMethod === ShippingMethod.Pickup || shippingMethod === ShippingMethod.Other) {
             setValue('addressId', undefined);
-            setSelectedAddress(null);
-            setIsCreatingNewAddress(false);
         } else {
             setValue('pickupDate', undefined);
             setValue('pickupTime', undefined);
@@ -160,7 +141,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                                 }))}
                                 value={watch('addressId') || ''}
                                 onValueChange={(value) => {
-                                    setSelectedAddress(value);
                                     setValue('addressId', value);
                                 }}
                                 placeholder="Select an address..."
@@ -184,7 +164,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                             officeId={workOrder.officeId}
                             onAddressCreated={(newAddress) => {
                                 setAddresses(prev => [...prev, newAddress]);
-                                setSelectedAddress(newAddress.id);
                                 setValue('addressId', newAddress.id);
                             }}
                         />

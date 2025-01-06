@@ -1,5 +1,6 @@
 // ~src/types/orderItemDashboard.ts
-import { OrderItemStatus } from "@prisma/client";
+import { type OrderItemStatus } from "@prisma/client";
+
 export interface OrderItemDashboard {
     id: string;
     position: number;

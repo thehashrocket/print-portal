@@ -3,11 +3,11 @@
 import React from 'react';
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import Link from 'next/link';
 import InvoiceDetailClient from '~/app/_components/invoices/InvoiceDetailClient';
 import { Decimal } from '@prisma/client/runtime/library';
 
-export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default async function InvoiceDetailPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const session = await getServerAuthSession();
 
     if (!session || !session.user.Permissions.includes("invoice_read")) {

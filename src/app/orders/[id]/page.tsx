@@ -9,11 +9,17 @@ import { notFound } from "next/navigation";
 import NoPermission from "~/app/_components/noPermission/noPermission";
 import OrderDetails from "~/app/_components/orders/OrderDetailsComponent";
 
-export default async function OrderPage({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
+export default async function OrderPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    id
+  } = params;
+
   const session = await getServerAuthSession();
 
   if (!session?.user.Permissions.includes("work_order_read")) {

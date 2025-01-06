@@ -5,18 +5,13 @@ import { XMLParser } from 'fast-xml-parser';
 import axios from 'axios';
 import { z } from 'zod';
 
-async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId: string, customerId: string) {
+async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId: string) {
     let query = `SELECT * from Invoice`;
 
     const baseUrl = process.env.QUICKBOOKS_ENVIRONMENT === 'sandbox'
         ? 'https://sandbox-quickbooks.api.intuit.com'
         : 'https://quickbooks.api.intuit.com';
 
-    const parser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: "",
-        parseAttributeValue: true
-    });
 
     const queryUrl = `${baseUrl}/v3/company/${quickbooksRealmId}/query?query=${encodeURIComponent(query)}`;
 
@@ -53,7 +48,6 @@ async function fetchInvoicesForOffice(ctx: any, accessToken: string, quickbooksR
         }
     });
     const result = parser.parse(response.data);
-    const totalCount = result.IntuitResponse.QueryResponse.totalCount;
     const invoices = result.IntuitResponse.QueryResponse.Invoice;
 
     console.log('invoices', invoices);
@@ -474,7 +468,7 @@ export const qbInvoiceRouter = createTRPCRouter({
             // Look through the offices and get the invoices for each office
             const invoices = await Promise.all(offices.map(async (office) => {
                 if (office.quickbooksCustomerId && user?.quickbooksRealmId) {
-                    return fetchAllInvoices(ctx, accessToken, user.quickbooksRealmId, office.quickbooksCustomerId);
+                    return fetchAllInvoices(ctx, accessToken, user.quickbooksRealmId);
                 }
             }));
 

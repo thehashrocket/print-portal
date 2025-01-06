@@ -9,13 +9,11 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
-import { SerializedOrder, SerializedOrderItem } from "~/types/serializedTypes";
-import { OrderItemDashboard } from "~/types/orderItemDashboard";
 import NoPermission from "../_components/noPermission/noPermission";
 import { Button } from "../_components/ui/button";
 import { formatDate } from "~/utils/formatters";
-import { OrderItemStatus, OrderStatus } from "@prisma/client";
-import { OrderDashboard } from "~/types/orderDashboard";
+import { type OrderItemStatus, type OrderStatus } from "@prisma/client";
+import { type OrderDashboard } from "~/types/orderDashboard";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

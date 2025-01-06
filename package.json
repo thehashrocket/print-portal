@@ -18,7 +18,7 @@
     "db:push": "prisma db push",
     "db-seed": "NODE_ENV=development prisma db seed",
     "db:studio": "prisma studio",
-    "dev": "next dev -p 3005",
+    "dev": "next dev --turbopack -p 3005",
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
@@ -42,7 +42,7 @@
     "@honeybadger-io/nextjs": "^5.9.10",
     "@honeybadger-io/react": "^6.1.25",
     "@hookform/resolvers": "^3.9.1",
-    "@next/env": "^15.1.0",
+    "@next/env": "15.1.3",
     "@prisma/client": "^6.0.1",
     "@radix-ui/react-checkbox": "^1.1.3",
     "@radix-ui/react-dialog": "^1.1.4",
@@ -78,12 +78,12 @@
     "jspdf": "^2.5.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.469.0",
-    "next": "^14.2.20",
+    "next": "15.1.3",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.9.16",
     "openai": "^4.76.3",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.4.0",
@@ -106,8 +106,8 @@
     "@types/node": "^20.17.10",
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.13.7",
-    "@types/react": "^18.3.17",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.2",
     "@types/string-similarity": "^4.0.2",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.19.0",
@@ -118,7 +118,7 @@
     "daisyui": "^4.12.22",
     "esbuild": "^0.24.2",
     "eslint": "^9.17.0",
-    "eslint-config-next": "^15.1.0",
+    "eslint-config-next": "15.1.3",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
@@ -131,5 +131,11 @@
   "ct3aMetadata": {
     "initVersion": "7.34.0"
   },
-  "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4"
+  "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4",
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.0.3",
+      "@types/react-dom": "19.0.2"
+    }
+  }
 }

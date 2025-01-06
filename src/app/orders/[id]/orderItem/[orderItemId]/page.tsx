@@ -14,11 +14,17 @@ import OrderItemComponent from "~/app/_components/orders/orderItem/orderItemComp
 
 import { getServerAuthSession } from "~/server/auth";
 
-export default async function OrderItemPage({
-    params: { id, orderItemId },
-}: {
-    params: { id: string, orderItemId: string };
-}) {
+export default async function OrderItemPage(
+    props: {
+        params: Promise<{ id: string, orderItemId: string }>;
+    }
+) {
+    const params = await props.params;
+
+    const {
+        id,
+        orderItemId
+    } = params;
 
 
     // Fetch user session for authentication

@@ -7,7 +7,7 @@ interface QuickbooksStore {
     isAuthenticated: boolean;
 }
 
-export const useQuickbooksStore = create(persist<QuickbooksStore>((set) => ({
+export const useQuickbooksStore = create(persist<QuickbooksStore>(() => ({
     isAuthenticated: false,
 }), {
     name: "quickbooks-store",

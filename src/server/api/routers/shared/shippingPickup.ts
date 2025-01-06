@@ -1,7 +1,6 @@
 // /src/server/api/routers/shared/shippingPickup.ts
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
-import { ShippingPickup, ShippingMethod } from '@prisma/client';
 
 export const shippingPickupRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {

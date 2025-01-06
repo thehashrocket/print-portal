@@ -5,7 +5,7 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { useRouter } from "next/navigation";
 import { type BindingType, type ProcessingOptions } from "@prisma/client";
-import { GridReadyEvent, type ColDef } from "@ag-grid-community/core";
+import { type ColDef, type GridReadyEvent } from "@ag-grid-community/core";
 import { Button } from "../ui/button";
 import { Pencil, Trash } from "lucide-react";
 

@@ -77,7 +77,7 @@ export const qbAuthRouter = createTRPCRouter({
         }),
 
     getIntuitSignInUrl: protectedProcedure
-        .mutation(async ({ ctx }) => {
+        .mutation(async ({ }) => {
             console.log('Getting Intuit sign-in URL');
 
             // https://appcenter.intuit.com/connect/oauth2?
@@ -172,7 +172,7 @@ export const qbAuthRouter = createTRPCRouter({
         }),
 
     initializeAuth: protectedProcedure
-        .mutation(async ({ ctx }) => {
+        .mutation(async ({  }) => {
             console.log('Initializing QuickBooks auth');
             console.log('QUICKBOOKS_CLIENT_ID:', process.env.QUICKBOOKS_CLIENT_ID);
             console.log('QUICKBOOKS_CLIENT_SECRET:', process.env.QUICKBOOKS_CLIENT_SECRET ? '[REDACTED]' : 'Not set');

@@ -11,11 +11,18 @@ import React from "react";
 import WorkOrderItemComponent from "~/app/_components/workOrders/workOrderItem/workOrderItemComponent";
 import { getServerAuthSession } from "~/server/auth";
 
-export default async function WorkOrderItemPage({
-    params: { id, workOrderItemId },
-}: {
-    params: { id: string, workOrderItemId: string };
-}) {
+export default async function WorkOrderItemPage(
+    props: {
+        params: Promise<{ id: string, workOrderItemId: string }>;
+    }
+) {
+    const params = await props.params;
+
+    const {
+        id,
+        workOrderItemId
+    } = params;
+
     const session = await getServerAuthSession();
 
     if (!session || !session.user.Permissions.includes("order_read")) {

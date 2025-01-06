@@ -27,9 +27,7 @@ const allowedExtensions = [
 export async function POST(request: NextRequest) {
     const data = await request.formData();
     const file: File | null = data.get('file') as unknown as File;
-    const workOrderItemId = data.get('workOrderItemId');
     const fileType = request.headers.get('X-File-Type');
-    const fileName = request.headers.get('X-File-Name');
 
     if (!file) {
         return NextResponse.json({ success: false, message: 'No file uploaded' }, { status: 400 });

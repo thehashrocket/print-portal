@@ -1,48 +1,51 @@
 // ~/app/contexts/workOrderContext.tsx
 "use client";
-import React, { createContext, useState, type ReactNode } from 'react';
-import { InvoicePrintEmailOptions, ShippingInfo, type WorkOrder, WorkOrderStatus } from '@prisma/client';
-// import { Decimal } from '@prisma/client/runtime/library';
+import React, { createContext, useState, type ReactNode, useEffect } from 'react';
+import { type SerializedWorkOrder } from '~/types/serializedTypes';
 import { api } from '~/trpc/react';
-
 
 interface WorkOrderContextProps {
     currentStep: number;
     getWorkOrder: (id: string) => void;
     setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-    workOrder: WorkOrder;  // Define the type of your workOrder as needed
-    setWorkOrder: React.Dispatch<React.SetStateAction<any>>;
-    saveWorkOrder: (workOrder: WorkOrder) => void;  // Define the type of your saveWorkOrder function as needed
+    workOrder: SerializedWorkOrder;
+    setWorkOrder: React.Dispatch<React.SetStateAction<SerializedWorkOrder>>;
 }
 
 const defaultValue: WorkOrderContextProps = {
     currentStep: 0,
-    getWorkOrder: (id: string) => { /* empty synchronous function */ },
+    getWorkOrder: () => { /* empty synchronous function */ },
     setCurrentStep: () => { },
-    workOrder: {} as WorkOrder,
+    workOrder: {} as SerializedWorkOrder,
     setWorkOrder: () => { },
-    saveWorkOrder: () => { },
 };
 
 export const WorkOrderContext = createContext<WorkOrderContextProps>(defaultValue);
 
 export const WorkOrderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [currentStep, setCurrentStep] = useState(0);
-    const [workOrder, setWorkOrder] = useState<any>({});
+    const [workOrder, setWorkOrder] = useState<SerializedWorkOrder>({} as SerializedWorkOrder);
+    const [workOrderId, setWorkOrderId] = useState<string | null>(null);
 
-    const saveWorkOrder = (workOrder: any) => {
-        // Implement save logic here
-    };
+    const { data: workOrderData } = api.workOrders.getByID.useQuery(
+        workOrderId as string,
+        { 
+            enabled: !!workOrderId
+        }
+    );
+
+    useEffect(() => {
+        if (workOrderData) {
+            setWorkOrder(workOrderData);
+        }
+    }, [workOrderData]);
 
     const getWorkOrder = (id: string) => {
-        const { data } = api.workOrders.getByID.useQuery(id);
-        if (data) {
-            setWorkOrder(data);
-        }
+        setWorkOrderId(id);
     };
 
     return (
-        <WorkOrderContext.Provider value={{ currentStep, getWorkOrder, setCurrentStep, workOrder, setWorkOrder, saveWorkOrder, }}>
+        <WorkOrderContext.Provider value={{ currentStep, getWorkOrder, setCurrentStep, workOrder, setWorkOrder }}>
             {children}
         </WorkOrderContext.Provider>
     );

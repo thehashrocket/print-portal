@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
-import { SerializedInvoice } from '~/types/serializedTypes';
+import { type SerializedInvoice } from '~/types/serializedTypes';
 import { Button } from '../ui/button';
 import { Loader2 } from "lucide-react"
 
@@ -16,7 +16,7 @@ interface QuickbooksInvoiceButtonProps {
 
 const QuickbooksInvoiceButton: React.FC<QuickbooksInvoiceButtonProps> = ({ invoice, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
-    const [invoiceData, setInvoiceData] = useState<SerializedInvoice | null>(invoice);
+    const [invoiceData] = useState<SerializedInvoice | null>(invoice);
 
     const createQbInvoiceFromInvoice = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
         onSuccess: () => {

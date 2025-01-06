@@ -1,13 +1,12 @@
-import { notFound } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/trpc/server";
 import EditWorkOrderItemComponent from "~/app/_components/workOrders/workOrderItem/edit/editWorkOrderItemComponent";
 
-export default async function EditWorkOrderItemPage({
-    params,
-}: {
-    params: { workOrderItemId: string };
-}) {
+export default async function EditWorkOrderItemPage(
+    props: {
+        params: Promise<{ workOrderItemId: string }>;
+    }
+) {
+    const params = await props.params;
     const session = await getServerAuthSession();
     if (!session) {
         return "You do not have permission to view this page";

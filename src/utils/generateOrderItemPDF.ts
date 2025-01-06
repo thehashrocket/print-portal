@@ -23,7 +23,7 @@ const loadSVG = async (url: string): Promise<HTMLImageElement> => {
     });
 };
 
-const loadImage = async (url: string): Promise<HTMLImageElement> => {
+async (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "Anonymous";

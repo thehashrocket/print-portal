@@ -1,12 +1,8 @@
 // This class is used to generate the typesetting proofs for the typesetting process.
 // /src/server/api/routers/shared/typesetting/typesettingProofs.ts
-import { ProofMethod, TypesettingProofArtwork } from "@prisma/client";
+import { ProofMethod } from "@prisma/client";
 import { z } from "zod";
-import {
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { type SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";
 

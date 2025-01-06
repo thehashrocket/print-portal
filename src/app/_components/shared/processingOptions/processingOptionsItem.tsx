@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsForm from "~/app/_components/shared/processingOptions/processingOptionsForm";
 import { type ProcessingOptions } from "@prisma/client";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { Button } from "../../ui/button";
 import { Pencil, Trash } from "lucide-react";
 
@@ -58,7 +57,6 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
                     initialData={option}
                     onClose={toggleEdit}
                     onCancel={toggleEdit}
-                    isActive={true}
                 />
             ) : (
                 <div className="p-6">

@@ -33,7 +33,6 @@ const ProcessingOptionsComponent: React.FC<ProcessingOptionsComponentProps> = ({
                         workOrderItemId={workOrderItemId}
                         onClose={toggleAdding}
                         onCancel={toggleAdding}
-                        isActive={isAdding}
                     />
                 </div>
             ) : (

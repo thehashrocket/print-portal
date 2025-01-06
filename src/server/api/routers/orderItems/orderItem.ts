@@ -1,7 +1,7 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderItemStatus } from "@prisma/client";
-import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
+import { sendOrderStatusEmail } from "~/utils/sengrid";
 
 export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
@@ -126,7 +126,7 @@ export const orderItemRouter = createTRPCRouter({
         // for each order item, find what the order item's position is in the list of order items for the order it belongs to
         // and add it to the order item as a new property
         // also add the total number of items in the order to the order item as a new property
-        const orderItemPositions = orderItems.map((item, index) => ({
+        const orderItemPositions = orderItems.map((item) => ({
             id: item.id,
             orderId: item.orderId,
             orderItemNumber: item.orderItemNumber,

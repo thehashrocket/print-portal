@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from "~/trpc/react";
 import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import { toast } from 'react-hot-toast';
@@ -28,6 +28,20 @@ const QuickbooksStatus: React.FC = () => {
         }
     }, [checkAuthStatus.data]);
 
+    const handleRefreshToken = useCallback(async () => {
+        try {
+            await refreshTokenMutation.mutateAsync();
+            await checkAuthStatus.refetch();
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(`Error refreshing token: ${error.message}`);
+            } else {
+                toast.error('An unknown error occurred while refreshing the QuickBooks token');
+            }
+            console.error('Error refreshing token:', error);
+        }
+    }, [refreshTokenMutation, checkAuthStatus]);
+
     useEffect(() => {
         if (isAuthenticated) {
             const refreshInterval = setInterval(() => {
@@ -36,7 +50,7 @@ const QuickbooksStatus: React.FC = () => {
 
             return () => clearInterval(refreshInterval);
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, handleRefreshToken]);
 
     const handleConnectClick = async () => {
         try {
@@ -51,20 +65,6 @@ const QuickbooksStatus: React.FC = () => {
                 toast.error('An unknown error occurred while connecting to QuickBooks');
             }
             console.error('Error initializing QuickBooks auth:', error);
-        }
-    };
-
-    const handleRefreshToken = async () => {
-        try {
-            await refreshTokenMutation.mutateAsync();
-            await checkAuthStatus.refetch();
-        } catch (error) {
-            if (error instanceof Error) {
-                toast.error(`Error refreshing token: ${error.message}`);
-            } else {
-                toast.error('An unknown error occurred while refreshing the QuickBooks token');
-            }
-            console.error('Error refreshing token:', error);
         }
     };
 
@@ -83,7 +83,7 @@ const QuickbooksStatus: React.FC = () => {
                         onClick={handleRefreshToken}
                         disabled={refreshTokenMutation.isPending}
                     >
-                    <Plug className="w-4 h-4 mr-2" />
+                        <Plug className="w-4 h-4 mr-2" />
                         {refreshTokenMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connected to QuickBooks'}
                     </Button>
                 </>
@@ -96,7 +96,7 @@ const QuickbooksStatus: React.FC = () => {
                         variant="navOutline"
                         disabled={initializeAuthMutation.isPending}
                     >
-                    <Unplug className="w-4 h-4 mr-2" />
+                        <Unplug className="w-4 h-4 mr-2" />
                         {initializeAuthMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect to QuickBooks'}
                     </Button>
                 </>
