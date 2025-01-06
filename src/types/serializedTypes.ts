@@ -14,9 +14,9 @@ import {
     type TypesettingStatus,
     type WorkOrderItemStatus,
     type WorkOrderStatus,
-    PaperFinish,
-    PaperType,
-    PaperBrand,
+    type PaperFinish,
+    type PaperType,
+    type PaperBrand,
 } from "@prisma/client";
 
 export interface SerializedAddress {

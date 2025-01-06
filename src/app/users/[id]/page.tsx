@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import UserProfileComponent from "~/app/_components/users/userProfile";
 
 
-export default async function UserProfilePage({ params }: { params: { id: string } }) {
+export default async function UserProfilePage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const session = await getServerAuthSession();
 
     if (!session) {

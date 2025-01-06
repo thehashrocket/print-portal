@@ -1,6 +1,6 @@
 // ~/src/app/_components/workOrders/convertWorkOrderToOrderButton.tsx
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { api } from "~/trpc/react"; // use client to fetch data instead of server
 import { Button } from '~/app/_components/ui/button';
 import { Send, Info } from "lucide-react";

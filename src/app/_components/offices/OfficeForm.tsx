@@ -1,13 +1,11 @@
 // ~/app/_components/offices/OfficeForm.tsx
-// TODO: Add edit form for office
 
 "use client";
 
 import React, { useState } from "react";
-import { type SerializedOffice, SerializedAddress } from "~/types/serializedTypes";
-import { normalizeAddress } from "~/utils/dataNormalization";
+import { type SerializedOffice, type SerializedAddress } from "~/types/serializedTypes";
 import { api } from "~/trpc/react";
-import { Mail, MapPin, Plus, Trash } from "lucide-react"; // Added Plus and Trash icons
+import { MapPin, Plus, Trash } from "lucide-react"; // Added Plus and Trash icons
 import { AddressType } from "@prisma/client";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";

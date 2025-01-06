@@ -139,8 +139,8 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
         };
     }, []);
 
-    const debouncedSetFormData = useCallback(
-        debounce((field: string, value: string) => {
+    const debouncedSetFormData = useMemo(
+        () => debounce((field: string, value: string) => {
             setFormData(prev => ({ ...prev, [field]: value }));
         }, 100),
         []

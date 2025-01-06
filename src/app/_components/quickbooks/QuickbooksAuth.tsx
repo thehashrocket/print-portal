@@ -3,20 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from "~/trpc/react";
-import { useRouter } from 'next/navigation';
 import QuickBooksCompanyInfo from './QuickbooksCompanyInfo';
 import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
 const QuickBooksAuth: React.FC = () => {
     const { data: session } = useSession();
-    const router = useRouter();
     const initializeAuthMutation = api.qbAuth.initializeAuth.useMutation();
     const [isQuickbooksAuthenticated, setIsQuickbooksAuthenticated] = useState(false);
     const [companyInfo, setCompanyInfo] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isSyncingInvoices, setIsSyncingInvoices] = useState(false);
-    const [syncResult, setSyncResult] = useState<string | null>(null);
+    // const [syncResult, setSyncResult] = useState<string | null>(null);
 
     const { data: authStatus, refetch: refetchAuthStatus, error: authStatusError } = api.qbAuth.checkQuickbooksAuthStatus.useQuery(
         undefined,
@@ -101,7 +99,7 @@ const QuickBooksAuth: React.FC = () => {
             setError('Failed to sync customers from QuickBooks.');
             setIsSyncing(false);
         } else if (customersData) {
-            setSyncResult(`Successfully synced ${customersData.totalCustomers} customers from QuickBooks.`);
+            // setSyncResult(`Successfully synced ${customersData.totalCustomers} customers from QuickBooks.`);
             setIsSyncing(false);
         }
     }, [customersData, syncCustomersError]);
@@ -112,7 +110,7 @@ const QuickBooksAuth: React.FC = () => {
             setError('Failed to sync invoices from QuickBooks.');
             setIsSyncingInvoices(false);
         } else if (invoicesData) {
-            setSyncResult(`Successfully synced ${invoicesData.length} invoices from QuickBooks.`);
+            // setSyncResult(`Successfully synced ${invoicesData.length} invoices from QuickBooks.`);
             setIsSyncingInvoices(false);
         }
     }, [invoicesData, syncInvoicesError]);
@@ -145,14 +143,14 @@ const QuickBooksAuth: React.FC = () => {
 
     const handleSyncCustomers = () => {
         setError(null);
-        setSyncResult(null);
+        // setSyncResult(null);
         setIsSyncing(true);
         syncCustomers();
     };
 
     const handleSyncInvoices = () => {
         setError(null);
-        setSyncResult(null);
+        // setSyncResult(null);
         setIsSyncingInvoices(true);
         syncInvoices();
     };

@@ -1,6 +1,5 @@
-import { OrderItem, OrderStatus } from "@prisma/client";
-
-import { OrderItemStatus } from "@prisma/client";
+import { type OrderItem, type OrderStatus } from "@prisma/client";
+import { type OrderItemStatus } from "@prisma/client";
 
 export interface OrderDashboard {
     status: OrderStatus;

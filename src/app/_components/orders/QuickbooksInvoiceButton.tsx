@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
-import { SerializedOrder } from '~/types/serializedTypes';
+import { type SerializedOrder } from '~/types/serializedTypes';
 import { Button } from '../ui/button';
 import { Loader2 } from "lucide-react"
 interface QuickbooksInvoiceButtonProps {
@@ -15,7 +15,7 @@ interface QuickbooksInvoiceButtonProps {
 
 const QuickbooksInvoiceButton: React.FC<QuickbooksInvoiceButtonProps> = ({ order, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
-    const [orderData, setOrderData] = useState<SerializedOrder | null>(order);
+    const [orderData] = useState<SerializedOrder | null>(order);
 
     // Move the useQuery hook to the top level
 

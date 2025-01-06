@@ -7,17 +7,16 @@ import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-  ColDef,
-  FilterChangedEvent,
-  GridReadyEvent,
+  type ColDef,
+  type FilterChangedEvent,
+  type GridReadyEvent,
   ModuleRegistry,
-  RowClassParams
+  type RowClassParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/formatters";
-import { useQuickbooksStore } from "~/store/useQuickbooksStore";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 import { api } from "~/trpc/react";
@@ -27,10 +26,8 @@ import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
 
 const OrdersTable: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
-  const [rowData, setRowData] = useState<SerializedOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
-  const isAuthenticated = useQuickbooksStore((state: { isAuthenticated: any; }) => state.isAuthenticated);
   const utils = api.useUtils();
   const defaultColDef = useMemo(() => ({
     resizable: true,
@@ -38,7 +35,7 @@ const OrdersTable: React.FC = () => {
     filter: true,
   }), []);
 
-  const { data: ordersData, isLoading, error } = api.orders.getAll.useQuery();
+  const { data: ordersData, isLoading } = api.orders.getAll.useQuery();
 
   const handleSyncSuccess = () => {
     // Refresh the grid data
@@ -133,15 +130,9 @@ const OrdersTable: React.FC = () => {
     params.api.sizeColumnsToFit();
   };
 
-  const rowSelection = {
-    mode: 'single',
-    checkboxes: false,
-    enableClickSelection: true,
-  };
-
   const onFilterChanged = (event: FilterChangedEvent) => {
     const filteredRowCount = event.api.getDisplayedRowCount();
-    // You can update a state here to show the filtered row count if desired
+    console.log(`Filtered row count: ${filteredRowCount}`);
   };
 
   if (loading || isLoading) {

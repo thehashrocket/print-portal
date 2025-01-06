@@ -12,7 +12,8 @@ import {
     type GridReadyEvent,
     type FilterChangedEvent,
     type ICellRendererParams,
-    type RowClassParams
+    type RowClassParams,
+    type GridApi
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
@@ -20,6 +21,7 @@ import Link from "next/link";
 import { Button } from "../../ui/button";
 import { EyeIcon } from "lucide-react";
 
+// Register modules outside of component to prevent multiple registrations
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface OrderItemsTableProps {
@@ -31,6 +33,8 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     const [rowData, setRowData] = useState<SerializedOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [gridApi, setGridApi] = useState<GridApi | null>(null);
+    const mounted = useRef(true);
 
     useEffect(() => {
         const checkIsMobile = () => {
@@ -40,8 +44,14 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         checkIsMobile();
         window.addEventListener('resize', checkIsMobile);
 
-        return () => window.removeEventListener('resize', checkIsMobile);
-    }, []);
+        return () => {
+            window.removeEventListener('resize', checkIsMobile);
+            mounted.current = false;
+            if (gridApi) {
+                gridApi.destroy();
+            }
+        };
+    }, [gridApi]);
 
     const defaultColDef = useMemo<ColDef>(() => ({
         resizable: true,
@@ -77,7 +87,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         }
     };
 
-    const mobileColumnDefs: ColDef[] = [
+    const mobileColumnDefs = useMemo<ColDef[]>(() => [
         { 
             headerName: "Item #", 
             field: "orderItemNumber", 
@@ -114,9 +124,9 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
             sortable: false, 
             filter: false
         }
-    ];
+    ], []);
 
-    const desktopColumnDefs: ColDef[] = [
+    const desktopColumnDefs = useMemo<ColDef[]>(() => [
         { headerName: "Item #", field: "orderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
@@ -125,23 +135,48 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
-    ];
+    ], []);
 
     useEffect(() => {
+        if (!mounted.current) return;
+
         setRowData(orderItems);
         setLoading(false);
-        if (gridRef.current) {
-            gridRef.current.api.sizeColumnsToFit();
+        
+        if (gridApi) {
+            const timeoutId = setTimeout(() => {
+                if (mounted.current && gridApi) {
+                    try {
+                        gridApi.sizeColumnsToFit();
+                    } catch (error) {
+                        console.warn('Failed to size columns:', error);
+                    }
+                }
+            }, 100);
+            return () => clearTimeout(timeoutId);
         }
-    }, [orderItems]);
+    }, [orderItems, gridApi]);
 
     const onGridReady = (params: GridReadyEvent) => {
-        params.api.sizeColumnsToFit();
+        if (!mounted.current) return;
+        
+        setGridApi(params.api);
+        try {
+            params.api.sizeColumnsToFit();
+        } catch (error) {
+            console.warn('Failed to size columns on grid ready:', error);
+        }
     };
 
     const onFilterChanged = (event: FilterChangedEvent) => {
-        const filteredRowCount = event.api.getDisplayedRowCount();
-        // You can update a state here to show the filtered row count if desired
+        if (!mounted.current || !gridApi) return;
+        
+        try {
+            const filteredRowCount = gridApi.getDisplayedRowCount();
+            console.log(`Filtered row count: ${filteredRowCount}`);
+        } catch (error) {
+            console.warn('Failed to get filtered row count:', error);
+        }
     };
 
     if (loading) {

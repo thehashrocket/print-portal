@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, FileSpreadsheet, FileImage } from 'lucide-react';
 import { Button } from '../ui/button';
+import Image from 'next/image';
 
 interface FileUploadProps {
     onFileUploaded: (fileUrl: string, description: string) => void;
@@ -161,7 +162,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     if (fileInputRef.current) {
                         fileInputRef.current.value = '';
                     }
-                } catch (parseError) {
+                } catch {
                     console.error('Error parsing response:', xhr.responseText);
                     setError('Server returned an invalid response');
                 }
@@ -215,7 +216,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 {fileType === 'Image' ? (
                     <>
                         {renderFileIcon(fileType)}
-                        <img 
+                        <Image 
                             src={file.fileUrl} 
                             alt="File preview" 
                             width={100} 

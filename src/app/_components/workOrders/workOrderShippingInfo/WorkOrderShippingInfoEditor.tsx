@@ -15,14 +15,6 @@ import { toast } from 'react-hot-toast';
 import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
 
 
-const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
-    </section>
-);
-
-
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
     instructions: z.string().optional(),
@@ -48,7 +40,6 @@ interface WorkOrderShippingInfoEditorProps {
     workOrderId: string;
     currentShippingInfo: SerializedShippingInfo | null;
     officeId: string;
-    companyName: string;
     onUpdate: () => void;
 }
 
@@ -56,7 +47,6 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
     workOrderId,
     currentShippingInfo,
     officeId,
-    companyName,
     onUpdate,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -121,11 +111,6 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
         } catch (error) {
             console.error("Error updating shipping info:", error);
         }
-    };
-
-    const handleCancel = () => {
-        setIsEditing(false);
-        reset(); // This resets the form to its default values
     };
 
     const renderPickupForm = () => (

@@ -2,10 +2,10 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { z } from 'zod';
-import { $Enums, PrismaClient } from '@prisma/client';
+import { type $Enums, type PrismaClient } from '@prisma/client';
 import axios from 'axios';
-import { DefaultArgs } from "@prisma/client/runtime/library";
-import { ISODateString } from "next-auth";
+import { type DefaultArgs } from "@prisma/client/runtime/library";
+import { type ISODateString } from "next-auth";
 
 function sanitizeString(str: string): string {
     // Remove or replace invalid characters
@@ -452,15 +452,7 @@ export const qbCustomerRouter = createTRPCRouter({
                 });
             }
         }),
-
-    getCustomer: protectedProcedure
-        .input(z.object({
-            // Define input schema here
-        }))
-        .query(async ({ ctx, input }) => {
-            // Implementation here
-        }),
-
+        
     syncOffice: protectedProcedure
         .input(z.object({
             officeId: z.string(),

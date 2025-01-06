@@ -1,9 +1,7 @@
 // Create a New Company
 "use server";
 import React from "react";
-import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
-import { Company } from "@prisma/client";
 import Link from "next/link";
 import { CreateCompany } from "~/app/_components/companies/createCompanyComponent";
 import NoPermission from "~/app/_components/noPermission/noPermission";

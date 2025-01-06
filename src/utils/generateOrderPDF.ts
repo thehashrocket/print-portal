@@ -1,11 +1,11 @@
 "use client";
 
-import { SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
+import { type SerializedInvoice, type SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from './formatters';
 import { jsPDF } from 'jspdf';
 
 export async function generateInvoicePDF(invoice: SerializedInvoice): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const doc = new jsPDF();
 
         // Add content to the PDF
@@ -85,12 +85,10 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     };
 
     const doc = new jsPDF();
-    let buffers: Uint8Array[] = [];
     doc.setFont('helvetica', 'bold');
     let yPos = 20;
     const leftMargin = 20;
     const rightColStart = doc.internal.pageSize.width / 2 + 15;
-    const pageWidth = doc.internal.pageSize.width;
 
     // Add Thomson logo/header
     try {
@@ -201,7 +199,6 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         };
 
         const doc = new jsPDF();
-        let buffers: Uint8Array[] = [];
         
         // Two-column layout for top section
         const addField = (label: string, value: string, x: number, currentY: number, spacing: number = 10, labelWidth: number = 20) => {
@@ -219,7 +216,6 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         let yPos = 20;
         const leftMargin = 20;
         const rightColStart = doc.internal.pageSize.width / 2 + 15;
-        const pageWidth = doc.internal.pageSize.width;
 
         // Add Thomson logo/header
         try {

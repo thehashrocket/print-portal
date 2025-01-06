@@ -132,6 +132,7 @@ async function createSystemUser() {
     data: {
       name: "System User",
       email: "system@thomsonprinting.com",
+      password: hashedPassword,
       Roles: {
         connect: [{ name: "Admin" }]
       }

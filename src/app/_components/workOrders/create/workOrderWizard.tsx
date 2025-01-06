@@ -8,6 +8,7 @@ import { api } from '~/trpc/react';
 import Link from "next/link";
 import { PlusCircle } from 'lucide-react';
 import { Button } from '../../ui/button';
+import { type SerializedWorkOrder } from '~/types/serializedTypes';
 
 const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
     workOrderId
@@ -20,7 +21,7 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
 
     useEffect(() => {
         if (returnedWorkOrder) {
-            setWorkOrder(returnedWorkOrder);
+            setWorkOrder(returnedWorkOrder as SerializedWorkOrder);
             if (returnedWorkOrder.shippingInfoId) {
                 setCurrentStep(1);
             }

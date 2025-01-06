@@ -1,10 +1,9 @@
 // ~/src/app/_components/shared/ContactPersonEditor/ContactPersonEditor.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from '~/trpc/react';
-import { toast } from 'react-hot-toast';
-import { CheckCircle, Info, LucideIcon, PlusCircle } from 'lucide-react';
+import { CheckCircle, Info, PlusCircle } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Label } from '../../ui/label';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
@@ -32,10 +31,6 @@ const ContactPersonEditor: React.FC<ContactPersonEditorProps> = ({
     const { data: users, isLoading, refetch } = api.users.getByOfficeId.useQuery(officeId);
     const orderMutation = api.orders.updateContactPerson.useMutation();
     const workOrderMutation = api.workOrders.updateContactPerson.useMutation();
-
-    const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedUserId(event.target.value);
-    };
 
     const handleUpdateContactPerson = async () => {
         try {

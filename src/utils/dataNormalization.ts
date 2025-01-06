@@ -10,7 +10,6 @@ import {
     type Address,
     type OrderPayment,
     type ProcessingOptions,
-    ProofMethod,
     type Typesetting,
     type TypesettingOption,
     type TypesettingProof,
@@ -26,10 +25,8 @@ import {
     type WorkOrderNote,
     type WorkOrderVersion,
     type Prisma,
-    User,
-    OrderStatus,
-    PaperProduct,
-    ProductType
+    type PaperProduct,
+    type ProductType
 } from "@prisma/client";
 
 import {
@@ -57,7 +54,7 @@ import {
     type SerializedOrderPayment,
     type SerializedWorkOrderNote,
     type SerializedWorkOrderVersion,
-    SerializedProductType,
+    type SerializedProductType,
 } from "~/types/serializedTypes";
 
 export function normalizeInvoice(invoice: Invoice & {

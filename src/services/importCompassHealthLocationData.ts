@@ -121,7 +121,7 @@ export async function importData() {
         const parsedAddress = parseAddress(row["Address"]);
 
         // Create office using the same structure as the endpoint
-        const office = await prisma.office.create({
+        await prisma.office.create({
           data: {
             name: officeName,
             isActive: true,

@@ -12,7 +12,7 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
-import { Pencil, PlusCircle } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "../../ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "../../ui/textarea";

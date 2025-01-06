@@ -14,7 +14,6 @@ export async function sendInvoiceEmail(
     to: string,
     subject: string,
     html: string,
-    attachmentContent: string
 ) {
     const msg = {
         to,

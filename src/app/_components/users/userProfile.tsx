@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import UserProfileForm from "~/app/_components/users/userProfileForm";
 import { type ExtendedUser } from "~/types/user";
-import { type User, type Company, type Office, type Role } from "@prisma/client";
+import { type Company, type Office, type Role } from "@prisma/client";
 
 type SessionUser = {
     id: string;

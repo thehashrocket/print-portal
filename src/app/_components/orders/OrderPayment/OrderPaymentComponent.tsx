@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Order, OrderPayment, PaymentMethod } from '@prisma/client';
+import { PaymentMethod } from '@prisma/client';
 import { Decimal } from 'decimal.js';
 import { api } from '~/trpc/react';
 import { type SerializedOrder, type SerializedOrderPayment } from '~/types/serializedTypes';

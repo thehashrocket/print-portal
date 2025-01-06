@@ -1,7 +1,7 @@
 // ~src/app/_components/dashboard/OrderCard.tsx
 import { Building2, CalendarDays, Eye } from 'lucide-react';
 import { formatDate } from '~/utils/formatters';
-import { OrderDashboard } from "~/types/orderDashboard";
+import { type OrderDashboard } from "~/types/orderDashboard";
 
 
 const calculateDaysUntilDue = (dateString: string): number => {

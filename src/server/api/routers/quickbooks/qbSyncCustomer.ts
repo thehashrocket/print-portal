@@ -3,7 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import { AddressType, RoleName } from "@prisma/client";
+import { AddressType } from "@prisma/client";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 
 async function fetchCustomers(ctx: any, accessToken: string, companyID: string, pageSize: number, lastSyncTime?: string) {
@@ -170,7 +170,6 @@ async function processAndSaveCustomer(ctx: any, customer: any) {
     const {
         Id: quickbooksId,
         FullyQualifiedName,
-        CompanyName,
         DisplayName,
         BillAddr,
         ShipAddr,

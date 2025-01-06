@@ -50,7 +50,7 @@ const ArtworkComponent: React.FC<ArtworkComponentProps> = ({
     return (
         <div>
             {getFileType(fileExtension) === 'Image' ? (
-                <img 
+                <Image 
                     src={artworkUrl} 
                     alt={artworkDescription ?? ''} 
                     width={200} 

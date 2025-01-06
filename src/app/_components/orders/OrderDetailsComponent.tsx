@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Order, OrderStatus, OrderPayment, ShippingMethod, Address, ShippingInfo } from "@prisma/client";
+import { OrderStatus, type ShippingMethod } from "@prisma/client";
 import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
@@ -13,7 +13,7 @@ import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/Ship
 import { toast } from "react-hot-toast";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { FilePlus2, Printer, RefreshCcw, Send } from "lucide-react";
+import { Printer, RefreshCcw, Send, FilePlus2 } from "lucide-react";
 import { generateOrderPDF } from "~/utils/generateOrderPDF";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
@@ -27,7 +27,7 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
-        onSuccess: (data) => {
+        onSuccess: () => {
             utils.orders.getByID.invalidate(orderId);
             toast.success('Status updated successfully');
         },
@@ -168,8 +168,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         value: order,
     });
 
-    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
-        onSuccess: (invoice) => {
+    const { mutate: createQuickbooksInvoice } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
+        onSuccess: () => {
             toast.success('Quickbooks invoice created');
             utils.orders.getByID.invalidate(orderId);
         },
@@ -484,8 +484,19 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 currentShippingInfo={order.ShippingInfo}
                                 officeId={order.officeId}
                                 onUpdate={() => {
-                                    console.log("Shipping info updated");
-                                    utils.orders.getByID.invalidate(orderId);
+                                    // Wrap the invalidation in a try-catch and add a small delay
+                                    try {
+                                        setTimeout(() => {
+                                            utils.orders.getByID.invalidate(orderId)
+                                                .catch(error => {
+                                                    console.error("Error invalidating order:", error);
+                                                    toast.error("Error refreshing order details");
+                                                });
+                                        }, 100);
+                                    } catch (error) {
+                                        console.error("Error in shipping info update:", error);
+                                        toast.error("Error updating shipping information");
+                                    }
                                 }}
                             />
                         </div>
@@ -501,8 +512,12 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 <div className="flex justify-center items-center h-64">
                                     <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
                                 </div>
-                            ) : (
+                            ) : orderItems && orderItems.length > 0 ? (
                                 <OrderItemsTable orderItems={orderItems} />
+                            ) : (
+                                <div className="text-center py-4 text-gray-500">
+                                    No order items found
+                                </div>
                             )}
                         </div>
                     </section>

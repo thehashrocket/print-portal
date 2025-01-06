@@ -2,8 +2,8 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
-import { normalizeWorkOrder, normalizeWorkOrderItem } from "~/utils/dataNormalization";
-import { type SerializedWorkOrder, SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { normalizeWorkOrder } from "~/utils/dataNormalization";
+import { type SerializedWorkOrder } from "~/types/serializedTypes";
 
 const SALES_TAX = 0.07;
 

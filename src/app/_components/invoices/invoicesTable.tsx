@@ -7,29 +7,25 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
-    ColDef,
-    GridReadyEvent,
-    ICellRendererParams,
+    type ColDef,
+    type GridReadyEvent,
+    type ICellRendererParams,
     ModuleRegistry,
-    ValueFormatterParams,
+    type ValueFormatterParams,
 } from "@ag-grid-community/core";
 import Link from "next/link";
-import { Invoice, InvoicePayment, InvoiceStatus } from "@prisma/client";
-import { SerializedInvoice } from "~/types/serializedTypes";
+import { type InvoiceStatus } from "@prisma/client";
+import { type SerializedInvoice } from "~/types/serializedTypes";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 import { api } from "~/trpc/react";
 import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-interface InvoicesTableProps {
-    invoices: SerializedInvoice[];
-}
-
 const InvoicesTable: React.FC= () => {
     const [rowData, setRowData] = useState<SerializedInvoice[]>([]);
     const [invoices, setInvoices] = useState<SerializedInvoice[]>([]);
     const [loading, setLoading] = useState(true);
-    const { data: invoicesData, isLoading, error } = api.invoices.getAll.useQuery();
+    const { data: invoicesData } = api.invoices.getAll.useQuery();
     const gridRef = useRef<AgGridReact>(null);
     const utils = api.useUtils();
 

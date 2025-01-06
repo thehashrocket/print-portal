@@ -13,7 +13,6 @@ import { Button } from "~/app/_components/ui/button";
 
 import {
     type ColDef,
-    type GridReadyEvent,
 } from "@ag-grid-community/core";
 
 type WorkOrderWithNotes = WorkOrder & {
@@ -108,7 +107,7 @@ const WorkOrderNotesComponent: React.FC<WorkOrderNotesProps> = ({ workOrder }) =
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
                     rowData={rowData}
-                    onGridReady={(params: GridReadyEvent) => {
+                    onGridReady={() => {
                         if (gridRef.current) {
                             gridRef.current.api.sizeColumnsToFit();
                         }

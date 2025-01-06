@@ -6,7 +6,6 @@ import { ShippingMethod } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { Info, Save } from 'lucide-react';
-import { Disc } from 'lucide-react';
 
 export interface StatusBadgeProps<T extends string> {
     id: string;
@@ -27,10 +26,7 @@ export interface StatusBadgeProps<T extends string> {
 }
 
 export function StatusBadge<T extends string>({
-    id,
-    status,
     currentStatus,
-    orderId,
     onStatusChange,
     getStatusColor,
     statusOptions,
@@ -112,6 +108,7 @@ export function StatusBadge<T extends string>({
             <div className="grid md:grid-cols-2 gap-6 mb-8">
                 <Button
                     variant="default"
+                    disabled={isSaving}
                     onClick={() => {
                         setIsSaving(true);
                         const shippingDetails = isShippingStatus ? {

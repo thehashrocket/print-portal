@@ -1,17 +1,15 @@
 // ~/src/app/_components/workOrders/WorkOrderStockComponent.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { api } from "~/trpc/react";
+import React from "react";
 import { type WorkOrderItemStock } from "@prisma/client";
-import { z } from "zod";
 
 type workOrderStockComponentProps = {
     workOrderStock: WorkOrderItemStock[];
     workOrderId: string;
 }
 
-const WorkOrderStockComponent: React.FC<workOrderStockComponentProps> = ({ workOrderStock, workOrderId }) => {
+const WorkOrderStockComponent: React.FC<workOrderStockComponentProps> = ({ workOrderStock }) => {
     return (
         <div className="mb-4 grid grid-cols-2">
             {workOrderStock.map((stock) => (

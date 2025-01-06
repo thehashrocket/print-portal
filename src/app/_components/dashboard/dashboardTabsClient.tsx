@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import DraggableOrderItemsDash from "./draggableOrderItemsDash";
 import DraggableOrdersDash from "./draggableOrdersDash";
-import { OrderDashboard } from "~/types/orderDashboard";
-import { OrderItemDashboard } from "~/types/orderItemDashboard";
+import { type OrderDashboard } from "~/types/orderDashboard";
+import { type OrderItemDashboard } from "~/types/orderItemDashboard";
 // Update the component props to match the actual data being passed
 interface DashboardTabsClientProps {
     orderItems: OrderItemDashboard[];

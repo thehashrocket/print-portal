@@ -1,7 +1,6 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { Company, Prisma } from "@prisma/client"; // Import the Company model
-import { formatCurrency } from "~/utils/formatters";
+import { Prisma } from "@prisma/client"; // Import the Company model
 const SALES_TAX = 0.07;
 
 export const companyRouter = createTRPCRouter({

@@ -37,22 +37,40 @@ const workOrderItemSchema = z.object({
     size: z.string(),
     specialInstructions: z.string().optional(),
     status: z.nativeEnum(WorkOrderItemStatus),
+    workOrderId: z.string(),
 });
 
 type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 
 const WorkOrderItemForm: React.FC = () => {
+    const { workOrder } = useContext(WorkOrderContext);
+    const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
+    const router = useRouter();
+
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
     const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
     const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
-    const [workOrderItemId, setWorkOrderItemId] = useState<string | null>(null);
-    const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
-        resolver: zodResolver(workOrderItemSchema),
-    });
-    const { workOrder } = useContext(WorkOrderContext);
+    const [workOrderItemId] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
-    const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
-    const router = useRouter();
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
+        resolver: zodResolver(workOrderItemSchema),
+        defaultValues: {
+            status: WorkOrderItemStatus.Draft,
+            quantity: 1,
+            prepTime: 0,
+            size: '',
+            description: '',
+            workOrderId: workOrder?.id || '',
+        }
+    });
+
+    useEffect(() => {
+        if (workOrder?.id) {
+            setValue('workOrderId', workOrder.id);
+        }
+    }, [workOrder, setValue]);
 
     const { data: existingWorkOrderItems, refetch: refetchWorkOrderItems } = api.workOrderItems.getByWorkOrderId.useQuery(
         { workOrderId: workOrder.id },
@@ -77,12 +95,22 @@ const WorkOrderItemForm: React.FC = () => {
     }, []);
 
     const onSubmit = async (data: WorkOrderItemFormData) => {
+        console.log('Form submission started');
+        setSubmitError(null);
+        
+        if (!workOrder?.id) {
+            console.error('Work order ID is missing:', workOrder);
+            setSubmitError('Work order ID is missing. Please try again or refresh the page.');
+            return;
+        }
+
+        console.log('Submitting data:', data);
         try {
-            const newWorkOrderItem = await createWorkOrderItem.mutateAsync({
+            const result = await createWorkOrderItem.mutateAsync({
                 ...data,
                 workOrderId: workOrder.id,
-                description: data.description, // Provide a default empty string if description is undefined
-                artwork: artworks, // Use the artworks state instead of data.artwork
+                description: data.description,
+                artwork: artworks,
                 expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
                 ink: data.ink || '',
                 other: data.other || '',
@@ -90,11 +118,19 @@ const WorkOrderItemForm: React.FC = () => {
                 specialInstructions: data.specialInstructions || '',
                 status: data.status,
             });
+            console.log('Mutation result:', result);
             await refetchWorkOrderItems();
-            reset(); // Reset form after successful creation
-            setArtworks([]); // Clear artworks after successful creation
+            reset();
+            setArtworks([]);
         } catch (error) {
-            console.error('Error saving estimate item', error);
+            console.error('Error saving estimate item:', error);
+            if (error instanceof Error) {
+                setSubmitError(error.message);
+                console.error('Error details:', error.message);
+            } else {
+                setSubmitError('An unexpected error occurred. Please try again.');
+                console.error('Unknown error:', error);
+            }
         }
     };
 
@@ -120,7 +156,6 @@ const WorkOrderItemForm: React.FC = () => {
 
     return (
         <div className="space-y-8">
-
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
                 onItemClick={setExpandedItemId}
@@ -134,7 +169,16 @@ const WorkOrderItemForm: React.FC = () => {
             ) : (
                 <>
                     <h3 className="text-xl font-semibold">Add New Estimate Item</h3>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <form 
+                        onSubmit={(e) => {
+                            console.log('Form submit event triggered');
+                            handleSubmit((data) => {
+                                console.log('HandleSubmit callback triggered');
+                                return onSubmit(data);
+                            })(e);
+                        }} 
+                        className="space-y-4"
+                    >
                         <div>
                             <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
                             <FileUpload
@@ -276,12 +320,30 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                         </div>
-                        <Button
-                            variant="default"
-                            type="submit"
-                        >
-                            Add Item to Estimate
-                        </Button>
+                        <div className="space-y-2">
+                            {Object.keys(errors).length > 0 && (
+                                <div className="text-red-500 p-2 border border-red-500 rounded">
+                                    <p>Form has the following errors:</p>
+                                    <ul>
+                                        {Object.entries(errors).map(([field, error]) => (
+                                            <li key={field}>{field}: {error.message}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {submitError && (
+                                <div className="text-red-500 p-2 border border-red-500 rounded">
+                                    {submitError}
+                                </div>
+                            )}
+                            <Button
+                                variant="default"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Adding...' : 'Add Item to Estimate'}
+                            </Button>
+                        </div>
                     </form>
                 </>
             )}

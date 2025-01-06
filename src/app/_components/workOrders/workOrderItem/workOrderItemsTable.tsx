@@ -12,7 +12,8 @@ import {
     type ValueFormatterParams,
     type GridReadyEvent,
     type FilterChangedEvent,
-    type RowClassParams
+    type RowClassParams,
+    type GridApi
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { Button } from "../../ui/button";
 import { Eye } from "lucide-react";
 
+// Register modules outside of component to prevent multiple registrations
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface WorkOrderItemsTableProps {
@@ -31,6 +33,8 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const [rowData, setRowData] = useState<SerializedWorkOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const [gridApi, setGridApi] = useState<GridApi | null>(null);
+    const mounted = useRef(true);
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -66,7 +70,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         }
     };
 
-    const columnDefs: ColDef[] = [
+    const columnDefs = useMemo<ColDef[]>(() => [
         { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
@@ -74,37 +78,61 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
-    ];
+    ], []);
 
-    const mobileColumnDefs: ColDef[] = [
+    const mobileColumnDefs = useMemo<ColDef[]>(() => [
         { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
         { headerName: "Desc", field: "description", filter: true },
         { headerName: "Status", field: "status", filter: true, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
         { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
-    ];
+    ], []);
+
+    // Cleanup function
+    useEffect(() => {
+        return () => {
+            mounted.current = false;
+            if (gridApi) {
+                gridApi.destroy();
+            }
+        };
+    }, [gridApi]);
 
     useEffect(() => {
+        if (!mounted.current) return;
+        
         setRowData(workOrderItems);
         setLoading(false);
-        if (gridRef.current) {
-            setTimeout(() => {
-                gridRef.current?.api.sizeColumnsToFit();
-            }, 0);
+        
+        if (gridApi) {
+            const timeoutId = setTimeout(() => {
+                if (mounted.current && gridApi) {
+                    try {
+                        gridApi.sizeColumnsToFit();
+                    } catch (error) {
+                        console.warn('Failed to size columns:', error);
+                    }
+                }
+            }, 100);
+            return () => clearTimeout(timeoutId);
         }
-    }, [workOrderItems]);
+    }, [workOrderItems, gridApi]);
 
     useEffect(() => {
         const handleResize = () => {
             setWindowWidth(window.innerWidth);
-            if (gridRef.current?.api) {
-                gridRef.current.api.sizeColumnsToFit();
+            if (mounted.current && gridApi) {
+                try {
+                    gridApi.sizeColumnsToFit();
+                } catch (error) {
+                    console.warn('Failed to size columns on resize:', error);
+                }
             }
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [gridApi]);
 
     const isMobile = windowWidth <= 768;
 
@@ -114,12 +142,25 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     }), [isMobile]);
 
     const onGridReady = (params: GridReadyEvent) => {
-        params.api.sizeColumnsToFit();
+        if (!mounted.current) return;
+        
+        setGridApi(params.api);
+        try {
+            params.api.sizeColumnsToFit();
+        } catch (error) {
+            console.warn('Failed to size columns on grid ready:', error);
+        }
     };
 
     const onFilterChanged = (event: FilterChangedEvent) => {
-        const filteredRowCount = event.api.getDisplayedRowCount();
-        // You can update a state here to show the filtered row count if desired
+        if (!mounted.current || !gridApi) return;
+        
+        try {
+            const filteredRowCount = gridApi.getDisplayedRowCount();
+            console.log(`Filtered row count: ${filteredRowCount}`);
+        } catch (error) {
+            console.warn('Failed to get filtered row count:', error);
+        }
     };
 
     if (loading) {

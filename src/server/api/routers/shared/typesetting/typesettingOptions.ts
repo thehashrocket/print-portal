@@ -2,11 +2,7 @@
 // This file is imported into the main API router in src/server/api/routers/index.ts.
 
 import { z } from "zod";
-import {
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const typesettingOptionsRouter = createTRPCRouter({
     getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
