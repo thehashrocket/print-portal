@@ -165,6 +165,7 @@ z.object({
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
   telephoneNumber: z.string(),
   zipCode: z.string(),
@@ -212,6 +213,7 @@ function MyComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
   telephoneNumber: z.string(),
   zipCode: z.string(),
@@ -276,7 +278,9 @@ z.object({
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
+  telephoneNumber: z.string(),
   zipCode: z.string(),
   state: z.string()
 })
@@ -304,7 +308,9 @@ function MyComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: "example",
+  telephoneNumber: "example",
   zipCode: "example",
   state: "example"
 }));
@@ -328,7 +334,9 @@ async function MyServerComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: "example",
+  telephoneNumber: "example",
   zipCode: "example",
   state: "example"
 }));
@@ -525,6 +533,7 @@ z.object({
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
   telephoneNumber: z.string(),
   zipCode: z.string(),
@@ -572,6 +581,7 @@ function MyComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
   telephoneNumber: z.string(),
   zipCode: z.string(),
@@ -636,7 +646,9 @@ z.object({
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: z.string(),
+  telephoneNumber: z.string(),
   zipCode: z.string(),
   state: z.string()
 })
@@ -664,7 +676,9 @@ function MyComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: "example",
+  telephoneNumber: "example",
   zipCode: "example",
   state: "example"
 }));
@@ -688,7 +702,9 @@ async function MyServerComponent() {
   line2: unknown,
   line3: unknown,
   line4: unknown,
+  name: unknown,
   officeId: "example",
+  telephoneNumber: "example",
   zipCode: "example",
   state: "example"
 }));

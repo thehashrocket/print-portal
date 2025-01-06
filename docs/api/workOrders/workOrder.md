@@ -80,7 +80,7 @@ Updates create work order
 z.object({
   dateIn: z.date(),
   estimateNumber: unknown,
-  contactPersonId: z.string(),
+  contactPersonId: unknown,
   inHandsDate: z.date(),
   invoicePrintEmail: z.nativeEnum(),
   officeId: z.string(),
@@ -127,7 +127,7 @@ function MyComponent() {
   const handleSubmit = (data: z.object({
   dateIn: z.date(),
   estimateNumber: unknown,
-  contactPersonId: z.string(),
+  contactPersonId: unknown,
   inHandsDate: z.date(),
   invoicePrintEmail: z.nativeEnum(),
   officeId: z.string(),
@@ -755,7 +755,7 @@ Updates create work order
 z.object({
   dateIn: z.date(),
   estimateNumber: unknown,
-  contactPersonId: z.string(),
+  contactPersonId: unknown,
   inHandsDate: z.date(),
   invoicePrintEmail: z.nativeEnum(),
   officeId: z.string(),
@@ -802,7 +802,7 @@ function MyComponent() {
   const handleSubmit = (data: z.object({
   dateIn: z.date(),
   estimateNumber: unknown,
-  contactPersonId: z.string(),
+  contactPersonId: unknown,
   inHandsDate: z.date(),
   invoicePrintEmail: z.nativeEnum(),
   officeId: z.string(),

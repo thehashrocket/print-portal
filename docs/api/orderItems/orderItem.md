@@ -11,12 +11,14 @@ The Order Items/order Item router provides the following endpoints:
 | `getByID` | query | Retrieves get by i d |
 | `getByOrderId` | query | Retrieves get by order id |
 | `getAll` | query | Retrieves get all |
+| `dashboard` | query | Retrieves dashboard |
 | `updateDescription` | mutation | Updates update description |
 | `updateSpecialInstructions` | mutation | Updates update special instructions |
 | `updateStatus` | mutation | Updates update status |
 | `getByID` | query | Retrieves get by i d |
 | `getByOrderId` | query | Retrieves get by order id |
 | `getAll` | query | Retrieves get all |
+| `dashboard` | query | Retrieves dashboard |
 | `updateDescription` | mutation | Updates update description |
 | `updateSpecialInstructions` | mutation | Updates update special instructions |
 | `updateStatus` | mutation | Updates update status |
@@ -145,6 +147,47 @@ import { api } from "~/trpc/server";
 
 async function MyServerComponent() {
   const data = await api.getAll.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+### `dashboard`
+
+**Type:** `query`
+
+Retrieves dashboard
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.dashboard.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.dashboard.query({});
   
   return <div>{/* Use your data here */}</div>;
 }
@@ -554,6 +597,47 @@ import { api } from "~/trpc/server";
 
 async function MyServerComponent() {
   const data = await api.getAll.query({});
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+### `dashboard`
+
+**Type:** `query`
+
+Retrieves dashboard
+
+**Input:** None required
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const { data, isLoading } = api.dashboard.useQuery({});
+
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>{/* Use your data here */}</div>;
+}
+```
+
+#### Server Component
+```typescript
+import { api } from "~/trpc/server";
+
+async function MyServerComponent() {
+  const data = await api.dashboard.query({});
   
   return <div>{/* Use your data here */}</div>;
 }
