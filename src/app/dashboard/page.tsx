@@ -14,7 +14,7 @@ import { Button } from "../_components/ui/button";
 import { formatDate } from "~/utils/formatters";
 import { type OrderItemStatus, type OrderStatus } from "@prisma/client";
 import { type OrderDashboard } from "~/types/orderDashboard";
-
+import { type OrderItemDashboard } from "~/types/orderItemDashboard";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -46,9 +46,27 @@ export default async function DashboardPage() {
         id: order.id,
         companyName: order.Office.Company.name,
         inHandsDate: order.inHandsDate ? formatDate(order.inHandsDate) : null,
+        deposit: Number(order.deposit),
         orderItems: order.OrderItems,
     }));
     
+    const serializedOrderItems: OrderItemDashboard[] = orderItems.map((item) => ({
+        id: item.id,
+        orderId: item.orderId,
+        orderItemNumber: item.orderItemNumber,
+        position: item.position,
+        totalItems: item.totalItems,
+        expectedDate: item.expectedDate,
+        status: item.status,
+        description: item.description,
+        companyName: item.companyName,
+        purchaseOrderNumber: item.purchaseOrderNumber,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        amount: item.amount,
+        cost: item.cost,
+        shippingAmount: item.shippingAmount
+    }));
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -69,7 +87,7 @@ export default async function DashboardPage() {
                     </Button>
                 </div>
             </div>
-            <DashboardTabsClient orderItems={orderItems} orders={serializedOrderData} />
+            <DashboardTabsClient orderItems={serializedOrderItems} orders={serializedOrderData} />
         </div>
     );
 }
