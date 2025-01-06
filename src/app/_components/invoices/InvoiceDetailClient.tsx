@@ -6,13 +6,12 @@ import { api } from "~/trpc/react";
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
-import { InvoiceStatus, ShippingMethod } from '@prisma/client';
-import { SerializedAddress, SerializedInvoice, SerializedOrder } from '~/types/serializedTypes';
+import { ShippingMethod } from '@prisma/client';
+import { type SerializedInvoice, type SerializedOrder } from '~/types/serializedTypes';
 import { toast } from 'react-hot-toast';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { Download, Send } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 import { Button } from '../ui/button';
 
 interface InvoiceDetailClientProps {
@@ -24,15 +23,19 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     const [invoice, setInvoice] = useState<SerializedInvoice | null>(initialInvoice);
     const [order, setOrder] = useState<SerializedOrder | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
-    const [isSending, setIsSending] = useState(false);
     const utils = api.useUtils();
 
+    useCopilotReadable({
+        description: "The current invoice that is being viewed.",
+        value: invoice,
+    });
+
     // When the order is updated, update the local state
-    const { data: invoiceData, isLoading, isError, error } = api.invoices.getById.useQuery<SerializedInvoice>(invoiceId, {
+    const { data: invoiceData, error } = api.invoices.getById.useQuery<SerializedInvoice>(invoiceId, {
         initialData: initialInvoice || undefined
     });
 
-    const { mutate: getInvoicePdfMutation, error: getInvoicePdfError } = api.qbInvoices.getInvoicePdf.useMutation({
+    const { mutate: getInvoicePdfMutation} = api.qbInvoices.getInvoicePdf.useMutation({
         onSuccess: (pdfBase64) => {
             // Convert base64 to blob
             const binaryString = window.atob(pdfBase64);
@@ -57,14 +60,16 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
             window.URL.revokeObjectURL(url);
             
             toast.success('PDF downloaded successfully');
+            setIsPrinting(false);
         },
         onError: (error) => {
             console.error('Failed to download PDF:', error);
             toast.error('Failed to download PDF');
+            setIsPrinting(false);
         }
     });
 
-    const { mutate: createQuickbooksInvoice, error: createQuickbooksInvoiceError } = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
+    const { mutate: createQuickbooksInvoice } = api.qbInvoices.createQbInvoiceFromInvoice.useMutation({
         onSuccess: (invoice) => {
             console.log('Quickbooks invoice created:', invoice);
             toast.success('Quickbooks invoice created');
@@ -76,7 +81,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         }
     });
 
-    const { mutate: sendInvoiceEmailMutation, error: sendInvoiceEmailMutationError } = api.qbInvoices.sendInvoiceEmail.useMutation({
+    const { mutate: sendInvoiceEmailMutation } = api.qbInvoices.sendInvoiceEmail.useMutation({
         onSuccess: (data) => {
             toast.success('Invoice sent successfully');
             utils.invoices.getById.invalidate(invoiceId);
@@ -88,20 +93,28 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         }
     });
 
-    useCopilotReadable({
-        description: "The current invoice that is being viewed.",
-        value: invoice,
-    });
+    const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(
+        invoice?.orderId ?? '',
+        {
+            enabled: !!invoice?.orderId,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+        }
+    );
+
+    useEffect(() => {
+        if (invoiceData) {
+            setInvoice(invoiceData as SerializedInvoice);
+            refetchOrder();
+        }
+        if (orderData) {
+            setOrder(orderData as SerializedOrder);
+        }
+    }, [invoiceData, orderData, refetchOrder]);
 
     if (error || !invoice) {
         return <div className="alert alert-error">Invoice not found.</div>;
     }
-
-    const { data: orderData, refetch: refetchOrder } = api.orders.getByID.useQuery<SerializedOrder>(invoice.orderId, {
-        enabled: !!invoice.orderId,
-        refetchOnMount: false,
-        refetchOnWindowFocus: false,
-    });
 
     const formatTaxRate = (taxRate: number) => {
         return taxRate.toFixed(2);
@@ -116,6 +129,7 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     };
 
     const handlePrint = async (quickbooksId: string) => {
+        setIsPrinting(true);
         if (!quickbooksId) {
             toast.error('No QuickBooks invoice ID available');
             return;
@@ -124,7 +138,6 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     };
 
     const handleSendInvoiceByEmail = async (quickbooksId: string, invoiceId: string) => {
-        setIsSending(true);
         try {
             // Assuming you have access to the User object associated with createdById
             const recipientEmail = invoice.createdBy.email || ''; // Use the email from the User object
@@ -136,22 +149,8 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
         } catch (error) {
             console.error('Failed to send invoice:', error);
             toast.error('Failed to send invoice');
-        } finally {
-            setIsSending(false);
         }
     };
-
-    useEffect(() => {
-        if (invoiceData) {
-            setInvoice(invoiceData as SerializedInvoice);
-            refetchOrder();
-
-        }
-        if (orderData) {
-            setOrder(orderData as SerializedOrder);
-        }
-    }, [invoiceData, orderData]);
-
 
     return (
         <>

@@ -1,6 +1,6 @@
 // ~/src/server/api/routers/userManagement.ts
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { RoleName } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 

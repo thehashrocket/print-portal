@@ -7,11 +7,17 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import WorkOrderDetails from "~/app/_components/workOrders/WorkOrderDetailsComponent";
 
-export default async function WorkOrderPage({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
+export default async function WorkOrderPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    id
+  } = params;
+
   const session = await getServerAuthSession();
 
   if (!session?.user.Permissions.includes("work_order_read")) {

@@ -1,7 +1,7 @@
 // ~/src/app/_components/users/UserProfileForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,8 +9,7 @@ import { api } from "~/trpc/react";
 import { type ExtendedUser } from "~/types/user";
 import { type Company, type Office, type Role } from "@prisma/client";
 import { Button } from "../ui/button";
-import { Pencil, User as UserIcon, Mail, Building2, Building, Users } from "lucide-react";
-import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
+import { Pencil, User as UserIcon, Mail, Building2, Users } from "lucide-react";
 import { Input } from "~/app/_components/ui/input";
 import { Label } from "~/app/_components/ui/label";
 import { CustomComboBox } from "../shared/ui/CustomComboBox";

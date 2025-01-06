@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { X, Share2 } from 'lucide-react';
 
 export function InstallPWA() {
-  const [supportsPWA, setSupportsPWA] = useState(false);
   const [promptInstall, setPromptInstall] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -34,7 +33,6 @@ export function InstallPWA() {
       console.log('beforeinstallprompt event fired');
       e.preventDefault();
       setPromptInstall(e);
-      setSupportsPWA(true);
       
       // Show banner for Android devices if not dismissed
       if (isAndroid && !localStorage.getItem('pwaPromptDismissed')) {
@@ -90,7 +88,7 @@ export function InstallPWA() {
           <p className="font-semibold">Install Print Portal</p>
           {isIOS ? (
             <p className="text-sm">
-              Tap the share button <Share2 className="inline w-4 h-4" /> and select 'Add to Home Screen'
+              Tap the share button <Share2 className="inline w-4 h-4" /> and select &apos;Add to Home Screen&apos;
             </p>
           ) : (
             <p className="text-sm">Add to your home screen for quick access</p>

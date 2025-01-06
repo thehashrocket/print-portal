@@ -17,7 +17,6 @@ import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF'; // You'll need to create this file
 import { PrintButton } from './PrintButton'; // Create this component in the same directory
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
-import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 

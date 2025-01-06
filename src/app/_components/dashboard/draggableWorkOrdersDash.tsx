@@ -50,14 +50,6 @@ const DraggableWorkOrdersDash: React.FC<{ initialWorkOrders: SerializedWorkOrder
         return acc;
     }, {} as { [key in WorkOrderStatus]: SerializedWorkOrder[] });
 
-    const isWithinAWeek = (dateString: string): boolean => {
-        const targetDate = new Date(dateString);
-        const currentDate = new Date();
-        const timeDiff = targetDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff <= 7;
-    };
-
     return (
         <>
             <div className="flex p-5 bg-gray-800 text-white min-h-screen">

@@ -4,7 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
+import { type SerializedOffice } from "~/types/serializedTypes";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import NoPermission from "~/app/_components/noPermission/noPermission";
@@ -12,7 +12,13 @@ import OfficeForm from "~/app/_components/offices/OfficeForm";
 import { PlusCircle } from "lucide-react";
 import { Button } from "~/app/_components/ui/button";
 
-export default async function EditOfficePage({ params: { officeId } }: { params: { officeId: string } }) {
+export default async function EditOfficePage(props: { params: Promise<{ officeId: string }> }) {
+    const params = await props.params;
+
+    const {
+        officeId
+    } = params;
+
     const session = await getServerAuthSession();
     const office = await api.offices.getById(officeId);
 

@@ -35,7 +35,6 @@ interface ProcessingOptionsFormProps {
     initialData?: Partial<ProcessingOptions>;
     orderItemId?: string;
     workOrderItemId?: string;
-    isActive?: boolean;
     onClose?: () => void;
     onCancel?: () => void;
 }
@@ -46,7 +45,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
     workOrderItemId,
     onClose,
     onCancel,
-    isActive = false
 }) => {
     const { createOption, updateOption } = useProcessingOptions();
     const {

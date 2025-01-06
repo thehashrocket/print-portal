@@ -1,10 +1,9 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
-import { normalizeOrder, normalizeOrderItem, normalizeOrderPayment } from "~/utils/dataNormalization";
-import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
+import { normalizeOrder, normalizeOrderPayment } from "~/utils/dataNormalization";
+import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
-import * as pdfGenerator from "~/utils/generateOrderPDF";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 const SALES_TAX = 0.07;
 
@@ -546,7 +545,7 @@ export const orderRouter = createTRPCRouter({
       }).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { id, status, sendEmail, emailOverride, shippingDetails } = input;
+      const { shippingDetails } = input;
 
       // Update order status
       const updatedOrder = await ctx.db.order.update({
@@ -733,6 +732,14 @@ export const orderRouter = createTRPCRouter({
         const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
         return {
           ...order,
+          // Convert Decimal values to numbers
+          deposit: Number(order.deposit),
+          OrderItems: order.OrderItems.map(item => ({
+            ...item,
+            amount: item.amount ? Number(item.amount) : null,
+            cost: item.cost ? Number(item.cost) : null,
+            shippingAmount: item.shippingAmount ? Number(item.shippingAmount) : null,
+          })),
           OrderItemStatus: orderStatus,
           inHandsDate: firstOrderItem?.expectedDate,
           companyName: order.Office.Company.name,

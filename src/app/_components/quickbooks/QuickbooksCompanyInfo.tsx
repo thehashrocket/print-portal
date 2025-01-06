@@ -14,7 +14,7 @@ const QuickBooksCompanyInfo: React.FC<CompanyInfoProps> = ({ companyInfo }) => {
         );
     }
 
-    const { companyInfo: CompanyInfo, time } = companyInfo;
+    const { companyInfo: CompanyInfo } = companyInfo;
 
     const formatDate = (dateString: string | number | Date) => {
         return dateString ? new Date(dateString).toLocaleDateString() : 'N/A';
@@ -29,7 +29,14 @@ const QuickBooksCompanyInfo: React.FC<CompanyInfoProps> = ({ companyInfo }) => {
         return item ? item.Value : 'N/A';
     };
 
-    const renderAddress = (address: { Line1: any; City: any; CountrySubDivisionCode: any; PostalCode: any; Lat: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined; Long: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined; }, title: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined) => {
+    const renderAddress = (address: { 
+        Line1?: string; 
+        City?: string; 
+        CountrySubDivisionCode?: string; 
+        PostalCode?: string;
+        Lat?: string | number;
+        Long?: string | number;
+    }, title: React.ReactNode) => {
         if (!address) return null;
         return (
             <div>

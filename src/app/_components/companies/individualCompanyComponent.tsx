@@ -4,7 +4,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { type AddressType, type WorkOrderStatus, type OrderStatus } from "@prisma/client";
 import QuickbooksSyncOrdersButton from "./QuickbooksSyncOrdersButton";
 import { toast } from "react-hot-toast";
 import { type SerializedCompany, type SerializedOffice, type SerializedAddress } from "~/types/serializedTypes";

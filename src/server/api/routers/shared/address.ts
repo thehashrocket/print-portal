@@ -1,15 +1,9 @@
 // used by Office, WorkOrders, and Orders.
 // Path: src/server/api/routers/shared/address.ts
 // Fields include: city, country, id, line1, line2, postalCode, state
-
-import { off } from "process";
 import { AddressType } from "@prisma/client";
 import { z } from "zod";
-import {
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const addressRouter = createTRPCRouter({
     getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {

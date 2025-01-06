@@ -5,13 +5,9 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { InvoiceStatus, OrderStatus, PaymentMethod, Order, Invoice } from "@prisma/client";
-import { sendInvoiceEmail } from "~/utils/sengrid"
-import { generateInvoicePDF } from "~/utils/generateOrderPDF"
+import { InvoiceStatus, OrderStatus, PaymentMethod } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { normalizeInvoice, normalizeInvoiceItem, normalizeInvoicePayment } from "~/utils/dataNormalization";
-import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializedTypes";
-import { formatDate } from "~/utils/formatters";
+import { normalizeInvoice, normalizeInvoicePayment } from "~/utils/dataNormalization";
 
 
 function formatItemDescription(item: any): string {

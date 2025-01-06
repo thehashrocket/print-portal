@@ -4,13 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
 import { TypesettingStatus, type Typesetting, type TypesettingOption, type TypesettingProof } from "@prisma/client";
-import { SerializedTypesetting, SerializedTypesettingOption, SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import { type TypesettingWithRelations } from "~/app/contexts/TypesettingContext";
 import { Decimal } from "decimal.js";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
-import { Input } from "../../ui/input";
 import { Checkbox } from "../../ui/checkbox";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
 

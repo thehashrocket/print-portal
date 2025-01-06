@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "~/lib/utils"
 import { Button } from "~/app/_components/ui/button"
 import {
@@ -66,15 +66,23 @@ export function CustomComboBox({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className={cn("p-0", className)}>
-                <Command shouldFilter={true}> {/* Add this prop */}
+                <Command shouldFilter={true}>
                     <CommandInput placeholder={searchPlaceholder} className="..." onValueChange={handleSearchChange} />
                     <CommandList>
-                        <CommandEmpty>{emptyText}</CommandEmpty>
+                        <CommandEmpty>
+                            {showSpinner ? (
+                                <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                </div>
+                            ) : (
+                                emptyText
+                            )}
+                        </CommandEmpty>
                         <CommandGroup>
-                            {options.map((option) => (
+                            {!showSpinner && options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.label} // Change this to option.label
+                                    value={option.label}
                                     onSelect={() => {
                                         onValueChange(option.value);
                                         setOpen(false);

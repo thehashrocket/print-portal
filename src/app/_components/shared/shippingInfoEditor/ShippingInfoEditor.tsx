@@ -3,10 +3,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { AddressType, ShippingMethod, ShippingInfo, type Address } from '@prisma/client';
-import { type SerializedShippingInfo, SerializedAddress } from '~/types/serializedTypes';
+import { ShippingMethod,  type Address } from '@prisma/client';
+import { type SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
-import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, Pencil, PlusCircle } from 'lucide-react';
+import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, PlusCircle } from 'lucide-react';
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
@@ -41,22 +41,7 @@ const shippingInfoSchema = z.object({
     path: ["shippingPickup"],
 });
 
-const addressSchema = z.object({
-    name: z.string().optional(),
-    line1: z.string().min(1, 'Address Line 1 is required'),
-    line2: z.string().optional(),
-    line3: z.string().optional(),
-    line4: z.string().optional(),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    zipCode: z.string().min(1, 'Zip Code is required'),
-    country: z.string().min(1, 'Country is required'),
-    telephoneNumber: z.string().min(1, 'Telephone Number is required'),
-    addressType: z.nativeEnum(AddressType),
-});
-
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
-type AddressFormData = z.infer<typeof addressSchema>;
 
 interface ShippingInfoEditorProps {
     orderId: string;
@@ -111,7 +96,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
             toast.error('Failed to update shipping info');
         }
     });
-    const createAddressMutation = api.addresses.create.useMutation();
 
     const shippingMethod = watch('shippingMethod');
 

@@ -1,8 +1,5 @@
 // ~/src/app/page.tsx
-import Link from "next/link";
 import Image from "next/image";
-import { getServerAuthSession } from "~/server/auth";
-import { Button } from "~/app/_components/ui/button";
 
 export default async function Home() {
   return (

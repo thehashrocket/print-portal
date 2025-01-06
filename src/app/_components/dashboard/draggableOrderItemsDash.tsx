@@ -4,15 +4,12 @@
 import React, { useState, useMemo } from 'react';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from '@prisma/client';
-import type { SerializedOrderItem } from "~/types/serializedTypes";
 import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { CalendarDays, Eye } from 'lucide-react';
-import { randomUUID } from 'crypto';
 
 const calculateDaysUntilDue = (dateString: string): number => {
     const targetDate = new Date(dateString);
@@ -115,13 +112,6 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     );
 
     // Your existing helper functions
-    const isWithinAWeek = (dateString: string): boolean => {
-        const targetDate = new Date(dateString);
-        const currentDate = new Date();
-        const timeDiff = targetDate.getTime() - currentDate.getTime();
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return daysDiff <= 7;
-    };
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
@@ -285,7 +275,7 @@ interface JobCardProps {
     jobTotalItems: number; // The total number of items in the job
 }
 
-const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart, JobNumberInList, jobTotalItems }) => (
+const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
     <div
         data-item-container
         draggable

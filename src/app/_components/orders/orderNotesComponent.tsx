@@ -9,7 +9,7 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 
 import {
@@ -37,6 +37,10 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
     const defaultColDef: ColDef = {
         resizable: true,
         sortable: true,
+    };
+
+    const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setNote(e.target.value);
     };
 
     const columnDefs: ColDef[] = [
@@ -81,14 +85,14 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
             >
                 <div className="mb-4">
                     <Label htmlFor="note">Add Note</Label>
-                    <textarea
+                    <Textarea
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="note"
                         name="note"
                         rows={3}
                         value={note}
                         placeholder="Enter note"
-                        onChange={(e) => setNote(e.target.value)}
+                        onChange={handleNoteChange}
                     />
                 </div>
                 <Button

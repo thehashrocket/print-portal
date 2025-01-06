@@ -1,6 +1,5 @@
 import React from "react";
 import OrdersTable from "~/app/_components/orders/ordersTable";
-import Link from "next/link";
 
 export default async function OrdersPage() {
 
