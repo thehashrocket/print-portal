@@ -315,7 +315,6 @@ model ProcessingOptions {
   workOrderItemId String?
   createdById     String
   description     String         @default("")
-  name            String
   stitching       String?
   binderyTime     Int?
   binding         BindingType?

@@ -22,7 +22,6 @@ type FormDataType = {
     description: string;
     drilling: string | null;
     folding: string | null;
-    name: string;
     numberingColor: string | null;
     numberingEnd: number | null;
     numberingStart: number | null;
@@ -50,7 +49,6 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
         description: '',
         drilling: null,
         folding: null,
-        name: '',
         numberingColor: null,
         numberingEnd: null,
         numberingStart: null,
@@ -126,7 +124,6 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
             description: data.description,
             drilling: data.drilling,
             folding: data.folding,
-            name: data.name,
             numberingColor: data.numberingColor,
             numberingEnd: data.numberingEnd,
             numberingStart: data.numberingStart,
@@ -149,7 +146,6 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
             description: formData.description,
             drilling: formData.drilling ?? undefined,
             folding: formData.folding ?? undefined,
-            name: formData.name,
             numberingColor: formData.numberingColor ?? undefined,
             numberingEnd: formData.numberingEnd ?? undefined,
             numberingStart: formData.numberingStart ?? undefined,
@@ -185,7 +181,6 @@ const ProcessingOptionsTable: React.FC<ProcessingOptionsProps> = ({
             description: '',
             drilling: '',
             folding: '',
-            name: '',
             numberingColor: '',
             numberingEnd: null,
             numberingStart: null,

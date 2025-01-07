@@ -273,7 +273,6 @@ export interface SerializedProcessingOptions {
     workOrderItemId: string | null;
     createdById: string;
     description: string;
-    name: string;
     stitching: string | null;
     binderyTime: number | null;
     binding: BindingType | null;

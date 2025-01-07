@@ -14,7 +14,6 @@ import { SelectField } from "../../shared/ui/SelectField/SelectField";
 
 const processingOptionsSchema = z.object({
     id: z.string().optional(),
-    name: z.string().nonempty("Name is required"),
     binderyTime: z.number().optional(),
     binding: z.string().optional(),
     cutting: z.string().optional(),
@@ -84,16 +83,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
             <input type="hidden" {...register("id")} />
             <input type="hidden" {...register("orderItemId")} />
             <input type="hidden" {...register("workOrderItemId")} />
-
-            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                    {...register("name")}
-                    className={inputClass}
-                    placeholder="Name"
-                />
-                {errors.name && <span className={errorClass}>{errors.name.message}</span>}
-            </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="binderyTime">Bindery Time</Label>

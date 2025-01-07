@@ -36,7 +36,7 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
     };
 
     const renderOptionDetails = () => {
-        const excludeKeys = ["id", "createdById", "orderItemId", "workOrderItemId", "name", "createdAt", "updatedAt"];
+        const excludeKeys = ["id", "createdById", "orderItemId", "workOrderItemId", "description", "createdAt", "updatedAt"];
         const details = Object.entries(option).filter(([key]) => !excludeKeys.includes(key));
         return (
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4">
@@ -61,7 +61,7 @@ const ProcessingOptionsItem: React.FC<ProcessingOptionsItemProps> = ({ option })
             ) : (
                 <div className="p-6">
                     <div className="flex flex-col mb-4">
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{option.name || "Bindery Option"}</h3>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{option.description || "Bindery Option"}</h3>
                         <div className="flex justify-between items-start">
                             <div className="text-sm text-gray-500">
                                 <p>Created: {formatValue("createdAt", option.createdAt)}</p>

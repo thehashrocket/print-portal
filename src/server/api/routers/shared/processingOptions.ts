@@ -48,7 +48,6 @@ export const processingOptionsRouter = createTRPCRouter({
             description: z.string().optional(),
             drilling: z.string().optional(),
             folding: z.string().optional(),
-            name: z.string(), // Add the 'name' property
             numberingColor: z.string().optional(),
             numberingEnd: z.number().optional(),
             numberingStart: z.number().optional(),
@@ -67,7 +66,6 @@ export const processingOptionsRouter = createTRPCRouter({
                     description: input.description,
                     drilling: input.drilling,
                     folding: input.folding,
-                    name: input.name, // Include the 'name' property
                     numberingColor: input.numberingColor,
                     numberingEnd: input.numberingEnd,
                     numberingStart: input.numberingStart,
@@ -95,7 +93,6 @@ export const processingOptionsRouter = createTRPCRouter({
             description: z.string().optional(),
             drilling: z.string().optional(),
             folding: z.string().optional(),
-            name: z.string(), // Add the 'name' property
             numberingColor: z.string().optional(),
             numberingEnd: z.number().optional(),
             numberingStart: z.number().optional(),
@@ -117,7 +114,6 @@ export const processingOptionsRouter = createTRPCRouter({
                     description: input.description,
                     drilling: input.drilling,
                     folding: input.folding,
-                    name: input.name, // Include the 'name' property
                     numberingColor: input.numberingColor,
                     numberingEnd: input.numberingEnd,
                     numberingStart: input.numberingStart,

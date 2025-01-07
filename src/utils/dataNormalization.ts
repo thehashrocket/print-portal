@@ -443,7 +443,6 @@ export function normalizeProcessingOptions(options: ProcessingOptions): Serializ
         workOrderItemId: options.workOrderItemId,
         createdById: options.createdById,
         description: options.description,
-        name: options.name,
         stitching: options.stitching,
         binderyTime: options.binderyTime,
         binding: options.binding,
