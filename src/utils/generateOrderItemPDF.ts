@@ -193,18 +193,19 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     leftY += 10;
     
     if (order.contactPerson) {
-        leftY = addField('Name', order.contactPerson.name || 'N/A', leftMargin, leftY, 7, 10);
-        leftY = addField('Email', order.contactPerson.email || 'N/A', leftMargin, leftY, 7, 10);
-        leftY = addField('Phone', order.contactPerson?.phone || 'N/A', leftMargin, leftY, 7, 10);
+        leftY = addField('Name', order.contactPerson.name || 'N/A', leftMargin, leftY, 7, 10, 12);
+        leftY = addField('Email', order.contactPerson.email || 'N/A', leftMargin, leftY, 7, 10, 12);
+        leftY = addField('Phone', order.contactPerson?.phone || 'N/A', leftMargin, leftY, 7, 10, 12);
     }
 
     // Right column (excluding the dates that are now above)
     let rightY = yPos;
-    rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 20, 30);
-    rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 20, 30);
+    rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
+    rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30);
     rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30);
     // Utilize the new addWrappedField function for Paper Stock
-    rightY = addWrappedField('Paper Stock', orderItem.OrderItemStock[0]?.notes || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
+    rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
+    rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30);
     // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
     // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
@@ -240,24 +241,24 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         doc.text('N/A', leftMargin, yPos);
     }
     yPos += 10;
-    if (orderItem.PaperProduct) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Paper Stock', leftMargin, yPos);
-        yPos += 10;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(orderItem.PaperProduct.paperType + ' ' + orderItem.PaperProduct.finish + ' ' + orderItem.PaperProduct.weightLb + ' lbs', leftMargin, yPos);
-    } else {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Paper Stock', leftMargin, yPos);
-        yPos += 10;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text('N/A', leftMargin, yPos);
-    }
-    yPos += 10;
+    // if (orderItem.PaperProduct) {
+    //     doc.setFont('helvetica', 'bold');
+    //     doc.setFontSize(14);
+    //     doc.text('Paper Stock', leftMargin, yPos);
+    //     yPos += 10;
+    //     doc.setFont('helvetica', 'normal');
+    //     doc.setFontSize(12);
+    //     doc.text(orderItem.PaperProduct.paperType + ' ' + orderItem.PaperProduct.finish + ' ' + orderItem.PaperProduct.weightLb + ' lbs', leftMargin, yPos);
+    // } else {
+    //     doc.setFont('helvetica', 'bold');
+    //     doc.setFontSize(14);
+    //     doc.text('Paper Stock', leftMargin, yPos);
+    //     yPos += 10;
+    //     doc.setFont('helvetica', 'normal');
+    //     doc.setFontSize(12);
+    //     doc.text('N/A', leftMargin, yPos);
+    // }
+    // yPos += 10;
     
 
     // Process Typesetting Proofs with proper sizing
