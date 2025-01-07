@@ -1,17 +1,24 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Button } from '~/app/_components/ui/button';
 import { PlusCircle, RefreshCcw, RefreshCwOff } from 'lucide-react';
+import CreateOfficeForm from '../offices/CreateOfficeForm';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "~/app/_components/ui/dialog";
 
 const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
     const router = useRouter();
     const isAuthenticated = useQuickbooksStore((state: { isAuthenticated: any; }) => state.isAuthenticated);
+    const [isAddOfficeModalOpen, setIsAddOfficeModalOpen] = useState(false);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
         onSuccess: () => {
             toast.success('Company synced with QuickBooks successfully');
@@ -65,16 +72,27 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                     )}
                     {syncCompanyMutation.isPending ? 'Syncing...' : 'Sync with QuickBooks'}
                 </Button>
-                <Link href="/companies/create" className="w-full sm:w-auto">
-                    <Button
-                        variant="default"
-                        className="w-full"
-                    >
-                        <PlusCircle className="w-4 h-4" />
-                        Create Company
-                    </Button>
-                </Link>
+                <Button
+                    variant="default"
+                    className="w-full sm:w-auto"
+                    onClick={() => setIsAddOfficeModalOpen(true)}
+                >
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Add Office
+                </Button>
             </div>
+
+            <Dialog open={isAddOfficeModalOpen} onOpenChange={setIsAddOfficeModalOpen}>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Add New Office</DialogTitle>
+                    </DialogHeader>
+                    <CreateOfficeForm
+                        companyId={companyId}
+                        onSuccess={() => setIsAddOfficeModalOpen(false)}
+                    />
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

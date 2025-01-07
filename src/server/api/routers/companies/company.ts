@@ -1,154 +1,183 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { Prisma } from "@prisma/client"; // Import the Company model
+import { normalizeWorkOrder, normalizeOrder } from "~/utils/dataNormalization";
+
 const SALES_TAX = 0.07;
 
 export const companyRouter = createTRPCRouter({
     // Get a Company by ID
     getByID: protectedProcedure
-        .input(z.string()).query(async ({ ctx, input }) => {
+        .input(z.string())
+        .query(async ({ ctx, input }) => {
             const company = await ctx.db.company.findUnique({
-                where: {
-                    id: input,
-                },
-                // Include the Offices, Addresses, WorkOrders, and OrderItems associated with the Company
-                // Include the sum of the WorkOrderItems and OrderItems
-                
+                where: { id: input },
                 include: {
                     Offices: {
                         include: {
-                            Addresses: {
-                                where: {
-                                    deleted: false,
-                                },
-                            }, // Include the Address associated with the Office
-                            Company: {
-                                select: {
-                                    name: true,
-                                    isActive: true,
-                                },
-                            },
+                            Company: true,
+                            Addresses: true,
                             WorkOrders: {
                                 include: {
-                                    WorkOrderItems: {
-                                        select: {
-                                            id: true,
-                                            createdAt: true,
-                                            updatedAt: true,
-                                            status: true,
-                                            createdById: true,
-                                            amount: true,
-                                            cost: true,
-                                            description: true,
-                                            expectedDate: true,
-                                            workOrderItemNumber: true,
-                                            workOrderId: true,
-                                            other: true,
-                                            ink: true,
-                                            size: true,
-                                            quantity: true,
-                                            specialInstructions: true,
-                                            prepTime: true,
-                                            shippingAmount: true,
+                                    contactPerson: true,
+                                    createdBy: true,
+                                    Office: {
+                                        include: {
+                                            Company: true,
                                         }
-                                    }, // Include the WorkOrderItems associated with the WorkOrder
-                                },
+                                    },
+                                    Order: true,
+                                    ShippingInfo: {
+                                        include: {
+                                            Address: true,
+                                            ShippingPickup: true,
+                                        }
+                                    },
+                                    WorkOrderItems: {
+                                        include: {
+                                            artwork: true,
+                                            createdBy: true,
+                                            Typesetting: {
+                                                include: {
+                                                    TypesettingOptions: true,
+                                                    TypesettingProofs: true,
+                                                }
+                                            },
+                                            ProcessingOptions: true,
+                                            ProductType: true,
+                                            WorkOrderItemStock: true,
+                                        }
+                                    },
+                                    WorkOrderNotes: true,
+                                    WorkOrderVersions: true,
+                                }
                             },
                             Orders: {
                                 include: {
-                                    OrderItems: {
-                                        select: {
-                                            amount: true,
-                                            cost: true,
-                                            shippingAmount: true
+                                    contactPerson: true,
+                                    createdBy: true,
+                                    Office: {
+                                        include: {
+                                            Company: true
                                         }
-                                    }, // Include the OrderItems associated with the Order
+                                    },
+                                    OrderItems: {
+                                        include: {
+                                            artwork: true,
+                                            Order: {
+                                                include: {
+                                                    Office: {
+                                                        include: {
+                                                            Company: true
+                                                        }
+                                                    },
+                                                    WorkOrder: true
+                                                }
+                                            },
+                                            OrderItemStock: true,
+                                            ProductType: true
+                                        }
+                                    },
+                                    OrderPayments: true,
+                                    ShippingInfo: {
+                                        include: {
+                                            Address: true,
+                                            ShippingPickup: true
+                                        }
+                                    },
+                                    Invoice: {
+                                        include: {
+                                            InvoiceItems: true,
+                                            InvoicePayments: true,
+                                            createdBy: true
+                                        }
+                                    },
+                                    OrderNotes: true,
+                                    WorkOrder: true
                                 }
                             }
-                        },
-                    },
-                },
-            })
+                        }
+                    }
+                }
+            });
 
             if (!company) return null;
 
-            const officesWithTotals = company.Offices.map(office => ({
-                ...office,
-                WorkOrders: office.WorkOrders.map(workOrder => {
-
-                    const totalCost = workOrder.WorkOrderItems.reduce(
-                        (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const totalItemAmount = workOrder.WorkOrderItems.reduce(
-                        (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const totalShippingAmount = workOrder.WorkOrderItems.reduce(
-                        (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-                    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-                    const totalAmount = calculatedSubTotal.add(calculatedSalesTax);
-
-                    return {
-                        ...workOrder,
-                        totalCost,
-                        totalItemAmount,
-                        totalShippingAmount,
-                        calculatedSubTotal,
-                        calculatedSalesTax,
-                        totalAmount
-                    };
-                }),
-                Orders: office.Orders.map(order => {
-                    const totalCost = order.OrderItems.reduce(
-                        (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const totalItemAmount = order.OrderItems.reduce(
-                        (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const totalShippingAmount = order.OrderItems.reduce(
-                        (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-                        new Prisma.Decimal(0)
-                    );
-                    const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-                    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-                    const totalAmount = calculatedSubTotal.add(calculatedSalesTax);
-
-                    return {
-                        ...order,
-                        totalCost,
-                        totalItemAmount,
-                        totalShippingAmount,
-                        calculatedSubTotal,
-                        calculatedSalesTax,
-                        totalAmount
-                    };
-                }),
-            }));
-
-            const totalWorkOrderAmount = officesWithTotals.reduce((sum, office) => {
-                return sum.add(office.WorkOrders.reduce((orderSum, workOrder) => {
-                    return orderSum.add(workOrder.totalAmount);
-                }, new Prisma.Decimal(0)));
-            }, new Prisma.Decimal(0));
-
-            const totalOrderAmount = officesWithTotals.reduce((sum, office) => {
-                return sum.add(office.Orders.reduce((orderSum, order) => {
-                    return orderSum.add(order.totalAmount);
-                }, new Prisma.Decimal(0)));
-            }, new Prisma.Decimal(0));
-
-
             return {
                 ...company,
-                Offices: officesWithTotals,
-                totalWorkOrderAmount,
-                totalOrderAmount
+                Offices: company.Offices.map(office => ({
+                    ...office,
+                    createdAt: office.createdAt.toISOString(),
+                    updatedAt: office.updatedAt.toISOString(),
+                    isActive: office.isActive,
+                    Company: { name: office.Company.name },
+                    Addresses: office.Addresses.map(address => ({
+                        ...address,
+                        createdAt: address.createdAt.toISOString(),
+                        updatedAt: address.updatedAt.toISOString()
+                    })),
+                    WorkOrders: office.WorkOrders.map(workOrder => {
+                        const totalItemAmount = workOrder.WorkOrderItems.reduce(
+                            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const totalCost = workOrder.WorkOrderItems.reduce(
+                            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const totalShippingAmount = workOrder.WorkOrderItems.reduce(
+                            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const calculatedSalesTax = totalItemAmount.mul(new Prisma.Decimal(0.07));
+                        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+                        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+
+                        return normalizeWorkOrder({
+                            ...workOrder,
+                            calculatedSalesTax,
+                            calculatedSubTotal,
+                            totalAmount,
+                            totalCost,
+                            totalItemAmount,
+                            totalShippingAmount,
+                        });
+                    }),
+                    Orders: office.Orders.map(order => {
+                        const totalItemAmount = order.OrderItems.reduce(
+                            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const totalCost = order.OrderItems.reduce(
+                            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const totalShippingAmount = order.OrderItems.reduce(
+                            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        );
+                        const calculatedSalesTax = totalItemAmount.mul(new Prisma.Decimal(0.07));
+                        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+                        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+                        const totalPaid = order.OrderPayments?.reduce(
+                            (sum, payment) => sum.add(payment.amount || new Prisma.Decimal(0)),
+                            new Prisma.Decimal(0)
+                        ) || new Prisma.Decimal(0);
+                        const balance = totalAmount.sub(totalPaid);
+
+                        return normalizeOrder({
+                            ...order,
+                            calculatedSalesTax,
+                            calculatedSubTotal,
+                            totalAmount,
+                            totalCost,
+                            totalItemAmount,
+                            totalShippingAmount,
+                            totalPaid,
+                            balance
+                        });
+                    })
+                }))
             };
         }),
     // Return Companies
