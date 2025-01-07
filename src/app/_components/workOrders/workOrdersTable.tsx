@@ -9,8 +9,10 @@ import {
     ModuleRegistry,
     type ColDef,
     type GridReadyEvent,
+    type GridApi,
     type FilterChangedEvent,
-    type RowClassParams
+    type RowClassParams,
+    type ValueGetterParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
@@ -26,6 +28,7 @@ const WorkOrdersTable: React.FC = () => {
     const gridRef = useRef<AgGridReact>(null);
     const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
+    const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery();
@@ -79,36 +82,44 @@ const WorkOrdersTable: React.FC = () => {
         }
     };
 
-    const columnDefs: ColDef[] = [
+    const columnDefs = useMemo<ColDef[]>(() => [
+        { 
+            headerName: "Company Name", 
+            filter: true, 
+            width: 150,
+            valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
+        },
         { headerName: "Estimate #", field: "workOrderNumber", filter: true, width: 150 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
+        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sortable: true },
         { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
-        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
-    ];
+    ], []);
 
-    const mobileColumnDefs: ColDef[] = [
+    const mobileColumnDefs = useMemo<ColDef[]>(() => [
+        { 
+            headerName: "Company Name", 
+            filter: true, 
+            width: 150,
+            valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
+        },
         { headerName: "Estimate #", field: "workOrderNumber", filter: true, width: 150 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
+        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sortable: true },
         { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "PO Number", field: "purchaseOrderNumber", filter: true, width: 150 },
-        { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
-    ];
+    ], []);
 
     useEffect(() => {
         if (workOrders) {
             setRowData(workOrders);
             setLoading(false);
-            if (gridRef.current) {
-                gridRef.current.api.sizeColumnsToFit();
-            }
-        }
-        if (gridRef.current) {
-            gridRef.current.api.sizeColumnsToFit();
+            // Wrap in setTimeout to ensure the grid is mounted
+            setTimeout(() => {
+                if (gridRef.current?.api) {
+                    gridRef.current.api.sizeColumnsToFit();
+                }
+            }, 100);
         }
     }, [workOrders]);
 
@@ -121,7 +132,13 @@ const WorkOrdersTable: React.FC = () => {
         };
 
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            // Cleanup grid
+            if (gridRef.current?.api) {
+                gridRef.current.api.destroy();
+            }
+        };
     }, []);
 
     const isMobile = windowWidth <= 768;
@@ -132,12 +149,12 @@ const WorkOrdersTable: React.FC = () => {
     }), [isMobile]);
 
     const onGridReady = (params: GridReadyEvent) => {
-        params.api.sizeColumnsToFit();
-    };
-
-    const onFilterChanged = (event: FilterChangedEvent) => {
-        const filteredRowCount = event.api.getDisplayedRowCount();
-        console.log(`Filtered row count: ${filteredRowCount}`);
+        setGridApi(params.api);
+        setTimeout(() => {
+            if (params.api) {
+                params.api.sizeColumnsToFit();
+            }
+        }, 100);
     };
 
     if (loading || isLoading) {
@@ -159,7 +176,6 @@ const WorkOrdersTable: React.FC = () => {
                     rowData={rowData}
                     rowSelection="single"
                     onGridReady={onGridReady}
-                    onFilterChanged={onFilterChanged}
                     getRowStyle={getRowStyle}
                     animateRows={true}
                     pagination={true}

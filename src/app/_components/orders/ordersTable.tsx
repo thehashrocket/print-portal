@@ -30,7 +30,6 @@ const OrdersTable: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
-  const utils = api.useUtils();
   
   const defaultColDef = useMemo(() => ({
     resizable: true,
