@@ -10,41 +10,36 @@ import {
   type ColDef,
   type FilterChangedEvent,
   type GridReadyEvent,
+  type GridApi,
   ModuleRegistry,
-  type RowClassParams
+  type RowClassParams,
+  type ValueGetterParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/formatters";
-import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
-ModuleRegistry.registerModules([ClientSideRowModelModule]);
-import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
 import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
+import { api } from "~/trpc/react";
 
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const OrdersTable: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<SerializedOrder[]>([]);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const utils = api.useUtils();
+  
   const defaultColDef = useMemo(() => ({
     resizable: true,
     sortable: true,
     filter: true,
   }), []);
 
-  const { data: ordersData, isLoading } = api.orders.getAll.useQuery();
-
-  const handleSyncSuccess = () => {
-    // Refresh the grid data
-    // You can use the gridRef to refresh the data
-    utils.orders.getAll.invalidate();
-
-    if (gridRef.current) {
-      gridRef.current.api.sizeColumnsToFit();
-    }
+  const getCompanyName = (params: { data: SerializedOrder }) => {
+    return params.data.Office.Company.name;
   };
 
   const actionsCellRenderer = (props: { data: SerializedOrder }) => (
@@ -69,7 +64,6 @@ const OrdersTable: React.FC = () => {
           </Button>
         </Link>
       )}
-      <QuickbooksInvoiceButton order={props.data} onSyncSuccess={handleSyncSuccess} />
     </div>
   );
 
@@ -84,56 +78,47 @@ const OrdersTable: React.FC = () => {
     }
   };
 
-  const columnDefs: ColDef[] = [
-    { headerName: "Order #", field: "orderNumber", filter: true, width: 90 },
-    { headerName: "Status", field: "status", filter: true, width: 120 },
-    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 120, sort: "asc" },
-    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 90 },
-    { headerName: "Total Cost", field: "totalCost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 90 },
-    { headerName: "Created At", field: "createdAt", filter: true, valueFormatter: formatDateInTable, width: 80 },
-    {
-      headerName: "QB Status",
-      field: "quickbooksInvoiceId",
-      cellRenderer: (params: { value: string | null }) => (
-        <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
-          {params.value ? (
-            <>
-              <RefreshCcw className="w-4 h-4 mr-2" />
-              Synced
-            </>
-          ) : (
-            <>
-              <RefreshCwOff className="w-4 h-4 mr-2" />
-              Not Synced
-            </>
-          )}
-        </div>
-      ),
-      sortable: true,
-      filter: true,
-      width: 120
+  const columnDefs = useMemo<ColDef[]>(() => [
+    { 
+      headerName: "Company Name", 
+      filter: true, 
+      width: 120, 
+      cellRenderer: getCompanyName,
+      valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
     },
-    { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },
-  ];
+    { headerName: "Order #", field: "orderNumber", filter: true, width: 60 },
+    { headerName: "Status", field: "status", filter: true, width: 80 },
+    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 80, sortable: true },
+    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 80 },
+    { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 100, sortable: false, filter: false },
+  ], []);
+
+  const { data: ordersData, isLoading } = api.orders.getAll.useQuery();
 
   useEffect(() => {
     if (ordersData) {
-      setOrders(ordersData || []);
+      setOrders(ordersData);
       setLoading(false);
-      if (gridRef.current) {
-        gridRef.current.api.sizeColumnsToFit();
-      }
     }
   }, [ordersData]);
 
   const onGridReady = (params: GridReadyEvent) => {
-    params.api.sizeColumnsToFit();
+    setGridApi(params.api);
+    setTimeout(() => {
+      if (params.api) {
+        params.api.sizeColumnsToFit();
+      }
+    }, 100);
   };
 
-  const onFilterChanged = (event: FilterChangedEvent) => {
-    const filteredRowCount = event.api.getDisplayedRowCount();
-    console.log(`Filtered row count: ${filteredRowCount}`);
-  };
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (gridRef.current?.api) {
+        gridRef.current.api.destroy();
+      }
+    };
+  }, []);
 
   if (loading || isLoading) {
     return (
@@ -144,23 +129,22 @@ const OrdersTable: React.FC = () => {
   }
 
   return (
-    (orders && (
+    orders && (
       <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
         <AgGridReact
-          animateRows={true}
+          ref={gridRef}
+          rowData={orders}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          animateRows={true}
           getRowStyle={getRowStyle}
-          onFilterChanged={onFilterChanged}
           onGridReady={onGridReady}
           pagination={true}
           paginationPageSize={20}
-          ref={gridRef}
-          rowData={orders}
           rowSelection="single"
         />
       </div>
-    )) || (
+    ) || (
       <div>No orders found</div>
     )
   );
