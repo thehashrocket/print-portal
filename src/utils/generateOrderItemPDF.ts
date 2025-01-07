@@ -206,6 +206,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     // Utilize the new addWrappedField function for Paper Stock
     rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30);
+    rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30);
     // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
     // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
