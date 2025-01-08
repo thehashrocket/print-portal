@@ -18,6 +18,7 @@ import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../shared/ui/CustomComboBox';
+import { CreatePaperProductModal } from "~/app/_components/shared/paperProducts/createPaperProductModal";
 
 const workOrderItemSchema = z.object({
     amount: z.number().multipleOf(0.01).default(1).optional(),
@@ -45,6 +46,7 @@ type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 const WorkOrderItemForm: React.FC = () => {
     const { workOrder } = useContext(WorkOrderContext);
     const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
+    const utils = api.useUtils();
     const router = useRouter();
 
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
@@ -53,6 +55,9 @@ const WorkOrderItemForm: React.FC = () => {
     const [workOrderItemId] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [customPaperProductId, setCustomPaperProductId] = useState<string | null>(null);
+    const [customPaperDescription, setCustomPaperDescription] = useState<string>('');
+    const [isCreatePaperProductModalOpen, setIsCreatePaperProductModalOpen] = useState(false);
     
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
@@ -154,8 +159,18 @@ const WorkOrderItemForm: React.FC = () => {
         ));
     };
 
+    const handlePaperProductCreated = (newPaperProduct: { id: string }) => {
+        setValue('paperProductId', newPaperProduct.id);
+        utils.paperProducts.getAll.invalidate();
+    };
+
     return (
         <div className="space-y-8">
+            <CreatePaperProductModal
+                isOpen={isCreatePaperProductModalOpen}
+                onClose={() => setIsCreatePaperProductModalOpen(false)}
+                onPaperProductCreated={handlePaperProductCreated}
+            />
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
                 onItemClick={setExpandedItemId}
@@ -249,18 +264,34 @@ const WorkOrderItemForm: React.FC = () => {
                             <Label htmlFor='paperProductId' className='flex gap-1'>
                                 Paper Product
                             </Label>
-                            {/* Provide a list of PaperProducts to select from using SelectField */}
-                            {uniquePaperProducts && (
-                                <CustomComboBox
-                                    options={uniquePaperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.finish + ' ' + paperProduct.paperType + ' ' + paperProduct.size + ' ' + paperProduct.finish + ' ' + paperProduct.weightLb + 'lbs.' }))}
-                                    value={watch('paperProductId') ?? ''}
-                                    onValueChange={(value: string) => setValue('paperProductId', value)}
-                                    placeholder="Select paper product..."
-                                    emptyText="No paper products found"
-                                    searchPlaceholder="Search paper products..."
-                                    className="w-full"
-                                />
-                            )}
+                            <div className="space-y-2">
+                                {uniquePaperProducts && (
+                                    <div className="flex gap-2">
+                                        <div className="flex-grow">
+                                            <CustomComboBox
+                                                options={uniquePaperProducts.map((paperProduct) => ({
+                                                    value: paperProduct.id,
+                                                    label: paperProduct.customDescription || 
+                                                        `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
+                                                }))}
+                                                value={watch('paperProductId') ?? ''}
+                                                onValueChange={(value: string) => setValue('paperProductId', value)}
+                                                placeholder="Select paper product..."
+                                                emptyText="No paper products found"
+                                                searchPlaceholder="Search paper products..."
+                                                className="w-full"
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsCreatePaperProductModalOpen(true)}
+                                        >
+                                            Add New
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='ink'>Color</Label>

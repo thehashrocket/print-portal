@@ -199,7 +199,7 @@ model OrderItem {
   prepTime            Int?
   pressRun            String
   ProcessingOptions   ProcessingOptions[]
-  ProductType         ProductType?       @relation(fields: [productTypeId], references: [id])
+  ProductType         ProductType?        @relation(fields: [productTypeId], references: [id])
   productTypeId       String?
   quantity            Int                 @default(1)
   shippingAmount      Decimal?            @db.Decimal(10, 2)
@@ -266,19 +266,20 @@ model OrderItemStock {
 
 model PaperProduct {
   id                 String               @id @default(uuid())
-  brand              PaperBrand
-  paperType          PaperType
-  finish             PaperFinish
-  weightLb           Int // The # in "80# Cover"
-  caliper            Float // Stored in points (e.g., 3.2)
-  size               String // e.g., "12x18"
-  width              Float // in inches
-  height             Float // in inches
-  mWeight            Float // M Weight from spreadsheet
-  sheetsPerUnit      Int
-  referenceId        String               @unique // REF# from spreadsheet
+  brand              PaperBrand           @default(Other)
+  paperType          PaperType            @default(Other)
+  finish             PaperFinish          @default(Other)
+  weightLb           Int? // The # in "80# Cover"
+  caliper            Float? // Stored in points (e.g., 3.2)
+  size               String? // e.g., "12x18"
+  width              Float? // in inches
+  height             Float? // in inches
+  mWeight            Float? // M Weight from spreadsheet
+  sheetsPerUnit      Int?
+  referenceId        String?              @unique // REF# from spreadsheet
   isHPIndigo         Boolean              @default(false)
-  supplier           String               @default("Midland Paper")
+  supplier           String               @default("")
+  customDescription  String?              @default("")
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   deleted            Boolean              @default(false)
@@ -692,17 +693,20 @@ enum OrderItemStatus {
 enum PaperBrand {
   BlazerDigital
   OmniluxOpaque
+  Other
 }
 
 enum PaperType {
   Book
   Cover
+  Other
 }
 
 enum PaperFinish {
   Gloss
   Satin
   Opaque
+  Other
 }
 
 enum PaymentMethod {

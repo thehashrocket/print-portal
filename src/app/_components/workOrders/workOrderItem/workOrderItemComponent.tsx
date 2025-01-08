@@ -192,11 +192,17 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Paper Product"
                         content={
                             workOrderItem.PaperProduct ? (
-                                <div>
-                                    <p><strong>Paper Type:</strong> {workOrderItem.PaperProduct.paperType}</p>
-                                    <p><strong>Finish:</strong> {workOrderItem.PaperProduct.finish}</p>
-                                    <p><strong>Weight:</strong> {workOrderItem.PaperProduct.weightLb} lbs</p>
-                                </div>
+                                workOrderItem.PaperProduct.customDescription ? (
+                                    <div>
+                                        <p>{workOrderItem.PaperProduct.customDescription}</p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p><strong>Paper Type:</strong> {workOrderItem.PaperProduct.paperType}</p>
+                                        <p><strong>Finish:</strong> {workOrderItem.PaperProduct.finish}</p>
+                                        <p><strong>Weight:</strong> {workOrderItem.PaperProduct.weightLb} lbs</p>
+                                    </div>
+                                )
                             ) : 'N/A'
                         }
                     />

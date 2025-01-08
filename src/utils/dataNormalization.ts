@@ -671,12 +671,13 @@ export function normalizeWorkOrderItemStock(stock: WorkOrderItemStock & {
 export function normalizePaperProduct(product: PaperProduct): SerializedPaperProduct {
     return {
         id: product.id,
-        brand: product.brand,
-        paperType: product.paperType,
-        finish: product.finish,
-        weightLb: product.weightLb,
-        caliper: product.caliper,
-        size: product.size,
+        brand: product.brand ?? undefined,
+        paperType: product.paperType ?? undefined,
+        finish: product.finish ?? undefined,
+        weightLb: product.weightLb ?? undefined,
+        caliper: product.caliper ?? undefined,
+        size: product.size ?? undefined,
+        customDescription: product.customDescription ?? undefined,
     };
 }
 

@@ -252,9 +252,10 @@ export interface SerializedPaperProduct {
     brand: PaperBrand;
     paperType: PaperType;
     finish: PaperFinish;
-    weightLb: number;
-    caliper: number;
-    size: string;
+    weightLb?: number;
+    caliper?: number;
+    size?: string;
+    customDescription?: string;
 }
 
 export interface SerializedProcessingOptions {
