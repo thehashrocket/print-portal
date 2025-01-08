@@ -161,8 +161,9 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     };
 
     // Modified addField function to handle text wrapping
-    const addWrappedField = (label: string, value: string, x: number, currentY: number, maxWidth: number, labelWidth: number = 20): number => {
+    const addWrappedField = (label: string, value: string, x: number, currentY: number, maxWidth: number, labelWidth: number = 20, fontSize: number = 14): number => {
         doc.setFont('helvetica', 'bold');
+        doc.setFontSize(fontSize);
         doc.text(label, x, currentY);
         
         // Calculate value position based on label length
@@ -183,8 +184,8 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
     // Left column
     let leftY = yPos;
-    leftY = addField('ORDER', `#${order.orderNumber}`, leftMargin, leftY);
-    leftY = addField('COMPANY', order.Office?.Company.name || 'N/A', leftMargin, leftY);
+    leftY = addField('ORDER', `#${order.orderNumber}`, leftMargin, leftY, 10, 20, 13);
+    leftY = addField('COMPANY', order.Office?.Company.name || 'N/A', leftMargin, leftY, 10, 20, 13);
     
     // Contact Information
     leftY += 10;
@@ -200,13 +201,13 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
     // Right column (excluding the dates that are now above)
     let rightY = yPos;
-    rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
-    rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30);
-    rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30);
+    // rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
+    rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30, 13);
+    rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30, 13);
     // Utilize the new addWrappedField function for Paper Stock
-    rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30);
-    rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30);
-    rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30);
+    rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30, 13  );
+    rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
+    rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
     // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
     // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
