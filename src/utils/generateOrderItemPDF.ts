@@ -201,13 +201,39 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
     // Right column (excluding the dates that are now above)
     let rightY = yPos;
-    // rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
+    rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
     rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30, 13);
     // Utilize the new addWrappedField function for Paper Stock
     rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30, 13  );
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
+
+    if (order.ShippingInfo) {
+        rightY += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('SHIPPING INFORMATION', rightColStart, rightY);
+        rightY += 10;
+        rightY = addField('Shipping Method', order.ShippingInfo.shippingMethod || 'N/A', rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Shipping Date', formatDate(order.ShippingInfo.shippingDate) || 'N/A', rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Shipping Notes', order.ShippingInfo.shippingNotes || 'N/A', rightColStart, rightY, 7, 30, 12);
+
+        if (order.ShippingInfo.Address) {
+            const address = [
+                order.ShippingInfo.Address.name,
+                order.ShippingInfo.Address.line1,
+                order.ShippingInfo.Address.line2,
+                `${order.ShippingInfo.Address.city}, ${order.ShippingInfo.Address.state} ${order.ShippingInfo.Address.zipCode}`
+            ].filter(Boolean).join('\n');  // filter(Boolean) removes empty/null values
+
+            rightY = addField('Address', address, rightColStart, rightY, 7, 30, 12);
+        }
+
+        if (order.ShippingInfo.trackingNumber) {
+            rightY = addField('Tracking Number', order.ShippingInfo.trackingNumber, rightColStart, rightY, 7, 30, 12);
+        }
+
+    }
     // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
 
     // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
