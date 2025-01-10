@@ -26,12 +26,29 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const WorkOrdersTable: React.FC = () => {
     const gridRef = useRef<AgGridReact>(null);
-    const [rowData, setRowData] = useState<SerializedWorkOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
-    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const [isMobile, setIsMobile] = useState(false);
+    const mounted = useRef(true);
 
     const { data: workOrders, isLoading } = api.workOrders.getAll.useQuery();
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => {
+            window.removeEventListener('resize', checkIsMobile);
+            mounted.current = false;
+            if (gridApi) {
+                gridApi.destroy();
+            }
+        };
+    }, [gridApi]);
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -40,17 +57,15 @@ const WorkOrdersTable: React.FC = () => {
     }), []);
 
     const actionsCellRenderer = (props: { data: SerializedWorkOrder }) => (
-        <div className="flex gap-1">
+        <div className="flex gap-2">
             <Link href={`/workOrders/${props.data.id}`}>
                 <Button
                     variant="default"
                     size="sm"
-                    className="h-8 whitespace-nowrap"
-                    title="View Estimate"
+                    className="h-8"
                 >
                     <Eye className="w-4 h-4 mr-1" />
-                    <span className="hidden sm:inline">Estimate</span>
-                    <span className="sm:hidden">Estimate</span>
+                    Estimate
                 </Button>
             </Link>
             {props.data.Order && (
@@ -58,12 +73,10 @@ const WorkOrdersTable: React.FC = () => {
                     <Button
                         variant="default"
                         size="sm"
-                        className="h-8 whitespace-nowrap"
-                        title="View Order"
+                        className="h-8"
                     >
                         <Eye className="w-4 h-4 mr-1" />
-                        <span className="hidden sm:inline">Order</span>
-                        <span className="sm:hidden">Order</span>
+                        Order
                     </Button>
                 </Link>
             )}
@@ -82,109 +95,101 @@ const WorkOrdersTable: React.FC = () => {
         }
     };
 
+    const getCompanyName = (params: ValueGetterParams) => {
+        return params.data?.Office?.Company?.name;
+    };
+
     const columnDefs = useMemo<ColDef[]>(() => [
         { 
-            headerName: "Company Name", 
-            filter: true, 
-            width: 150,
-            valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
+            headerName: "Company", 
+            valueGetter: getCompanyName,
+            width: 200
         },
-        { headerName: "Estimate #", field: "workOrderNumber", filter: true, width: 150 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sortable: true },
-        { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
+        { headerName: "Estimate #", field: "workOrderNumber", width: 150 },
+        { headerName: "Date In", field: "dateIn", valueFormatter: formatDateInTable, width: 120 },
+        { headerName: "Status", field: "status", width: 120 },
+        { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },
     ], []);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
         { 
-            headerName: "Company Name", 
-            filter: true, 
-            width: 150,
-            valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
+            headerName: "Company", 
+            valueGetter: getCompanyName,
+            flex: 2,
+            minWidth: 160
         },
-        { headerName: "Estimate #", field: "workOrderNumber", filter: true, width: 150 },
-        { headerName: "Date In", field: "dateIn", filter: true, valueFormatter: formatDateInTable, width: 120, sortable: true },
-        { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 250, sortable: false, filter: false, cellClass: 'action-cell' },
+        { headerName: "Est #", field: "workOrderNumber", width: 100 },
+        { headerName: "Status", field: "status", width: 100 },
+        { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 100 },
+        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 160, sortable: false, filter: false },
     ], []);
 
     useEffect(() => {
         if (workOrders) {
-            setRowData(workOrders);
             setLoading(false);
-            // Wrap in setTimeout to ensure the grid is mounted
-            setTimeout(() => {
-                if (gridRef.current?.api) {
-                    gridRef.current.api.sizeColumnsToFit();
-                }
-            }, 100);
         }
     }, [workOrders]);
 
-    useEffect(() => {
-        const handleResize = () => {
-            setWindowWidth(window.innerWidth);
-            if (gridRef.current?.api) {
-                gridRef.current.api.sizeColumnsToFit();
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            // Cleanup grid
-            if (gridRef.current?.api) {
-                gridRef.current.api.destroy();
-            }
-        };
-    }, []);
-
-    const isMobile = windowWidth <= 768;
-
-    const containerStyle = useMemo(() => ({
-        height: isMobile ? 'calc(100vh - 200px)' : '600px',
-        width: '100%',
-    }), [isMobile]);
-
     const onGridReady = (params: GridReadyEvent) => {
+        if (!mounted.current) return;
         setGridApi(params.api);
-        setTimeout(() => {
-            if (params.api) {
-                params.api.sizeColumnsToFit();
-            }
-        }, 100);
+        try {
+            params.api.sizeColumnsToFit();
+        } catch (error) {
+            console.warn('Failed to size columns on grid ready:', error);
+        }
+    };
+
+    const onFilterChanged = (event: FilterChangedEvent) => {
+        if (!mounted.current || !gridApi) return;
+        try {
+            const filteredRowCount = gridApi.getDisplayedRowCount();
+            console.log(`Filtered row count: ${filteredRowCount}`);
+        } catch (error) {
+            console.warn('Failed to get filtered row count:', error);
+        }
     };
 
     if (loading || isLoading) {
-        return <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-        </div>;
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
+    if (!workOrders || workOrders.length === 0) {
+        return <div>No work orders found</div>;
     }
 
     return (
-        (rowData && (
-            <div 
-                className="ag-theme-alpine w-full overflow-hidden"
-                style={containerStyle}
-            >
-                <AgGridReact
-                    ref={gridRef}
-                    columnDefs={isMobile ? mobileColumnDefs : columnDefs}
-                    defaultColDef={defaultColDef}
-                    rowData={rowData}
-                    rowSelection="single"
-                    onGridReady={onGridReady}
-                    getRowStyle={getRowStyle}
-                    animateRows={true}
-                    pagination={true}
-                    paginationPageSize={isMobile ? 10 : 20}
-                    domLayout={isMobile ? 'autoHeight' : undefined}
-                    className={isMobile ? 'ag-grid-mobile' : ''}
-                />
-            </div>
-        )) || <div>No work orders found</div>
+        <div 
+            className="ag-theme-alpine w-full" 
+            style={{ 
+                height: isMobile ? "calc(100vh - 200px)" : "600px",
+                width: "100%",
+                fontSize: isMobile ? "14px" : "inherit"
+            }}
+        >
+            <AgGridReact
+                ref={gridRef}
+                columnDefs={isMobile ? mobileColumnDefs : columnDefs}
+                defaultColDef={defaultColDef}
+                rowData={workOrders}
+                rowSelection="single"
+                onGridReady={onGridReady}
+                onFilterChanged={onFilterChanged}
+                getRowStyle={getRowStyle}
+                animateRows={true}
+                pagination={true}
+                paginationPageSize={isMobile ? 10 : 20}
+                domLayout="normal"
+                suppressMovableColumns={isMobile}
+                headerHeight={isMobile ? 40 : 48}
+                rowHeight={isMobile ? 40 : 48}
+            />
+        </div>
     );
 };
 

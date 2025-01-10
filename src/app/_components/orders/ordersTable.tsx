@@ -13,14 +13,13 @@ import {
   type GridApi,
   ModuleRegistry,
   type RowClassParams,
-  type ValueGetterParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import Link from "next/link";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { formatDateInTable, formatNumberAsCurrencyInTable } from "~/utils/formatters";
 import { Button } from "../ui/button";
-import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
+import { Eye } from "lucide-react";
 import { api } from "~/trpc/react";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -28,8 +27,10 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 const OrdersTable: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
   const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<SerializedOrder[]>([]);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
+  const mounted = useRef(true);
+  
+  const { data: orders, isLoading } = api.orders.getAll.useQuery();
   
   const defaultColDef = useMemo(() => ({
     resizable: true,
@@ -78,46 +79,49 @@ const OrdersTable: React.FC = () => {
   };
 
   const columnDefs = useMemo<ColDef[]>(() => [
-    { 
-      headerName: "Company Name", 
-      filter: true, 
-      width: 120, 
-      cellRenderer: getCompanyName,
-      valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name
-    },
-    { headerName: "Order #", field: "orderNumber", filter: true, width: 60 },
-    { headerName: "Status", field: "status", filter: true, width: 80 },
-    { headerName: "In Hands Date", field: "inHandsDate", filter: true, valueFormatter: formatDateInTable, width: 80, sortable: true },
-    { headerName: "Total Amount", field: "totalAmount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 80 },
-    { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 100, sortable: false, filter: false },
+    { headerName: "Order #", field: "orderNumber", width: 120 },
+    { headerName: "Company", valueGetter: getCompanyName, width: 200 },
+    { headerName: "Status", field: "status", width: 120 },
+    { headerName: "In Hands Date", field: "inHandsDate", valueFormatter: formatDateInTable, width: 150 },
+    { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+    { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false, width: 200 },
   ], []);
 
-  const { data: ordersData, isLoading } = api.orders.getAll.useQuery();
-
-  useEffect(() => {
-    if (ordersData) {
-      setOrders(ordersData);
-      setLoading(false);
-    }
-  }, [ordersData]);
-
-  const onGridReady = (params: GridReadyEvent) => {
-    setGridApi(params.api);
-    setTimeout(() => {
-      if (params.api) {
-        params.api.sizeColumnsToFit();
-      }
-    }, 100);
-  };
-
-  // Cleanup effect
+  // Cleanup function
   useEffect(() => {
     return () => {
-      if (gridRef.current?.api) {
-        gridRef.current.api.destroy();
+      mounted.current = false;
+      if (gridApi) {
+        gridApi.destroy();
       }
     };
-  }, []);
+  }, [gridApi]);
+
+  useEffect(() => {
+    if (orders) {
+      setLoading(false);
+    }
+  }, [orders]);
+
+  const onGridReady = (params: GridReadyEvent) => {
+    if (!mounted.current) return;
+    setGridApi(params.api);
+    try {
+      params.api.sizeColumnsToFit();
+    } catch (error) {
+      console.warn('Failed to size columns on grid ready:', error);
+    }
+  };
+
+  const onFilterChanged = (event: FilterChangedEvent) => {
+    if (!mounted.current || !gridApi) return;
+    try {
+      const filteredRowCount = gridApi.getDisplayedRowCount();
+      console.log(`Filtered row count: ${filteredRowCount}`);
+    } catch (error) {
+      console.warn('Failed to get filtered row count:', error);
+    }
+  };
 
   if (loading || isLoading) {
     return (
@@ -127,25 +131,26 @@ const OrdersTable: React.FC = () => {
     );
   }
 
+  if (!orders || orders.length === 0) {
+    return <div>No orders found</div>;
+  }
+
   return (
-    orders && (
-      <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
-        <AgGridReact
-          ref={gridRef}
-          rowData={orders}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          animateRows={true}
-          getRowStyle={getRowStyle}
-          onGridReady={onGridReady}
-          pagination={true}
-          paginationPageSize={20}
-          rowSelection="single"
-        />
-      </div>
-    ) || (
-      <div>No orders found</div>
-    )
+    <div className="ag-theme-alpine" style={{ height: "600px", width: "100%" }}>
+      <AgGridReact
+        ref={gridRef}
+        rowData={orders}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        animateRows={true}
+        getRowStyle={getRowStyle}
+        onGridReady={onGridReady}
+        onFilterChanged={onFilterChanged}
+        pagination={true}
+        paginationPageSize={20}
+        rowSelection="single"
+      />
+    </div>
   );
 };
 

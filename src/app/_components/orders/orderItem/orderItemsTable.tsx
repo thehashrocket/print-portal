@@ -8,7 +8,6 @@ import "@ag-grid-community/styles/ag-theme-alpine.css";
 import {
     type ColDef,
     ModuleRegistry,
-    type ValueFormatterParams,
     type GridReadyEvent,
     type FilterChangedEvent,
     type ICellRendererParams,
@@ -19,9 +18,9 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import { type SerializedOrderItem } from "~/types/serializedTypes";
 import Link from "next/link";
 import { Button } from "../../ui/button";
-import { EyeIcon } from "lucide-react";
+import { Eye } from "lucide-react";
+import { formatNumberAsCurrencyInTable } from "~/utils/formatters";
 
-// Register modules outside of component to prevent multiple registrations
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface OrderItemsTableProps {
@@ -30,7 +29,6 @@ interface OrderItemsTableProps {
 
 const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     const gridRef = useRef<AgGridReact>(null);
-    const [rowData, setRowData] = useState<SerializedOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
@@ -65,16 +63,11 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
                 variant="default"
                 size="sm"
             >
-                <EyeIcon className="w-4 h-4 mr-1" />
+                <Eye className="w-4 h-4 mr-1" />
                 View
             </Button>
         </Link>
     );
-
-    const formatNumberAsCurrency = (params: ValueFormatterParams): string => {
-        if (params.value === null) return "$0.00";
-        return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    };
 
     const getRowStyle = (params: RowClassParams<SerializedOrderItem>): { backgroundColor: string } | undefined => {
         if (!params.data) return undefined;
@@ -111,7 +104,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         { 
             headerName: "Amount", 
             field: "amount", 
-            valueFormatter: formatNumberAsCurrency,
+            valueFormatter: formatNumberAsCurrencyInTable,
             flex: 1,
             minWidth: 120,
             maxWidth: 140
@@ -132,34 +125,19 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         { headerName: "Description", field: "description", filter: true },
         { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
         { headerName: "Status", field: "status", filter: true, width: 150 },
-        { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
+        { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
+        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
     ], []);
 
     useEffect(() => {
-        if (!mounted.current) return;
-
-        setRowData(orderItems);
-        setLoading(false);
-        
-        if (gridApi) {
-            const timeoutId = setTimeout(() => {
-                if (mounted.current && gridApi) {
-                    try {
-                        gridApi.sizeColumnsToFit();
-                    } catch (error) {
-                        console.warn('Failed to size columns:', error);
-                    }
-                }
-            }, 100);
-            return () => clearTimeout(timeoutId);
+        if (orderItems) {
+            setLoading(false);
         }
-    }, [orderItems, gridApi]);
+    }, [orderItems]);
 
     const onGridReady = (params: GridReadyEvent) => {
         if (!mounted.current) return;
-        
         setGridApi(params.api);
         try {
             params.api.sizeColumnsToFit();
@@ -170,7 +148,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         if (!mounted.current || !gridApi) return;
-        
         try {
             const filteredRowCount = gridApi.getDisplayedRowCount();
             console.log(`Filtered row count: ${filteredRowCount}`);
@@ -187,11 +164,15 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         );
     }
 
+    if (!orderItems || orderItems.length === 0) {
+        return <div>No order items found</div>;
+    }
+
     return (
         <div 
             className="ag-theme-alpine w-full" 
             style={{ 
-                height: isMobile ? "600px" : "600px",
+                height: "600px",
                 width: "100%",
                 fontSize: isMobile ? "14px" : "inherit"
             }}
@@ -200,7 +181,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
                 ref={gridRef}
                 columnDefs={isMobile ? mobileColumnDefs : desktopColumnDefs}
                 defaultColDef={defaultColDef}
-                rowData={rowData}
+                rowData={orderItems}
                 rowSelection="single"
                 onGridReady={onGridReady}
                 onFilterChanged={onFilterChanged}
