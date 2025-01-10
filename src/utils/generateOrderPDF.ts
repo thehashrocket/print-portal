@@ -106,36 +106,41 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     doc.setFontSize(25).text('Order Details', 120, 20);
     yPos += 20;
     doc.setTextColor(0, 0, 0, 100)
-    doc.setFontSize(15).text(`Order Number: ${order.orderNumber}`, 20, yPos);
-    yPos += 10;
-    doc.text(`Ship To: ${order.Office.Company.name}`, 20, yPos);
-    yPos += 10;
+    let leftY = yPos;
+    leftY = addField('Order Number', order.orderNumber.toString(), leftMargin, leftY, 10, 35);
+    
+    if (order.WorkOrder?.purchaseOrderNumber) {
+        leftY = addField('PO Number', order.WorkOrder?.purchaseOrderNumber, leftMargin, leftY, 10, 35);
+    }
+    
+    leftY = addField('Date', formatDate(order.updatedAt), leftMargin, leftY, 10, 35);
+    leftY = addField('Ship To', order.Office.Company.name, leftMargin, leftY, 10, 35);
+
     doc.setFont('helvetica', 'normal')
     if (order.ShippingInfo?.Address?.name) {
-        doc.text(`${order.ShippingInfo?.Address?.name}`, 20, yPos);
-        yPos += 5;
+        leftY = addField('Name', order.ShippingInfo?.Address?.name, leftMargin, leftY);
     }
     if (order.ShippingInfo?.Address?.line1) {
-        doc.text(`${order.ShippingInfo?.Address?.line1}`, 20, yPos);
-        yPos += 5;
+        leftY = addField('Address', order.ShippingInfo?.Address?.line1, leftMargin, leftY);
     }
     if (order.ShippingInfo?.Address?.line2) {
-        doc.text(`${order.ShippingInfo?.Address?.line2}`, 20, yPos);
-        yPos += 5;
+        leftY = addField('Address', order.ShippingInfo?.Address?.line2, leftMargin, leftY);
     }
     if (order.ShippingInfo?.Address?.city) {
-        doc.text(`${order.ShippingInfo?.Address?.city}, ${order.ShippingInfo?.Address?.state} ${order.ShippingInfo?.Address?.zipCode}`, 20, yPos);
+        leftY = addField('City', order.ShippingInfo?.Address?.city, leftMargin, leftY, 10, 35);
+        leftY = addField('State', order.ShippingInfo?.Address?.state, leftMargin, leftY, 10, 35);
+        leftY = addField('Zip', order.ShippingInfo?.Address?.zipCode, leftMargin, leftY, 10, 35);
         yPos += 5;
     }
 
     if (order.ShippingInfo?.shippingMethod) {
-        doc.text(`Shipping Method: ${order.ShippingInfo?.shippingMethod}`, 20, yPos);
-        yPos += 20;
+        leftY = addField('Shipping Method', order.ShippingInfo?.shippingMethod, leftMargin, leftY, 10, 35);
     }
 
+    
 
+    yPos = leftY;
     // Left column
-    let leftY = yPos;
     leftY = addField('Company', order.Office?.Company.name || 'N/A', leftMargin, leftY);
     leftY = addField('Contact', order.contactPerson?.name || 'N/A', leftMargin, leftY);
     leftY = addField('Email', order.contactPerson?.email || 'N/A', leftMargin, leftY);
