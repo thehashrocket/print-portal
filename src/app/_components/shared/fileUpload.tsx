@@ -8,6 +8,7 @@ interface FileUploadProps {
     onFileUploaded: (fileUrl: string, description: string) => void;
     onFileRemoved: (fileUrl: string) => void;
     onDescriptionChanged: (fileUrl: string, description: string) => void;
+    onDescriptionBlur?: (fileUrl: string) => void;
     workOrderItemId?: string | null;
     initialFiles?: { fileUrl: string; description: string }[];
 }
@@ -16,6 +17,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     onFileUploaded,
     onFileRemoved,
     onDescriptionChanged,
+    onDescriptionBlur,
     workOrderItemId,
     initialFiles = []
 }) => {
@@ -58,6 +60,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
     useEffect(() => {
         setUploadedFiles(initialFiles);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+        setError(null);
+        setUploadProgress(0);
     }, [initialFiles]);
 
     const validateFile = (file: File): boolean => {
@@ -196,6 +203,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onDescriptionChanged(fileUrl, newDescription);
     };
 
+    const handleDescriptionBlur = (fileUrl: string) => {
+        if (onDescriptionBlur) {
+            onDescriptionBlur(fileUrl);
+        }
+    };
+
     const renderFileIcon = (fileType: string) => {
         switch (fileType) {
             case 'Image':
@@ -266,12 +279,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 {uploadedFiles.map((file, index) => (
                     <div key={index} className="p-4 border rounded space-y-4">
                         {renderPreview(file)}
-                        <input
-                            type="text"
+                        <textarea
                             value={file.description}
                             onChange={(e) => handleDescriptionChange(file.fileUrl, e.target.value)}
-                            placeholder="Enter description"
-                            className="input input-bordered w-full"
+                            onBlur={() => handleDescriptionBlur(file.fileUrl)}
+                            placeholder="Add description..."
+                            className="mt-2 w-full p-2 border rounded"
+                            rows={2}
                         />
                         <Button
                             variant="destructive"

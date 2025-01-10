@@ -14,15 +14,23 @@ import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
-import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF'; // You'll need to create this file
-import { PrintButton } from './PrintButton'; // Create this component in the same directory
+import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF';
+import { PrintButton } from './PrintButton';
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
+import FileUpload from "../../shared/fileUpload";
+import { type TRPCClientErrorLike } from "@trpc/client";
+import { type AppRouter } from "~/server/api/root";
 
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
+};
+
+type UpdateArtworkError = {
+    message: string;
+    code: string;
 };
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
@@ -91,9 +99,26 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
+    const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const utils = api.useUtils();
     
+    // Initialize local artwork state when orderItem changes
+    useEffect(() => {
+        if (orderItem?.artwork) {
+            setLocalArtwork(orderItem.artwork.map(art => ({
+                fileUrl: art.fileUrl,
+                description: art.description || '',
+            })));
+        }
+    }, [orderItem?.artwork]);
+
+    const { mutate: updateArtwork } = api.orderItems.updateArtwork.useMutation({
+        onSuccess: () => {
+            void utils.orderItems.getByID.invalidate(orderItemId);
+        },
+    });
+
     const findPaperProduct = (id: string) => {
         if (!id) return null;
         const paperProduct = paperProducts?.find(product => product.id === id);
@@ -123,11 +148,11 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     });
 
     useEffect(() => {
-        if (orderItem) {
+        if (orderItem && !jobDescription && !specialInstructions) {
             setJobDescription(orderItem.description);
             setSpecialInstructions(orderItem.specialInstructions ?? '');
         }
-    }, [orderItem]);
+    }, [orderItem, jobDescription, specialInstructions]);
 
     const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setJobDescription(e.target.value);
@@ -265,15 +290,65 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 {/* Artwork Section */}
                 <div className="mb-6">
                     <h2 className="mb-2 text-gray-600 text-xl font-semibold">Files</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {orderItem?.artwork.map((artwork) => (
-                            <div key={artwork.id} className="rounded-lg bg-white p-4 md:p-6 shadow-md">
-                                <ArtworkComponent 
-                                    artworkUrl={artwork.fileUrl} 
-                                    artworkDescription={artwork.description} 
-                                />
-                            </div>
-                        ))}
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+                            <FileUpload
+                                onFileUploaded={(fileUrl: string, description: string) => {
+                                    const newArtwork = { fileUrl, description };
+                                    const updatedArtwork = [...localArtwork, newArtwork];
+                                    setLocalArtwork(updatedArtwork);
+                                    updateArtwork({
+                                        orderItemId: orderItem.id,
+                                        artwork: updatedArtwork,
+                                    }, {
+                                        onSuccess: () => {
+                                            toast.success('File uploaded successfully');
+                                        },
+                                        onError: (error) => {
+                                            console.error('Error uploading file:', error);
+                                            toast.error('Failed to upload file');
+                                        },
+                                    });
+                                }}
+                                onFileRemoved={(fileUrl: string) => {
+                                    const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
+                                    setLocalArtwork(updatedArtwork);
+                                    updateArtwork({
+                                        orderItemId: orderItem.id,
+                                        artwork: updatedArtwork,
+                                    }, {
+                                        onSuccess: () => {
+                                            toast.success('File removed successfully');
+                                        },
+                                        onError: (error) => {
+                                            console.error('Error removing file:', error);
+                                            toast.error('Failed to remove file');
+                                        },
+                                    });
+                                }}
+                                onDescriptionChanged={(fileUrl: string, description: string) => {
+                                    const updatedArtwork = localArtwork.map(art => 
+                                        art.fileUrl === fileUrl ? { ...art, description } : art
+                                    );
+                                    setLocalArtwork(updatedArtwork);
+                                }}
+                                onDescriptionBlur={(fileUrl: string) => {
+                                    updateArtwork({
+                                        orderItemId: orderItem.id,
+                                        artwork: localArtwork,
+                                    }, {
+                                        onSuccess: () => {
+                                            toast.success('File description updated successfully');
+                                        },
+                                        onError: (error) => {
+                                            console.error('Error updating file description:', error);
+                                            toast.error('Failed to update file description');
+                                        },
+                                    });
+                                }}
+                                initialFiles={localArtwork}
+                            />
+                        </div>
                     </div>
                 </div>
 

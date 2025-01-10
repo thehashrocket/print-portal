@@ -1,6 +1,6 @@
 // ~/app/_components/workOrders/create/workOrderItemForm.tsx
 "use client";
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -138,6 +138,8 @@ const WorkOrderItemForm: React.FC = () => {
             await refetchWorkOrderItems();
             reset();
             setArtworks([]);
+            setSubmitError(null);
+            clearTempStocks();
         } catch (error) {
             console.error('Error saving estimate item:', error);
             if (error instanceof Error) {

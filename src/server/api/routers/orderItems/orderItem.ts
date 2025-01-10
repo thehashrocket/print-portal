@@ -3,6 +3,11 @@ import { z } from "zod";
 import { OrderItemStatus } from "@prisma/client";
 import { sendOrderStatusEmail } from "~/utils/sengrid";
 
+const artworkSchema = z.object({
+    fileUrl: z.string(),
+    description: z.string().nullable(),
+});
+
 export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
     getByID: protectedProcedure
@@ -226,5 +231,45 @@ export const orderItemRouter = createTRPCRouter({
             }
 
             return updatedItem;
+        }),
+    updateArtwork: protectedProcedure
+        .input(z.object({
+            orderItemId: z.string(),
+            artwork: z.array(artworkSchema),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // First, delete all existing artwork for this OrderItem
+            await ctx.db.orderItemArtwork.deleteMany({
+                where: { orderItemId: input.orderItemId },
+            });
+
+            // Then, create new artwork entries
+            const orderItem = await ctx.db.orderItem.update({
+                where: { id: input.orderItemId },
+                data: {
+                    artwork: {
+                        create: input.artwork,
+                    },
+                },
+                include: {
+                    artwork: true,
+                    PaperProduct: true,
+                    ProductType: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            }
+                        }
+                    },
+                    ProcessingOptions: true,
+                    OrderItemStock: true,
+                }
+            });
+
+            return orderItem;
         }),
 });
