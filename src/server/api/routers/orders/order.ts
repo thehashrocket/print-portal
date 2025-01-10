@@ -642,6 +642,14 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
+      // If the status is 'Invoicing', update the order items to 'Invoicing'
+      if (input.status === 'Invoicing') {
+        await ctx.db.orderItem.updateMany({
+          where: { orderId: input.id },
+          data: { status: 'Invoicing' },
+        });
+      }
+
       if (input.sendEmail && emailToSend) {
 
         // If tracking number and shipping method are provided, add them to the email
@@ -707,9 +715,15 @@ export const orderRouter = createTRPCRouter({
   // Shows all orders, their status, and the company they are associated with
   // Includes OrderItemStatus, returns the status that all OrderItems equal,
   // otherwise, it returns the lowest status of all OrderItems
+  // We don't need to show Orders that are Cancelled, Invoicing, or Completed
   dashboard: protectedProcedure
     .query(async ({ ctx }) => {
       const orders = await ctx.db.order.findMany({
+        where: {
+          status: {
+            notIn: ['Cancelled', 'Invoicing', 'Completed']
+          }
+        },
         include: {
           OrderItems: true,
           Office: {

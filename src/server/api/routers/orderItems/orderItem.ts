@@ -97,8 +97,14 @@ export const orderItemRouter = createTRPCRouter({
 
         return orderItems;
     }),
+    // Get all OrderItems that are not Cancelled or Completed
     dashboard: protectedProcedure.query(async ({ ctx }) => {
         const orderItems = await ctx.db.orderItem.findMany({
+            where: {
+                status: {
+                    notIn: ['Cancelled', 'Invoicing']
+                }
+            },
             include: {
                 artwork: true,
                 Order: {
