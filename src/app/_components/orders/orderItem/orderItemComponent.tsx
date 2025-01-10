@@ -91,6 +91,15 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const utils = api.useUtils();
+    
+    const findPaperProduct = (id: string) => {
+        if (!id) return null;
+        const paperProduct = paperProducts?.find(product => product.id === id);
+        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+    };
+
     const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
         onSuccess: () => {
             toast.success('Item description updated successfully');
@@ -112,9 +121,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             toast.error('Failed to update special instructions');
         }
     });
-
-    const utils = api.useUtils();
-    
 
     useEffect(() => {
         if (orderItem) {
@@ -150,8 +156,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     if (orderError || itemError || !order || !orderItem) {
         return <div className="text-red-500 text-center mt-8">Error loading item details.</div>;
     }
-
-
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
 
@@ -191,18 +195,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         <InfoCard title="Item Quantity" content={orderItem.quantity} />
                         <InfoCard title="Color" content={orderItem.ink} />
                         <InfoCard title="Product Type" content={orderItem.ProductType?.name ?? 'N/A'} />
-                        <InfoCard
-                            title="Paper Product"
-                            content={
-                                orderItem.PaperProduct ? (
-                                <div>
-                                    <p><strong>Paper Type:</strong> {orderItem.PaperProduct.paperType}</p>
-                                    <p><strong>Finish:</strong> {orderItem.PaperProduct.finish}</p>
-                                    <p><strong>Weight:</strong> {orderItem.PaperProduct.weightLb} lbs</p>
-                                </div>
-                            ) : 'N/A'
-                        }
-                    />
+                        {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
+                        {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
+                            orderItem.OrderItemStock.map((stock) => (
+                                <InfoCard key={stock.id} title="Paper Product" content={findPaperProduct(stock.paperProductId || '')} />
+                            ))
+                        )}
                     </div>
                     
                     {/* Row 2 - Company and Contact */}
@@ -304,7 +302,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     </section>
 
                     <section>
-                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Item Stock</h2>
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <OrderItemStockComponent orderItemId={orderItem.id} />
                         </div>

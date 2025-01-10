@@ -18,7 +18,8 @@ import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../shared/ui/CustomComboBox';
-import { CreatePaperProductModal } from "~/app/_components/shared/paperProducts/createPaperProductModal";
+import { WorkOrderItemStockDialog } from '../WorkOrderItemStock/workOrderItemStockDialog';
+import { useWorkOrderItemStockStore } from '~/app/store/workOrderItemStockStore';
 
 const workOrderItemSchema = z.object({
     amount: z.number().multipleOf(0.01).default(1).optional(),
@@ -31,14 +32,13 @@ const workOrderItemSchema = z.object({
     expectedDate: z.string().optional(),
     ink: z.string().optional(),
     other: z.string().optional(),
-    paperProductId: z.string().optional(),
-    productTypeId: z.string().optional(),
     prepTime: z.number().min(0, 'Design time must be a positive number'),
     quantity: z.number().min(1, 'Quantity is required'),
     size: z.string(),
     specialInstructions: z.string().optional(),
     status: z.nativeEnum(WorkOrderItemStatus),
     workOrderId: z.string(),
+    productTypeId: z.string().optional(),
 });
 
 type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
@@ -46,7 +46,7 @@ type WorkOrderItemFormData = z.infer<typeof workOrderItemSchema>;
 const WorkOrderItemForm: React.FC = () => {
     const { workOrder } = useContext(WorkOrderContext);
     const createWorkOrderItem = api.workOrderItems.createWorkOrderItem.useMutation();
-    const utils = api.useUtils();
+    const createWorkOrderItemStock = api.workOrderItemStocks.create.useMutation();
     const router = useRouter();
 
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
@@ -55,10 +55,8 @@ const WorkOrderItemForm: React.FC = () => {
     const [workOrderItemId] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [customPaperProductId, setCustomPaperProductId] = useState<string | null>(null);
-    const [customPaperDescription, setCustomPaperDescription] = useState<string>('');
-    const [isCreatePaperProductModalOpen, setIsCreatePaperProductModalOpen] = useState(false);
-    
+    const { tempStocks, clearTempStocks } = useWorkOrderItemStockStore();
+
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
         defaultValues: {
@@ -82,12 +80,12 @@ const WorkOrderItemForm: React.FC = () => {
         { enabled: !!workOrder.id }
     );
 
-    // Retrieve all paper products, then reduce the list to only include the paper products to remove the duplicates based on the brand, size, paperType, finish, and weightLb
-    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const { data: productTypes } = api.productTypes.getAll.useQuery();
-    const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
-        index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
-    );
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+
+    const findPaperProduct = (paperProductId: string) => {
+        return paperProducts?.find(product => product.id === paperProductId)?.brand + ' ' + paperProducts?.find(product => product.id === paperProductId)?.size + ' ' + paperProducts?.find(product => product.id === paperProductId)?.paperType + ' ' + paperProducts?.find(product => product.id === paperProductId)?.finish + ' ' + paperProducts?.find(product => product.id === paperProductId)?.weightLb;
+    };
 
     useEffect(() => {
         if (existingWorkOrderItems) {
@@ -123,6 +121,19 @@ const WorkOrderItemForm: React.FC = () => {
                 specialInstructions: data.specialInstructions || '',
                 status: data.status,
             });
+
+            // Create WorkOrderItemStocks for the newly created WorkOrderItem
+            if (tempStocks.length > 0) {
+                const createStockPromises = tempStocks.map(stock => 
+                    createWorkOrderItemStock.mutateAsync({
+                        ...stock,
+                        workOrderItemId: result.id,
+                    })
+                );
+                await Promise.all(createStockPromises);
+                clearTempStocks();
+            }
+
             console.log('Mutation result:', result);
             await refetchWorkOrderItems();
             reset();
@@ -141,6 +152,7 @@ const WorkOrderItemForm: React.FC = () => {
 
     const handleFinish = () => {
         if (isMounted) {
+            router.refresh();
             router.push(`/workOrders/${workOrder.id}`);
         }
     };
@@ -159,18 +171,8 @@ const WorkOrderItemForm: React.FC = () => {
         ));
     };
 
-    const handlePaperProductCreated = (newPaperProduct: { id: string }) => {
-        setValue('paperProductId', newPaperProduct.id);
-        utils.paperProducts.getAll.invalidate();
-    };
-
     return (
         <div className="space-y-8">
-            <CreatePaperProductModal
-                isOpen={isCreatePaperProductModalOpen}
-                onClose={() => setIsCreatePaperProductModalOpen(false)}
-                onPaperProductCreated={handlePaperProductCreated}
-            />
             <ExistingWorkOrderItemsList
                 items={workOrderItems}
                 onItemClick={setExpandedItemId}
@@ -184,16 +186,7 @@ const WorkOrderItemForm: React.FC = () => {
             ) : (
                 <>
                     <h3 className="text-xl font-semibold">Add New Estimate Item</h3>
-                    <form 
-                        onSubmit={(e) => {
-                            console.log('Form submit event triggered');
-                            handleSubmit((data) => {
-                                console.log('HandleSubmit callback triggered');
-                                return onSubmit(data);
-                            })(e);
-                        }} 
-                        className="space-y-4"
-                    >
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div>
                             <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
                             <FileUpload
@@ -204,6 +197,29 @@ const WorkOrderItemForm: React.FC = () => {
                                 initialFiles={artworks}
                             />
                         </div>
+
+                        {/* Stock Items Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between w-[320]">
+                                <Label>Paper Stock Items</Label>
+                                <WorkOrderItemStockDialog />
+                            </div>
+                            
+                            {tempStocks.length > 0 && (
+                                <div className="space-y-2">
+                                    {tempStocks.map((stock, index) => (
+                                        <div key={index} className="p-4 border rounded-lg">
+                                            <p>Quantity: {stock.stockQty}</p>
+                                            <p>Paper Product: {stock.paperProductId ? findPaperProduct(stock.paperProductId) : 'Unknown'}</p>
+                                            <p>Status: {stock.stockStatus}</p>
+                                            <p>{stock.supplier && <p>Supplier: {stock.supplier}</p>}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Rest of the form fields */}
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='amount' className='flex gap-1'>
                                 Amount (we bill customer)
@@ -219,6 +235,7 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                             {errors.amount && <p className='text-red-500'>{errors.amount.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='cost' className='flex gap-1'>
                                 Cost (our cost)
@@ -234,6 +251,7 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                             {errors.cost && <p className='text-red-500'>{errors.cost.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='productTypeId' className='flex gap-1'>
                                 Product Type
@@ -241,12 +259,13 @@ const WorkOrderItemForm: React.FC = () => {
                             {productTypes && (
                                 <SelectField
                                     options={productTypes.map(productType => ({ value: productType.id, label: productType.name }))}
-                                value={watch('productTypeId') ?? ''}
-                                onValueChange={(value) => setValue('productTypeId', value)}
-                                placeholder="Select product type..."
+                                    value={watch('productTypeId') ?? ''}
+                                    onValueChange={(value) => setValue('productTypeId', value)}
+                                    placeholder="Select product type..."
                                 />
                             )}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='description' className='flex gap-1'>
                                 Description
@@ -260,54 +279,25 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                             {errors.description && <p className='text-red-500'>{errors.description.message}</p>}
                         </div>
-                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor='paperProductId' className='flex gap-1'>
-                                Paper Product
-                            </Label>
-                            <div className="space-y-2">
-                                {uniquePaperProducts && (
-                                    <div className="flex gap-2">
-                                        <div className="flex-grow">
-                                            <CustomComboBox
-                                                options={uniquePaperProducts.map((paperProduct) => ({
-                                                    value: paperProduct.id,
-                                                    label: paperProduct.customDescription || 
-                                                        `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
-                                                }))}
-                                                value={watch('paperProductId') ?? ''}
-                                                onValueChange={(value: string) => setValue('paperProductId', value)}
-                                                placeholder="Select paper product..."
-                                                emptyText="No paper products found"
-                                                searchPlaceholder="Search paper products..."
-                                                className="w-full"
-                                            />
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setIsCreatePaperProductModalOpen(true)}
-                                        >
-                                            Add New
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='ink'>Color</Label>
                             <Input id='ink' {...register('ink')} placeholder="Enter color..." />
                             {errors.ink && <p className='text-red-500'>{errors.ink.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='expectedDate'>Expected Date</Label>
                             <input id='expectedDate' type='date' {...register('expectedDate')} placeholder="Select date..." />
                             {errors.expectedDate && <p className='text-red-500'>{errors.expectedDate.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='other'>Other</Label>
                             <Input id='other' {...register('other')} placeholder="Enter other..." />
                             {errors.other && <p className='text-red-500'>{errors.other.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor='prepTime' className='flex gap-1'>
                                 Design Time
@@ -316,6 +306,7 @@ const WorkOrderItemForm: React.FC = () => {
                             <Input id='prepTime' type='number' {...register('prepTime', { valueAsNumber: true })} placeholder="Enter design time..." />
                             {errors.prepTime && <p className='text-red-500'>{errors.prepTime.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="quantity" className='flex gap-1'>
                                 Quantity Ordered
@@ -324,6 +315,7 @@ const WorkOrderItemForm: React.FC = () => {
                             <Input id="quantity" type="number" {...register('quantity', { valueAsNumber: true })} placeholder="Enter quantity..." />
                             {errors.quantity && <p className="text-red-500">{errors.quantity.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="size" className='flex gap-1'>
                                 Size
@@ -332,11 +324,13 @@ const WorkOrderItemForm: React.FC = () => {
                             <Input id="size" {...register('size')} placeholder="Enter size..." />
                             {errors.size && <p className="text-red-500">{errors.size.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="specialInstructions">Special Instructions</Label>
                             <Input id="specialInstructions" {...register('specialInstructions')} placeholder="Enter special instructions..." />
                             {errors.specialInstructions && <p className="text-red-500">{errors.specialInstructions.message}</p>}
                         </div>
+
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label htmlFor="status" className='flex gap-1'>
                                 Status
@@ -351,6 +345,7 @@ const WorkOrderItemForm: React.FC = () => {
                             />
                             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
                         </div>
+
                         <div className="space-y-2">
                             {Object.keys(errors).length > 0 && (
                                 <div className="text-red-500 p-2 border border-red-500 rounded">

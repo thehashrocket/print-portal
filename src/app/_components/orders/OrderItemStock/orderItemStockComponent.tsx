@@ -22,10 +22,13 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
         { enabled: !!orderItemId }
     );
 
-    // const formatDate = (date: Date | null) => {
-    //     if (!date) return 'N/A';
-    //     return new Date(date).toLocaleDateString();
-    // };
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+
+    const findPaperProduct = (id: string) => {
+        if (!id) return null;
+        const paperProduct = paperProducts?.find(product => product.id === id);
+        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+    };
 
     const handleSuccess = () => {
         setIsAddMode(false);
@@ -35,8 +38,6 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Item Stock</h3>
-
             {/* List of existing stocks */}
             {stocks && stocks.length > 0 && (
                 <div className="overflow-x-auto">
@@ -44,7 +45,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                         <thead>
                             <tr>
                                 <th>Quantity</th>
-                                <th>Cost Per M</th>
+                                <th>Paper Product</th>
                                 <th>Supplier</th>
                                 <th>Status</th>
                                 <th>Expected Date</th>
@@ -55,7 +56,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                             {stocks.map(stock => (
                                 <tr key={stock.id}>
                                     <td>{stock.stockQty}</td>
-                                    <td>${stock.costPerM.toString()}</td>
+                                    <td>{findPaperProduct(stock.paperProductId || '')}</td>
                                     <td>{stock.supplier || 'N/A'}</td>
                                     <td>{stock.stockStatus}</td>
                                     <td>{stock.expectedDate ? formatDate(new Date(stock.expectedDate)) : null}</td>

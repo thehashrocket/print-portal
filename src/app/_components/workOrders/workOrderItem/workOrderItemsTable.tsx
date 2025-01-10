@@ -30,7 +30,6 @@ interface WorkOrderItemsTableProps {
 
 const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItems }) => {
     const gridRef = useRef<AgGridReact>(null);
-    const [rowData, setRowData] = useState<SerializedWorkOrderItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
@@ -98,25 +97,30 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         };
     }, [gridApi]);
 
+    // Add debug logging
     useEffect(() => {
-        if (!mounted.current) return;
-        
-        setRowData(workOrderItems);
+        console.log('WorkOrderItems prop:', workOrderItems);
+    }, [workOrderItems]);
+
+    useEffect(() => {
         setLoading(false);
-        
-        if (gridApi) {
-            const timeoutId = setTimeout(() => {
-                if (mounted.current && gridApi) {
-                    try {
-                        gridApi.sizeColumnsToFit();
-                    } catch (error) {
-                        console.warn('Failed to size columns:', error);
-                    }
+    }, [workOrderItems]);
+
+    // Separate effect for grid sizing
+    useEffect(() => {
+        if (!gridApi || !mounted.current) return;
+
+        const timeoutId = setTimeout(() => {
+            if (mounted.current && gridApi) {
+                try {
+                    gridApi.sizeColumnsToFit();
+                } catch (error) {
+                    console.warn('Failed to size columns:', error);
                 }
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [workOrderItems, gridApi]);
+            }
+        }, 100);
+        return () => clearTimeout(timeoutId);
+    }, [gridApi, workOrderItems]); // Add workOrderItems as dependency
 
     useEffect(() => {
         const handleResize = () => {
@@ -143,7 +147,6 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
 
     const onGridReady = (params: GridReadyEvent) => {
         if (!mounted.current) return;
-        
         setGridApi(params.api);
         try {
             params.api.sizeColumnsToFit();
@@ -171,6 +174,14 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         );
     }
 
+    if (!loading && workOrderItems.length === 0) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <p>No items found</p>
+            </div>
+        );
+    }
+
     return (
         <div 
             className="ag-theme-alpine w-full overflow-hidden"
@@ -180,7 +191,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
                 ref={gridRef}
                 columnDefs={isMobile ? mobileColumnDefs : columnDefs}
                 defaultColDef={defaultColDef}
-                rowData={rowData}
+                rowData={workOrderItems}
                 rowSelection="single"
                 onGridReady={onGridReady}
                 onFilterChanged={onFilterChanged}

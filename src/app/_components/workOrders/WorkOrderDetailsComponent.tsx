@@ -96,27 +96,16 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
     const [isWorkOrderItemsLoading, setIsWorkOrderItemsLoading] = useState(true);
     const { data: workOrder, isLoading, isError, error } = api.workOrders.getByID.useQuery(workOrderId, {
         initialData: initialWorkOrder,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
     });
-
     const utils = api.useUtils();
-
     useEffect(() => {
-        if (workOrder) {
-            setWorkOrderItems(workOrder.WorkOrderItems)
-        }
-    }, [workOrder]);
-
-    useEffect(() => {
-        if (workOrderItems) {
+        if (workOrder?.WorkOrderItems) {
+            setWorkOrderItems(workOrder.WorkOrderItems);
             setIsWorkOrderItemsLoading(false);
         }
-    }, [workOrderItems]);
-
-    // useEffect(() => {
-    //     if (workOrder) {
-    //         utils.workOrders.getByID.invalidate(workOrderId);
-    //     }
-    // }, [workOrder]);
+    }, [workOrder?.WorkOrderItems]);
 
     useCopilotReadable({
         description: "The current work order that is being viewed.",

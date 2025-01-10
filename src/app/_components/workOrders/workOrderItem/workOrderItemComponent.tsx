@@ -90,6 +90,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     const [serializedTypesettingData, setSerializedTypesettingData] = useState<SerializedTypesetting[]>([]);
     const utils = api.useUtils();
 
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const findPaperProduct = (id: string) => {
+        if (!id) return null;
+        const paperProduct = paperProducts?.find(product => product.id === id);
+        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+    };
+
     const { mutate: updateDescription } = api.workOrderItems.updateDescription.useMutation({
         onSuccess: () => {
             toast.success('Item description updated successfully');
@@ -188,25 +195,18 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Product Type"
                         content={workOrderItem.ProductType?.name ?? 'N/A'}
                     />
-                    <InfoCard
-                        title="Paper Product"
-                        content={
-                            workOrderItem.PaperProduct ? (
-                                workOrderItem.PaperProduct.customDescription ? (
-                                    <div>
-                                        <p>{workOrderItem.PaperProduct.customDescription}</p>
-                                    </div>
-                                ) : (
-                                    <div>
-                                        <p><strong>Paper Type:</strong> {workOrderItem.PaperProduct.paperType}</p>
-                                        <p><strong>Finish:</strong> {workOrderItem.PaperProduct.finish}</p>
-                                        <p><strong>Weight:</strong> {workOrderItem.PaperProduct.weightLb} lbs</p>
-                                    </div>
-                                )
-                            ) : 'N/A'
-                        }
-                    />
-                    
+                    {/* If WorkOrderItemStock is not null, then loop through the stocks and display the paper product    */}
+                    {workOrderItem.WorkOrderItemStock && workOrderItem.WorkOrderItemStock.length > 0 && (
+                        workOrderItem.WorkOrderItemStock.map((stock) => (
+                            <InfoCard
+                                key={stock.id}
+                                title="Paper Product"
+                                content={
+                                    findPaperProduct(stock.paperProductId || '')
+                                }
+                            />
+                        ))
+                    )}
                 </div>
                 
                 {/* Company Section */}
@@ -317,7 +317,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
 
                     <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Item Stock</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Paper Stock</h2>
                         <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
                     </div>
                 </div>

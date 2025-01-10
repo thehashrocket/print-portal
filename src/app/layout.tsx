@@ -31,8 +31,12 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Print Portal" />
+        <meta name="mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Thomson Printing Portal" />
+        <meta name="mobile-web-app-title" content="Thomson Printing Portal" />
         <link rel="apple-touch-icon" href="/images/favicon-196x196.png" />
       </head>
       <body className={`font-sans ${inter.variable}`}>

@@ -16,6 +16,13 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
     const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
     const [isAddMode, setIsAddMode] = useState(false);
 
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const findPaperProduct = (id: string) => {
+        if (!id) return null;
+        const paperProduct = paperProducts?.find(product => product.id === id);
+        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+    };
+
     const { data: stocks, refetch } = api.workOrderItemStocks.getByWorkOrderItemId.useQuery(
         workOrderItemId,
         { enabled: !!workOrderItemId }
@@ -29,8 +36,6 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Estimate Item Stock</h3>
-
             {/* List of existing stocks */}
             {stocks && stocks.length > 0 && (
                 <div className="overflow-x-auto">
@@ -38,7 +43,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
                         <thead>
                             <tr>
                                 <th>Quantity</th>
-                                <th>Cost Per M</th>
+                                <th>Paper Product</th>
                                 <th>Supplier</th>
                                 <th>Status</th>
                                 <th>Expected Date</th>
@@ -49,7 +54,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
                             {stocks.map(stock => (
                                 <tr key={stock.id}>
                                     <td>{stock.stockQty}</td>
-                                    <td>${stock.costPerM.toString()}</td>
+                                    <td>{findPaperProduct(stock.paperProductId || '')}</td>
                                     <td>{stock.supplier || 'N/A'}</td>
                                     <td>{stock.stockStatus}</td>
                                     <td>{stock.expectedDate ? formatDate(new Date(stock.expectedDate)) : null}</td>

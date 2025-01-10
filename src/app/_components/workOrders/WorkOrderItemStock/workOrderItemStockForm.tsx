@@ -13,11 +13,13 @@ import { Input } from '~/app/_components/ui/input';
 import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../../_components/shared/ui/CustomComboBox';
+import { type TempWorkOrderItemStock } from '~/app/store/workOrderItemStockStore';
+import { PaperProductDialog } from '~/app/_components/shared/paperProducts/paperProductDialog';
 
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
-    costPerM: z.number().positive(),
+    costPerM: z.number().default(0),
     totalCost: z.number().optional(),
     from: z.string().optional(),
     expectedDate: z.string().optional(),
@@ -36,15 +38,17 @@ type WorkOrderItemStockFormData = z.infer<typeof workOrderItemStockSchema>;
 interface WorkOrderItemStockFormProps {
     workOrderItemId: string;
     stockId: string | null;
-    onSuccess: () => void;
+    onSuccess: (stockData: TempWorkOrderItemStock) => void;
     onCancel: () => void;
+    isTemporary?: boolean;
 }
 
 const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     workOrderItemId,
     stockId,
     onSuccess,
-    onCancel
+    onCancel,
+    isTemporary = false
 }) => {
     const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
         resolver: zodResolver(workOrderItemStockSchema),
@@ -55,15 +59,11 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         },
     });
 
-    console.log("Form errors:", errors);
-    console.log("Is form submitting?", isSubmitting);
-
     const { data: existingStock } = api.workOrderItemStocks.getByID.useQuery(
         stockId as string,
         { enabled: !!stockId }
     );
 
-    // Retrieve all paper products, then reduce the list to only include the paper products to remove the duplicates based on the brand, size, paperType, finish, and weightLb
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
         index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
@@ -72,7 +72,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     const createStock = api.workOrderItemStocks.create.useMutation({
         onSuccess: () => {
             console.log("Stock created successfully");
-            onSuccess();
+            onSuccess({} as TempWorkOrderItemStock);
             reset();
         },
         onError: (error) => {
@@ -83,12 +83,19 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     const updateStock = api.workOrderItemStocks.update.useMutation({
         onSuccess: () => {
             console.log("Stock updated successfully");
-            onSuccess();
+            onSuccess({} as TempWorkOrderItemStock);
         },
         onError: (error) => {
             console.error("Error updating stock:", error);
         }
     });
+
+    const utils = api.useUtils();
+
+    const handlePaperProductCreated = (paperProduct: { id: string }) => {
+        setValue('paperProductId', paperProduct.id);
+        utils.paperProducts.getAll.invalidate();
+    };
 
     useEffect(() => {
         if (existingStock) {
@@ -112,6 +119,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
 
     const onSubmit = (data: WorkOrderItemStockFormData) => {
         console.log("Form submitted with data:", data);
+        
         const formattedData = {
             ...data,
             expectedDate: data.expectedDate ? new Date(data.expectedDate) : undefined,
@@ -121,6 +129,24 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             supplier: data.supplier || undefined,
             notes: data.notes || undefined,
         };
+
+        if (isTemporary) {
+            onSuccess({
+                stockQty: data.stockQty,
+                costPerM: data.costPerM,
+                totalCost: data.totalCost,
+                from: data.from,
+                expectedDate: data.expectedDate ? new Date(data.expectedDate) : undefined,
+                orderedDate: data.orderedDate ? new Date(data.orderedDate) : undefined,
+                paperProductId: data.paperProductId,
+                received: data.received,
+                receivedDate: data.receivedDate ? new Date(data.receivedDate) : undefined,
+                notes: data.notes,
+                stockStatus: data.stockStatus,
+                supplier: data.supplier,
+            });
+            return;
+        }
 
         if (stockId) {
             updateStock.mutate({
@@ -132,57 +158,58 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         }
     };
 
+    const handleCancel = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onCancel();
+    };
+
     return (
-        <form onSubmit={(e) => {
-            e.preventDefault();
-            console.log("Form native submit event triggered");
-            handleSubmit(onSubmit)(e);
-        }} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+                <Label>Paper Product</Label>
+                <div className="space-y-2">
+                    {uniquePaperProducts && (
+                        <SelectField
+                            options={uniquePaperProducts.map((paperProduct) => ({
+                                value: paperProduct.id,
+                                label: paperProduct.customDescription || 
+                                    `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
+                            }))}
+                            value={watch('paperProductId') ?? ''}
+                            onValueChange={(value) => setValue('paperProductId', value)}
+                            placeholder="Select paper product..."
+                        />
+                    )}
+                    <PaperProductDialog onPaperProductCreated={handlePaperProductCreated} />
+                </div>
+            </div>
 
             <div>
-                <Label>
-                    Paper Product
-                </Label>
-                {/* Provide a list of PaperProducts to select from using SelectField */}
-                {uniquePaperProducts && (
-                    <CustomComboBox
-                        options={uniquePaperProducts.map((paperProduct) => ({ value: paperProduct.id, label: paperProduct.brand + ' ' + paperProduct.finish + ' ' + paperProduct.paperType + ' ' + paperProduct.size + ' ' + paperProduct.finish + ' ' + paperProduct.weightLb + 'lbs.' }))}
-                        value={watch('paperProductId') ?? ''}
-                        onValueChange={(value: string) => setValue('paperProductId', value)}
-                        placeholder="Select paper product..."
-                        emptyText="No paper products found"
-                        searchPlaceholder="Search paper products..."
-                        className="w-full"
-                    />
-                )}
-            </div>
-            <div>
-                <Label>
-                    Quantity
-                </Label>
+                <Label>Quantity</Label>
                 <Input type="number" {...register('stockQty', { valueAsNumber: true })} />
                 {errors.stockQty && <p className="text-red-500">{errors.stockQty.message}</p>}
             </div>
 
             <div>
-                <Label>
-                    Cost Per M
-                </Label>
-                <Input type="number" step="0.01" {...register('costPerM', { valueAsNumber: true })} />
+                <Label>Cost Per M</Label>
+                <Input 
+                    type="number" 
+                    defaultValue={0}
+                    step="0.01" 
+                    {...register('costPerM', { valueAsNumber: true })} 
+                    placeholder="Enter cost per meter..."
+                />
                 {errors.costPerM && <p className="text-red-500">{errors.costPerM.message}</p>}
             </div>
 
             <div>
-                <Label>
-                    Supplier
-                </Label>
+                <Label>Supplier</Label>
                 <Input {...register('supplier')} />
             </div>
 
             <div>
-                <Label>
-                    Stock Status
-                </Label>
+                <Label>Stock Status</Label>
                 <SelectField
                     options={Object.values(StockStatus).map((status) => ({ value: status, label: status }))}
                     value={watch('stockStatus')}
@@ -193,50 +220,42 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             </div>
 
             <div>
-                <Label>
-                    Expected Date
-                </Label>
+                <Label>Expected Date</Label>
                 <Input type="date" {...register('expectedDate')} />
             </div>
 
             <div>
-                <Label>
-                    Ordered Date
-                </Label>
+                <Label>Ordered Date</Label>
                 <Input type="date" {...register('orderedDate')} />
             </div>
 
             <div>
-                <Label>
-                    Received
-                </Label>
+                <Label>Received</Label>
                 <input type="checkbox" {...register('received')} className="checkbox" />
             </div>
 
             <div>
-                <Label>
-                    Received Date
-                </Label>
+                <Label>Received Date</Label>
                 <Input type="date" {...register('receivedDate')} />
             </div>
 
             <div>
-                <Label>
-                    Notes
-                </Label>
+                <Label>Notes</Label>
                 <Textarea {...register('notes')} />
             </div>
 
             <div className="flex justify-end space-x-2">
-                <Button
-                    type="submit"
+                <Button 
+                    type="submit" 
                     variant="default"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     {stockId ? 'Update' : 'Add'} Stock
                 </Button>
-                <Button
-                    variant="secondary"
-                    onClick={onCancel}
+                <Button 
+                    type="button"
+                    variant="secondary" 
+                    onClick={handleCancel}
                 >
                     Cancel
                 </Button>
