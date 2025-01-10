@@ -197,7 +197,19 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         leftY = addField('Name', order.contactPerson.name || 'N/A', leftMargin, leftY, 7, 10, 12);
         leftY = addField('Email', order.contactPerson.email || 'N/A', leftMargin, leftY, 7, 10, 12);
         leftY = addField('Phone', order.contactPerson?.phone || 'N/A', leftMargin, leftY, 7, 10, 12);
+        leftY += 10;
     }
+
+    if (orderItem.ProductType) {
+        leftY = addField('Product Type', orderItem.ProductType.name || 'N/A', leftMargin, leftY, 7, 18, 12);
+        leftY += 10;
+    }
+
+    // Loop through the orderItem.OrderItemStock and print the paper product only if it exists
+    // if (orderItem.OrderItemStock) {
+    //     leftY = addField('Paper Product', orderItem.OrderItemStock.paperProduct.paperType + ' ' + orderItem.OrderItemStock.paperProduct.finish + ' ' + orderItem.OrderItemStock.paperProduct.weightLb + ' lbs' || 'N/A', leftMargin, leftY, 7, 18, 12);
+    //     leftY += 10;
+    // }
 
     // Right column (excluding the dates that are now above)
     let rightY = yPos;
@@ -234,41 +246,37 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         }
 
     }
-    // const filenames = orderItem.Typesetting?.TypesettingProofs?.map((proof: any) => proof.artwork?.map((art: any) => art.fileUrl).join(', ')).join(', ');
-
-    // rightY = addField('FILE NAME(S)', filenames || 'N/A', rightColStart, rightY, 10, 30);
 
     // Project Description (full width)
     yPos = Math.max(leftY, rightY) + 5; // More space before project description
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PROJECT DESCRIPTION', leftMargin, yPos);
-    yPos += 10;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    const splitDescription = doc.splitTextToSize(orderItem.description || 'N/A', pageWidth - (leftMargin * 2));
-    doc.text(splitDescription, leftMargin, yPos);
-    yPos += splitDescription.length * 7 + 10; // More space after description
-
-    doc.setFont('helvetica', 'normal');
-    if (orderItem.ProductType) {
-        doc.setFont('helvetica', 'bold');
+    if (orderItem.description) {
         doc.setFontSize(14);
-        doc.text('Product Type', leftMargin, yPos);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Project Description', leftMargin, yPos);
         yPos += 10;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
-        doc.text(orderItem.ProductType.name, leftMargin, yPos);
-    } else {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Product Type', leftMargin, yPos);
-        yPos += 10;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text('N/A', leftMargin, yPos);
+        const splitDescription = doc.splitTextToSize(orderItem.description || 'N/A', pageWidth - (leftMargin * 2));
+        doc.text(splitDescription, leftMargin, yPos);
+        yPos += splitDescription.length * 7 + 10; // More space after description
     }
-    yPos += 10;
+
+    yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
+
+    // Print Special Instructions (full width)
+    if (orderItem.specialInstructions) {
+       doc.setFontSize(14);
+       doc.setFont('helvetica', 'bold');
+       doc.text('Special Instructions', leftMargin, yPos);
+       yPos += 10;
+       doc.setFont('helvetica', 'normal');
+       doc.setFontSize(12);
+       const splitInstructions = doc.splitTextToSize(orderItem.specialInstructions || 'N/A', pageWidth - (leftMargin * 2));
+       doc.text(splitInstructions, leftMargin, yPos);
+       yPos += splitInstructions.length * 7 + 10; // More space after description
+    }
+
+    
     // if (orderItem.PaperProduct) {
     //     doc.setFont('helvetica', 'bold');
     //     doc.setFontSize(14);
@@ -290,7 +298,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     
 
     // Process Typesetting Proofs with proper sizing
-    if (typesetting?.length > 0) {
+    if (typesetting?.length > 0 && typesetting[0].TypesettingProofs?.length > 0) {
         let proofCount = 0;
         let lastImageHeight = 0; // Track the height of the last row of images
         doc.setFontSize(14);
@@ -322,16 +330,16 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
 
     // Typesetting and Bindery Options with proper alignment
-    
-    // Typesetting Details
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TYPESETTING DETAILS', leftMargin, yPos);
-    const typesettingY = yPos + 8;
-    doc.setFontSize(9);
-    
+
     // Typesetting Details section
     if (typesetting?.length > 0) {
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('TYPESETTING DETAILS', leftMargin, yPos);
+        const typesettingY = yPos + 8;
+        doc.setFontSize(9);
+
         const ts = typesetting[0];
         let leftY = typesettingY;
         let rightY = typesettingY;
@@ -363,22 +371,19 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
         // Update yPos to the maximum height of both columns
         yPos = Math.max(leftY, rightY) + 10;
-    } else {
-        yPos += 10;
-        doc.text('N/A', leftMargin, yPos);
-        yPos += 10;
     }
     
 
     yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
     
     // Bindery Options section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BINDERY OPTIONS', leftMargin, yPos);
-    doc.setFontSize(9);
-
     if (orderItem.ProcessingOptions?.length > 0) {
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BINDERY OPTIONS', leftMargin, yPos);
+        doc.setFontSize(9);
+
         const options = orderItem.ProcessingOptions[0];
         let leftY = yPos + 8;
         let rightY = yPos + 8;
@@ -412,10 +417,6 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
 
         // Update yPos to the maximum height of both columns
         yPos = Math.max(leftY, rightY) + 10;
-    } else {
-        yPos += 10;
-        doc.text('N/A', leftMargin, yPos);
-        yPos += 10;
     }
 
     // Add page numbers with proper alignment
