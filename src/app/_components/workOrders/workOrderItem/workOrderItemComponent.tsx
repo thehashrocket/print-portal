@@ -17,6 +17,7 @@ import { Button } from "../../ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "../../ui/textarea";
 import { toast } from "react-hot-toast";
+import FileUpload from "../../shared/fileUpload";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -83,6 +84,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
 }) => {
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
+    const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
     const { data: workOrder, isLoading: isWorkOrderLoading, error: workOrderError } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading: isItemLoading, error: itemError } = api.workOrderItems.getByID.useQuery(workOrderItemId);
     const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
@@ -119,6 +121,17 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         }
     });
 
+    const { mutate: updateArtwork } = api.workOrderItems.updateArtwork.useMutation({
+        onSuccess: () => {
+            void utils.workOrderItems.getByID.invalidate(workOrderItemId);
+            toast.success('Artwork updated successfully');
+        },
+        onError: (error) => {
+            console.error('Error updating artwork:', error);
+            toast.error('Failed to update artwork');
+        }
+    });
+
     useEffect(() => {
         if (fetchedWorkOrderItem) {
             setWorkOrderItem(fetchedWorkOrderItem);
@@ -133,6 +146,15 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
             setSerializedTypesettingData(serializedData);
         }
     }, [typesettingData]);
+
+    useEffect(() => {
+        if (fetchedWorkOrderItem?.artwork) {
+            setLocalArtwork(fetchedWorkOrderItem.artwork.map(art => ({
+                fileUrl: art.fileUrl,
+                description: art.description || '',
+            })));
+        }
+    }, [fetchedWorkOrderItem?.artwork]);
 
     const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setJobDescription(e.target.value);
@@ -282,17 +304,38 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 <div className="mb-6">
                     <div className="rounded-lg bg-white p-4 shadow-md">
                         <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Files</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {workOrderItem.artwork && workOrderItem.artwork.length > 0 ? (
-                                workOrderItem.artwork.map((artwork) => (
-                                    <div key={artwork.id} className="rounded-lg bg-white p-4 shadow-md">
-                                        <ArtworkComponent artworkUrl={artwork.fileUrl} artworkDescription={artwork.description} />
-                                    </div>
-                                ))
-                            ) : (
-                                <p>No artwork available</p>
-                            )}
-                        </div>
+                        <FileUpload
+                            onFileUploaded={(fileUrl: string, description: string) => {
+                                const newArtwork = { fileUrl, description };
+                                const updatedArtwork = [...localArtwork, newArtwork];
+                                setLocalArtwork(updatedArtwork);
+                                updateArtwork({
+                                    workOrderItemId: workOrderItem.id,
+                                    artwork: updatedArtwork,
+                                });
+                            }}
+                            onFileRemoved={(fileUrl: string) => {
+                                const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
+                                setLocalArtwork(updatedArtwork);
+                                updateArtwork({
+                                    workOrderItemId: workOrderItem.id,
+                                    artwork: updatedArtwork,
+                                });
+                            }}
+                            onDescriptionChanged={(fileUrl: string, description: string) => {
+                                const updatedArtwork = localArtwork.map(art => 
+                                    art.fileUrl === fileUrl ? { ...art, description } : art
+                                );
+                                setLocalArtwork(updatedArtwork);
+                            }}
+                            onDescriptionBlur={(fileUrl: string) => {
+                                updateArtwork({
+                                    workOrderItemId: workOrderItem.id,
+                                    artwork: localArtwork,
+                                });
+                            }}
+                            initialFiles={localArtwork}
+                        />
                     </div>
                 </div>
 
