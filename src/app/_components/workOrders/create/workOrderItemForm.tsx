@@ -190,7 +190,7 @@ const WorkOrderItemForm: React.FC = () => {
                     <h3 className="text-xl font-semibold">Add New Estimate Item</h3>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div>
-                            <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Artwork</label>
+                            <label htmlFor='artwork' className='block text-sm font-medium text-gray-700'>Files</label>
                             <FileUpload
                                 onFileUploaded={handleFileUploaded}
                                 onFileRemoved={handleFileRemoved}
