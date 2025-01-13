@@ -1,6 +1,6 @@
 // ~/src/app/_components/shared/fileUpload.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, FileSpreadsheet, FileImage } from 'lucide-react';
+import { FileText, FileSpreadsheet, FileImage, Download } from 'lucide-react';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 
@@ -47,6 +47,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
         '.xls', '.xlsx', '.csv',
         '.doc', '.docx', '.rtf'
     ];
+
+    const sanitizeFileName = (description: string | null, extension: string | undefined): string => {
+        if (!description) return `file.${extension ?? 'txt'}`;
+        
+        // Remove special characters and replace spaces with underscores
+        const sanitized = description
+            .replace(/[^a-zA-Z0-9\s-]/g, '')
+            .replace(/\s+/g, '_')
+            .slice(0, 30); // Limit to 30 characters
+        
+        return `${sanitized}.${extension ?? 'txt'}`;
+    };
 
     useEffect(() => {
         return () => {
@@ -194,6 +206,26 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onFileRemoved(fileUrl);
     };
 
+    const handleDownload = async (fileUrl: string, description: string) => {
+        try {
+            const response = await fetch(fileUrl);
+            const blob = await response.blob();
+            const extension = fileUrl.split('.').pop()?.toLowerCase();
+            const fileName = sanitizeFileName(description, extension);
+            
+            // Create a temporary link element to trigger the download
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(link.href);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+        }
+    };
+
     const handleDescriptionChange = (fileUrl: string, newDescription: string) => {
         setUploadedFiles(prev =>
             prev.map(file =>
@@ -275,7 +307,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
             {error && <p className="text-red-500">{error}</p>}
 
-            <div className="space-y-4">
+            {/* Show Files in a grid format */}
+            <div className="space-y-4 grid grid-cols-2 gap-4">
                 {uploadedFiles.map((file, index) => (
                     <div key={index} className="p-4 border rounded space-y-4">
                         {renderPreview(file)}
@@ -287,13 +320,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
                             className="mt-2 w-full p-2 border rounded"
                             rows={2}
                         />
-                        <Button
-                            variant="destructive"
-                            onClick={() => handleRemoveFile(file.fileUrl)}
-                            className="w-full"
-                        >
-                            Remove
-                        </Button>
+                        <div className="flex justify-between">
+                            <Button
+                                variant="destructive"
+                                onClick={() => handleRemoveFile(file.fileUrl)}
+                                className="w-full"
+                            >
+                                Remove
+                            </Button>
+                            <Button 
+                                disabled={uploading}
+                                variant="outline" 
+                                onClick={() => handleDownload(file.fileUrl, file.description)}
+                            >
+                                <Download className="h-4 w-4" /> Download
+                            </Button>
+                        </div>
                     </div>
                 ))}
             </div>

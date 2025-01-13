@@ -5,11 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import { api } from "~/trpc/react";
 import { z } from "zod";
 import { toast } from "react-hot-toast";
-import debounce from "lodash/debounce";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Loader2 } from "lucide-react";
 
 const createUserSchema = z.object({
@@ -47,38 +46,34 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [offices, setOffices] = useState<Office[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-    const { data: companyData, isFetching: isCompanyFetching } = api.companies.search.useQuery(
-        { searchTerm: debouncedSearchTerm },
+
+    const { data: companyData, isLoading: isLoadingCompanies } = api.companies.search.useQuery(
+        { searchTerm: "" },
         {
-            enabled: true,
-            staleTime: 30000, // Cache results for 30 seconds
-            placeholderData: (previousData) => previousData // This replaces keepPreviousData
+            enabled: isOpen,
+            staleTime: 30000,
         }
     );
-    const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
-    const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
-    const [isLoadingOffices, setIsLoadingOffices] = useState(false);
+
+    const { data: officeData, isLoading: isLoadingOffices } = api.offices.getByCompanyId.useQuery(
+        selectedCompany || '', 
+        { 
+            enabled: !!selectedCompany,
+            staleTime: 30000,
+        }
+    );
 
     useEffect(() => {
         if (companyData) {
-            const formattedCompanies = companyData.map(company => ({
-                id: company.id,
-                name: company.name
-            })).filter(company => company.name); // Filter out any null names
-
+            const formattedCompanies = companyData
+                .filter(company => company.name)
+                .map(company => ({
+                    id: company.id,
+                    name: company.name
+                }));
             setCompanies(formattedCompanies);
-            setIsLoadingCompanies(false);
         }
     }, [companyData]);
-
-    useEffect(() => {
-        if (selectedCompany) {
-            setIsLoadingOffices(true);
-            refetchOffices();
-        }
-    }, [selectedCompany, refetchOffices]);
 
     useEffect(() => {
         if (officeData) {
@@ -86,34 +81,15 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                 id: office.id,
                 name: office.name
             })));
-            setIsLoadingOffices(false);
         }
     }, [officeData]);
 
-
-    const debouncedSearch = useMemo(
-        () =>
-            debounce((term: string) => {
-                setDebouncedSearchTerm(term);
-            }, 300),
-        []
-    );
-
-    const handleSearch = (term: string) => {
-        setSearchTerm(term);
-        debouncedSearch(term);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (validateForm(formData)) {
+            await createUser.mutateAsync(formData);
+        }
     };
-
-    const createUser = api.userManagement.createUser.useMutation({
-        onSuccess: () => {
-            toast.success("User created successfully");
-            onSuccess();
-            handleClose();
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
-    });
 
     const validateForm = useMemo(() => {
         return (data: typeof formData) => {
@@ -139,25 +115,19 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
         };
     }, []);
 
-    const debouncedSetFormData = useMemo(
-        () => debounce((field: string, value: string) => {
-            setFormData(prev => ({ ...prev, [field]: value }));
-        }, 100),
-        []
-    );
-
-    const handleInputChange = useCallback((field: string, value: string) => {
-        debouncedSetFormData(field, value);
-    }, [debouncedSetFormData]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validateForm(formData)) {
-            await createUser.mutateAsync(formData);
-        }
-    };
+    const createUser = api.userManagement.createUser.useMutation({
+        onSuccess: () => {
+            toast.success("User created successfully");
+            onSuccess();
+            handleClose();
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+    });
 
     const handleClose = useCallback(() => {
+        if (!isOpen) return; // Prevent unnecessary state updates
         setFormData({
             name: "",
             email: "",
@@ -165,12 +135,19 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
             officeId: "",
         });
         setErrors({});
+        setSelectedCompany(null);
+        setSelectedOffice(null);
         onClose();
-    }, [onClose]);
+    }, [onClose, isOpen]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent>
+        <Dialog 
+            open={isOpen} 
+            onOpenChange={(open) => {
+                if (!open) handleClose();
+            }}
+        >
+            <DialogContent className="sm:max-w-[425px]" onClick={(e) => e.stopPropagation()}>
                 <DialogHeader>
                     <DialogTitle>Create New User</DialogTitle>
                 </DialogHeader>
@@ -179,8 +156,13 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                         <Label htmlFor="name">Name</Label>
                         <Input
                             id="name"
-                            defaultValue=""
-                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            value={formData.name}
+                            onChange={(e) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    name: e.target.value
+                                }));
+                            }}
                             placeholder="Enter name"
                         />
                         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
@@ -191,8 +173,13 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                         <Input
                             id="email"
                             type="email"
-                            defaultValue=""
-                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            value={formData.email}
+                            onChange={(e) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    email: e.target.value
+                                }));
+                            }}
                             placeholder="Enter email"
                         />
                         {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
@@ -201,13 +188,9 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="company">Company</Label>
                         <div className="relative">
-                            <CustomComboBox
-                                options={companies.map(company => ({
-                                    value: company.id,
-                                    label: company.name ?? 'Unnamed Company'
-                                }))}
+                            <Select
                                 value={selectedCompany ?? ""}
-                                onValueChange={(value) => {
+                                onValueChange={(value: string) => {
                                     setSelectedCompany(value);
                                     setSelectedOffice(null);
                                     setFormData(prev => ({
@@ -216,22 +199,30 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                                         officeId: ''
                                     }));
                                 }}
-                                placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
-                                emptyText={
-                                    isCompanyFetching
-                                        ? "Loading..."
-                                        : searchTerm
-                                            ? "No companies found"
-                                            : "Type to search companies..."
-                                }
-                                searchPlaceholder="Search company..."
-                                className="w-[300px]"
-                                onSearchChange={handleSearch}
-                                showSpinner={isCompanyFetching}
-                            />
-                            {isCompanyFetching && (
-                                <Loader2 className="h-4 w-4 animate-spin absolute right-8 top-3 text-gray-500" />
-                            )}
+                                disabled={isLoadingCompanies}
+                            >
+                                <SelectTrigger className="w-[300px]">
+                                    <SelectValue placeholder={isLoadingCompanies ? "Loading companies..." : "Select company..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {isLoadingCompanies ? (
+                                        <div className="flex items-center justify-center p-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span className="ml-2">Loading companies...</span>
+                                        </div>
+                                    ) : companies.length === 0 ? (
+                                        <div className="p-2 text-center text-sm text-gray-500">
+                                            No companies found
+                                        </div>
+                                    ) : (
+                                        companies.map((company) => (
+                                            <SelectItem key={company.id} value={company.id}>
+                                                {company.name}
+                                            </SelectItem>
+                                        ))
+                                    )}
+                                </SelectContent>
+                            </Select>
                         </div>
                         {errors.companyId && <p className="text-sm text-red-500">{errors.companyId}</p>}
                     </div>
@@ -239,24 +230,39 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                     {selectedCompany && (
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="office">Office</Label>
-                            <CustomComboBox
-                                options={offices.map(office => ({
-                                    value: office.id,
-                                    label: office.name ?? 'Unnamed Office'
-                                }))}
+                            <Select
                                 value={selectedOffice ?? ""}
-                                onValueChange={(value) => {
+                                onValueChange={(value: string) => {
                                     setSelectedOffice(value);
                                     setFormData(prev => ({
                                         ...prev,
                                         officeId: value
                                     }));
                                 }}
-                                placeholder={isLoadingOffices ? "Loading..." : "Select office..."}
-                                emptyText="No office found."
-                                searchPlaceholder="Search office..."
-                                className="w-[300px]"
-                            />
+                                disabled={isLoadingOffices}
+                            >
+                                <SelectTrigger className="w-[300px]">
+                                    <SelectValue placeholder={isLoadingOffices ? "Loading offices..." : "Select office..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {isLoadingOffices ? (
+                                        <div className="flex items-center justify-center p-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span className="ml-2">Loading offices...</span>
+                                        </div>
+                                    ) : offices.length === 0 ? (
+                                        <div className="p-2 text-center text-sm text-gray-500">
+                                            No offices found
+                                        </div>
+                                    ) : (
+                                        offices.map((office) => (
+                                            <SelectItem key={office.id} value={office.id}>
+                                                {office.name}
+                                            </SelectItem>
+                                        ))
+                                    )}
+                                </SelectContent>
+                            </Select>
                         </div>
                     )}
 
