@@ -236,8 +236,8 @@ importers:
         specifier: ^6.4.17
         version: 6.4.17
       '@types/pdfkit':
-        specifier: ^0.13.7
-        version: 0.13.7
+        specifier: ^0.13.8
+        version: 0.13.8
       '@types/react':
         specifier: 19.0.3
         version: 19.0.3
@@ -2070,8 +2070,8 @@ packages:
   '@types/nodemailer@6.4.17':
     resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
 
-  '@types/pdfkit@0.13.7':
-    resolution: {integrity: sha512-qIV2V2cnunHEVa51ISkoXlTsAnuQpTXhE7is3CWvV5lKSItRDLL7VLg/j0AkvAr3lG5ZBK2IWIl5iTfqf+obuA==}
+  '@types/pdfkit@0.13.8':
+    resolution: {integrity: sha512-lX+wmG9KNisFQXCC/facEw+rljSkMyo6Eh+W4gp/uPZzzmA7TTchKkCp5tMrXDY+lQjqzoxt8rGKRlpxf1c3hw==}
 
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
@@ -7223,7 +7223,7 @@ snapshots:
     dependencies:
       '@types/node': 22.10.5
 
-  '@types/pdfkit@0.13.7':
+  '@types/pdfkit@0.13.8':
     dependencies:
       '@types/node': 22.10.5
 
