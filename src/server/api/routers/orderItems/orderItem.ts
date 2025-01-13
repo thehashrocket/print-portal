@@ -130,7 +130,9 @@ export const orderItemRouter = createTRPCRouter({
                                 purchaseOrderNumber: true,
                             }
                         },
-                        OrderItems: true
+                        OrderItems: true,
+                        orderNumber: true,
+                        status: true
                     },
                 },
             }
@@ -150,6 +152,8 @@ export const orderItemRouter = createTRPCRouter({
             description: item.description,
             companyName: item.Order?.Office?.Company?.name || '',
             purchaseOrderNumber: item.Order?.WorkOrder?.purchaseOrderNumber || '',
+            orderNumber: item.Order?.orderNumber || '',
+            orderStatus: item.Order?.status || 'Draft',
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
             // Convert Decimal values to numbers

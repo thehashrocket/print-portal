@@ -43,6 +43,8 @@ export default async function DashboardPage() {
     const serializedOrderData: OrderDashboard[] = orderDashboard.map((order) => ({
         status: order.status as OrderStatus,
         orderItemStatus: order.OrderItemStatus as OrderItemStatus,
+        orderNumber: order.orderNumber,
+        purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber || '',
         id: order.id,
         companyName: order.Office.Company.name,
         inHandsDate: order.inHandsDate ? formatDate(order.inHandsDate) : null,
@@ -61,6 +63,8 @@ export default async function DashboardPage() {
         description: item.description,
         companyName: item.companyName,
         purchaseOrderNumber: item.purchaseOrderNumber,
+        orderNumber: item.orderNumber?.toString() || '',
+        orderStatus: item.orderStatus,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
         amount: item.amount,
