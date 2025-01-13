@@ -146,33 +146,33 @@ model Office {
 }
 
 model Order {
-  id                  String                   @id @default(uuid())
-  workOrderId         String                   @unique
-  officeId            String
-  status              OrderStatus              @default(Pending)
-  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
-  version             Int                      @default(1)
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
-  orderNumber         Int                      @default(autoincrement())
-  shippingInfoId      String?
-  dateInvoiced        DateTime?
-  inHandsDate         DateTime?
-  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
-  createdById         String
-  contactPersonId     String?
-  pressRun            String?                  @default("")
-  quickbooksInvoiceId String?                  @unique
-  syncToken           String?
-  Invoice             Invoice?
   contactPerson       User?                    @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
+  contactPersonId     String?
+  createdAt           DateTime                 @default(now())
   createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  createdById         String
+  dateInvoiced        DateTime?
+  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
+  id                  String                   @id @default(uuid())
+  inHandsDate         DateTime?
+  Invoice             Invoice?
+  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
   Office              Office                   @relation(fields: [officeId], references: [id])
-  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+  officeId            String
   OrderItems          OrderItem[]
   OrderNotes          OrderNote[]
+  orderNumber         Int                      @default(autoincrement())
   OrderPayments       OrderPayment[]
+  pressRun            String?                  @default("")
+  quickbooksInvoiceId String?                  @unique
+  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId      String?
+  status              OrderStatus              @default(Pending)
+  syncToken           String?
+  updatedAt           DateTime                 @updatedAt
+  version             Int                      @default(1)
+  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+  workOrderId         String                   @unique
 }
 
 model OrderItem {

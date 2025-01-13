@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { RoleName } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-
+import bcrypt from "bcryptjs";
 export const userManagementRouter = createTRPCRouter({
     getAllUsers: protectedProcedure
         .query(async ({ ctx }) => {
@@ -55,6 +55,7 @@ export const userManagementRouter = createTRPCRouter({
             email: z.string(),
             roleIds: z.array(z.string()),
             officeIds: z.array(z.string()),
+            password: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
             // Delete existing office assignments
@@ -79,6 +80,7 @@ export const userManagementRouter = createTRPCRouter({
                             }
                         }))
                     },
+                    password: input.password ? bcrypt.hashSync(input.password, 10) : undefined,
                 },
                 include: {
                     Roles: true,

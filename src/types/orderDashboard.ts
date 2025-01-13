@@ -11,6 +11,8 @@ interface SerializedOrderItem extends Omit<OrderItem, 'amount' | 'cost' | 'shipp
 export interface OrderDashboard {
   status: OrderStatus;
   orderItemStatus: OrderItemStatus;
+  orderNumber: string;
+  purchaseOrderNumber: string;
   id: string;
   companyName: string;
   inHandsDate: string | null;

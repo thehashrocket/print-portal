@@ -9,7 +9,7 @@ import { formatDate } from "~/utils/formatters";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { CalendarDays, Eye } from 'lucide-react';
+import { Building2, CalendarDays, Eye } from 'lucide-react';
 
 const calculateDaysUntilDue = (dateString: string): number => {
     const targetDate = new Date(dateString);
@@ -19,7 +19,10 @@ const calculateDaysUntilDue = (dateString: string): number => {
     return daysDiff;
 };
 
-const jobBorderColor = (dateString: string): string => {
+const jobBorderColor = (dateString: string, status: OrderItemStatus): string => {
+    if (status === OrderItemStatus.Completed) {
+        return 'green';
+    }
     const daysUntilDue = calculateDaysUntilDue(dateString);
     if (daysUntilDue === 1) {
         return 'yellow';
@@ -282,12 +285,17 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
         onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
         className="flex flex-col p-3 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
         style={{
-            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate.toISOString()) : undefined,
+            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate.toISOString(), orderItem.status) : undefined,
             borderWidth: orderItem.expectedDate ? 3 : 1,
             borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
         }}
     >
-        <div className='text-sm font-bold mb-1 truncate'>{orderItem.companyName}</div>
+        <div className='flex items-center mb-2'>
+            <Building2 className='w-6 h-6 mr-2' />
+            <div className='text-sm font-bold mb-1 truncate'>{orderItem.companyName}</div>
+        </div>
+        <div className='text-sm font-bold mb-1'>Order #: {orderItem.orderNumber}</div>
+        <div className='text-sm font-bold mb-1'>PO #: {orderItem.purchaseOrderNumber}</div>
         <div className='text-sm font-bold mb-1'>Job #: {orderItem.orderItemNumber}</div>
         <div className='text-sm font-bold mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
         <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>

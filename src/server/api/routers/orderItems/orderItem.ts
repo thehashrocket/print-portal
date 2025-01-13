@@ -68,6 +68,8 @@ export const orderItemRouter = createTRPCRouter({
                 artwork: true,
                 Order: {
                     select: {
+                        status: true,
+                        orderNumber: true,
                         Office: {
                             select: {
                                 Company: {

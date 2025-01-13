@@ -725,10 +725,15 @@ export const orderRouter = createTRPCRouter({
           }
         },
         include: {
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          },
           OrderItems: true,
           Office: {
             include: {
-              Company: true
+              Company: true,
             }
           }
         }
@@ -746,7 +751,8 @@ export const orderRouter = createTRPCRouter({
         const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
         return {
           ...order,
-          // Convert Decimal values to numbers
+          orderNumber: order.orderNumber.toString(),
+          purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber || '',
           deposit: Number(order.deposit),
           OrderItems: order.OrderItems.map(item => ({
             ...item,

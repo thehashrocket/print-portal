@@ -2,6 +2,7 @@
 import { Building2, CalendarDays, Eye } from 'lucide-react';
 import { formatDate } from '~/utils/formatters';
 import { type OrderDashboard } from "~/types/orderDashboard";
+import { OrderStatus } from '@prisma/client';
 
 
 const calculateDaysUntilDue = (dateString: string): number => {
@@ -12,7 +13,10 @@ const calculateDaysUntilDue = (dateString: string): number => {
     return daysDiff;
 };
 
-const jobBorderColor = (dateString: string): string => {
+const jobBorderColor = (dateString: string, status: OrderStatus): string => {
+    if (status === OrderStatus.Completed) {
+        return 'green';
+    }
     const daysUntilDue = calculateDaysUntilDue(dateString);
     if (daysUntilDue === 1) {
         return 'yellow';
@@ -37,7 +41,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
             onDragStart={(event) => onDragStart(event, order.id)}
             className="flex-column p-2 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
             style={{
-                borderColor: jobBorderColor(order.inHandsDate ?? ''),
+                borderColor: jobBorderColor(order.inHandsDate ?? '', order.status),
                 borderWidth: order.inHandsDate ? 3 : 1,
                 borderStyle: order.inHandsDate ? 'solid' : 'dashed',
             }}
@@ -46,6 +50,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
                 <Building2 className='w-6 h-6 mr-2' />
                 <div className="text-sm font-medium">{order.companyName}</div>
             </div>
+            <div className="text-sm font-bold mb-1">Order #: {order.orderNumber}</div>
+            <div className="text-sm font-bold mb-1">PO #: {order.purchaseOrderNumber}</div>
             <div className="flex mb-3">
                 <CalendarDays className='w-6 h-6 mr-2' />
                 <div className="text-sm">{order.inHandsDate ? formatDate(order.inHandsDate) : ''}</div>

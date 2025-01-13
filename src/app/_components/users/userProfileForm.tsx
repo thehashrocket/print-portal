@@ -19,6 +19,7 @@ const userProfileSchema = z.object({
     email: z.string().email("Invalid email address"),
     officeIds: z.array(z.string()),
     roleIds: z.array(z.string()),
+    password: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof userProfileSchema>;
@@ -122,6 +123,7 @@ export default function UserProfileForm({
                 email: data.email,
                 roleIds: data.roleIds,
                 officeIds: data.officeIds,
+                password: data.password,
             });
             setIsEditing(false);
             await onProfileUpdate();
@@ -312,6 +314,17 @@ export default function UserProfileForm({
                     ))}
                 </div>
             )}
+
+            {/* Change Password Field */}
+            <div>
+                <Label htmlFor="password">Change Password</Label>
+                <Input
+                    {...register("password")}
+                    id="password"
+                    type="password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+            </div>
 
             <div className="flex justify-end space-x-2">
                 <Button
