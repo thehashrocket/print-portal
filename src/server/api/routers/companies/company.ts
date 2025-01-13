@@ -383,17 +383,27 @@ export const companyRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             const { searchTerm } = input;
             
+            if (searchTerm.length < 3) {
+                return [];
+            }
+            
             return await ctx.db.company.findMany({
                 where: {
-                    name: {
-                        contains: searchTerm,
-                        mode: 'insensitive'
-                    },
+                    AND: [
+                        {
+                            name: {
+                                contains: searchTerm,
+                                mode: 'insensitive'
+                            }
+                        },
+                        { deleted: false },
+                        { isActive: true }
+                    ]
                 },
-                take: 100, // Limit results to first 100 matches
                 orderBy: {
                     name: 'asc'
-                }
+                },
+                take: 10 // Limit to 10 most relevant results
             });
         }),
 });

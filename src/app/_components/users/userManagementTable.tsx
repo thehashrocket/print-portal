@@ -1,7 +1,7 @@
 // ~/src/app/_components/users/userManagementTable.tsx
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
@@ -102,26 +102,27 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         <span>{props.data.Roles.map((role: Role) => role.name).join(', ')}</span>
     );
 
-    const columnDefs: ColDef[] = [
+    const columnDefs = useMemo<ColDef[]>(() => [
         { headerName: "Name", field: "name", filter: true },
         { headerName: "Email", field: "email", filter: true },
         { headerName: "Roles", field: "Roles", cellRenderer: rolesCellRenderer, filter: true },
         { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false },
-    ];
+    ], []);
 
     useEffect(() => {
         if (updatedUsers) {
             setRowData(updatedUsers);
             setLoading(false);
-            if (gridRef.current) {
-                gridRef.current.api.sizeColumnsToFit();
-            }
         }
     }, [updatedUsers]);
 
-    const onGridReady = (params: GridReadyEvent) => {
+    const onGridReady = useCallback((params: GridReadyEvent) => {
         params.api.sizeColumnsToFit();
-    };
+    }, []);
+
+    const handleCreateSuccess = useCallback(() => {
+        void utils.userManagement.getAllUsers.invalidate();
+    }, [utils.userManagement.getAllUsers]);
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
@@ -144,10 +145,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
             setRowData(updatedUsers);
         }
         handleCloseModal();
-    };
-
-    const handleCreateSuccess = () => {
-        utils.userManagement.getAllUsers.invalidate();
     };
 
     const renderMobileCard = (user: UserWithRoles) => (
