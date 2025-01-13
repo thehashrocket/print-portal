@@ -9,8 +9,6 @@ import { formatCurrency, formatDate } from "~/utils/formatters";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItem/workOrderItemsTable";
 import ConvertWorkOrderButton from "../../_components/workOrders/convertWorkOrderToOrderButton";
 import { api } from "~/trpc/react";
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import { DollarSign, Eye, Info, PlusCircle, RefreshCcw } from "lucide-react";
 import { Calculator, Percent, Truck } from "lucide-react";
 import { Receipt } from "lucide-react";
@@ -106,11 +104,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             setIsWorkOrderItemsLoading(false);
         }
     }, [workOrder?.WorkOrderItems]);
-
-    useCopilotReadable({
-        description: "The current work order that is being viewed.",
-        value: workOrder,
-    });
 
     if (isLoading) {
         return (
@@ -295,13 +288,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     </section>
                 </main>
             </div>
-            <CopilotPopup
-                instructions={"You are assisting the user as best as you can. Ansewr in the best way possible given the data you have."}
-                labels={{
-                    title: "Estimate Details Assistant",
-                    initial: "Need any help?",
-                }}
-            />
         </>
     );
 }

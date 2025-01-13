@@ -11,8 +11,6 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import { Printer, RefreshCcw, Send, FilePlus2 } from "lucide-react";
 import { generateOrderPDF } from "~/utils/generateOrderPDF";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
@@ -161,11 +159,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             console.error('Failed to send order by email:', error);
             toast.error('Failed to send order by email');
         }
-    });
-
-    useCopilotReadable({
-        description: "The current order that is being viewed.",
-        value: order,
     });
 
     const { mutate: createQuickbooksInvoice } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
@@ -523,13 +516,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     </section>
                 </main>
             </div>
-            <CopilotPopup
-                instructions={"You are assisting the user as best as you can. Ansewr in the best way possible given the data you have."}
-                labels={{
-                    title: "Order Details Assistant",
-                    initial: "Need any help?",
-                }}
-            />
         </>
     );
 }

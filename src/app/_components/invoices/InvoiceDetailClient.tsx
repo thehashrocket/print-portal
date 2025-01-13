@@ -9,8 +9,6 @@ import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
 import { ShippingMethod } from '@prisma/client';
 import { type SerializedInvoice, type SerializedOrder } from '~/types/serializedTypes';
 import { toast } from 'react-hot-toast';
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import { Download, Send } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -24,11 +22,6 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
     const [order, setOrder] = useState<SerializedOrder | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const utils = api.useUtils();
-
-    useCopilotReadable({
-        description: "The current invoice that is being viewed.",
-        value: invoice,
-    });
 
     // When the order is updated, update the local state
     const { data: invoiceData, error } = api.invoices.getById.useQuery<SerializedInvoice>(invoiceId, {
@@ -352,14 +345,6 @@ const InvoiceDetailClient: React.FC<InvoiceDetailClientProps> = ({ initialInvoic
                     </div>
                 </div>
             </div>
-
-            <CopilotPopup
-                instructions={"You are assisting the user as best as you can. Ansewr in the best way possible given the data you have."}
-                labels={{
-                    title: "Invoice Details Assistant",
-                    initial: "Need any help?",
-                }}
-            />
         </>
     );
 };
