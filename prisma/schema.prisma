@@ -675,6 +675,7 @@ enum OrderStatus {
   Cancelled
   Completed
   Invoiced
+  Invoicing
   PaymentReceived
   Pending
   Shipping
@@ -685,6 +686,7 @@ enum OrderItemStatus {
   Cancelled
   Completed
   Invoiced
+  Invoicing
   Pending
   Prepress
   Press
