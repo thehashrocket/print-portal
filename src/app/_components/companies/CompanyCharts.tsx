@@ -171,7 +171,7 @@ function prepareOrderStatusData(company: CompanyWithOffices): ChartDataItem[] {
         Shipping: 0,
         Completed: 0,
         Cancelled: 0,
-        Invoicing: 0,
+        Invoiced: 0,
         PaymentReceived: 0
     };
 
@@ -200,7 +200,7 @@ function prepareCostByStatusData(company: CompanyWithOffices): CostByStatusDataI
             Shipping: 0,
             Completed: 0,
             Cancelled: 0,
-            Invoicing: 0,
+            Invoiced: 0,
             PaymentReceived: 0
         }
     };

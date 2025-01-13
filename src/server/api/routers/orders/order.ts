@@ -642,11 +642,11 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
-      // If the status is 'Invoicing', update the order items to 'Invoicing'
-      if (input.status === 'Invoicing') {
+      // If the status is 'Invoiced', update the order items to 'Invoiced'
+      if (input.status === 'Invoiced') {
         await ctx.db.orderItem.updateMany({
           where: { orderId: input.id },
-          data: { status: 'Invoicing' },
+          data: { status: 'Invoiced' },
         });
       }
 
