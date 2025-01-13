@@ -106,7 +106,7 @@
     "@types/lodash": "^4.17.13",
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
-    "@types/pdfkit": "^0.13.7",
+    "@types/pdfkit": "^0.13.8",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.2",
     "@types/string-similarity": "^4.0.2",
