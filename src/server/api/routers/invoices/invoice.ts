@@ -189,7 +189,7 @@ export const invoiceRouter = createTRPCRouter({
             // Update order status to Invoiced
             await ctx.db.order.update({
                 where: { id: input.orderId },
-                data: { status: OrderStatus.Invoicing },
+                data: { status: OrderStatus.Invoiced },
             });
 
             return normalizeInvoice(invoice);

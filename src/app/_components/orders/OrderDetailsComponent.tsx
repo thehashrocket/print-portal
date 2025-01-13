@@ -41,7 +41,7 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
             case "Shipping": return "bg-blue-100 text-blue-800";
-            case "Invoicing": return "bg-blue-100 text-blue-800";
+            case "Invoiced": return "bg-blue-100 text-blue-800";
             case "PaymentReceived": return "bg-blue-100 text-blue-800";
             default: return "bg-gray-100 text-gray-800";
         }

@@ -14,7 +14,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
         OrderStatus.Cancelled,
         OrderStatus.PaymentReceived,
         OrderStatus.Shipping,
-        OrderStatus.Invoicing,
+        OrderStatus.Invoiced,
         OrderStatus.Completed
     ];
 

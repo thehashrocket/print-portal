@@ -715,13 +715,13 @@ export const orderRouter = createTRPCRouter({
   // Shows all orders, their status, and the company they are associated with
   // Includes OrderItemStatus, returns the status that all OrderItems equal,
   // otherwise, it returns the lowest status of all OrderItems
-  // We don't need to show Orders that are Cancelled, Invoicing, or Completed
+  // We don't need to show Orders that are Cancelled, Invoiced, or Completed
   dashboard: protectedProcedure
     .query(async ({ ctx }) => {
       const orders = await ctx.db.order.findMany({
         where: {
           status: {
-            notIn: ['Cancelled', 'Invoicing', 'PaymentReceived']
+            notIn: ['Cancelled', 'Invoiced', 'PaymentReceived']
           }
         },
         include: {
