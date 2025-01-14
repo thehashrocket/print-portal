@@ -73,13 +73,6 @@ export default async function CompaniesPage() {
 
             <div className="bg-base-100 shadow-xl rounded-lg p-4 sm:p-6">
                 <Suspense fallback={<div>Loading...</div>}>
-                    <div className="mb-4">
-                        <input 
-                            type="text" 
-                            placeholder="Search companies..." 
-                            className="input input-bordered w-full max-w-xs" 
-                        />
-                    </div>
                     {companies.length > 0 ? (
                         <CompaniesTable companies={serializedData} />
                     ) : (
