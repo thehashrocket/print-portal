@@ -203,6 +203,8 @@ model OrderItem {
   productTypeId       String?
   quantity            Int                 @default(1)
   shippingAmount      Decimal?            @db.Decimal(10, 2)
+  shippingInfoId      String?
+  ShippingInfo        ShippingInfo?       @relation(fields: [shippingInfoId], references: [id])
   size                String?
   specialInstructions String?
   status              OrderItemStatus     @default(Pending)
@@ -370,11 +372,13 @@ model ShippingInfo {
   estimatedDelivery  DateTime?
   trackingNumber     String?
   Order              Order[]
+  OrderItems         OrderItem[]
   Address            Address?         @relation(fields: [addressId], references: [id])
   createdBy          User             @relation(fields: [createdById], references: [id])
   Office             Office           @relation(fields: [officeId], references: [id])
   ShippingPickup     ShippingPickup[]
   WorkOrder          WorkOrder[]
+  WorkOrderItems     WorkOrderItem[]
 }
 
 model ShippingPickup {
@@ -550,6 +554,8 @@ model WorkOrderItem {
   productTypeId       String?
   quantity            Int                    @default(1)
   shippingAmount      Decimal?               @db.Decimal(10, 2)
+  shippingInfoId      String?
+  ShippingInfo        ShippingInfo?          @relation(fields: [shippingInfoId], references: [id])
   size                String?
   specialInstructions String?
   status              WorkOrderItemStatus    @default(Pending)

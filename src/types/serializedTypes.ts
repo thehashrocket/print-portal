@@ -191,6 +191,8 @@ export interface SerializedOrderItem {
     pressRun: string;
     quantity: number;
     shippingAmount: string | null;
+    shippingInfoId: string | null;
+    ShippingInfo: SerializedShippingInfo | null;
     size: string | null;
     specialInstructions: string | null;
     status: OrderItemStatus;
@@ -307,6 +309,8 @@ export interface SerializedShippingInfo {
     officeId: string;
     Address: SerializedAddress | null;
     ShippingPickup: SerializedShippingPickup | null;
+    OrderItems: SerializedOrderItem[];
+    WorkOrderItems: SerializedWorkOrderItem[];
 }
 
 export interface SerializedShippingPickup {
@@ -428,29 +432,31 @@ export interface SerializedWorkOrderItem {
     cost: string | null;
     createdAt: string;
     createdById: string;
+    createdBy: {
+        id: string;
+        name: string | null;
+    };
     description: string;
-    expectedDate: string;
     ink: string | null;
+    expectedDate: string;
     other: string | null;
-    quantity: number;
     paperProductId: string | null;
     productTypeId: string | null;
+    quantity: number;
     size: string | null;
     specialInstructions: string | null;
     status: WorkOrderItemStatus;
     updatedAt: string;
     workOrderId: string | null;
+    shippingInfoId: string | null;
+    ShippingInfo: SerializedShippingInfo | null;
     artwork: SerializedWorkOrderItemArtwork[];
+    PaperProduct: SerializedPaperProduct | null;
     ProcessingOptions: SerializedProcessingOptions[];
     ProductType: SerializedProductType | null;
     Typesetting: SerializedTypesetting[];
     workOrderItemNumber: number;
     WorkOrderItemStock: SerializedWorkOrderItemStock[];
-    createdBy: {
-        id: string;
-        name: string | null;
-    };
-    PaperProduct: SerializedPaperProduct | null;
 }
 
 export interface SerializedWorkOrderItemArtwork {

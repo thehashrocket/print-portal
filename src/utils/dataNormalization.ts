@@ -244,6 +244,11 @@ export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
     OrderItemStock: OrderItemStock[];
     ProductType: ProductType | null;
+    shippingInfoId?: string | null;
+    ShippingInfo?: (ShippingInfo & {
+        Address: Address | null;
+        ShippingPickup: ShippingPickup[];
+    }) | null;
     Order: {
         Office: {
             Company: {
@@ -282,6 +287,8 @@ export function normalizeOrderItem(item: OrderItem & {
         pressRun: item.pressRun,
         quantity: item.quantity,
         shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
+        shippingInfoId: item.shippingInfoId ?? null,
+        ShippingInfo: item.ShippingInfo ? normalizeShippingInfo(item.ShippingInfo) : null,
         size: item.size,
         specialInstructions: item.specialInstructions,
         status: item.status,
@@ -353,6 +360,35 @@ export function normalizeOrderPayment(payment: OrderPayment): SerializedOrderPay
 export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
     Address: Address | null;
     ShippingPickup: ShippingPickup[];
+    OrderItems?: (OrderItem & {
+        artwork: OrderItemArtwork[];
+        OrderItemStock: OrderItemStock[];
+        ProductType: ProductType | null;
+        Order: {
+            Office: {
+                Company: {
+                    name: string;
+                };
+            };
+            WorkOrder: {
+                purchaseOrderNumber: string | null;
+            };
+        };
+    })[];
+    WorkOrderItems?: (WorkOrderItem & {
+        artwork: WorkOrderItemArtwork[];
+        ProcessingOptions: ProcessingOptions[];
+        ProductType: ProductType | null;
+        Typesetting: (Typesetting & {
+            TypesettingOptions: TypesettingOption[];
+            TypesettingProofs: TypesettingProof[];
+        })[];
+        WorkOrderItemStock: WorkOrderItemStock[];
+        createdBy: {
+            id: string;
+            name: string | null;
+        };
+    })[];
 }): SerializedShippingInfo {
     return {
         id: shippingInfo.id,
@@ -376,6 +412,8 @@ export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
         ShippingPickup: shippingInfo.ShippingPickup.length > 0 && shippingInfo.ShippingPickup[0]
             ? normalizeShippingPickup(shippingInfo.ShippingPickup[0])
             : null,
+        OrderItems: shippingInfo.OrderItems ? shippingInfo.OrderItems.map(normalizeOrderItem) : [],
+        WorkOrderItems: shippingInfo.WorkOrderItems ? shippingInfo.WorkOrderItems.map(normalizeWorkOrderItem) : [],
     };
 }
 
@@ -590,6 +628,11 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
     PaperProduct?: PaperProduct | null;
     ProcessingOptions: ProcessingOptions[];
     ProductType: ProductType | null;
+    shippingInfoId?: string | null;
+    ShippingInfo?: (ShippingInfo & {
+        Address: Address | null;
+        ShippingPickup: ShippingPickup[];
+    }) | null;
     Typesetting: (Typesetting & {
         TypesettingOptions: TypesettingOption[];
         TypesettingProofs: TypesettingProof[];
@@ -622,6 +665,8 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         status: item.status,
         updatedAt: item.updatedAt.toISOString(),
         workOrderId: item.workOrderId,
+        shippingInfoId: item.shippingInfoId ?? null,
+        ShippingInfo: item.ShippingInfo ? normalizeShippingInfo(item.ShippingInfo) : null,
         artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
         PaperProduct: item.PaperProduct ? normalizePaperProduct(item.PaperProduct) : null,
         ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),

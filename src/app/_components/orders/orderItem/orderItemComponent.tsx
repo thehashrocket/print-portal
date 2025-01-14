@@ -22,17 +22,10 @@ import FileUpload from "../../shared/fileUpload";
 import { Input } from "../../ui/input";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
 import { Check, X, PencilIcon } from "lucide-react";
-import type { TRPCClientErrorLike } from "@trpc/client";
-import type { AppRouter } from "~/server/api/root";
 
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
-};
-
-type UpdateArtworkError = {
-    message: string;
-    code: string;
 };
 
 const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
