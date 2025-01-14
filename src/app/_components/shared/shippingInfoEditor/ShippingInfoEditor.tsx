@@ -143,11 +143,11 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
             const shippingData = {
                 ...data,
                 shippingCost: data.shippingCost ?? undefined,
-                shippingDate: data.shippingDate ? new Date(data.shippingDate) : undefined,
+                shippingDate: data.shippingDate ? new Date(data.shippingDate + 'T12:00:00') : undefined,
                 shippingPickup: data.shippingMethod === ShippingMethod.Pickup ? {
                     contactName: data.shippingPickup?.contactName ?? '',
                     contactPhone: data.shippingPickup?.contactPhone ?? '',
-                    pickupDate: data.shippingPickup?.pickupDate ? new Date(data.shippingPickup.pickupDate) : new Date(),
+                    pickupDate: data.shippingPickup?.pickupDate ? new Date(data.shippingPickup.pickupDate + 'T12:00:00') : new Date(),
                     pickupTime: data.shippingPickup?.pickupTime ?? '',
                     notes: data.shippingPickup?.notes,
                 } : undefined
