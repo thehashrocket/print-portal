@@ -9,7 +9,6 @@ import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
@@ -20,8 +19,11 @@ import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonE
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 import FileUpload from "../../shared/fileUpload";
-import { type TRPCClientErrorLike } from "@trpc/client";
-import { type AppRouter } from "~/server/api/root";
+import { Input } from "../../ui/input";
+import { SelectField } from "../../shared/ui/SelectField/SelectField";
+import { Check, X, PencilIcon } from "lucide-react";
+import type { TRPCClientErrorLike } from "@trpc/client";
+import type { AppRouter } from "~/server/api/root";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -90,6 +92,51 @@ const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title
     </section>
 );
 
+interface EditableInfoCardProps {
+    title: string;
+    content: React.ReactNode;
+    isEditing: boolean;
+    onEdit: () => void;
+    onSave: () => void;
+    onCancel: () => void;
+    editComponent: React.ReactNode;
+}
+
+const EditableInfoCard: React.FC<EditableInfoCardProps> = ({ 
+    title, 
+    content, 
+    isEditing, 
+    onEdit, 
+    onSave, 
+    onCancel, 
+    editComponent 
+}) => (
+    <section className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
+        <div className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
+            <div className="flex-grow">
+                {isEditing ? editComponent : content}
+            </div>
+            <div className="ml-4 flex gap-2">
+                {isEditing ? (
+                    <>
+                        <Button variant="ghost" size="icon" onClick={onSave}>
+                            <Check className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={onCancel}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </>
+                ) : (
+                    <Button variant="ghost" size="icon" onClick={onEdit}>
+                        <PencilIcon className="h-4 w-4" />
+                    </Button>
+                )}
+            </div>
+        </div>
+    </section>
+);
+
 const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     orderId,
     orderItemId
@@ -101,7 +148,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [specialInstructions, setSpecialInstructions] = useState("");
     const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const { data: productTypes } = api.productTypes.getAll.useQuery();
     const utils = api.useUtils();
+    const [editingField, setEditingField] = useState<string | null>(null);
+    const [tempQuantity, setTempQuantity] = useState<number>(0);
+    const [tempInk, setTempInk] = useState<string>("");
+    const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
     
     // Initialize local artwork state when orderItem changes
     useEffect(() => {
@@ -146,6 +198,66 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             toast.error('Failed to update special instructions');
         }
     });
+
+    const { mutate: updateOrderItem } = api.orderItems.updateFields.useMutation({
+        onSuccess: () => {
+            toast.success('Item updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+            setEditingField(null);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+            console.error('Failed to update item:', error);
+            toast.error('Failed to update item');
+        }
+    });
+
+    useEffect(() => {
+        if (orderItem) {
+            setTempQuantity(orderItem.quantity);
+            setTempInk(orderItem.ink ?? "");
+            setTempProductTypeId(orderItem.productTypeId ?? "");
+        }
+    }, [orderItem]);
+
+    const handleSave = (field: string) => {
+        if (!orderItem) return;
+
+        const updates: Record<string, unknown> = {};
+        switch (field) {
+            case 'quantity':
+                updates.quantity = tempQuantity;
+                break;
+            case 'ink':
+                updates.ink = tempInk;
+                break;
+            case 'productType':
+                updates.productTypeId = tempProductTypeId;
+                break;
+        }
+
+        updateOrderItem({
+            id: orderItem.id,
+            data: updates
+        });
+    };
+
+    const handleCancel = (field: string) => {
+        if (!orderItem) return;
+        
+        switch (field) {
+            case 'quantity':
+                setTempQuantity(orderItem.quantity);
+                break;
+            case 'ink':
+                setTempInk(orderItem.ink ?? "");
+                break;
+            case 'productType':
+                setTempProductTypeId(orderItem.productTypeId ?? "");
+                break;
+        }
+        setEditingField(null);
+    };
 
     useEffect(() => {
         if (orderItem && !jobDescription && !specialInstructions) {
@@ -217,9 +329,55 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-2">
                         <InfoCard title="Order Number" content={order.orderNumber} />
                         <InfoCard title="Purchase Order Number" content={order.WorkOrder.purchaseOrderNumber} />
-                        <InfoCard title="Item Quantity" content={orderItem.quantity} />
-                        <InfoCard title="Color" content={orderItem.ink} />
-                        <InfoCard title="Product Type" content={orderItem.ProductType?.name ?? 'N/A'} />
+                        <EditableInfoCard
+                            title="Item Quantity"
+                            content={orderItem.quantity}
+                            isEditing={editingField === 'quantity'}
+                            onEdit={() => setEditingField('quantity')}
+                            onSave={() => handleSave('quantity')}
+                            onCancel={() => handleCancel('quantity')}
+                            editComponent={
+                                <Input
+                                    type="number"
+                                    value={tempQuantity}
+                                    onChange={(e) => setTempQuantity(parseInt(e.target.value, 10))}
+                                    min={1}
+                                    className="w-full"
+                                />
+                            }
+                        />
+                        <EditableInfoCard
+                            title="Color"
+                            content={orderItem.ink ?? 'N/A'}
+                            isEditing={editingField === 'ink'}
+                            onEdit={() => setEditingField('ink')}
+                            onSave={() => handleSave('ink')}
+                            onCancel={() => handleCancel('ink')}
+                            editComponent={
+                                <Input
+                                    type="text"
+                                    value={tempInk}
+                                    onChange={(e) => setTempInk(e.target.value)}
+                                    className="w-full"
+                                />
+                            }
+                        />
+                        <EditableInfoCard
+                            title="Product Type"
+                            content={orderItem.ProductType?.name ?? 'N/A'}
+                            isEditing={editingField === 'productType'}
+                            onEdit={() => setEditingField('productType')}
+                            onSave={() => handleSave('productType')}
+                            onCancel={() => handleCancel('productType')}
+                            editComponent={
+                                <SelectField
+                                    options={productTypes?.map(pt => ({ value: pt.id, label: pt.name })) ?? []}
+                                    value={tempProductTypeId}
+                                    onValueChange={setTempProductTypeId}
+                                    placeholder="Select product type..."
+                                />
+                            }
+                        />
                         {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
                         {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
                             orderItem.OrderItemStock.map((stock) => (

@@ -123,7 +123,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         { headerName: "Item #", field: "orderItemNumber", width: 120 },
         { headerName: "Quantity", field: "quantity", width: 120 },
         { headerName: "Description", field: "description", filter: true },
-        { headerName: "Finished Qty", field: "finishedQty", filter: true, width: 150 },
         { headerName: "Status", field: "status", filter: true, width: 150 },
         { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
         { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },

@@ -278,4 +278,36 @@ export const orderItemRouter = createTRPCRouter({
 
             return orderItem;
         }),
+    updateFields: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            data: z.object({
+                quantity: z.number().optional(),
+                ink: z.string().optional(),
+                productTypeId: z.string().optional(),
+            })
+        }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.orderItem.update({
+                where: { id: input.id },
+                data: input.data,
+                include: {
+                    artwork: true,
+                    PaperProduct: true,
+                    ProductType: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            }
+                        }
+                    },
+                    ProcessingOptions: true,
+                    OrderItemStock: true,
+                }
+            });
+        }),
 });
