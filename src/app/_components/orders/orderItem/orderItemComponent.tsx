@@ -137,6 +137,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
+    const { data: orderItemStocks } = api.orderItemStocks.getByOrderItemId.useQuery(orderItemId);
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
     const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
@@ -288,7 +289,14 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     }
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
-
+    const normalizedOrderItemStocks = orderItemStocks ?? [];
+    let orderPaperProducts: any[] = [];
+    if (orderItemStocks) {
+        console.log('orderItemStocks', orderItemStocks);
+        // Build a list of paper products
+        orderPaperProducts = orderItemStocks.map(stock => findPaperProduct(stock.paperProductId || ''));
+        console.log('paperProducts', orderPaperProducts);
+    }
 
 
     return (
@@ -299,7 +307,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <PrintButton
                     onClick={async () => {
                         try {
-                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting);
+                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts);
                         } catch (error) {
                             console.error('Error generating PDF:', error);
                             toast.error('Error generating PDF');

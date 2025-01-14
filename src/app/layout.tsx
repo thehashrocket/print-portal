@@ -40,15 +40,15 @@ export default function RootLayout({
       </head>
       <body className={`font-sans ${inter.variable}`}>
 
-          <TRPCReactProvider>
-            <Providers>
-              <NavBar />
-              {children}
-              <InstallPWA />
-              <ServiceWorkerRegistration />
-            </Providers>
-            <Toaster />
-          </TRPCReactProvider>
+        <TRPCReactProvider>
+          <Providers>
+            <NavBar />
+            {children}
+            <InstallPWA />
+            <ServiceWorkerRegistration />
+          </Providers>
+          <Toaster />
+        </TRPCReactProvider>
 
         <Script
           src="https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq"

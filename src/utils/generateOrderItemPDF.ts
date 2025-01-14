@@ -45,7 +45,7 @@ const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): 
 
 
 
-export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any) => {
+export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any, orderItemStocks: any, paperProducts: any) => {
     const doc = new jsPDF();
 
     // Initial setup
@@ -217,7 +217,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30, 13);
     // Utilize the new addWrappedField function for Paper Stock
-    rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30, 13  );
+    // rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30, 13  );
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
 
@@ -274,6 +274,29 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
        const splitInstructions = doc.splitTextToSize(orderItem.specialInstructions || 'N/A', pageWidth - (leftMargin * 2));
        doc.text(splitInstructions, leftMargin, yPos);
        yPos += splitInstructions.length * 7 + 10; // More space after description
+    }
+
+    if (orderItemStocks) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Paper Stock', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        // Loop through the paperProducts and print the paper product only if it exists
+        for (const paperProduct of paperProducts) {
+            if (paperProduct) {
+                doc.text(paperProduct, leftMargin, yPos);
+                yPos += 5;
+            }
+        }
+        yPos += 10;
+        // Loop through the orderItem.OrderItemStock and print the paper product only if it exists
+        // for (const stock of orderItemStocks) {
+        //     if (stock.paperProduct) {
+        //         doc.text(stock.paperProduct.paperType + ' ' + stock.paperProduct.finish + ' ' + stock.paperProduct.weightLb + ' lbs', leftMargin, yPos);
+        //     }
+        // }
     }
 
     
