@@ -3,7 +3,7 @@
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { WorkOrderItemStatus } from "@prisma/client";
+import { WorkOrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
 import { normalizeWorkOrderItem } from "~/utils/dataNormalization";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 
@@ -35,7 +35,22 @@ export const workOrderItemRouter = createTRPCRouter({
                         }
                     },
                     WorkOrderItemStock: true,
-                },
+                    ShippingInfo: {
+                        include: {
+                            ShippingPickup: true,
+                            Address: true
+                        }
+                    },
+                    WorkOrder: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true
+                                }
+                            }
+                        }
+                    }
+                }
             });
             return workOrderItem ? normalizeWorkOrderItem(workOrderItem) : null;
         }),
@@ -362,5 +377,109 @@ export const workOrderItemRouter = createTRPCRouter({
                 where: { id: input.artworkId },
             });
             return { success: true };
+        }),
+
+    updateShippingInfo: protectedProcedure
+        .input(z.object({
+            workOrderItemId: z.string(),
+            shippingInfo: z.object({
+                addressId: z.string().optional(),
+                instructions: z.string().optional(),
+                shippingCost: z.number().optional(),
+                shippingDate: z.date().optional(),
+                shippingNotes: z.string().optional(),
+                shippingMethod: z.nativeEnum(ShippingMethod),
+                shippingOther: z.string().optional(),
+                trackingNumber: z.string().optional(),
+                ShippingPickup: z.object({
+                    id: z.string().optional(),
+                    pickupDate: z.date(),
+                    pickupTime: z.string(),
+                    contactName: z.string(),
+                    contactPhone: z.string(),
+                    notes: z.string().optional(),
+                }).optional(),
+            }),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // First get the work order item and its associated work order
+            const workOrderItem = await ctx.db.workOrderItem.findUnique({
+                where: { id: input.workOrderItemId },
+                include: {
+                    WorkOrder: {
+                        select: {
+                            officeId: true
+                        }
+                    }
+                }
+            });
+
+            if (!workOrderItem?.WorkOrder) {
+                throw new Error('Work order item or associated work order not found');
+            }
+
+            const { shippingInfo } = input;
+
+            // Create the shipping info
+            const createdShippingInfo = await ctx.db.shippingInfo.create({
+                data: {
+                    instructions: shippingInfo.instructions,
+                    shippingOther: shippingInfo.shippingOther,
+                    shippingDate: shippingInfo.shippingDate,
+                    shippingMethod: shippingInfo.shippingMethod,
+                    shippingCost: shippingInfo.shippingCost,
+                    officeId: workOrderItem.WorkOrder.officeId,
+                    addressId: shippingInfo.addressId,
+                    createdById: ctx.session.user.id,
+                    shippingNotes: shippingInfo.shippingNotes,
+                    trackingNumber: shippingInfo.trackingNumber,
+                }
+            });
+
+            if (shippingInfo.ShippingPickup) {
+                await ctx.db.shippingPickup.create({
+                    data: {
+                        pickupDate: shippingInfo.ShippingPickup.pickupDate,
+                        pickupTime: shippingInfo.ShippingPickup.pickupTime,
+                        contactName: shippingInfo.ShippingPickup.contactName,
+                        contactPhone: shippingInfo.ShippingPickup.contactPhone,
+                        notes: shippingInfo.ShippingPickup.notes,
+                        createdById: ctx.session.user.id,
+                        shippingInfoId: createdShippingInfo.id
+                    }
+                });
+            }
+
+            // Update the work order item with the shipping info id
+            const updatedWorkOrderItem = await ctx.db.workOrderItem.update({
+                where: { id: input.workOrderItemId },
+                data: {
+                    ShippingInfo: {
+                        connect: {
+                            id: createdShippingInfo.id
+                        }
+                    }
+                } as Prisma.WorkOrderItemUpdateInput,
+                include: {
+                    artwork: true,
+                    PaperProduct: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    ProductType: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            },
+                        }
+                    },
+                    WorkOrderItemStock: true
+                }
+            });
+
+            return normalizeWorkOrderItem(updatedWorkOrderItem);
         }),
 });

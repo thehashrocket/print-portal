@@ -1,7 +1,11 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderItemStatus } from "@prisma/client";
+import { OrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
 import { sendOrderStatusEmail } from "~/utils/sengrid";
+import { normalizeShippingInfo } from "~/utils/dataNormalization";
+import { type SerializedOrderItem } from "~/types/serializedTypes";
+import { normalizeOrderItem } from "~/utils/dataNormalization";
+import { type OrderItem, type OrderItemArtwork, type OrderItemStock, type ProductType, type ShippingInfo, type Address, type ShippingPickup } from "@prisma/client";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),
@@ -12,29 +16,78 @@ export const orderItemRouter = createTRPCRouter({
     // Get a OrderItem by ID
     getByID: protectedProcedure
         .input(z.string())
-        .query(({ ctx, input }) => {
-            return ctx.db.orderItem.findUnique({
-                where: {
-                    id: input,
-                },
+        .query(async ({ ctx, input }): Promise<SerializedOrderItem | null> => {
+            const orderItem = await ctx.db.orderItem.findUnique({
+                where: { id: input },
                 include: {
                     artwork: true,
-                    PaperProduct: true,
+                    OrderItemStock: true,
                     ProductType: true,
-                    Typesetting: {
+                    Order: {
                         include: {
-                            TypesettingOptions: true,
-                            TypesettingProofs: {
+                            Office: {
                                 include: {
-                                    artwork: true, // Include the artwork for TypesettingProofs
+                                    Company: true
+                                }
+                            },
+                            WorkOrder: true,
+                            contactPerson: true
+                        }
+                    },
+                    ShippingInfo: {
+                        include: {
+                            Address: true,
+                            ShippingPickup: true,
+                            OrderItems: {
+                                include: {
+                                    artwork: true,
+                                    OrderItemStock: true,
+                                    ProductType: true,
+                                    Order: {
+                                        include: {
+                                            Office: {
+                                                include: {
+                                                    Company: true
+                                                }
+                                            },
+                                            WorkOrder: true
+                                        }
+                                    }
+                                }
+                            },
+                            WorkOrderItems: {
+                                include: {
+                                    artwork: true,
+                                    ProcessingOptions: true,
+                                    ProductType: true,
+                                    Typesetting: {
+                                        include: {
+                                            TypesettingOptions: true,
+                                            TypesettingProofs: true
+                                        }
+                                    },
+                                    WorkOrderItemStock: true,
+                                    createdBy: {
+                                        select: {
+                                            id: true,
+                                            name: true
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
-                    ProcessingOptions: true,
-                    OrderItemStock: true,
+                    createdBy: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
                 }
             });
+
+            if (!orderItem) return null;
+            return normalizeOrderItem(orderItem);
         }),
     getByOrderId: protectedProcedure
         .input(z.string())
@@ -45,6 +98,49 @@ export const orderItemRouter = createTRPCRouter({
                 },
                 include: {
                     artwork: true,
+                    ShippingInfo: {
+                        include: {
+                            Address: true,
+                            ShippingPickup: true,
+                            OrderItems: {
+                                include: {
+                                    artwork: true,
+                                    OrderItemStock: true,
+                                    ProductType: true,
+                                    Order: {
+                                        include: {
+                                            Office: {
+                                                include: {
+                                                    Company: true
+                                                }
+                                            },
+                                            WorkOrder: true
+                                        }
+                                    }
+                                }
+                            },
+                            WorkOrderItems: {
+                                include: {
+                                    artwork: true,
+                                    ProcessingOptions: true,
+                                    ProductType: true,
+                                    Typesetting: {
+                                        include: {
+                                            TypesettingOptions: true,
+                                            TypesettingProofs: true
+                                        }
+                                    },
+                                    WorkOrderItemStock: true,
+                                    createdBy: {
+                                        select: {
+                                            id: true,
+                                            name: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
@@ -309,5 +405,107 @@ export const orderItemRouter = createTRPCRouter({
                     OrderItemStock: true,
                 }
             });
+        }),
+    updateShippingInfo: protectedProcedure
+        .input(z.object({
+            orderItemId: z.string(),
+            shippingInfo: z.object({
+                addressId: z.string().optional(),
+                instructions: z.string().optional(),
+                shippingCost: z.number().optional(),
+                shippingDate: z.date().optional(),
+                shippingNotes: z.string().optional(),
+                shippingMethod: z.nativeEnum(ShippingMethod),
+                shippingOther: z.string().optional(),
+                trackingNumber: z.string().optional(),
+                ShippingPickup: z.object({
+                    id: z.string().optional(),
+                    pickupDate: z.date(),
+                    pickupTime: z.string(),
+                    contactName: z.string(),
+                    contactPhone: z.string(),
+                    notes: z.string().optional(),
+                }).optional(),
+            }),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // First get the order item and its associated order
+            const orderItem = await ctx.db.orderItem.findUnique({
+                where: { id: input.orderItemId },
+                include: {
+                    Order: {
+                        select: {
+                            officeId: true
+                        }
+                    }
+                }
+            });
+
+            if (!orderItem?.Order) {
+                throw new Error('Order item or associated order not found');
+            }
+
+            const { shippingInfo } = input;
+
+            // Create the shipping info
+            const createdShippingInfo = await ctx.db.shippingInfo.create({
+                data: {
+                    instructions: shippingInfo.instructions,
+                    shippingOther: shippingInfo.shippingOther,
+                    shippingDate: shippingInfo.shippingDate,
+                    shippingMethod: shippingInfo.shippingMethod,
+                    shippingCost: shippingInfo.shippingCost,
+                    officeId: orderItem.Order.officeId,
+                    addressId: shippingInfo.addressId,
+                    createdById: ctx.session.user.id,
+                    shippingNotes: shippingInfo.shippingNotes,
+                    trackingNumber: shippingInfo.trackingNumber,
+                }
+            });
+
+            if (shippingInfo.ShippingPickup) {
+                await ctx.db.shippingPickup.create({
+                    data: {
+                        pickupDate: shippingInfo.ShippingPickup.pickupDate,
+                        pickupTime: shippingInfo.ShippingPickup.pickupTime,
+                        contactName: shippingInfo.ShippingPickup.contactName,
+                        contactPhone: shippingInfo.ShippingPickup.contactPhone,
+                        notes: shippingInfo.ShippingPickup.notes,
+                        createdById: ctx.session.user.id,
+                        shippingInfoId: createdShippingInfo.id
+                    }
+                });
+            }
+
+            // Update the order item with the shipping info id
+            const updatedOrderItem = await ctx.db.orderItem.update({
+                where: { id: input.orderItemId },
+                data: {
+                    ShippingInfo: {
+                        connect: {
+                            id: createdShippingInfo.id
+                        }
+                    }
+                } as Prisma.OrderItemUpdateInput,
+                include: {
+                    artwork: true,
+                    PaperProduct: true,
+                    ProductType: true,
+                    Typesetting: {
+                        include: {
+                            TypesettingOptions: true,
+                            TypesettingProofs: {
+                                include: {
+                                    artwork: true,
+                                }
+                            }
+                        }
+                    },
+                    ProcessingOptions: true,
+                    OrderItemStock: true
+                }
+            });
+
+            return updatedOrderItem;
         }),
 });

@@ -44,13 +44,22 @@ const shippingInfoSchema = z.object({
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
 
 interface ShippingInfoEditorProps {
-    orderId: string;
+    orderId?: string;
+    orderItemId?: string;
+    workOrderItemId?: string;
     currentShippingInfo: SerializedShippingInfo | null;
     officeId: string;
     onUpdate: () => void;
 }
 
-const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, currentShippingInfo, officeId, onUpdate }) => {
+const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ 
+    orderId, 
+    orderItemId,
+    workOrderItemId,
+    currentShippingInfo, 
+    officeId, 
+    onUpdate 
+}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,13 +95,37 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
     });
 
     const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
-    const updateShippingInfoMutation = api.orders.updateShippingInfo.useMutation({
+    
+    // Use the appropriate mutation based on the type of item
+    const updateOrderShippingInfoMutation = api.orders.updateShippingInfo.useMutation({
         onSuccess: () => {
-            console.log('Shipping info updated successfully');
+            console.log('Order shipping info updated successfully');
             onUpdate();
         },
         onError: (error) => {
-            console.error('Error updating shipping info:', error);
+            console.error('Error updating order shipping info:', error);
+            toast.error('Failed to update shipping info');
+        }
+    });
+
+    const updateOrderItemShippingInfoMutation = api.orderItems.updateShippingInfo.useMutation({
+        onSuccess: () => {
+            console.log('Order item shipping info updated successfully');
+            onUpdate();
+        },
+        onError: (error) => {
+            console.error('Error updating order item shipping info:', error);
+            toast.error('Failed to update shipping info');
+        }
+    });
+
+    const updateWorkOrderItemShippingInfoMutation = api.workOrderItems.updateShippingInfo.useMutation({
+        onSuccess: () => {
+            console.log('Work order item shipping info updated successfully');
+            onUpdate();
+        },
+        onError: (error) => {
+            console.error('Error updating work order item shipping info:', error);
             toast.error('Failed to update shipping info');
         }
     });
@@ -153,17 +186,43 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ orderId, curren
                 } : undefined
             };
 
-            await toast.promise(
-                updateShippingInfoMutation.mutateAsync({
-                    orderId,
-                    shippingInfo: shippingData,
-                }),
-                {
-                    loading: 'Updating shipping info...',
-                    success: 'Shipping info updated successfully',
-                    error: 'Failed to update shipping info'
-                }
-            );
+            if (orderId) {
+                await toast.promise(
+                    updateOrderShippingInfoMutation.mutateAsync({
+                        orderId,
+                        shippingInfo: shippingData,
+                    }),
+                    {
+                        loading: 'Updating shipping info...',
+                        success: 'Shipping info updated successfully',
+                        error: 'Failed to update shipping info'
+                    }
+                );
+            } else if (orderItemId) {
+                await toast.promise(
+                    updateOrderItemShippingInfoMutation.mutateAsync({
+                        orderItemId,
+                        shippingInfo: shippingData,
+                    }),
+                    {
+                        loading: 'Updating shipping info...',
+                        success: 'Shipping info updated successfully',
+                        error: 'Failed to update shipping info'
+                    }
+                );
+            } else if (workOrderItemId) {
+                await toast.promise(
+                    updateWorkOrderItemShippingInfoMutation.mutateAsync({
+                        workOrderItemId,
+                        shippingInfo: shippingData,
+                    }),
+                    {
+                        loading: 'Updating shipping info...',
+                        success: 'Shipping info updated successfully',
+                        error: 'Failed to update shipping info'
+                    }
+                );
+            }
             
             if (!isAddressBeingCreated) {
                 setIsEditing(false);

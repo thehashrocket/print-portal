@@ -667,13 +667,13 @@ export function normalizeWorkOrderItem(item: WorkOrderItem & {
         workOrderId: item.workOrderId,
         shippingInfoId: item.shippingInfoId ?? null,
         ShippingInfo: item.ShippingInfo ? normalizeShippingInfo(item.ShippingInfo) : null,
-        artwork: item.artwork.map(normalizeWorkOrderItemArtwork),
+        artwork: item.artwork?.map(normalizeWorkOrderItemArtwork) ?? [],
         PaperProduct: item.PaperProduct ? normalizePaperProduct(item.PaperProduct) : null,
-        ProcessingOptions: item.ProcessingOptions.map(normalizeProcessingOptions),
+        ProcessingOptions: item.ProcessingOptions?.map(normalizeProcessingOptions) ?? [],
         ProductType: item.ProductType ? normalizeProductType(item.ProductType) : null,
-        Typesetting: item.Typesetting.map(normalizeTypesetting),
+        Typesetting: item.Typesetting?.map(normalizeTypesetting) ?? [],
         workOrderItemNumber: item.workOrderItemNumber,
-        WorkOrderItemStock: item.WorkOrderItemStock.map(normalizeWorkOrderItemStock),
+        WorkOrderItemStock: item.WorkOrderItemStock?.map(normalizeWorkOrderItemStock) ?? [],
     };
 }
 

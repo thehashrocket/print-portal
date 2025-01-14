@@ -7,9 +7,10 @@ import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
 import TypesettingComponent from "~/app/_components/shared/typesetting/typesettingComponent";
+import { EditableInfoCard } from "../../shared/editableInfoCard/EditableInfoCard";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import { normalizeTypesetting } from "~/utils/dataNormalization";
+import { normalizeShippingInfo, normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
@@ -22,6 +23,7 @@ import FileUpload from "../../shared/fileUpload";
 import { Input } from "../../ui/input";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
 import { Check, X, PencilIcon } from "lucide-react";
+import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -82,51 +84,6 @@ const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title
     <section className="mb-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
         <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
-    </section>
-);
-
-interface EditableInfoCardProps {
-    title: string;
-    content: React.ReactNode;
-    isEditing: boolean;
-    onEdit: () => void;
-    onSave: () => void;
-    onCancel: () => void;
-    editComponent: React.ReactNode;
-}
-
-const EditableInfoCard: React.FC<EditableInfoCardProps> = ({ 
-    title, 
-    content, 
-    isEditing, 
-    onEdit, 
-    onSave, 
-    onCancel, 
-    editComponent 
-}) => (
-    <section className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-            <div className="flex-grow">
-                {isEditing ? editComponent : content}
-            </div>
-            <div className="ml-4 flex gap-2">
-                {isEditing ? (
-                    <>
-                        <Button variant="ghost" size="icon" onClick={onSave}>
-                            <Check className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={onCancel}>
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </>
-                ) : (
-                    <Button variant="ghost" size="icon" onClick={onEdit}>
-                        <PencilIcon className="h-4 w-4" />
-                    </Button>
-                )}
-            </div>
-        </div>
     </section>
 );
 
@@ -210,7 +167,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         if (orderItem) {
             setTempQuantity(orderItem.quantity);
             setTempInk(orderItem.ink ?? "");
-            setTempProductTypeId(orderItem.productTypeId ?? "");
+            setTempProductTypeId(orderItem.ProductType?.id ?? "");
         }
     }, [orderItem]);
 
@@ -247,7 +204,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 setTempInk(orderItem.ink ?? "");
                 break;
             case 'productType':
-                setTempProductTypeId(orderItem.productTypeId ?? "");
+                setTempProductTypeId(orderItem.ProductType?.id ?? "");
                 break;
         }
         setEditingField(null);
@@ -389,7 +346,17 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     
                     {/* Row 2 - Company and Contact */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <div className="grid grid-cols-1 gap-4 mb-2">
                         <InfoCard title="Company" content={order.Office?.Company.name} />
+                            <ShippingInfoEditor
+                                orderItemId={orderItem.id}
+                                officeId={order.officeId}
+                                currentShippingInfo={orderItem.ShippingInfo ? orderItem.ShippingInfo : null}
+                                onUpdate={() => {
+                                    utils.orders.getByID.invalidate(orderId);
+                                }}
+                            />
+                        </div>
                         <InfoCard 
                             title="Contact Info" 
                             content={

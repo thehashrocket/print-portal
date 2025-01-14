@@ -9,7 +9,6 @@ import ProcessingOptionsComponent from "~/app/_components/shared/processingOptio
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 import { type SerializedWorkOrderItem, type SerializedTypesetting } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
-import ArtworkComponent from "../../shared/artworkComponent/artworkComponent";
 import { WorkOrderItemStatus } from "@prisma/client";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
 import { Pencil } from "lucide-react";
@@ -18,6 +17,7 @@ import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField
 import { Textarea } from "../../ui/textarea";
 import { toast } from "react-hot-toast";
 import FileUpload from "../../shared/fileUpload";
+import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -274,7 +274,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
 
                 {/* Status Section */}
-                <div className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <InfoCard
                         title="Status"
                         content={
@@ -284,6 +284,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                 workOrderId={workOrderItem.workOrderId ?? ''}
                             />
                         }
+                    />
+                    <ShippingInfoEditor
+                        workOrderItemId={workOrderItem.id}
+                        officeId={workOrder?.Office?.id ?? ''}
+                        currentShippingInfo={workOrderItem.ShippingInfo}
+                        onUpdate={() => {
+                            utils.workOrderItems.getByID.invalidate(workOrderItemId);
+                        }}
                     />
                 </div>
 

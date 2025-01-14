@@ -221,7 +221,30 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
 
-    if (order.ShippingInfo) {
+    if (orderItem.ShippingInfo) {
+        rightY += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('SHIPPING INFORMATION', rightColStart, rightY);
+        rightY += 10;
+        rightY = addField('Shipping Method', orderItem.ShippingInfo.shippingMethod || 'N/A', rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Shipping Date', formatDate(orderItem.ShippingInfo.shippingDate) || 'N/A', rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Shipping Notes', orderItem.ShippingInfo.shippingNotes || 'N/A', rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Shipping Ins.', orderItem.ShippingInfo.shippingInstructions || 'N/A', rightColStart, rightY, 7, 30, 12);
+        if (orderItem.ShippingInfo.Address) {
+            const address = [
+                orderItem.ShippingInfo.Address.name,
+                orderItem.ShippingInfo.Address.line1,
+                orderItem.ShippingInfo.Address.line2,
+                `${orderItem.ShippingInfo.Address.city}, ${orderItem.ShippingInfo.Address.state} ${orderItem.ShippingInfo.Address.zipCode}`
+            ].filter(Boolean).join('\n');  // filter(Boolean) removes empty/null values
+            rightY = addField('Address', address, rightColStart, rightY, 7, 30, 12);
+        }
+
+        if (orderItem.ShippingInfo.trackingNumber) {
+            rightY += 10;
+            rightY = addField('Tracking Number', orderItem.ShippingInfo.trackingNumber, rightColStart, rightY, 7, 30, 12);
+        }
+    } else if (order.ShippingInfo) {
         rightY += 10;
         doc.setFont('helvetica', 'bold');
         doc.text('SHIPPING INFORMATION', rightColStart, rightY);
@@ -229,7 +252,7 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         rightY = addField('Shipping Method', order.ShippingInfo.shippingMethod || 'N/A', rightColStart, rightY, 7, 30, 12);
         rightY = addField('Shipping Date', formatDate(order.ShippingInfo.shippingDate) || 'N/A', rightColStart, rightY, 7, 30, 12);
         rightY = addField('Shipping Notes', order.ShippingInfo.shippingNotes || 'N/A', rightColStart, rightY, 7, 30, 12);
-
+        rightY = addField('Shipping Ins.', order.ShippingInfo.shippingInstructions || 'N/A', rightColStart, rightY, 7, 30, 12);
         if (order.ShippingInfo.Address) {
             const address = [
                 order.ShippingInfo.Address.name,
@@ -242,9 +265,9 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
         }
 
         if (order.ShippingInfo.trackingNumber) {
+            rightY += 30;
             rightY = addField('Tracking Number', order.ShippingInfo.trackingNumber, rightColStart, rightY, 7, 30, 12);
         }
-
     }
 
     // Project Description (full width)
