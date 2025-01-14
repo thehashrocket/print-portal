@@ -114,7 +114,7 @@ const WorkOrderItemForm: React.FC = () => {
                 workOrderId: workOrder.id,
                 description: data.description,
                 artwork: artworks,
-                expectedDate: data.expectedDate ? new Date(data.expectedDate) : new Date(),
+                expectedDate: data.expectedDate ? new Date(data.expectedDate + 'T12:00:00') : new Date(),
                 ink: data.ink || '',
                 other: data.other || '',
                 size: data.size || '',

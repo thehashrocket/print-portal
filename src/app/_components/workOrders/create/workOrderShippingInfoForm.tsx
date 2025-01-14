@@ -85,7 +85,7 @@ const WorkOrderShippingInfoForm: React.FC = () => {
 
             if (data.shippingMethod === ShippingMethod.Pickup) {
                 shippingInfoData.shippingPickup = {
-                    pickupDate: data.pickupDate ? new Date(data.pickupDate) : undefined,
+                    pickupDate: data.pickupDate ? new Date(data.pickupDate + 'T12:00:00') : undefined,
                     pickupTime: data.pickupTime,
                     contactName: data.pickupContactName,
                     contactPhone: data.pickupContactPhone,

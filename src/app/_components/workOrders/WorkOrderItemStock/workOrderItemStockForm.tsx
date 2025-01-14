@@ -118,13 +118,11 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     }, [existingStock, reset]);
 
     const onSubmit = (data: WorkOrderItemStockFormData) => {
-        console.log("Form submitted with data:", data);
-        
         const formattedData = {
             ...data,
-            expectedDate: data.expectedDate ? new Date(data.expectedDate) : undefined,
-            orderedDate: data.orderedDate ? new Date(data.orderedDate) : undefined,
-            receivedDate: data.receivedDate ? new Date(data.receivedDate) : undefined,
+            expectedDate: data.expectedDate ? new Date(data.expectedDate + 'T12:00:00') : undefined,
+            orderedDate: data.orderedDate ? new Date(data.orderedDate + 'T12:00:00') : undefined,
+            receivedDate: data.receivedDate ? new Date(data.receivedDate + 'T12:00:00') : undefined,
             from: data.from || undefined,
             supplier: data.supplier || undefined,
             notes: data.notes || undefined,
@@ -136,11 +134,11 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 costPerM: data.costPerM,
                 totalCost: data.totalCost,
                 from: data.from,
-                expectedDate: data.expectedDate ? new Date(data.expectedDate) : undefined,
-                orderedDate: data.orderedDate ? new Date(data.orderedDate) : undefined,
+                expectedDate: data.expectedDate ? new Date(data.expectedDate + 'T12:00:00') : undefined,
+                orderedDate: data.orderedDate ? new Date(data.orderedDate + 'T12:00:00') : undefined,
                 paperProductId: data.paperProductId,
                 received: data.received,
-                receivedDate: data.receivedDate ? new Date(data.receivedDate) : undefined,
+                receivedDate: data.receivedDate ? new Date(data.receivedDate + 'T12:00:00') : undefined,
                 notes: data.notes,
                 stockStatus: data.stockStatus,
                 supplier: data.supplier,

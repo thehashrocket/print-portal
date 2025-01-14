@@ -101,7 +101,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
             const shippingData = {
                 ...data,
                 shippingCost: data.shippingCost ?? undefined,
-                shippingDate: data.shippingDate ? new Date(data.shippingDate) : undefined,
+                shippingDate: data.shippingDate ? new Date(data.shippingDate + 'T12:00:00') : undefined,
             };
 
             await updateShippingInfoMutation.mutateAsync({

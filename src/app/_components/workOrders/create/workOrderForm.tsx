@@ -145,8 +145,8 @@ const WorkOrderForm: React.FC = () => {
             officeId: selectedOffice,
             shippingInfoId: null,
             createdById: '',
-            dateIn: data.dateIn ? new Date(data.dateIn) : new Date(),
-            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate) : new Date(),
+            dateIn: data.dateIn ? new Date(data.dateIn + 'T12:00:00') : new Date(),
+            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate + 'T12:00:00') : new Date(),
         };
         console.log('Submitting work order:', newWorkOrder);
 

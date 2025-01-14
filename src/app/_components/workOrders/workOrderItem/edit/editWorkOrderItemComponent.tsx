@@ -69,7 +69,7 @@ const EditWorkOrderItemComponent: React.FC<EditWorkOrderItemProps> = ({ workOrde
                     amount: amount ? parseFloat(amount) : undefined,
                     cost: cost ? parseFloat(cost) : undefined,
                     description,
-                    expectedDate: expectedDate ? new Date(expectedDate) : undefined,
+                    expectedDate: expectedDate ? new Date(expectedDate + 'T12:00:00') : undefined,
                     ink: ink ?? undefined,
                     other: other ?? undefined,
                     paperProductId: paperProductId ?? undefined,
