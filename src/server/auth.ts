@@ -235,7 +235,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
         const user = await db.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email.toLowerCase() },
         });
         if (!user) {
           console.log('User not found');

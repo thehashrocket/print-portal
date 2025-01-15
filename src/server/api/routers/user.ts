@@ -39,14 +39,30 @@ export const userRouter = createTRPCRouter({
   }),
 
   // Create a new user using the email and password
+  // Downcase the email before creating the user
   create: publicProcedure.input(z.object({
     email: z.string().email(),
     password: z.string().min(8),
-  })).mutation(({ ctx, input }) => {
+  })).mutation(async ({ ctx, input }) => {
+    const downcasedEmail = input.email.toLowerCase();
+    // Search for the user by email (case insensitive)
+    const user = await ctx.db.user.findFirst({
+      where: {
+        email: {
+          mode: 'insensitive',
+          equals: input.email,
+        },
+      },
+    });
+    // If the user exists, return an error
+    if (user) {
+      throw new Error('User already exists');
+    }
+    // Hash the password
     const hashedPassword = bcrypt.hashSync(input.password, 10);
     return ctx.db.user.create({
       data: {
-        email: input.email,
+        email: downcasedEmail,
         password: hashedPassword,
       },
     });
