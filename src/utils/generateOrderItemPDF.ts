@@ -83,12 +83,12 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     doc.setFont('helvetica', 'bold');
     doc.text('DATE STARTED', rightColStart, yPos);
     doc.setFont('helvetica', 'normal');
-    doc.text(formatDate(new Date()), rightColStart + 50, yPos);
+    doc.text(formatDate(orderItem.createdAt), rightColStart + 50, yPos);
     
     doc.setFont('helvetica', 'bold');
-    doc.text('COMPLETION DATE', rightColStart, yPos + 5);
+    doc.text('IN HANDS DATE', rightColStart, yPos + 5);
     doc.setFont('helvetica', 'normal');
-    doc.text(formatDate(new Date()), rightColStart + 50, yPos + 5);
+    doc.text(formatDate(order.inHandsDate), rightColStart + 50, yPos + 5);
 
     yPos += 15; // Space after headers
 
