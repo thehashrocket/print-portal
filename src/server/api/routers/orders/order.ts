@@ -123,16 +123,10 @@ export const orderRouter = createTRPCRouter({
 
   getAll: protectedProcedure
     .input(z.object({
-      limit: z.number().min(1).max(100).nullish(),
-      cursor: z.string().nullish(),
     }).nullish())
     .query(async ({ ctx, input }) => {
-      const limit = input?.limit ?? 50;
-      const cursor = input?.cursor;
 
       const orders = await ctx.db.order.findMany({
-        take: limit + 1,
-        cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
           createdAt: 'desc',
         },
