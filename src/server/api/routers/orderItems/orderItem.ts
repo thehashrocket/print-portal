@@ -418,8 +418,7 @@ export const orderItemRouter = createTRPCRouter({
                 shippingMethod: z.nativeEnum(ShippingMethod),
                 shippingOther: z.string().optional(),
                 trackingNumber: z.string().optional(),
-                ShippingPickup: z.object({
-                    id: z.string().optional(),
+                shippingPickup: z.object({
                     pickupDate: z.date(),
                     pickupTime: z.string(),
                     contactName: z.string(),
@@ -447,9 +446,12 @@ export const orderItemRouter = createTRPCRouter({
 
             const { shippingInfo } = input;
 
-            // Create the shipping info
-            const createdShippingInfo = await ctx.db.shippingInfo.create({
-                data: {
+            // Create or update the shipping info
+            const createdShippingInfo = await ctx.db.shippingInfo.upsert({
+                where: {
+                    id: orderItem.shippingInfoId ?? '',
+                },
+                create: {
                     instructions: shippingInfo.instructions,
                     shippingOther: shippingInfo.shippingOther,
                     shippingDate: shippingInfo.shippingDate,
@@ -460,22 +462,45 @@ export const orderItemRouter = createTRPCRouter({
                     createdById: ctx.session.user.id,
                     shippingNotes: shippingInfo.shippingNotes,
                     trackingNumber: shippingInfo.trackingNumber,
+                    ShippingPickup: shippingInfo.shippingPickup ? {
+                        create: {
+                            pickupDate: shippingInfo.shippingPickup.pickupDate,
+                            pickupTime: shippingInfo.shippingPickup.pickupTime,
+                            contactName: shippingInfo.shippingPickup.contactName,
+                            contactPhone: shippingInfo.shippingPickup.contactPhone,
+                            notes: shippingInfo.shippingPickup.notes,
+                            createdById: ctx.session.user.id,
+                        }
+                    } : undefined
+                },
+                update: {
+                    instructions: shippingInfo.instructions,
+                    shippingOther: shippingInfo.shippingOther,
+                    shippingDate: shippingInfo.shippingDate,
+                    shippingMethod: shippingInfo.shippingMethod,
+                    shippingCost: shippingInfo.shippingCost,
+                    addressId: shippingInfo.addressId,
+                    shippingNotes: shippingInfo.shippingNotes,
+                    trackingNumber: shippingInfo.trackingNumber,
+                    ShippingPickup: shippingInfo.shippingPickup ? {
+                        deleteMany: {},
+                        create: {
+                            pickupDate: shippingInfo.shippingPickup.pickupDate,
+                            pickupTime: shippingInfo.shippingPickup.pickupTime,
+                            contactName: shippingInfo.shippingPickup.contactName,
+                            contactPhone: shippingInfo.shippingPickup.contactPhone,
+                            notes: shippingInfo.shippingPickup.notes,
+                            createdById: ctx.session.user.id,
+                        }
+                    } : {
+                        deleteMany: {}
+                    }
+                },
+                include: {
+                    Address: true,
+                    ShippingPickup: true,
                 }
             });
-
-            if (shippingInfo.ShippingPickup) {
-                await ctx.db.shippingPickup.create({
-                    data: {
-                        pickupDate: shippingInfo.ShippingPickup.pickupDate,
-                        pickupTime: shippingInfo.ShippingPickup.pickupTime,
-                        contactName: shippingInfo.ShippingPickup.contactName,
-                        contactPhone: shippingInfo.ShippingPickup.contactPhone,
-                        notes: shippingInfo.ShippingPickup.notes,
-                        createdById: ctx.session.user.id,
-                        shippingInfoId: createdShippingInfo.id
-                    }
-                });
-            }
 
             // Update the order item with the shipping info id
             const updatedOrderItem = await ctx.db.orderItem.update({
@@ -502,7 +527,27 @@ export const orderItemRouter = createTRPCRouter({
                         }
                     },
                     ProcessingOptions: true,
-                    OrderItemStock: true
+                    OrderItemStock: true,
+                    ShippingInfo: {
+                        include: {
+                            Address: true,
+                            ShippingPickup: true,
+                        }
+                    },
+                    Order: {
+                        include: {
+                            Office: {
+                                include: {
+                                    Company: true
+                                }
+                            },
+                            WorkOrder: {
+                                select: {
+                                    purchaseOrderNumber: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
 

@@ -75,6 +75,24 @@ export const formatDateTime = (date: Date | string): string => {
     }).format(dateObject);
 }
 
+// Time is in the 24 hour format HH:MM
+// Formatting is HH:MM AM/PM
+export const formatTime = (time: string): string => {
+    if (!time) return 'N/A';
+    // Parse the 24-hour time string (HH:MM)
+    const [hours = 0, minutes = 0] = time.split(':').map(Number);
+    
+    // Create a date object for today with the specified time
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    
+    return new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+    }).format(date);
+}
+
 export const formatNumber = (number: number): string => {
     return new Intl.NumberFormat('en-US').format(number);
 };

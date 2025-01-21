@@ -3,9 +3,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { ShippingMethod,  type Address } from '@prisma/client';
+import { ShippingMethod, type Address } from '@prisma/client';
 import { type SerializedShippingInfo } from '~/types/serializedTypes';
-import { formatCurrency, formatDate } from '~/utils/formatters';
+import { formatCurrency, formatDate, formatTime } from '~/utils/formatters';
 import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, PlusCircle } from 'lucide-react';
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
@@ -52,13 +52,13 @@ interface ShippingInfoEditorProps {
     onUpdate: () => void;
 }
 
-const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({ 
-    orderId, 
+const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
+    orderId,
     orderItemId,
     workOrderItemId,
-    currentShippingInfo, 
-    officeId, 
-    onUpdate 
+    currentShippingInfo,
+    officeId,
+    onUpdate
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
@@ -95,7 +95,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
     });
 
     const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
-    
+
     // Use the appropriate mutation based on the type of item
     const updateOrderShippingInfoMutation = api.orders.updateShippingInfo.useMutation({
         onSuccess: () => {
@@ -223,11 +223,11 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                     }
                 );
             }
-            
+
             if (!isAddressBeingCreated) {
                 setIsEditing(false);
             }
-            
+
         } catch (error) {
             console.error("Error updating shipping info:", error);
             toast.error('Failed to update shipping info');
@@ -244,7 +244,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
     const renderPickupForm = () => (
         <div className="space-y-4 border p-4 rounded-lg bg-gray-50">
             <h4 className="font-medium text-gray-900">Pickup Information</h4>
-            
+
             <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Label htmlFor="pickupDate">Pickup Date</Label>
                 <Controller
@@ -260,7 +260,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                         />
                     )}
                 />
-                {errors.shippingPickup?.pickupDate && 
+                {errors.shippingPickup?.pickupDate &&
                     <p className="text-red-500">Pickup date is required</p>
                 }
             </div>
@@ -280,7 +280,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                         />
                     )}
                 />
-                {errors.shippingPickup?.pickupTime && 
+                {errors.shippingPickup?.pickupTime &&
                     <p className="text-red-500">Pickup time is required</p>
                 }
             </div>
@@ -299,7 +299,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                         />
                     )}
                 />
-                {errors.shippingPickup?.contactName && 
+                {errors.shippingPickup?.contactName &&
                     <p className="text-red-500">Contact name is required</p>
                 }
             </div>
@@ -318,7 +318,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                         />
                     )}
                 />
-                {errors.shippingPickup?.contactPhone && 
+                {errors.shippingPickup?.contactPhone &&
                     <p className="text-red-500">Contact phone is required</p>
                 }
             </div>
@@ -380,13 +380,43 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                                <div>
-                                    <div className="text-sm text-gray-500">Date</div>
-                                    <div className="font-medium">{currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</div>
-                                </div>
-                            </div>
+                            {currentShippingInfo.ShippingPickup && (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                        <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Pickup Date</div>
+                                            <div className="font-medium">{currentShippingInfo.ShippingPickup.pickupDate ? formatDate(currentShippingInfo.ShippingPickup.pickupDate) : 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div className='flex items-center gap-3'>
+                                        <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Pickup Time</div>
+                                            <div className="font-medium">{currentShippingInfo.ShippingPickup.pickupTime ? formatTime(currentShippingInfo.ShippingPickup.pickupTime) : 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {!currentShippingInfo.ShippingPickup && (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                        <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Shipping Date</div>
+                                            <div className="font-medium">{currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Tracking Number</div>
+                                            <div className="font-medium">{currentShippingInfo.trackingNumber}</div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
                             <div className="flex items-center gap-3">
                                 <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
@@ -412,13 +442,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                                <div>
-                                    <div className="text-sm text-gray-500">Tracking Number</div>
-                                    <div className="font-medium">{currentShippingInfo.trackingNumber}</div>
-                                </div>
-                            </div>
+
                         </div>
 
                         <Button
@@ -445,8 +469,8 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold mb-2">Edit Shipping Information</h3>
-            <form 
-                onSubmit={handleSubmit(handleShippingInfoSubmit)} 
+            <form
+                onSubmit={handleSubmit(handleShippingInfoSubmit)}
                 className="space-y-4"
             >
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
@@ -525,22 +549,26 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                     {errors.shippingCost && <p className="text-red-500">{errors.shippingCost.message}</p>}
                 </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="trackingNumber">Tracking Number</Label>
-                    <Input {...register('trackingNumber')} className="input input-bordered w-full" />
-                    {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
-                </div>
+                {shippingMethod !== ShippingMethod.Pickup && (
+                    <>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="trackingNumber">Tracking Number</Label>
+                            <Input {...register('trackingNumber')} className="input input-bordered w-full" />
+                            {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
+                        </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="shippingDate">Shipping Date</Label>
-                    <Input
-                        id="shippingDate"
-                        type="date"
-                        {...register('shippingDate')}
-                        className="input input-bordered w-full"
-                    />
-                    {errors.shippingDate && <p className="text-red-500">{errors.shippingDate.message}</p>}
-                </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                            <Label htmlFor="shippingDate">Shipping Date</Label>
+                            <Input
+                                id="shippingDate"
+                                type="date"
+                                {...register('shippingDate')}
+                                className="input input-bordered w-full"
+                            />
+                            {errors.shippingDate && <p className="text-red-500">{errors.shippingDate.message}</p>}
+                        </div>
+                    </>
+                )}
 
                 <div className="flex justify-end gap-2">
                     <Button

@@ -378,11 +378,10 @@ export const orderRouter = createTRPCRouter({
         shippingCost: z.number().optional(),
         shippingDate: z.date().optional(),
         shippingNotes: z.string().optional(),
-        shippingMethod: z.string(),
+        shippingMethod: z.nativeEnum(ShippingMethod),
         shippingOther: z.string().optional(),
         trackingNumber: z.string().optional(),
-        ShippingPickup: z.object({
-          id: z.string().optional(),
+        shippingPickup: z.object({
           pickupDate: z.date(),
           pickupTime: z.string(),
           contactName: z.string(),
@@ -415,17 +414,23 @@ export const orderRouter = createTRPCRouter({
             ShippingInfo: {
               upsert: {
                 create: {
-                  ...shippingInfo,
-                  createdById: ctx.session.user.id,
-                  officeId: order.officeId,
+                  instructions: shippingInfo.instructions,
+                  shippingOther: shippingInfo.shippingOther,
+                  shippingDate: shippingInfo.shippingDate,
                   shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-                  ShippingPickup: shippingInfo.ShippingPickup ? {
+                  shippingCost: shippingInfo.shippingCost,
+                  officeId: order.officeId,
+                  addressId: shippingInfo.addressId,
+                  createdById: ctx.session.user.id,
+                  shippingNotes: shippingInfo.shippingNotes,
+                  trackingNumber: shippingInfo.trackingNumber,
+                  ShippingPickup: shippingInfo.shippingPickup ? {
                     create: {
-                      pickupDate: shippingInfo.ShippingPickup.pickupDate,
-                      pickupTime: shippingInfo.ShippingPickup.pickupTime,
-                      contactName: shippingInfo.ShippingPickup.contactName,
-                      contactPhone: shippingInfo.ShippingPickup.contactPhone,
-                      notes: shippingInfo.ShippingPickup.notes,
+                      pickupDate: shippingInfo.shippingPickup.pickupDate,
+                      pickupTime: shippingInfo.shippingPickup.pickupTime,
+                      contactName: shippingInfo.shippingPickup.contactName,
+                      contactPhone: shippingInfo.shippingPickup.contactPhone,
+                      notes: shippingInfo.shippingPickup.notes,
                       createdById: ctx.session.user.id,
                     }
                   } : undefined
@@ -439,16 +444,19 @@ export const orderRouter = createTRPCRouter({
                   trackingNumber: shippingInfo.trackingNumber,
                   shippingOther: shippingInfo.shippingOther,
                   instructions: shippingInfo.instructions,
-                  ShippingPickup: shippingInfo.ShippingPickup ? {
+                  ShippingPickup: shippingInfo.shippingPickup ? {
+                    deleteMany: {},
                     create: {
-                      pickupDate: shippingInfo.ShippingPickup.pickupDate,
-                      pickupTime: shippingInfo.ShippingPickup.pickupTime,
-                      contactName: shippingInfo.ShippingPickup.contactName,
-                      contactPhone: shippingInfo.ShippingPickup.contactPhone,
-                      notes: shippingInfo.ShippingPickup.notes,
+                      pickupDate: shippingInfo.shippingPickup.pickupDate,
+                      pickupTime: shippingInfo.shippingPickup.pickupTime,
+                      contactName: shippingInfo.shippingPickup.contactName,
+                      contactPhone: shippingInfo.shippingPickup.contactPhone,
+                      notes: shippingInfo.shippingPickup.notes,
                       createdById: ctx.session.user.id,
                     }
-                  } : undefined
+                  } : {
+                    deleteMany: {}
+                  }
                 },
               },
             },

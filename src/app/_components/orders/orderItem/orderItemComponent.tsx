@@ -255,6 +255,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         console.log('paperProducts', orderPaperProducts);
     }
 
+    const shippingInfo = orderItem.ShippingInfo ? orderItem.ShippingInfo : order.ShippingInfo;
+
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -264,7 +266,10 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <PrintButton
                     onClick={async () => {
                         try {
-                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts);
+                            if (!shippingInfo) {
+                                throw new Error('Shipping info is required to generate PDF');
+                            }
+                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts, shippingInfo);
                         } catch (error) {
                             console.error('Error generating PDF:', error);
                             toast.error('Error generating PDF');

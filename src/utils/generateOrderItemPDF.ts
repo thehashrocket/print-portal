@@ -1,5 +1,7 @@
+import { ShippingInfo, ShippingMethod } from '@prisma/client';
 import { jsPDF } from 'jspdf';
-import { formatDate } from '~/utils/formatters';
+import { SerializedShippingInfo } from '~/types/serializedTypes';
+import { formatDate, formatTime } from '~/utils/formatters';
 
 const loadSVG = async (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -45,8 +47,16 @@ const checkAndAddPage = (doc: jsPDF, yPos: number, requiredSpace: number = 40): 
 
 
 
-export const generateOrderItemPDF = async (orderItem: any, order: any, typesetting: any, orderItemStocks: any, paperProducts: any) => {
+export const generateOrderItemPDF = async (
+    orderItem: any, 
+    order: any, 
+    typesetting: any, 
+    orderItemStocks: any, 
+    paperProducts: any,
+    shippingInfo: SerializedShippingInfo
+) => {
     const doc = new jsPDF();
+    console.log(shippingInfo);
 
     // Initial setup
     doc.setFont('helvetica', 'bold');
@@ -221,53 +231,13 @@ export const generateOrderItemPDF = async (orderItem: any, order: any, typesetti
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
 
-    if (orderItem.ShippingInfo) {
-        rightY += 10;
-        doc.setFont('helvetica', 'bold');
-        doc.text('SHIPPING INFORMATION', rightColStart, rightY);
-        rightY += 10;
-        rightY = addField('Shipping Method', orderItem.ShippingInfo.shippingMethod || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Date', formatDate(orderItem.ShippingInfo.shippingDate) || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Notes', orderItem.ShippingInfo.shippingNotes || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Ins.', orderItem.ShippingInfo.shippingInstructions || 'N/A', rightColStart, rightY, 7, 30, 12);
-        if (orderItem.ShippingInfo.Address) {
-            const address = [
-                orderItem.ShippingInfo.Address.name,
-                orderItem.ShippingInfo.Address.line1,
-                orderItem.ShippingInfo.Address.line2,
-                `${orderItem.ShippingInfo.Address.city}, ${orderItem.ShippingInfo.Address.state} ${orderItem.ShippingInfo.Address.zipCode}`
-            ].filter(Boolean).join('\n');  // filter(Boolean) removes empty/null values
-            rightY = addField('Address', address, rightColStart, rightY, 7, 30, 12);
-        }
-
-        if (orderItem.ShippingInfo.trackingNumber) {
-            rightY += 10;
-            rightY = addField('Tracking Number', orderItem.ShippingInfo.trackingNumber, rightColStart, rightY, 7, 30, 12);
-        }
-    } else if (order.ShippingInfo) {
-        rightY += 10;
-        doc.setFont('helvetica', 'bold');
-        doc.text('SHIPPING INFORMATION', rightColStart, rightY);
-        rightY += 10;
-        rightY = addField('Shipping Method', order.ShippingInfo.shippingMethod || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Date', formatDate(order.ShippingInfo.shippingDate) || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Notes', order.ShippingInfo.shippingNotes || 'N/A', rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Shipping Ins.', order.ShippingInfo.shippingInstructions || 'N/A', rightColStart, rightY, 7, 30, 12);
-        if (order.ShippingInfo.Address) {
-            const address = [
-                order.ShippingInfo.Address.name,
-                order.ShippingInfo.Address.line1,
-                order.ShippingInfo.Address.line2,
-                `${order.ShippingInfo.Address.city}, ${order.ShippingInfo.Address.state} ${order.ShippingInfo.Address.zipCode}`
-            ].filter(Boolean).join('\n');  // filter(Boolean) removes empty/null values
-
-            rightY = addField('Address', address, rightColStart, rightY, 7, 30, 12);
-        }
-
-        if (order.ShippingInfo.trackingNumber) {
-            rightY += 30;
-            rightY = addField('Tracking Number', order.ShippingInfo.trackingNumber, rightColStart, rightY, 7, 30, 12);
-        }
+    if (shippingInfo.shippingMethod === ShippingMethod.Pickup && shippingInfo.ShippingPickup) {
+        const pickupDate = shippingInfo.ShippingPickup.pickupDate ? formatDate(new Date(shippingInfo.ShippingPickup.pickupDate as string)) : 'N/A';
+        const pickupTime = shippingInfo.ShippingPickup.pickupTime || 'N/A';
+        rightY = addField('Pickup Date', formatDate(new Date(shippingInfo.ShippingPickup.pickupDate as string)), rightColStart, rightY, 7, 30, 12);
+        rightY = addField('Pickup Time', formatTime(shippingInfo.ShippingPickup.pickupTime), rightColStart, rightY, 7, 30, 12);
+    } else {
+        rightY = addField('Shipping Date', shippingInfo.shippingDate ? formatDate(new Date(shippingInfo.shippingDate as string)) : 'N/A', rightColStart, rightY, 7, 30, 12);
     }
 
     // Project Description (full width)
