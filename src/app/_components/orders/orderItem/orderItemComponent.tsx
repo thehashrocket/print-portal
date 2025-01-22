@@ -508,6 +508,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
                 {/* Additional Sections */}
                 <div className="space-y-6 md:space-y-8">
+                    {/* Typesetting Section */}
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Typesetting</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -521,6 +522,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         </div>
                     </section>
 
+                    {/* Bindery Options Section */}
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Bindery Options</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -529,7 +531,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             </ProcessingOptionsProvider>
                         </div>
                     </section>
-
+                    {/* Paper Stock Section */}
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">

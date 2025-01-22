@@ -6,20 +6,22 @@ import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { type SerializedOrderItemStock } from "~/types/serializedTypes";
 import { normalizeOrderItemStock } from "~/utils/dataNormalization";
 import { StockStatus, PaperBrand, PaperType, PaperFinish } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 const orderItemStockSchema = z.object({
-    costPerM: z.number(),
-    expectedDate: z.date().optional(),
+    stockQty: z.number().int().positive(),
+    costPerM: z.number().positive(),
+    totalCost: z.number().optional(),
     from: z.string().optional(),
-    notes: z.string().optional(),
+    expectedDate: z.date().optional(),
     orderedDate: z.date().optional(),
     received: z.boolean(),
     receivedDate: z.date().optional(),
-    stockQty: z.number(),
+    notes: z.string().optional(),
     stockStatus: z.nativeEnum(StockStatus),
     supplier: z.string().optional(),
-    totalCost: z.number().optional(),
     orderItemId: z.string(),
+    paperProductId: z.string().optional(),
     PaperProduct: z.object({
         id: z.string(),
         brand: z.nativeEnum(PaperBrand),
@@ -53,20 +55,22 @@ export const orderItemStockRouter = createTRPCRouter({
     create: protectedProcedure
         .input(orderItemStockSchema)
         .mutation(async ({ ctx, input }) => {
-            const { PaperProduct, orderItemId, ...rest } = input;
-            const stock = await ctx.db.orderItemStock.create({
-                data: {
-                    ...rest,
-                    createdBy: {
-                        connect: { id: ctx.session.user.id }
-                    },
-                    OrderItem: {
-                        connect: { id: orderItemId }
-                    },
-                    PaperProduct: PaperProduct ? {
-                        connect: { id: PaperProduct.id }
-                    } : undefined,
+            const { paperProductId, orderItemId, ...rest } = input;
+            const createData: Prisma.OrderItemStockCreateInput = {
+                ...rest,
+                createdBy: {
+                    connect: { id: ctx.session.user.id }
                 },
+                OrderItem: {
+                    connect: { id: orderItemId }
+                },
+                PaperProduct: paperProductId ? {
+                    connect: { id: paperProductId }
+                } : undefined
+            };
+
+            const stock = await ctx.db.orderItemStock.create({
+                data: createData,
                 include: { PaperProduct: true }
             });
             return normalizeOrderItemStock(stock);
@@ -77,14 +81,19 @@ export const orderItemStockRouter = createTRPCRouter({
             data: orderItemStockSchema.omit({ orderItemId: true }),
         }))
         .mutation(async ({ ctx, input }) => {
+            const { paperProductId, ...rest } = input.data;
+            const updateData: Prisma.OrderItemStockUpdateInput = {
+                ...rest,
+                PaperProduct: paperProductId ? {
+                    connect: { id: paperProductId }
+                } : {
+                    disconnect: true
+                }
+            };
+
             const stock = await ctx.db.orderItemStock.update({
                 where: { id: input.id },
-                data: {
-                    ...input.data,
-                    PaperProduct: input.data.PaperProduct ? {
-                        connect: { id: input.data.PaperProduct.id }
-                    } : undefined
-                },
+                data: updateData,
                 include: { PaperProduct: true }
             });
             return normalizeOrderItemStock(stock);
