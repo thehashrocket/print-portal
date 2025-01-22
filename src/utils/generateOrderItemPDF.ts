@@ -1,6 +1,6 @@
 import { ShippingInfo, ShippingMethod } from '@prisma/client';
 import { jsPDF } from 'jspdf';
-import { SerializedShippingInfo } from '~/types/serializedTypes';
+import { SerializedProcessingOptions, SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatDate, formatTime } from '~/utils/formatters';
 
 const loadSVG = async (url: string): Promise<HTMLImageElement> => {
@@ -53,10 +53,11 @@ export const generateOrderItemPDF = async (
     typesetting: any, 
     orderItemStocks: any, 
     paperProducts: any,
-    shippingInfo: SerializedShippingInfo
+    shippingInfo: SerializedShippingInfo,
+    processingOptions: SerializedProcessingOptions[]
 ) => {
     const doc = new jsPDF();
-    console.log(shippingInfo);
+    console.log('processingOptions',processingOptions);
 
     // Initial setup
     doc.setFont('helvetica', 'bold');
@@ -406,48 +407,117 @@ export const generateOrderItemPDF = async (
     yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
     
     // Bindery Options section
-    if (orderItem.ProcessingOptions?.length > 0) {
-
+    if (processingOptions?.length > 0) {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.text('BINDERY OPTIONS', leftMargin, yPos);
-        doc.setFontSize(9);
+        yPos += 10;
+        doc.setFontSize(12);
 
-        const options = orderItem.ProcessingOptions[0];
-        let leftY = yPos + 8;
-        let rightY = yPos + 8;
-        
-        const binderyWidth = pageWidth/2 - 30; // Match typesetting width
-        const keys = Object.keys(options).filter(key => {
-            const skipKeys = ["createdAt", "updatedAt", "createdById", "orderItemId", "id"];
-            return !skipKeys.includes(key) && options[key]; // Only include keys with values
-        });
+        // Define field groups
+        const basicOptions = [
+            { key: 'cutting', label: 'Cutting' },
+            { key: 'padding', label: 'Padding' },
+            { key: 'drilling', label: 'Drilling' },
+            { key: 'folding', label: 'Folding' },
+        ];
 
-        // Split keys into two arrays for left and right columns
-        const midPoint = Math.ceil(keys.length / 2);
-        const leftKeys = keys.slice(0, midPoint);
-        const rightKeys = keys.slice(midPoint);
+        const additionalOptions = [
+            { key: 'stitching', label: 'Stitching' },
+            { key: 'binding', label: 'Binding' },
+        ];
 
-        // Process left column
-        for (const key of leftKeys) {
-            leftY = checkAndAddPage(doc, leftY, 10);
-            const formattedKey = key.replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase());
-            leftY = addDetailsField(formattedKey, options[key], leftMargin, leftY, binderyWidth);
+        const numberingOptions = [
+            { key: 'numberingStart', label: 'Numbering Start' },
+            { key: 'numberingEnd', label: 'Numbering End' },
+            { key: 'numberingColor', label: 'Numbering Color' },
+            { key: 'binderyTime', label: 'Bindery Time' },
+        ];
+
+        const otherFields = [
+            { key: 'other', label: 'Other' },
+            { key: 'description', label: 'Description' },
+        ];
+
+        // Process each set of options
+        for (let i = 0; i < processingOptions.length; i++) {
+            const options = processingOptions[i] as SerializedProcessingOptions;
+            
+            // Add a separator and option number if there are multiple sets
+            if (i > 0) {
+                yPos += 10;
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Option Set ${i + 1}`, leftMargin, yPos);
+                yPos += 10;
+            }
+
+            let leftY = yPos;
+            let rightY = yPos;
+
+            // Process basic options (left column)
+            for (const field of basicOptions) {
+                const value = options[field.key as keyof SerializedProcessingOptions];
+                if (value) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(field.label, leftMargin, leftY);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(String(value), leftMargin + 60, leftY);
+                    leftY += 7;
+                }
+            }
+
+            // Add spacing before additional options
+            leftY += 3;
+
+            // Process additional options (left column)
+            for (const field of additionalOptions) {
+                const value = options[field.key as keyof SerializedProcessingOptions];
+                if (value) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(field.label, leftMargin, leftY);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(String(value), leftMargin + 60, leftY);
+                    leftY += 7;
+                }
+            }
+
+            // Process numbering options (right column)
+            for (const field of numberingOptions) {
+                const value = options[field.key as keyof SerializedProcessingOptions];
+                if (value) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(field.label, rightColStart, rightY);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(String(value), rightColStart + 60, rightY);
+                    rightY += 7;
+                }
+            }
+
+            // Update yPos to the maximum height of both columns
+            yPos = Math.max(leftY, rightY);
+
+            // Process other fields at the bottom
+            for (const field of otherFields) {
+                const value = options[field.key as keyof SerializedProcessingOptions];
+                if (value) {
+                    yPos += 7;
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(field.label, leftMargin, yPos);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(String(value), leftMargin + 60, yPos);
+                }
+            }
+
+            // Add spacing after this set of options
+            yPos += 10;
+
+            // Check if we need a new page before the next set
+            if (i < processingOptions.length - 1) {
+                yPos = checkAndAddPage(doc, yPos, 40);
+            }
         }
-
-        // Process right column
-        for (const key of rightKeys) {
-            rightY = checkAndAddPage(doc, rightY, 10);
-            const formattedKey = key.replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase());
-            rightY = addDetailsField(formattedKey, options[key], rightColStart, rightY, binderyWidth);
-        }
-
-        // Update yPos to the maximum height of both columns
-        yPos = Math.max(leftY, rightY) + 10;
     }
-
+    yPos = checkAndAddPage(doc, yPos, 40); // Check if we need a new page
     // Add page numbers with proper alignment
     const pageCount = doc.internal.pages.length - 1; // Subtract 1 because jsPDF uses 1-based indexing
     for (let i = 1; i <= pageCount; i++) {

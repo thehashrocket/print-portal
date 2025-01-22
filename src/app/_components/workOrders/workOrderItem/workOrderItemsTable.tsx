@@ -72,7 +72,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const columnDefs = useMemo<ColDef[]>(() => [
         { 
             headerName: "Item #", 
-            field: "itemNumber", 
+            field: "workOrderItemNumber", 
             minWidth: 120,
             flex: 1
         },

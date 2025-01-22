@@ -83,7 +83,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
     const desktopColumnDefs = useMemo<ColDef[]>(() => [
         { 
             headerName: "Item #", 
-            field: "itemNumber", 
+            field: "orderItemNumber", 
             minWidth: 120,
             flex: 1
         },

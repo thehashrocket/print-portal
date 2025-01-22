@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { OrderItemStatus } from "@prisma/client";
+import { OrderItemStatus, type ProcessingOptions } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
@@ -10,7 +10,7 @@ import TypesettingComponent from "~/app/_components/shared/typesetting/typesetti
 import { EditableInfoCard } from "../../shared/editableInfoCard/EditableInfoCard";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import { normalizeShippingInfo, normalizeTypesetting } from "~/utils/dataNormalization";
+import { normalizeProcessingOptions, normalizeShippingInfo, normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
@@ -24,6 +24,7 @@ import { Input } from "../../ui/input";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
 import { Check, X, PencilIcon } from "lucide-react";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
+import { type SerializedProcessingOptions } from "~/types/serializedTypes";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -94,6 +95,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: order, error: orderError, isLoading: orderLoading } = api.orders.getByID.useQuery(orderId);
     const { data: orderItem, error: itemError, isLoading: itemLoading } = api.orderItems.getByID.useQuery(orderItemId);
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
+    const { data: processingOptions } = api.processingOptions.getByOrderItemId.useQuery(orderItemId);
     const { data: orderItemStocks } = api.orderItemStocks.getByOrderItemId.useQuery(orderItemId);
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
@@ -247,6 +249,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
     const normalizedOrderItemStocks = orderItemStocks ?? [];
+    const normalizedProcessingOptions = processingOptions ? processingOptions.map(normalizeProcessingOptions) : [];
+
     let orderPaperProducts: any[] = [];
     if (orderItemStocks) {
         console.log('orderItemStocks', orderItemStocks);
@@ -269,7 +273,28 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             if (!shippingInfo) {
                                 throw new Error('Shipping info is required to generate PDF');
                             }
-                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts, shippingInfo);
+                            const defaultProcessingOptions = {
+                                id: '',
+                                cutting: null,
+                                padding: null,
+                                drilling: null,
+                                folding: null,
+                                other: null,
+                                numberingStart: null,
+                                numberingEnd: null,
+                                numberingColor: null,
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString(),
+                                orderItemId: null,
+                                workOrderItemId: null,
+                                createdById: '',
+                                description: '',
+                                stitching: null,
+                                binderyTime: null,
+                                binding: null,
+                            } as const;
+                            const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
+                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts, shippingInfo, processingOptions);
                         } catch (error) {
                             console.error('Error generating PDF:', error);
                             toast.error('Error generating PDF');
