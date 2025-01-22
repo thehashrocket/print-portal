@@ -12,17 +12,11 @@ interface DashboardTabsClientProps {
 }
 
 export default function DashboardTabsClient({ orderItems, orders }: DashboardTabsClientProps) {
-    const [activeTab, setActiveTab] = useState("orderItems");
+    const [activeTab, setActiveTab] = useState("orders");
 
     return (
         <div className="flex flex-col">
             <div role="tablist" className="tabs tabs-bordered tabs-lifted tabs-lg">
-                <a
-                    className={`tab ${activeTab === "orderItems" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
-                    onClick={() => setActiveTab("orderItems")}
-                >
-                    Items
-                </a>
                 <a
                     className={`tab ${activeTab === "orders" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
                     onClick={() => setActiveTab("orders")}
@@ -31,9 +25,6 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
                 </a>
             </div>
             <div className="flex-grow">
-                {activeTab === "orderItems" && (
-                    <DraggableOrderItemsDash initialOrderItems={orderItems} />
-                )}
                 {activeTab === "orders" && (
                     <DraggableOrdersDash initialOrders={orders} />
                 )}
