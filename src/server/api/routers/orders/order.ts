@@ -380,7 +380,7 @@ export const orderRouter = createTRPCRouter({
         shippingNotes: z.string().optional(),
         shippingMethod: z.nativeEnum(ShippingMethod),
         shippingOther: z.string().optional(),
-        trackingNumber: z.string().optional(),
+        trackingNumber: z.array(z.string()).optional(),
         shippingPickup: z.object({
           pickupDate: z.date(),
           pickupTime: z.string(),
@@ -423,7 +423,7 @@ export const orderRouter = createTRPCRouter({
                   addressId: shippingInfo.addressId,
                   createdById: ctx.session.user.id,
                   shippingNotes: shippingInfo.shippingNotes,
-                  trackingNumber: shippingInfo.trackingNumber,
+                  trackingNumber: shippingInfo.trackingNumber || [],
                   ShippingPickup: shippingInfo.shippingPickup ? {
                     create: {
                       pickupDate: shippingInfo.shippingPickup.pickupDate,
@@ -441,7 +441,7 @@ export const orderRouter = createTRPCRouter({
                   shippingDate: shippingInfo.shippingDate,
                   shippingNotes: shippingInfo.shippingNotes,
                   shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
-                  trackingNumber: shippingInfo.trackingNumber,
+                  trackingNumber: shippingInfo.trackingNumber || [],
                   shippingOther: shippingInfo.shippingOther,
                   instructions: shippingInfo.instructions,
                   ShippingPickup: shippingInfo.shippingPickup ? {
@@ -542,7 +542,7 @@ export const orderRouter = createTRPCRouter({
       sendEmail: z.boolean(),
       emailOverride: z.string(),
       shippingDetails: z.object({
-        trackingNumber: z.string().optional(),
+        trackingNumber: z.array(z.string()).optional(),
         shippingMethod: z.nativeEnum(ShippingMethod).optional(),
       }).optional(),
     }))
@@ -661,7 +661,7 @@ export const orderRouter = createTRPCRouter({
         const emailHtml = `
             <h1>Order Status Update</h1>
             <p>Your order #${updatedOrder.orderNumber} status has been updated to: ${input.status}</p>
-            ${trackingNumber ? `<p>Tracking Number: ${trackingNumber}</p>` : ''}
+            ${trackingNumber ? `<p>Tracking Number: ${trackingNumber.join(', ')}</p>` : ''}
             ${shippingMethod ? `<p>Shipping Method: ${shippingMethod}</p>` : ''}
             <p>If you have any questions, please contact us.</p>
         `;
@@ -671,7 +671,7 @@ export const orderRouter = createTRPCRouter({
           html: emailHtml,
           orderNumber: updatedOrder.orderNumber.toString(),
           status: input.status,
-          trackingNumber: trackingNumber || null,
+          trackingNumber: trackingNumber ? trackingNumber.join(', ') : null,
           shippingMethod: shippingMethod || null,
         };
 

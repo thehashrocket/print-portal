@@ -52,7 +52,7 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
         sendEmail: boolean,
         emailOverride: string,
         shippingDetails?: {
-            trackingNumber?: string;
+            trackingNumber?: string[];
             shippingMethod?: ShippingMethod;
         }
     ) => {

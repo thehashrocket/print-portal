@@ -13,11 +13,11 @@ export interface StatusBadgeProps<T extends string> {
     currentStatus: T;
     orderId: string;
     onStatusChange: (
-        newStatus: T, 
-        sendEmail: boolean, 
+        status: T,
+        sendEmail: boolean,
         emailOverride: string,
         shippingDetails?: {
-            trackingNumber?: string;
+            trackingNumber?: string[];
             shippingMethod?: ShippingMethod;
         }
     ) => void;
@@ -112,8 +112,8 @@ export function StatusBadge<T extends string>({
                     onClick={() => {
                         setIsSaving(true);
                         const shippingDetails = isShippingStatus ? {
-                            trackingNumber,
-                            shippingMethod
+                            trackingNumber: trackingNumber ? [trackingNumber] : undefined,
+                            shippingMethod: shippingMethod as ShippingMethod
                         } : undefined;
                         
                         onStatusChange(statusToSave, sendEmail, emailOverride, shippingDetails);

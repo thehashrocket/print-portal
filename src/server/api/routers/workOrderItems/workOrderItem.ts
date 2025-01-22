@@ -387,7 +387,7 @@ export const workOrderItemRouter = createTRPCRouter({
                 shippingNotes: z.string().optional(),
                 shippingMethod: z.nativeEnum(ShippingMethod),
                 shippingOther: z.string().optional(),
-                trackingNumber: z.string().optional(),
+                trackingNumber: z.array(z.string()).optional(),
                 ShippingPickup: z.object({
                     id: z.string().optional(),
                     pickupDate: z.date(),
@@ -429,7 +429,7 @@ export const workOrderItemRouter = createTRPCRouter({
                     addressId: shippingInfo.addressId,
                     createdById: ctx.session.user.id,
                     shippingNotes: shippingInfo.shippingNotes,
-                    trackingNumber: shippingInfo.trackingNumber,
+                    trackingNumber: shippingInfo.trackingNumber || [],
                 }
             });
 

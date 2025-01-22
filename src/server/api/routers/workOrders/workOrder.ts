@@ -455,7 +455,7 @@ export const workOrderRouter = createTRPCRouter({
         shippingNotes: z.string().optional(),
         shippingMethod: z.string(),
         shippingOther: z.string().optional(),
-        trackingNumber: z.string().optional(),
+        trackingNumber: z.array(z.string()).optional(),
         ShippingPickup: z.object({
           id: z.string().optional(),
           pickupDate: z.date(),
@@ -484,10 +484,16 @@ export const workOrderRouter = createTRPCRouter({
           ShippingInfo: {
             upsert: {
               create: {
-                ...shippingInfo,
+                addressId: shippingInfo.addressId,
+                instructions: shippingInfo.instructions,
+                shippingCost: shippingInfo.shippingCost,
+                shippingDate: shippingInfo.shippingDate,
+                shippingNotes: shippingInfo.shippingNotes,
+                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                shippingOther: shippingInfo.shippingOther,
                 createdById: ctx.session.user.id,
                 officeId: workOrder.officeId,
-                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                trackingNumber: shippingInfo.trackingNumber || [],
                 ShippingPickup: shippingInfo.ShippingPickup ? {
                   create: {
                     ...shippingInfo.ShippingPickup,
@@ -496,8 +502,14 @@ export const workOrderRouter = createTRPCRouter({
                 } : undefined
               },
               update: {
-                ...shippingInfo,
+                addressId: shippingInfo.addressId,
+                instructions: shippingInfo.instructions,
+                shippingCost: shippingInfo.shippingCost,
+                shippingDate: shippingInfo.shippingDate,
+                shippingNotes: shippingInfo.shippingNotes,
                 shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                shippingOther: shippingInfo.shippingOther,
+                trackingNumber: shippingInfo.trackingNumber || [],
                 ShippingPickup: shippingInfo.ShippingPickup ? {
                   create: {
                     ...shippingInfo.ShippingPickup,

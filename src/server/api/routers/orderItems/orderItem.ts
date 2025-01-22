@@ -417,7 +417,7 @@ export const orderItemRouter = createTRPCRouter({
                 shippingNotes: z.string().optional(),
                 shippingMethod: z.nativeEnum(ShippingMethod),
                 shippingOther: z.string().optional(),
-                trackingNumber: z.string().optional(),
+                trackingNumber: z.array(z.string()).optional(),
                 shippingPickup: z.object({
                     pickupDate: z.date(),
                     pickupTime: z.string(),
@@ -461,7 +461,7 @@ export const orderItemRouter = createTRPCRouter({
                     addressId: shippingInfo.addressId,
                     createdById: ctx.session.user.id,
                     shippingNotes: shippingInfo.shippingNotes,
-                    trackingNumber: shippingInfo.trackingNumber,
+                    trackingNumber: shippingInfo.trackingNumber || [],
                     ShippingPickup: shippingInfo.shippingPickup ? {
                         create: {
                             pickupDate: shippingInfo.shippingPickup.pickupDate,
@@ -481,7 +481,7 @@ export const orderItemRouter = createTRPCRouter({
                     shippingCost: shippingInfo.shippingCost,
                     addressId: shippingInfo.addressId,
                     shippingNotes: shippingInfo.shippingNotes,
-                    trackingNumber: shippingInfo.trackingNumber,
+                    trackingNumber: shippingInfo.trackingNumber || [],
                     ShippingPickup: shippingInfo.shippingPickup ? {
                         deleteMany: {},
                         create: {

@@ -300,7 +300,7 @@ export interface SerializedShippingInfo {
     shipToSameAsBillTo: boolean;
     estimatedDelivery: string | null;
     numberOfPackages: number | null;
-    trackingNumber: string | null;
+    trackingNumber: string[] | null;
     attentionTo: string | null;
     addressId: string | null;
     createdAt: string;

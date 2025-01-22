@@ -6,7 +6,7 @@ import { api } from '~/trpc/react';
 import { ShippingMethod, type Address } from '@prisma/client';
 import { type SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
-import { FilePenLine, Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, PlusCircle } from 'lucide-react';
+import { FilePenLine, Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, PlusCircle, X } from 'lucide-react';
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
@@ -31,7 +31,7 @@ const shippingInfoSchema = z.object({
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
-    trackingNumber: z.string().optional(),
+    trackingNumber: z.array(z.string()).default([]),
 });
 
 type ShippingInfoFormData = z.infer<typeof shippingInfoSchema>;
@@ -81,7 +81,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
             shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
-            trackingNumber: currentShippingInfo?.trackingNumber ?? undefined,
+            trackingNumber: currentShippingInfo?.trackingNumber ?? [],
         },
     });
 
@@ -279,8 +279,16 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             <div className="flex items-center gap-3">
                                 <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <div>
-                                    <div className="text-sm text-gray-500">Tracking Number</div>
-                                    <div className="font-medium">{currentShippingInfo.trackingNumber || 'N/A'}</div>
+                                    <div className="text-sm text-gray-500">Tracking Numbers</div>
+                                    <div className="font-medium">
+                                        {currentShippingInfo.trackingNumber && currentShippingInfo.trackingNumber.length > 0 ? (
+                                            currentShippingInfo.trackingNumber.map((number, index) => (
+                                                <div key={index}>{number}</div>
+                                            ))
+                                        ) : (
+                                            'No tracking numbers'
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -378,9 +386,42 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                 </div>
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                    <Label htmlFor="trackingNumber">Tracking Number</Label>
-                    <Input {...register('trackingNumber')} className="input input-bordered w-full" />
-                    {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
+                    <Label htmlFor="trackingNumber">Tracking Numbers</Label>
+                    <div className="space-y-2">
+                        {watch('trackingNumber')?.map((_, index) => (
+                            <div key={index} className="flex gap-2">
+                                <Input
+                                    {...register(`trackingNumber.${index}`)}
+                                    placeholder="Enter tracking number"
+                                    className="input input-bordered w-full"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const current = watch('trackingNumber') || [];
+                                        setValue('trackingNumber', current.filter((_, i) => i !== index));
+                                    }}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                const current = watch('trackingNumber') || [];
+                                setValue('trackingNumber', [...current, '']);
+                            }}
+                            className="w-full"
+                        >
+                            <PlusCircle className="h-4 w-4 mr-2" />
+                            Add Tracking Number
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

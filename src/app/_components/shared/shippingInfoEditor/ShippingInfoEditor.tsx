@@ -6,7 +6,7 @@ import { api } from '~/trpc/react';
 import { ShippingMethod, type Address } from '@prisma/client';
 import { type SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatCurrency, formatDate, formatTime } from '~/utils/formatters';
-import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, PlusCircle } from 'lucide-react';
+import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, PlusCircle, X } from 'lucide-react';
 import { Button } from "../../ui/button";
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
@@ -30,7 +30,7 @@ const shippingInfoSchema = z.object({
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
-    trackingNumber: z.string().optional(),
+    trackingNumbers: z.array(z.string()).default([]),
 }).refine((data) => {
     if (data.shippingMethod === ShippingMethod.Pickup) {
         return !!data.shippingPickup;
@@ -77,7 +77,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
             shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
-            trackingNumber: currentShippingInfo?.trackingNumber ?? undefined,
+            trackingNumbers: currentShippingInfo?.trackingNumber || [],
             shippingPickup: currentShippingInfo?.ShippingPickup ? {
                 contactName: currentShippingInfo.ShippingPickup.contactName,
                 contactPhone: currentShippingInfo.ShippingPickup.contactPhone,
@@ -340,6 +340,18 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
         </div>
     );
 
+    // Add function to handle adding new tracking number fields
+    const addTrackingNumber = () => {
+        const currentTrackingNumbers = watch('trackingNumbers') || [];
+        setValue('trackingNumbers', [...currentTrackingNumbers, '']);
+    };
+
+    // Add function to handle removing tracking number fields
+    const removeTrackingNumber = (index: number) => {
+        const currentTrackingNumbers = watch('trackingNumbers') || [];
+        setValue('trackingNumbers', currentTrackingNumbers.filter((_, i) => i !== index));
+    };
+
     if (!isEditing) {
         return (
             <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
@@ -417,8 +429,15 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                                     <div className="flex items-center gap-3">
                                         <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                         <div>
-                                            <div className="text-sm text-gray-500">Tracking Number</div>
-                                            <div className="font-medium">{currentShippingInfo.trackingNumber}</div>
+                                            <div className="text-sm text-gray-500">Tracking Numbers</div>
+                                            <div className="font-medium">
+                                                {currentShippingInfo.trackingNumber && currentShippingInfo.trackingNumber.length > 0 
+                                                    ? currentShippingInfo.trackingNumber.map((number: string, index: number) => (
+                                                        <div key={index}>{number}</div>
+                                                    ))
+                                                    : 'N/A'
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </>
@@ -552,9 +571,36 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                 {shippingMethod !== ShippingMethod.Pickup && (
                     <>
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                            <Label htmlFor="trackingNumber">Tracking Number</Label>
-                            <Input {...register('trackingNumber')} className="input input-bordered w-full" />
-                            {errors.trackingNumber && <p className="text-red-500">{errors.trackingNumber.message}</p>}
+                            <Label>Tracking Numbers</Label>
+                            <div className="space-y-2">
+                                {watch('trackingNumbers')?.map((_, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <Input
+                                            {...register(`trackingNumbers.${index}`)}
+                                            placeholder="Enter tracking number"
+                                            className="input input-bordered w-full"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => removeTrackingNumber(index)}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={addTrackingNumber}
+                                    className="w-full"
+                                >
+                                    <PlusCircle className="h-4 w-4 mr-2" />
+                                    Add Tracking Number
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
