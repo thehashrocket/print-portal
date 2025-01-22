@@ -10,12 +10,10 @@ The Quickbooks/qb Customer router provides the following endpoints:
 |----------|------|-------------|
 | `createCustomer` | mutation | Updates create customer |
 | `updateCustomer` | mutation | Updates update customer |
-| `getCustomer` | query | Retrieves get customer |
 | `syncOffice` | mutation | Updates sync office |
 | `syncCompany` | mutation | Updates sync company |
 | `createCustomer` | mutation | Updates create customer |
 | `updateCustomer` | mutation | Updates update customer |
-| `getCustomer` | query | Retrieves get customer |
 | `syncOffice` | mutation | Updates sync office |
 | `syncCompany` | mutation | Updates sync company |
 
@@ -245,56 +243,6 @@ const mutation = api.updateCustomer.useMutation({
     utils.updateCustomer.invalidate();
   },
 });
-```
-
-### `getCustomer`
-
-**Type:** `query`
-
-Retrieves get customer
-
-**Input:**
-```typescript
-z.object({
-
-})
-```
-
-**Returns:**
-```typescript
-unknown
-```
-
-**Usage Examples:**
-
-
-#### Client Component
-```typescript
-"use client";
-import { api } from "~/trpc/react";
-
-function MyComponent() {
-  const { data, isLoading } = api.getCustomer.useQuery(z.object({
-
-}));
-
-  if (isLoading) return <div>Loading...</div>;
-  
-  return <div>{/* Use your data here */}</div>;
-}
-```
-
-#### Server Component
-```typescript
-import { api } from "~/trpc/server";
-
-async function MyServerComponent() {
-  const data = await api.getCustomer.query(z.object({
-
-}));
-  
-  return <div>{/* Use your data here */}</div>;
-}
 ```
 
 ### `syncOffice`
@@ -703,56 +651,6 @@ const mutation = api.updateCustomer.useMutation({
     utils.updateCustomer.invalidate();
   },
 });
-```
-
-### `getCustomer`
-
-**Type:** `query`
-
-Retrieves get customer
-
-**Input:**
-```typescript
-z.object({
-
-})
-```
-
-**Returns:**
-```typescript
-unknown
-```
-
-**Usage Examples:**
-
-
-#### Client Component
-```typescript
-"use client";
-import { api } from "~/trpc/react";
-
-function MyComponent() {
-  const { data, isLoading } = api.getCustomer.useQuery(z.object({
-
-}));
-
-  if (isLoading) return <div>Loading...</div>;
-  
-  return <div>{/* Use your data here */}</div>;
-}
-```
-
-#### Server Component
-```typescript
-import { api } from "~/trpc/server";
-
-async function MyServerComponent() {
-  const data = await api.getCustomer.query(z.object({
-
-}));
-  
-  return <div>{/* Use your data here */}</div>;
-}
 ```
 
 ### `syncOffice`

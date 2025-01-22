@@ -205,7 +205,8 @@ z.object({
   name: z.string(),
   email: z.string(),
   roleIds: z.array(),
-  officeIds: z.array()
+  officeIds: z.array(),
+  password: unknown
 })
 ```
 
@@ -246,7 +247,8 @@ function MyComponent() {
   name: z.string(),
   email: z.string(),
   roleIds: z.array(),
-  officeIds: z.array()
+  officeIds: z.array(),
+  password: unknown
 })) => {
     setIsLoading(true);
     mutation.mutate(data);
@@ -662,7 +664,8 @@ z.object({
   name: z.string(),
   email: z.string(),
   roleIds: z.array(),
-  officeIds: z.array()
+  officeIds: z.array(),
+  password: unknown
 })
 ```
 
@@ -703,7 +706,8 @@ function MyComponent() {
   name: z.string(),
   email: z.string(),
   roleIds: z.array(),
-  officeIds: z.array()
+  officeIds: z.array(),
+  password: unknown
 })) => {
     setIsLoading(true);
     mutation.mutate(data);

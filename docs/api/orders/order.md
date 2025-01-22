@@ -317,10 +317,10 @@ z.object({
   shippingCost: unknown,
   shippingDate: unknown,
   shippingNotes: unknown,
-  shippingMethod: z.string(),
+  shippingMethod: z.nativeEnum(),
   shippingOther: unknown,
   trackingNumber: unknown,
-  ShippingPickup: unknown
+  shippingPickup: unknown
 }
 })
 ```
@@ -365,10 +365,10 @@ function MyComponent() {
   shippingCost: unknown,
   shippingDate: unknown,
   shippingNotes: unknown,
-  shippingMethod: z.string(),
+  shippingMethod: z.nativeEnum(),
   shippingOther: unknown,
   trackingNumber: unknown,
-  ShippingPickup: unknown
+  shippingPickup: unknown
 }
 })) => {
     setIsLoading(true);
@@ -938,10 +938,10 @@ z.object({
   shippingCost: unknown,
   shippingDate: unknown,
   shippingNotes: unknown,
-  shippingMethod: z.string(),
+  shippingMethod: z.nativeEnum(),
   shippingOther: unknown,
   trackingNumber: unknown,
-  ShippingPickup: unknown
+  shippingPickup: unknown
 }
 })
 ```
@@ -986,10 +986,10 @@ function MyComponent() {
   shippingCost: unknown,
   shippingDate: unknown,
   shippingNotes: unknown,
-  shippingMethod: z.string(),
+  shippingMethod: z.nativeEnum(),
   shippingOther: unknown,
   trackingNumber: unknown,
-  ShippingPickup: unknown
+  shippingPickup: unknown
 }
 })) => {
     setIsLoading(true);
