@@ -7,12 +7,13 @@ BEGIN
     ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[];
     
     -- Step 2: Set default empty array for all rows
-    RAISE NOTICE 'Starting Step 2: Updating values';
-    UPDATE "ShippingInfo" SET "trackingNumber_new" = '{}';
+    RAISE NOTICE 'Starting Step 2: Setting default empty arrays';
+    UPDATE "ShippingInfo" SET "trackingNumber_new" = ARRAY[]::TEXT[];
     
     -- Step 3: Update existing tracking numbers
+    RAISE NOTICE 'Starting Step 3: Updating existing tracking numbers';
     UPDATE "ShippingInfo" 
-    SET "trackingNumber_new" = '{' || quote_literal("trackingNumber") || '}'
+    SET "trackingNumber_new" = ARRAY["trackingNumber"]::TEXT[]
     WHERE "trackingNumber" IS NOT NULL 
     AND "trackingNumber" != '';
     
