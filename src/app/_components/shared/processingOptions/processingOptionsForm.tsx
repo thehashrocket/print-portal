@@ -21,8 +21,8 @@ const processingOptionsSchema = z.object({
     drilling: z.string().optional(),
     folding: z.string().optional(),
     numberingColor: z.string().optional(),
-    numberingEnd: z.number().optional(),
-    numberingStart: z.number().optional(),
+    numberingEnd: z.number().optional().default(0),
+    numberingStart: z.number().optional().default(0),
     other: z.string().optional(),
     padding: z.string().optional(),
     stitching: z.string().optional(),
@@ -153,7 +153,9 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 <Label htmlFor="numberingEnd">Numbering End</Label>
                 <Input
                     type="number"
-                    {...register("numberingEnd", { valueAsNumber: true })}
+                    {...register("numberingEnd", {
+                        setValueAs: (v) => v === "" ? undefined : parseInt(v, 10)
+                    })}
                     className={inputClass}
                     placeholder="Numbering End"
                 />
@@ -163,7 +165,9 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 <Label htmlFor="numberingStart">Numbering Start</Label>
                 <Input
                     type="number"
-                    {...register("numberingStart", { valueAsNumber: true })}
+                    {...register("numberingStart", {
+                        setValueAs: (v) => v === "" ? undefined : parseInt(v, 10)
+                    })}
                     className={inputClass}
                     placeholder="Numbering Start"
                 />

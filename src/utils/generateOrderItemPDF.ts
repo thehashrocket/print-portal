@@ -57,7 +57,6 @@ export const generateOrderItemPDF = async (
     processingOptions: SerializedProcessingOptions[]
 ) => {
     const doc = new jsPDF();
-    console.log('processingOptions',processingOptions);
 
     // Initial setup
     doc.setFont('helvetica', 'bold');

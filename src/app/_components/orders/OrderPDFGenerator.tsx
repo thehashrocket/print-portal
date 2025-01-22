@@ -5,9 +5,7 @@ import { generateEmailOrderPDF } from "~/utils/generateOrderPDF";
 
 export async function generateOrderPDFData(order: SerializedOrder): Promise<string> {
     try {
-        console.log('Starting PDF generation for order:', order.orderNumber);
         const pdfContent = await generateEmailOrderPDF(order);
-        console.log('PDF generation successful, content length:', pdfContent?.length);
         
         if (!pdfContent) {
             throw new Error('PDF generation returned empty content');

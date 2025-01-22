@@ -146,7 +146,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
-            console.log('Form validation errors:', errors);
         }
     }, [errors]);
 

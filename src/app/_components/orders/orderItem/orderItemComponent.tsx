@@ -253,10 +253,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
     let orderPaperProducts: any[] = [];
     if (orderItemStocks) {
-        console.log('orderItemStocks', orderItemStocks);
         // Build a list of paper products
         orderPaperProducts = orderItemStocks.map(stock => findPaperProduct(stock.paperProductId || ''));
-        console.log('paperProducts', orderPaperProducts);
     }
 
     const shippingInfo = orderItem.ShippingInfo ? orderItem.ShippingInfo : order.ShippingInfo;

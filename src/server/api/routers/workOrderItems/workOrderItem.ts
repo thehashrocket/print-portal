@@ -311,7 +311,6 @@ export const workOrderItemRouter = createTRPCRouter({
             specialInstructions: z.string(),
         }))
         .mutation(async ({ ctx, input }): Promise<SerializedWorkOrderItem> => {
-            console.log('input', input);
             const updatedItem = await ctx.db.workOrderItem.update({
                 where: { id: input.id },
                 data: { specialInstructions: input.specialInstructions },
@@ -333,8 +332,6 @@ export const workOrderItemRouter = createTRPCRouter({
                     WorkOrderItemStock: true,
                 },
             });
-            console.log('input', input);
-            console.log('updatedItem', updatedItem);
             return normalizeWorkOrderItem(updatedItem);
         }),
 

@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 
 export async function sendAdminNotification(message: string) {
-    console.log("Sending admin notification", message);
     const transporter = nodemailer.createTransport({
         host: process.env.SENDGRID_SMTP_HOST,
         port: parseInt(process.env.SENDGRID_SMTP_PORT ?? "465"),
@@ -26,7 +25,6 @@ export async function sendAdminNotification(message: string) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('Message sent: %s', info.messageId);
         return info;
     } catch (error) {
         console.error('Error sending email:', error);
