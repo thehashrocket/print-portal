@@ -1,18 +1,20 @@
--- This is an empty migration.
+-- Migration to convert trackingNumber from string to string array
+BEGIN;
 
--- Step 1: Add the new array column
-ALTER TABLE "ShippingInfo" ADD COLUMN "tracking_numbers" TEXT[] DEFAULT '{}'::TEXT[];
+-- Step 1: Create a new column with the array type
+ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[];
 
--- Step 2: Copy existing data to the new column
-UPDATE "ShippingInfo"
-SET "tracking_numbers" = 
-    CASE 
-        WHEN "trackingNumber" IS NULL OR "trackingNumber" = '' THEN '{}'::TEXT[]
-        ELSE ARRAY[NULLIF("trackingNumber", '')]::TEXT[]
-    END;
+-- Step 2: Initialize all rows with an empty array
+UPDATE "ShippingInfo" SET "trackingNumber_new" = '{}';
 
--- Step 3: Drop the old column
+-- Step 3: Update non-null values
+UPDATE "ShippingInfo" 
+SET "trackingNumber_new" = ARRAY[trim("trackingNumber")]
+WHERE "trackingNumber" IS NOT NULL 
+AND trim("trackingNumber") != '';
+
+-- Step 4: Drop the old column and rename the new one
 ALTER TABLE "ShippingInfo" DROP COLUMN "trackingNumber";
+ALTER TABLE "ShippingInfo" RENAME COLUMN "trackingNumber_new" TO "trackingNumber";
 
--- Step 4: Rename the new column to the original name
-ALTER TABLE "ShippingInfo" RENAME COLUMN "tracking_numbers" TO "trackingNumber";
+COMMIT;
