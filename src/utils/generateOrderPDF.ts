@@ -138,6 +138,10 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
         leftY = addField('Shipping Method', order.ShippingInfo?.shippingMethod, leftMargin, leftY, 10, 35);
     }
 
+    if (order.ShippingInfo?.trackingNumber) {
+        leftY = addField('Tracking Number', order.ShippingInfo?.trackingNumber.join(', '), leftMargin, leftY, 10, 35);
+    }
+
     
 
     yPos = leftY;

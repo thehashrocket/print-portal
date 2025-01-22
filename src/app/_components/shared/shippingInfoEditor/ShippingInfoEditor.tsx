@@ -30,7 +30,7 @@ const shippingInfoSchema = z.object({
     shippingNotes: z.string().optional(),
     shippingOther: z.string().optional(),
     shipToSameAsBillTo: z.boolean().optional(),
-    trackingNumbers: z.array(z.string()).default([]),
+    trackingNumber: z.array(z.string()).optional(),
 }).refine((data) => {
     if (data.shippingMethod === ShippingMethod.Pickup) {
         return !!data.shippingPickup;
@@ -77,7 +77,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
             shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
-            trackingNumbers: currentShippingInfo?.trackingNumber || [],
+            trackingNumber: currentShippingInfo?.trackingNumber || [],
             shippingPickup: currentShippingInfo?.ShippingPickup ? {
                 contactName: currentShippingInfo.ShippingPickup.contactName,
                 contactPhone: currentShippingInfo.ShippingPickup.contactPhone,
@@ -342,14 +342,14 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
 
     // Add function to handle adding new tracking number fields
     const addTrackingNumber = () => {
-        const currentTrackingNumbers = watch('trackingNumbers') || [];
-        setValue('trackingNumbers', [...currentTrackingNumbers, '']);
+        const currentTrackingNumbers = watch('trackingNumber') || [];
+        setValue('trackingNumber', [...currentTrackingNumbers, '']);
     };
 
     // Add function to handle removing tracking number fields
     const removeTrackingNumber = (index: number) => {
-        const currentTrackingNumbers = watch('trackingNumbers') || [];
-        setValue('trackingNumbers', currentTrackingNumbers.filter((_, i) => i !== index));
+        const currentTrackingNumbers = watch('trackingNumber') || [];
+        setValue('trackingNumber', currentTrackingNumbers.filter((_, i) => i !== index));
     };
 
     if (!isEditing) {
@@ -573,10 +573,10 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                         <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                             <Label>Tracking Numbers</Label>
                             <div className="space-y-2">
-                                {watch('trackingNumbers')?.map((_, index) => (
+                                {watch('trackingNumber')?.map((_, index) => (
                                     <div key={index} className="flex gap-2">
                                         <Input
-                                            {...register(`trackingNumbers.${index}`)}
+                                            {...register(`trackingNumber.${index}`)}
                                             placeholder="Enter tracking number"
                                             className="input input-bordered w-full"
                                         />
