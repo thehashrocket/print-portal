@@ -113,7 +113,8 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
         leftY = addField('PO Number', order.WorkOrder?.purchaseOrderNumber, leftMargin, leftY, 10, 35);
     }
     
-    leftY = addField('Date', formatDate(order.updatedAt), leftMargin, leftY, 10, 35);
+    leftY = addField('Date', order.updatedAt ? formatDate(order.updatedAt) : 'N/A', leftMargin, leftY, 10, 35);
+    leftY = addField('In Hands Date', order.inHandsDate ? formatDate(order.inHandsDate) : 'N/A', leftMargin, leftY, 10, 35);
     leftY = addField('Ship To', order.Office.Company.name, leftMargin, leftY, 10, 35);
 
     doc.setFont('helvetica', 'normal')
