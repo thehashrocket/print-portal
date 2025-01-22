@@ -1,7 +1,0 @@
-# This is a manually created migration
-
-migration_name = "20240115235959_update_tracking_number_to_array"
-description = "Updates the trackingNumber field in ShippingInfo to be an array"
-
-[migration]
-provider = "postgresql" 

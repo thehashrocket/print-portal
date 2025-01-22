@@ -6,7 +6,7 @@ import { api } from '~/trpc/react';
 import OrderItemStockForm from './orderItemStockForm';
 import { formatDate } from "~/utils/formatters";
 import { Button } from '../../ui/button';
-import { PencilIcon, Plus } from 'lucide-react';
+import { PencilIcon, Plus, Trash2 } from 'lucide-react';
 import { AgGridReact } from '@ag-grid-community/react';
 import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
 import '@ag-grid-community/styles/ag-grid.css';
@@ -37,6 +37,8 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
 
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
 
+    const { mutate: deleteStock } = api.orderItemStocks.delete.useMutation();
+
     // Effect to manage form visibility
     useEffect(() => {
         if (selectedStockId || isAddMode) {
@@ -59,6 +61,13 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
         refetch();
         toast.success('Stock item added successfully');
     };
+
+    const handleDelete = useCallback((id: string) => {
+        console.log('Delete clicked for stock:', id);
+        deleteStock(id);
+        toast.success('Stock item deleted successfully');
+        refetch();
+    }, [deleteStock, refetch]);
 
     const handleEdit = useCallback((id: string) => {
         console.log('Edit clicked for stock:', id);
@@ -118,8 +127,11 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
             cellRenderer: ({ data }: ICellRendererParams<SerializedOrderItemStock>) => {
                 if (!data) return null;
                 return (
+                    <div className="flex items-center">
                     <Button
                         variant="default"
+                        className="mr-2"
+                        size="xs"
                         onClick={(e) => {
                             e.stopPropagation();
                             handleEdit(data.id);
@@ -128,6 +140,18 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                         <PencilIcon className="w-4 h-4 mr-1" />
                         Edit
                     </Button>
+                    <Button
+                        variant="destructive"
+                        size="xs"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(data.id);
+                        }}
+                    >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                        </Button>
+                    </div>
                 );
             }
         }
