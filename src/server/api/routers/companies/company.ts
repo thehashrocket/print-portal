@@ -11,7 +11,10 @@ export const companyRouter = createTRPCRouter({
         .input(z.string())
         .query(async ({ ctx, input }) => {
             const company = await ctx.db.company.findUnique({
-                where: { id: input },
+                where: { 
+                    id: input,
+                    deleted: false 
+                },
                 include: {
                     Offices: {
                         include: {
@@ -183,7 +186,11 @@ export const companyRouter = createTRPCRouter({
     // Return Companies
     getAll: protectedProcedure
         .query(({ ctx }) => {
-            return ctx.db.company.findMany();
+            return ctx.db.company.findMany({
+                where: {
+                    deleted: false
+                }
+            });
         }),
     // Create a Company
     create: protectedProcedure
@@ -232,9 +239,13 @@ export const companyRouter = createTRPCRouter({
     // Delete a Company
     delete: protectedProcedure
         .input(z.string()).mutation(({ ctx, input }) => {
-            return ctx.db.company.delete({
+            return ctx.db.company.update({
                 where: {
                     id: input,
+                },
+                data: {
+                    deleted: true,
+                    isActive: false,
                 },
             });
         }),

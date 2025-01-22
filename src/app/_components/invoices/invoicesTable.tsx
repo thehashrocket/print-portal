@@ -13,6 +13,7 @@ import {
     ModuleRegistry,
     type GridApi,
     type FilterChangedEvent,
+    ValueGetterParams,
 } from "@ag-grid-community/core";
 import Link from "next/link";
 import { type InvoiceStatus } from "@prisma/client";
@@ -108,25 +109,85 @@ const InvoicesTable: React.FC = () => {
     );
 
     const columnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Invoice #", field: "invoiceNumber", width: 150 },
-        { headerName: "Date Issued", field: "dateIssued", valueFormatter: formatDateInTable, width: 120 },
-        { headerName: "Due Date", field: "dateDue", valueFormatter: formatDateInTable, width: 120 },
-        { headerName: "Total", field: "total", valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Status", field: "status", cellRenderer: statusCellRenderer, width: 120 },
-        {
-            headerName: "QB Status",
-            field: "quickbooksId",
-            cellRenderer: quickbooksStatusRenderer,
-            width: 120
+        { 
+            headerName: "Invoice #", 
+            field: "invoiceNumber", 
+            minWidth: 120,
+            flex: 1
         },
-        { headerName: "Actions", cellRenderer: actionCellRenderer, width: 200, sortable: false, filter: false },
+        { 
+            headerName: "Company", 
+            valueGetter: (params: ValueGetterParams) => params.data?.Office?.Company?.name, 
+            minWidth: 200,
+            flex: 2
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            cellRenderer: statusCellRenderer, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Due Date", 
+            field: "dueDate", 
+            valueFormatter: formatDateInTable, 
+            minWidth: 150,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "total", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "QB", 
+            field: "quickbooksId", 
+            minWidth: 90,
+            flex: 1,
+            cellRenderer: quickbooksStatusRenderer
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionCellRenderer, 
+            minWidth: 200,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Invoice #", field: "invoiceNumber", width: 100 },
-        { headerName: "Status", field: "status", cellRenderer: statusCellRenderer, width: 100 },
-        { headerName: "Total", field: "total", valueFormatter: formatNumberAsCurrencyInTable, width: 100 },
-        { headerName: "Actions", cellRenderer: actionCellRenderer, width: 160, sortable: false, filter: false },
+        { 
+            headerName: "Invoice #", 
+            field: "invoiceNumber", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            cellRenderer: statusCellRenderer, 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "total", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionCellRenderer, 
+            minWidth: 160,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     useEffect(() => {

@@ -16,7 +16,7 @@ import Link from "next/link";
 import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
-import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
+import { Eye, RefreshCcw, RefreshCwOff, Trash } from "lucide-react";
 import "~/styles/ag-grid-custom.css";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -40,7 +40,6 @@ interface CompaniesTableProps {
 
 const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) => {
     const gridRef = useRef<AgGridReact>(null);
-    const [rowData, setRowData] = useState<SerializedCompany[]>(initialCompanies);
     const [loading, setLoading] = useState(true);
 
     const defaultColDef = {
@@ -51,7 +50,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         flex: 1,
     };
 
-    const { data: updatedCompanies, refetch } = api.companies.companyDashboard.useQuery(
+    const { data: companies, refetch } = api.companies.companyDashboard.useQuery(
         undefined,
         {
             initialData: initialCompanies.map(company => ({
@@ -60,42 +59,55 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
                 syncToken: company.syncToken || '',
                 deleted: false
             })),
-            enabled: false,
+            enabled: true,
         }
     );
+
+    const deleteCompanyMutation = api.companies.delete.useMutation({
+        onSuccess: async () => {
+            await refetch();
+        },
+    });
+
+    const handleDeleteCompany = async (companyId: string) => {
+        if (window.confirm('Are you sure you want to delete this company?')) {
+            await deleteCompanyMutation.mutateAsync(companyId);
+        }
+    };
 
     const handleSyncSuccess = useCallback(() => {
         void refetch();
     }, [refetch]);
 
     useEffect(() => {
-        if (updatedCompanies) {
-            const completeCompanies = updatedCompanies.map(company => ({
-                ...company,
-                workOrderTotalPending: typeof company.workOrderTotalPending === 'number' ? company.workOrderTotalPending : 0,
-                orderTotalPending: typeof company.orderTotalPending === 'number' ? company.orderTotalPending : 0,
-                orderTotalCompleted: typeof company.orderTotalCompleted === 'number' ? company.orderTotalCompleted : 0,
-            }));
-            setRowData(completeCompanies);
-            if (gridRef.current) {
+        if (companies) {
+            if (gridRef.current?.api && !gridRef.current.api.isDestroyed()) {
                 gridRef.current.api.sizeColumnsToFit();
             }
+            setLoading(false);
         }
-    }, [updatedCompanies]);
+    }, [companies]);
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
         <div className="flex gap-1">
             <Link href={`/companies/${props.data.id}`}>
                 <Button
                     variant="default"
-                    size="sm"
+                    size="xs"
                     className="h-8 px-2 sm:px-3"
                 >
                     <Eye className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-2">View</span>
                 </Button>
             </Link>
             <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess} />
+            <Button
+                variant="destructive"
+                size="xs"
+                className="h-8 px-2 sm:px-3"
+                onClick={() => void handleDeleteCompany(props.data.id)}
+            >
+                <Trash className="w-4 h-4" />
+            </Button>
         </div>
     );
 
@@ -161,7 +173,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             ),
         },
         {
-            headerName: "",
+            headerName: "Actions",
             cellRenderer: actionsCellRenderer,
             sortable: false,
             filter: false,
@@ -173,30 +185,26 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
     const onGridReady = (params: GridReadyEvent) => {
         const gridApi = params.api;
         const updateGridSize = () => {
-            setTimeout(() => {
-                gridApi.sizeColumnsToFit();
-            }, 100);
+            if (gridApi && !gridApi.isDestroyed()) {
+                setTimeout(() => {
+                    gridApi.sizeColumnsToFit();
+                }, 100);
+            }
         };
 
-        // Initial sizing
-        updateGridSize();
+        // Initial sizing - only if grid is ready
+        if (gridApi) {
+            updateGridSize();
+        }
 
         // Add resize listener
         window.addEventListener('resize', updateGridSize);
 
-        // Cleanup
+        // Return cleanup function
         return () => {
             window.removeEventListener('resize', updateGridSize);
         };
     };
-
-    useEffect(() => {
-        setRowData(initialCompanies);
-        setLoading(false);
-        if (gridRef.current) {
-            gridRef.current.api.sizeColumnsToFit();
-        }
-    }, [initialCompanies]);
 
     if (loading) {
         return (
@@ -213,7 +221,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
                     ref={gridRef}
                     columnDefs={columnDefs}
                     defaultColDef={defaultColDef}
-                    rowData={rowData}
+                    rowData={companies}
                     onGridReady={onGridReady}
                     animateRows={true}
                     pagination={true}

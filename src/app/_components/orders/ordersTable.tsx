@@ -79,12 +79,46 @@ const OrdersTable: React.FC = () => {
   };
 
   const columnDefs = useMemo<ColDef[]>(() => [
-    { headerName: "Order #", field: "orderNumber", width: 120 },
-    { headerName: "Company", valueGetter: getCompanyName, width: 200 },
-    { headerName: "Status", field: "status", width: 120 },
-    { headerName: "In Hands Date", field: "inHandsDate", valueFormatter: formatDateInTable, width: 150 },
-    { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-    { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false, width: 200 },
+    { 
+      headerName: "Order #", 
+      field: "orderNumber", 
+      minWidth: 120,
+      flex: 1
+    },
+    { 
+      headerName: "Company", 
+      valueGetter: getCompanyName, 
+      minWidth: 200,
+      flex: 2
+    },
+    { 
+      headerName: "Status", 
+      field: "status", 
+      minWidth: 120,
+      flex: 1
+    },
+    { 
+      headerName: "In Hands Date", 
+      field: "inHandsDate", 
+      valueFormatter: formatDateInTable, 
+      minWidth: 150,
+      flex: 1
+    },
+    { 
+      headerName: "Total", 
+      field: "totalAmount", 
+      valueFormatter: formatNumberAsCurrencyInTable, 
+      minWidth: 120,
+      flex: 1
+    },
+    { 
+      headerName: "Actions", 
+      cellRenderer: actionsCellRenderer, 
+      sortable: false, 
+      filter: false, 
+      minWidth: 200,
+      flex: 1
+    },
   ], []);
 
   // Cleanup function
@@ -105,12 +139,27 @@ const OrdersTable: React.FC = () => {
 
   const onGridReady = (params: GridReadyEvent) => {
     if (!mounted.current) return;
-    setGridApi(params.api);
-    try {
-      params.api.sizeColumnsToFit();
-    } catch (error) {
-      console.warn('Failed to size columns on grid ready:', error);
-    }
+    const gridApi = params.api;
+    setGridApi(gridApi);
+
+    const updateGridSize = () => {
+      if (gridApi && !gridApi.isDestroyed()) {
+        setTimeout(() => {
+          gridApi.sizeColumnsToFit();
+        }, 100);
+      }
+    };
+
+    // Initial sizing
+    updateGridSize();
+
+    // Add resize listener
+    window.addEventListener('resize', updateGridSize);
+
+    // Return cleanup function
+    return () => {
+      window.removeEventListener('resize', updateGridSize);
+    };
   };
 
   const onFilterChanged = (event: FilterChangedEvent) => {

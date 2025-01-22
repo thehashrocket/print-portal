@@ -103,13 +103,43 @@ const WorkOrdersTable: React.FC = () => {
         { 
             headerName: "Company", 
             valueGetter: getCompanyName,
-            width: 200
+            minWidth: 200,
+            flex: 2
         },
-        { headerName: "Estimate #", field: "workOrderNumber", width: 150 },
-        { headerName: "Date In", field: "dateIn", valueFormatter: formatDateInTable, width: 120 },
-        { headerName: "Status", field: "status", width: 120 },
-        { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 200, sortable: false, filter: false },
+        { 
+            headerName: "Estimate #", 
+            field: "workOrderNumber", 
+            minWidth: 150,
+            flex: 1
+        },
+        { 
+            headerName: "Date In", 
+            field: "dateIn", 
+            valueFormatter: formatDateInTable, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "totalAmount", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsCellRenderer, 
+            minWidth: 200,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        },
     ], []);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
@@ -119,10 +149,33 @@ const WorkOrdersTable: React.FC = () => {
             flex: 2,
             minWidth: 160
         },
-        { headerName: "Est #", field: "workOrderNumber", width: 100 },
-        { headerName: "Status", field: "status", width: 100 },
-        { headerName: "Total", field: "totalAmount", valueFormatter: formatNumberAsCurrencyInTable, width: 100 },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, width: 160, sortable: false, filter: false },
+        { 
+            headerName: "Est #", 
+            field: "workOrderNumber", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "totalAmount", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsCellRenderer, 
+            minWidth: 160,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        },
     ], []);
 
     useEffect(() => {
@@ -133,12 +186,27 @@ const WorkOrdersTable: React.FC = () => {
 
     const onGridReady = (params: GridReadyEvent) => {
         if (!mounted.current) return;
-        setGridApi(params.api);
-        try {
-            params.api.sizeColumnsToFit();
-        } catch (error) {
-            console.warn('Failed to size columns on grid ready:', error);
-        }
+        const gridApi = params.api;
+        setGridApi(gridApi);
+
+        const updateGridSize = () => {
+            if (gridApi && !gridApi.isDestroyed()) {
+                setTimeout(() => {
+                    gridApi.sizeColumnsToFit();
+                }, 100);
+            }
+        };
+
+        // Initial sizing
+        updateGridSize();
+
+        // Add resize listener
+        window.addEventListener('resize', updateGridSize);
+
+        // Return cleanup function
+        return () => {
+            window.removeEventListener('resize', updateGridSize);
+        };
     };
 
     const onFilterChanged = (event: FilterChangedEvent) => {

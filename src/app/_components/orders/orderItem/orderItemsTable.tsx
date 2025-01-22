@@ -80,53 +80,83 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({ orderItems }) => {
         }
     };
 
-    const mobileColumnDefs = useMemo<ColDef[]>(() => [
+    const desktopColumnDefs = useMemo<ColDef[]>(() => [
         { 
             headerName: "Item #", 
-            field: "orderItemNumber", 
-            width: 70,
-            maxWidth: 70
+            field: "itemNumber", 
+            minWidth: 120,
+            flex: 1
         },
         { 
             headerName: "Description", 
             field: "description", 
-            flex: 2,
-            minWidth: 160,
-            tooltipField: "description"
+            minWidth: 200,
+            flex: 2
         },
         { 
             headerName: "Status", 
             field: "status", 
-            flex: 1,
-            minWidth: 100,
-            maxWidth: 120
-        },
-        { 
-            headerName: "Amount", 
-            field: "amount", 
-            valueFormatter: formatNumberAsCurrencyInTable,
-            flex: 1,
             minWidth: 120,
-            maxWidth: 140
+            flex: 1
         },
         { 
-            headerName: "", 
+            headerName: "Quantity", 
+            field: "quantity", 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Cost", 
+            field: "cost", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "amount", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
             cellRenderer: actionsRenderer, 
-            width: 140,
-            maxWidth: 160,
+            minWidth: 120,
+            flex: 1,
             sortable: false, 
-            filter: false
+            filter: false 
         }
     ], []);
 
-    const desktopColumnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Item #", field: "orderItemNumber", width: 120 },
-        { headerName: "Quantity", field: "quantity", width: 120 },
-        { headerName: "Description", field: "description", filter: true },
-        { headerName: "Status", field: "status", filter: true, width: 150 },
-        { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrencyInTable, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
+    const mobileColumnDefs = useMemo<ColDef[]>(() => [
+        { 
+            headerName: "Item #", 
+            field: "itemNumber", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "amount", 
+            valueFormatter: formatNumberAsCurrencyInTable, 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsRenderer, 
+            minWidth: 120,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     useEffect(() => {

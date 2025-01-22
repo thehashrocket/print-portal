@@ -1,4 +1,4 @@
-/* Base styles */
+Base styles
 .ag-theme-alpine {
     --ag-grid-size: 4px;
     --ag-list-item-height: 30px;
@@ -141,7 +141,6 @@
 }
 
 .action-cell button {
-    min-width: 110px;
     padding: 0 12px;
 }
 

@@ -7,6 +7,13 @@ import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Button } from '~/app/_components/ui/button';
 import { RefreshCcw } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "~/app/_components/ui/tooltip";
+
 const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void }> = ({ params, onSyncSuccess }) => {
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const syncCompanyMutation = api.qbCustomers.syncCompany.useMutation({
@@ -43,16 +50,25 @@ const QuickbooksCompanyButton: React.FC<{ params: any; onSyncSuccess: () => void
         : 'Add to QB';
 
     return (
-        <Button
-            variant="outline"
-            onClick={handleSyncCompany}
-            disabled={syncCompanyMutation.isPending || !isAuthenticated}
-        >
-            {!syncCompanyMutation.isPending && (
-                <RefreshCcw className="w-4 h-4" />
-            )}
-            {syncCompanyMutation.isPending ? 'Syncing...' : syncButtonText}
-        </Button>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="outline"
+                        onClick={handleSyncCompany}
+                        disabled={syncCompanyMutation.isPending || !isAuthenticated}
+                    >
+                        {!syncCompanyMutation.isPending && (
+                            <RefreshCcw className="w-4 h-4" />
+                        )}
+                        {syncCompanyMutation.isPending && 'Syncing...'}
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{syncButtonText}</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     );
 };
 

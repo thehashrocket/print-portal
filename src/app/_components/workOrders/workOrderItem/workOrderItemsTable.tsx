@@ -1,4 +1,4 @@
-// ~/app/_components/workOrders/workOrderItemsTable.tsx
+// ~/app/_components/workOrders/workOrderItem/workOrderItemsTable.tsx
 
 "use client";
 
@@ -70,21 +70,82 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     };
 
     const columnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
-        { headerName: "Quantity", field: "quantity", width: 120 },
-        { headerName: "Description", field: "description", filter: true },
-        { headerName: "Status", field: "status", filter: true, width: 150 },
-        { headerName: "Cost", field: "cost", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
+        { 
+            headerName: "Item #", 
+            field: "itemNumber", 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Description", 
+            field: "description", 
+            minWidth: 200,
+            flex: 2
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Quantity", 
+            field: "quantity", 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Cost", 
+            field: "cost", 
+            valueFormatter: formatNumberAsCurrency, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "amount", 
+            valueFormatter: formatNumberAsCurrency, 
+            minWidth: 120,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsRenderer, 
+            minWidth: 120,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Item #", field: "workOrderItemNumber", width: 120 },
-        { headerName: "Desc", field: "description", filter: true },
-        { headerName: "Status", field: "status", filter: true, width: 120 },
-        { headerName: "Amount", field: "amount", filter: true, valueFormatter: formatNumberAsCurrency, width: 120 },
-        { headerName: "Actions", cellRenderer: actionsRenderer, width: 100, sortable: false, filter: false },
+        { 
+            headerName: "Item #", 
+            field: "itemNumber", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Status", 
+            field: "status", 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Total", 
+            field: "amount", 
+            valueFormatter: formatNumberAsCurrency, 
+            minWidth: 100,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsRenderer, 
+            minWidth: 120,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     // Cleanup function

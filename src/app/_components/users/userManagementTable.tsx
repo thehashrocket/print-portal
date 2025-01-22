@@ -103,10 +103,33 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
     );
 
     const columnDefs = useMemo<ColDef[]>(() => [
-        { headerName: "Name", field: "name", filter: true },
-        { headerName: "Email", field: "email", filter: true },
-        { headerName: "Roles", field: "Roles", cellRenderer: rolesCellRenderer, filter: true },
-        { headerName: "Actions", cellRenderer: actionsCellRenderer, sortable: false, filter: false },
+        { 
+            headerName: "Name", 
+            field: "name", 
+            minWidth: 200,
+            flex: 2
+        },
+        { 
+            headerName: "Email", 
+            field: "email", 
+            minWidth: 200,
+            flex: 2
+        },
+        { 
+            headerName: "Roles", 
+            field: "Roles", 
+            cellRenderer: rolesCellRenderer, 
+            minWidth: 150,
+            flex: 1
+        },
+        { 
+            headerName: "Actions", 
+            cellRenderer: actionsCellRenderer, 
+            minWidth: 200,
+            flex: 1,
+            sortable: false, 
+            filter: false 
+        }
     ], []);
 
     useEffect(() => {
