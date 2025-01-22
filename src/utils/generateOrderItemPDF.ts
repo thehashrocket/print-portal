@@ -231,17 +231,30 @@ export const generateOrderItemPDF = async (
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
 
+
+
+    yPos = Math.max(leftY, rightY) + 5; // More space before project description
+
+    // Shipping Info (full width)
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SHIPPING INFO', leftMargin, yPos);
+    yPos += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
     if (shippingInfo.shippingMethod === ShippingMethod.Pickup && shippingInfo.ShippingPickup) {
         const pickupDate = shippingInfo.ShippingPickup.pickupDate ? formatDate(new Date(shippingInfo.ShippingPickup.pickupDate as string)) : 'N/A';
         const pickupTime = shippingInfo.ShippingPickup.pickupTime || 'N/A';
-        rightY = addField('Pickup Date', formatDate(new Date(shippingInfo.ShippingPickup.pickupDate as string)), rightColStart, rightY, 7, 30, 12);
-        rightY = addField('Pickup Time', formatTime(shippingInfo.ShippingPickup.pickupTime), rightColStart, rightY, 7, 30, 12);
+        yPos = addField('Pickup Date', pickupDate, leftMargin, yPos, 7, 30, 12);
+        yPos = addField('Pickup Time', pickupTime, leftMargin, yPos, 7, 30, 12);
+        yPos = addField('Pickup Notes', shippingInfo.ShippingPickup.notes || 'N/A', leftMargin, yPos, 7, 30, 12);
     } else {
-        rightY = addField('Shipping Date', shippingInfo.shippingDate ? formatDate(new Date(shippingInfo.shippingDate as string)) : 'N/A', rightColStart, rightY, 7, 30, 12);
+        yPos = addField('Shipping Date', shippingInfo.shippingDate ? formatDate(new Date(shippingInfo.shippingDate as string)) : 'N/A', leftMargin, yPos, 7, 30, 12);
     }
+    yPos = addField('Shipping Inst.', shippingInfo.instructions || 'N/A', leftMargin, yPos, 7, 30, 12);
 
     // Project Description (full width)
-    yPos = Math.max(leftY, rightY) + 5; // More space before project description
+    yPos += 10;
     if (orderItem.description) {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');

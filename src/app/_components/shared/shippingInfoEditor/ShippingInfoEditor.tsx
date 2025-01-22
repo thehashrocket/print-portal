@@ -396,6 +396,13 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                                             <div className="font-medium">{currentShippingInfo.ShippingPickup.pickupTime ? formatTime(currentShippingInfo.ShippingPickup.pickupTime) : 'N/A'}</div>
                                         </div>
                                     </div>
+                                    <div className="flex items-center gap-3">
+                                        <Notebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <div>
+                                            <div className="text-sm text-gray-500">Notes</div>
+                                            <div className="font-medium">{currentShippingInfo.ShippingPickup.notes}</div>
+                                        </div>
+                                    </div>
                                 </>
                             )}
 
@@ -426,13 +433,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Notebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                                <div>
-                                    <div className="text-sm text-gray-500">Notes</div>
-                                    <div className="font-medium">{currentShippingInfo.shippingNotes}</div>
-                                </div>
-                            </div>
+                            
 
                             <div className="flex items-center gap-3">
                                 <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />

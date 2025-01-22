@@ -354,46 +354,46 @@ model Session {
 }
 
 model ShippingInfo {
+  Address            Address?         @relation(fields: [addressId], references: [id])
+  addressId          String?
+  attentionTo        String?
+  createdAt          DateTime         @default(now())
+  createdBy          User             @relation(fields: [createdById], references: [id])
+  createdById        String
+  estimatedDelivery  DateTime?
   id                 String           @id @default(uuid())
   instructions       String?
-  shippingOther      String?
-  shippingDate       DateTime?
-  shippingMethod     ShippingMethod
-  shippingCost       Decimal?         @db.Decimal(10, 2)
-  officeId           String
-  shipToSameAsBillTo Boolean          @default(false)
-  attentionTo        String?
-  addressId          String?
-  createdAt          DateTime         @default(now())
-  createdById        String
-  updatedAt          DateTime         @updatedAt
   numberOfPackages   Int?             @default(1)
-  shippingNotes      String?
-  estimatedDelivery  DateTime?
-  trackingNumber     String?
+  Office             Office           @relation(fields: [officeId], references: [id])
+  officeId           String
   Order              Order[]
   OrderItems         OrderItem[]
-  Address            Address?         @relation(fields: [addressId], references: [id])
-  createdBy          User             @relation(fields: [createdById], references: [id])
-  Office             Office           @relation(fields: [officeId], references: [id])
+  shippingCost       Decimal?         @db.Decimal(10, 2)
+  shippingDate       DateTime?
+  shippingMethod     ShippingMethod
+  shippingNotes      String?
+  shippingOther      String?
   ShippingPickup     ShippingPickup[]
+  shipToSameAsBillTo Boolean          @default(false)
+  trackingNumber     String?
+  updatedAt          DateTime         @updatedAt
   WorkOrder          WorkOrder[]
   WorkOrderItems     WorkOrderItem[]
 }
 
 model ShippingPickup {
-  id             String       @id @default(uuid())
-  shippingInfoId String
-  pickupDate     DateTime
-  pickupTime     String
-  notes          String?
   contactName    String
   contactPhone   String
   createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  createdById    String
   createdBy      User         @relation(fields: [createdById], references: [id])
+  createdById    String
+  id             String       @id @default(uuid())
+  notes          String?
+  pickupDate     DateTime
+  pickupTime     String
   ShippingInfo   ShippingInfo @relation(fields: [shippingInfoId], references: [id])
+  shippingInfoId String
+  updatedAt      DateTime     @updatedAt
 }
 
 model Typesetting {
