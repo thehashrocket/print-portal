@@ -5,9 +5,9 @@ ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[] DEFAULT ARRAY[
 
 -- Step 2: Update non-empty values
 UPDATE "ShippingInfo"
-SET "trackingNumber_new" = ARRAY[(SELECT "trackingNumber")]::TEXT[]
+SET "trackingNumber_new" = ARRAY[TRIM("trackingNumber")]::TEXT[]
 WHERE "trackingNumber" IS NOT NULL
-AND LENGTH(TRIM("trackingNumber")) > 0;
+AND TRIM("trackingNumber") != '';
 
 -- Step 3: Drop old and rename new
 ALTER TABLE "ShippingInfo" DROP COLUMN "trackingNumber";
