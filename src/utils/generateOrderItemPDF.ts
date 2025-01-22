@@ -250,6 +250,7 @@ export const generateOrderItemPDF = async (
         yPos = addField('Pickup Notes', shippingInfo.ShippingPickup.notes || 'N/A', leftMargin, yPos, 7, 30, 12);
     } else {
         yPos = addField('Shipping Date', shippingInfo.shippingDate ? formatDate(new Date(shippingInfo.shippingDate as string)) : 'N/A', leftMargin, yPos, 7, 30, 12);
+        yPos = addField('Tracking Number', shippingInfo.trackingNumber ? shippingInfo.trackingNumber.join(', ') : 'N/A', leftMargin, yPos, 7, 30, 12);
     }
     yPos = addField('Shipping Inst.', shippingInfo.instructions || 'N/A', leftMargin, yPos, 7, 30, 12);
 

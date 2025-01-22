@@ -5,8 +5,11 @@ ALTER TABLE "ShippingInfo" ADD COLUMN "tracking_numbers" TEXT[] DEFAULT ARRAY[]:
 
 -- Step 2: Copy existing data to the new column
 UPDATE "ShippingInfo"
-SET "tracking_numbers" = ARRAY[COALESCE("trackingNumber", '')]
-WHERE "trackingNumber" IS NOT NULL;
+SET "tracking_numbers" = 
+    CASE 
+        WHEN "trackingNumber" IS NULL OR "trackingNumber" = '' THEN ARRAY[]::TEXT[]
+        ELSE ARRAY["trackingNumber"]
+    END;
 
 -- Step 3: Drop the old column
 ALTER TABLE "ShippingInfo" DROP COLUMN "trackingNumber";
