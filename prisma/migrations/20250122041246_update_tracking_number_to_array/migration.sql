@@ -1,19 +1,15 @@
 -- Migration to convert trackingNumber from string to string array
 BEGIN;
 
--- Step 1: Create a new column with the array type
-ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[];
+-- Step 1: Create a new column with the array type, initialized with empty arrays
+ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[] DEFAULT '{}';
 
--- Step 2: Initialize all rows with an empty array
-UPDATE "ShippingInfo" SET "trackingNumber_new" = '{}';
-
--- Step 3: Update non-null values
+-- Step 2: Update non-null values one by one
 UPDATE "ShippingInfo" 
-SET "trackingNumber_new" = ARRAY[trim("trackingNumber")]
-WHERE "trackingNumber" IS NOT NULL 
-AND trim("trackingNumber") != '';
+SET "trackingNumber_new" = string_to_array("trackingNumber", ',')
+WHERE "trackingNumber" IS NOT NULL;
 
--- Step 4: Drop the old column and rename the new one
+-- Step 3: Drop the old column and rename the new one
 ALTER TABLE "ShippingInfo" DROP COLUMN "trackingNumber";
 ALTER TABLE "ShippingInfo" RENAME COLUMN "trackingNumber_new" TO "trackingNumber";
 
