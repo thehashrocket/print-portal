@@ -39,25 +39,25 @@ model Account {
 }
 
 model Address {
+  addressType     AddressType    @default(Other)
+  city            String
+  country         String
+  createdAt       DateTime       @default(now())
+  deleted         Boolean        @default(false)
   id              String         @id @default(uuid())
-  officeId        String
   line1           String
   line2           String?
-  city            String
-  state           String
-  zipCode         String
-  country         String
-  telephoneNumber String         @default("")
-  addressType     AddressType    @default(Other)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  quickbooksId    String?
-  deleted         Boolean        @default(false)
   line3           String?
   line4           String?
   name            String?
   Office          Office         @relation(fields: [officeId], references: [id])
+  officeId        String
+  quickbooksId    String?
   ShippingInfo    ShippingInfo[]
+  state           String
+  telephoneNumber String         @default("")
+  updatedAt       DateTime       @updatedAt
+  zipCode         String
 
   @@index([officeId, addressType, quickbooksId])
 }

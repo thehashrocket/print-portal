@@ -249,6 +249,24 @@ export const generateOrderItemPDF = async (
         yPos = addField('Pickup Time', pickupTime, leftMargin, yPos, 7, 30, 12);
         yPos = addField('Pickup Notes', shippingInfo.ShippingPickup.notes || 'N/A', leftMargin, yPos, 7, 30, 12);
     } else {
+        yPos = addField('Shipping Method', shippingInfo.shippingMethod || 'N/A', leftMargin, yPos, 7, 30, 12);
+        if (shippingInfo.Address) {
+            doc.text('SHIPPING ADDRESS', leftMargin, yPos);
+            yPos += 5;
+            yPos = addField('Line 1', shippingInfo.Address.line1 || 'N/A', leftMargin, yPos, 7, 30, 12);
+            if (shippingInfo.Address.line2) {
+                yPos = addField('Line 2', shippingInfo.Address.line2 || 'N/A', leftMargin, yPos, 7, 30, 12);
+            }
+            if (shippingInfo.Address.line3) {
+                yPos = addField('Line 3', shippingInfo.Address.line3 || 'N/A', leftMargin, yPos, 7, 30, 12);
+            }
+            if (shippingInfo.Address.line4) {
+                yPos = addField('Line 4', shippingInfo.Address.line4 || 'N/A', leftMargin, yPos, 7, 30, 12);
+            }
+            yPos = addField('City', shippingInfo.Address.city || 'N/A', leftMargin, yPos, 7, 30, 12);
+            yPos = addField('State', shippingInfo.Address.state || 'N/A', leftMargin, yPos, 7, 30, 12);
+            yPos = addField('Zip', shippingInfo.Address.zipCode || 'N/A', leftMargin, yPos, 7, 30, 12);
+        }
         yPos = addField('Shipping Date', shippingInfo.shippingDate ? formatDate(new Date(shippingInfo.shippingDate as string)) : 'N/A', leftMargin, yPos, 7, 30, 12);
         yPos = addField('Tracking Number', shippingInfo.trackingNumber ? shippingInfo.trackingNumber.join(', ') : 'N/A', leftMargin, yPos, 7, 30, 12);
     }
