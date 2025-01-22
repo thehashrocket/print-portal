@@ -221,7 +221,12 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                 </Button>
                 <Button
                     variant="secondary"
-                    onClick={onCancel}
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onCancel();
+                    }}
                 >
                     Cancel
                 </Button>
