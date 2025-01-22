@@ -35,7 +35,7 @@
     "@ag-grid-community/csv-export": "^32.3.3",
     "@ag-grid-community/infinite-row-model": "^32.3.3",
     "@ag-grid-community/react": "^32.3.3",
-    "@ag-grid-community/styles": "^32.3.3",
+    "@ag-grid-community/styles": "^33.0.3",
     "@auth/prisma-adapter": "^2.7.4",
     "@copilotkit/react-core": "^1.4.7",
     "@copilotkit/react-ui": "^1.5.11",
