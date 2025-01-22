@@ -1,5 +1,4 @@
 -- Migration to convert trackingNumber from string to string array
-BEGIN;
 
 -- Step 1: Create a new column with the array type, initialized with empty arrays
 ALTER TABLE "ShippingInfo" ADD COLUMN "trackingNumber_new" TEXT[] DEFAULT '{}';
@@ -12,5 +11,3 @@ WHERE "trackingNumber" IS NOT NULL;
 -- Step 3: Drop the old column and rename the new one
 ALTER TABLE "ShippingInfo" DROP COLUMN "trackingNumber";
 ALTER TABLE "ShippingInfo" RENAME COLUMN "trackingNumber_new" TO "trackingNumber";
-
-COMMIT;
