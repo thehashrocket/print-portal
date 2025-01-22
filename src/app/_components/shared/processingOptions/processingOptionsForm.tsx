@@ -150,6 +150,18 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="numberingStart">Numbering Start</Label>
+                <Input
+                    type="number"
+                    {...register("numberingStart", {
+                        setValueAs: (v) => v === "" ? undefined : parseInt(v, 10)
+                    })}
+                    className={inputClass}
+                    placeholder="Numbering Start"
+                />
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="numberingEnd">Numbering End</Label>
                 <Input
                     type="number"
@@ -161,17 +173,7 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                 />
             </div>
 
-            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                <Label htmlFor="numberingStart">Numbering Start</Label>
-                <Input
-                    type="number"
-                    {...register("numberingStart", {
-                        setValueAs: (v) => v === "" ? undefined : parseInt(v, 10)
-                    })}
-                    className={inputClass}
-                    placeholder="Numbering Start"
-                />
-            </div>
+            
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="other">Other</Label>
