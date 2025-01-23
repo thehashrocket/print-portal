@@ -330,7 +330,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 />
                             }
                         />
-                        <InfoCard title="Download PDF Invoice" content={
+                        <InfoCard title="Download PDF Order Item Details" content={
                             <PrintButton
                                 onClick={async () => {
                                     try {
@@ -374,12 +374,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 }}
                             />
                         } />
-                        <InfoCard title="Print Invoice" content={
+                        <InfoCard title="Print Order Item Details" content={
                             <Link href={`/orders/${orderId}/orderItem/print/${orderItemId}`}>
 
                                 <Button variant="default">
                                     <Printer className="w-4 h-4" />
-                                    Print Invoice
+                                    Print Order Item Details
                                 </Button>
                             </Link>
                         } />
