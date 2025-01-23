@@ -235,6 +235,29 @@ export const generateOrderItemPDF = async (
 
     yPos = Math.max(leftY, rightY) + 5; // More space before project description
 
+    if (orderItemStocks) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Paper Stock', leftMargin, yPos);
+        yPos += 10;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        // Loop through the paperProducts and print the paper product only if it exists
+        for (const paperProduct of paperProducts) {
+            if (paperProduct) {
+                doc.text(paperProduct, leftMargin, yPos);
+                yPos += 5;
+            }
+        }
+        yPos += 10;
+        // Loop through the orderItem.OrderItemStock and print the paper product only if it exists
+        // for (const stock of orderItemStocks) {
+        //     if (stock.paperProduct) {
+        //         doc.text(stock.paperProduct.paperType + ' ' + stock.paperProduct.finish + ' ' + stock.paperProduct.weightLb + ' lbs', leftMargin, yPos);
+        //     }
+        // }
+    }
+    
     // Shipping Info (full width)
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -300,30 +323,6 @@ export const generateOrderItemPDF = async (
        doc.text(splitInstructions, leftMargin, yPos);
        yPos += splitInstructions.length * 7 + 10; // More space after description
     }
-
-    if (orderItemStocks) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Paper Stock', leftMargin, yPos);
-        yPos += 10;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        // Loop through the paperProducts and print the paper product only if it exists
-        for (const paperProduct of paperProducts) {
-            if (paperProduct) {
-                doc.text(paperProduct, leftMargin, yPos);
-                yPos += 5;
-            }
-        }
-        yPos += 10;
-        // Loop through the orderItem.OrderItemStock and print the paper product only if it exists
-        // for (const stock of orderItemStocks) {
-        //     if (stock.paperProduct) {
-        //         doc.text(stock.paperProduct.paperType + ' ' + stock.paperProduct.finish + ' ' + stock.paperProduct.weightLb + ' lbs', leftMargin, yPos);
-        //     }
-        // }
-    }
-
     
     // if (orderItem.PaperProduct) {
     //     doc.setFont('helvetica', 'bold');

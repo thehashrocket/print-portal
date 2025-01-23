@@ -371,8 +371,18 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             ))
                         )}
                     </div>
-                    
-                    {/* Row 2 - Company and Contact */}
+                </div>
+
+                {/* Paper Stock Section */}
+                <section className="mb-2">
+                    <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
+                    <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                        <OrderItemStockComponent orderItemId={orderItem.id} />
+                    </div>
+                </section>
+
+                {/* Row 2 - Shipping Info and Contact */}
+                <div className="flex flex-col gap-4 mb-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div className="grid grid-cols-1 gap-4 mb-2">
                         <InfoCard title="Company" content={order.Office?.Company.name} />
@@ -531,13 +541,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             </ProcessingOptionsProvider>
                         </div>
                     </section>
-                    {/* Paper Stock Section */}
-                    <section>
-                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
-                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-                            <OrderItemStockComponent orderItemId={orderItem.id} />
-                        </div>
-                    </section>
+                    
                 </div>
             </div>
         </div>
