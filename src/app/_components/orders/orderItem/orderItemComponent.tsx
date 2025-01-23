@@ -330,6 +330,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 />
                             }
                         />
+                        {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
+                        {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
+                            orderItem.OrderItemStock.map((stock) => (
+                                <InfoCard key={stock.id} title="Paper Product" content={findPaperProduct(stock.paperProductId || '')} />
+                            ))
+                        )}
                         <InfoCard title="Download PDF Order Item Details" content={
                             <PrintButton
                                 onClick={async () => {
@@ -383,12 +389,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 </Button>
                             </Link>
                         } />
-                        {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
-                        {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
-                            orderItem.OrderItemStock.map((stock) => (
-                                <InfoCard key={stock.id} title="Paper Product" content={findPaperProduct(stock.paperProductId || '')} />
-                            ))
-                        )}
+                        
                     </div>
                 </div>
 

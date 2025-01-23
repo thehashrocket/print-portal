@@ -6,10 +6,10 @@ export const PrintButton = ({ onClick }: { onClick: () => void }) => {
         <Button
             variant="default"
             onClick={onClick}
-            title="Download PDF Invoice"
+            title="Download PDF"
         >
             <Download className="w-4 h-4 mr-2" />
-            Download PDF Invoice
+            Download PDF
         </Button>
     );
 };

@@ -1,6 +1,6 @@
 'use server';
 
-import OrderItemPrintPreview from '~/app/_components/orders/OrderItemPrintPreview';
+import OrderItemPrintPreview from '~/app/_components/orders/orderItem/OrderItemPrintPreview';
 import { api } from '~/trpc/server';
 import { type SerializedOrderItem, type SerializedOrder, type SerializedShippingInfo, type SerializedTypesetting, type SerializedOrderItemStock, type SerializedProcessingOptions } from '~/types/serializedTypes';
 import { normalizeTypesetting, normalizeOrderItemStock, normalizeProcessingOptions } from '~/utils/dataNormalization';

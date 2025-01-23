@@ -268,37 +268,39 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     orderId={order.id}
                                 />}
                             />
+                            
                             <div className="grid grid-cols-2 gap-4">
+                            <InfoCard
+                                title="Download PDF Order"
+                                content={<Button
+                                    variant="default"
+                                    onClick={async () => {
+                                        try {
+                                            await generateOrderPDF(order);
+                                        } catch (error) {
+                                            console.error('Error generating PDF:', error);
+                                            toast.error('Error generating PDF');
+                                        }
+                                    }}
+                                >
+                                    <Download className="w-4 h-4" /> Download PDF Order
+                                </Button>}
+                            />
                                 {/* Print Order */}
                                 <InfoCard
                                     title="Print Order"
                                     content={
-                                    <Link href={`/orders/print/${order.id}`}>
-                                        <Button
-                                            variant="default"
-                                        >
-                                            <Printer className="w-4 h-4" />
-                                            Print Order
-                                        </Button>
-                                    </Link>
+                                        <Link href={`/orders/print/${order.id}`}>
+                                            <Button
+                                                variant="default"
+                                            >
+                                                <Printer className="w-4 h-4" />
+                                                Print Order
+                                            </Button>
+                                        </Link>
                                     }
                                 />
-                                <InfoCard
-                                    title="Download PDF Order"
-                                    content={<Button
-                                        variant="default"
-                                        onClick={async () => {
-                                            try {
-                                                await generateOrderPDF(order);
-                                            } catch (error) {
-                                                console.error('Error generating PDF:', error);
-                                                toast.error('Error generating PDF');
-                                            }
-                                        }}
-                                    >
-                                        <Download className="w-4 h-4" /> Download PDF Order
-                                    </Button>}
-                                />
+
                                 {/* Send Order by Email */}
                                 <InfoCard
                                     title="Send Order by Email"
