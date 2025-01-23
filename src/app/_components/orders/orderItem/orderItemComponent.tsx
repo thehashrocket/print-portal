@@ -22,7 +22,7 @@ import { Textarea } from "../../ui/textarea";
 import FileUpload from "../../shared/fileUpload";
 import { Input } from "../../ui/input";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
-import { Check, X, PencilIcon } from "lucide-react";
+import { Check, X, PencilIcon, Printer, FilePlus } from "lucide-react";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 import { type SerializedProcessingOptions } from "~/types/serializedTypes";
 
@@ -47,7 +47,7 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: 
         },
     });
 
-    
+
 
     const getStatusColor = (status: OrderItemStatus): string => {
         switch (status) {
@@ -107,7 +107,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [tempQuantity, setTempQuantity] = useState<number>(0);
     const [tempInk, setTempInk] = useState<string>("");
     const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
-    
+
     // Initialize local artwork state when orderItem changes
     useEffect(() => {
         if (orderItem?.artwork) {
@@ -197,7 +197,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
     const handleCancel = (field: string) => {
         if (!orderItem) return;
-        
+
         switch (field) {
             case 'quantity':
                 setTempQuantity(orderItem.quantity);
@@ -265,40 +265,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Item Details</h1>
-                <PrintButton
-                    onClick={async () => {
-                        try {
-                            if (!shippingInfo) {
-                                throw new Error('Shipping info is required to generate PDF');
-                            }
-                            const defaultProcessingOptions = {
-                                id: '',
-                                cutting: null,
-                                padding: null,
-                                drilling: null,
-                                folding: null,
-                                other: null,
-                                numberingStart: null,
-                                numberingEnd: null,
-                                numberingColor: null,
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
-                                orderItemId: null,
-                                workOrderItemId: null,
-                                createdById: '',
-                                description: '',
-                                stitching: null,
-                                binderyTime: null,
-                                binding: null,
-                            } as const;
-                            const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
-                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts, shippingInfo, processingOptions);
-                        } catch (error) {
-                            console.error('Error generating PDF:', error);
-                            toast.error('Error generating PDF');
-                        }
-                    }}
-                />
                 <div className="text-sm breadcrumbs overflow-x-auto">
                     <ul>
                         <li><Link href="/">Home</Link></li>
@@ -364,6 +330,59 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 />
                             }
                         />
+                        <InfoCard title="Download PDF Invoice" content={
+                            <PrintButton
+                                onClick={async () => {
+                                    try {
+                                        if (!shippingInfo) {
+                                            throw new Error('Shipping info is required to generate PDF');
+                                        }
+                                        const defaultProcessingOptions = {
+                                            id: '',
+                                            cutting: null,
+                                            padding: null,
+                                            drilling: null,
+                                            folding: null,
+                                            other: null,
+                                            numberingStart: null,
+                                            numberingEnd: null,
+                                            numberingColor: null,
+                                            createdAt: new Date().toISOString(),
+                                            updatedAt: new Date().toISOString(),
+                                            orderItemId: null,
+                                            workOrderItemId: null,
+                                            createdById: '',
+                                            description: '',
+                                            stitching: null,
+                                            binderyTime: null,
+                                            binding: null,
+                                        } as const;
+                                        const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
+                                        await generateOrderItemPDF(
+                                            orderItem, 
+                                            order, 
+                                            normalizedTypesetting, 
+                                            normalizedOrderItemStocks, 
+                                            orderPaperProducts, 
+                                            shippingInfo, 
+                                            processingOptions
+                                        );
+                                    } catch (error) {
+                                        console.error('Error generating PDF:', error);
+                                        toast.error('Error generating PDF');
+                                    }
+                                }}
+                            />
+                        } />
+                        <InfoCard title="Print Invoice" content={
+                            <Link href={`/orders/${orderId}/orderItem/print/${orderItemId}`}>
+
+                                <Button variant="default">
+                                    <Printer className="w-4 h-4" />
+                                    Print Invoice
+                                </Button>
+                            </Link>
+                        } />
                         {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
                         {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
                             orderItem.OrderItemStock.map((stock) => (
@@ -385,7 +404,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 <div className="flex flex-col gap-4 mb-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div className="grid grid-cols-1 gap-4 mb-2">
-                        <InfoCard title="Company" content={order.Office?.Company.name} />
+                            <InfoCard title="Company" content={order.Office?.Company.name} />
                             <ShippingInfoEditor
                                 orderItemId={orderItem.id}
                                 officeId={order.officeId}
@@ -395,8 +414,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 }}
                             />
                         </div>
-                        <InfoCard 
-                            title="Contact Info" 
+                        <InfoCard
+                            title="Contact Info"
                             content={
                                 <ContactPersonEditor
                                     orderId={order.id}
@@ -406,7 +425,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         utils.orders.getByID.invalidate(orderId);
                                     }}
                                 />
-                            } 
+                            }
                         />
                     </div>
                 </div>
@@ -439,15 +458,15 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
                 {/* Status Section */}
                 <div className="mb-6">
-                    <InfoCard 
-                        title="Status" 
+                    <InfoCard
+                        title="Status"
                         content={
-                            <ItemStatusBadge 
-                                id={orderItem.id} 
-                                status={orderItem.status} 
-                                orderId={orderItem.orderId} 
+                            <ItemStatusBadge
+                                id={orderItem.id}
+                                status={orderItem.status}
+                                orderId={orderItem.orderId}
                             />
-                        } 
+                        }
                     />
                 </div>
 
@@ -491,7 +510,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     });
                                 }}
                                 onDescriptionChanged={(fileUrl: string, description: string) => {
-                                    const updatedArtwork = localArtwork.map(art => 
+                                    const updatedArtwork = localArtwork.map(art =>
                                         art.fileUrl === fileUrl ? { ...art, description } : art
                                     );
                                     setLocalArtwork(updatedArtwork);
@@ -541,7 +560,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             </ProcessingOptionsProvider>
                         </div>
                     </section>
-                    
+
                 </div>
             </div>
         </div>

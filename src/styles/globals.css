@@ -59,6 +59,12 @@
   }
 }
 
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+
 @layer base {
   @font-face {
     font-family: 'Bliss Normal';

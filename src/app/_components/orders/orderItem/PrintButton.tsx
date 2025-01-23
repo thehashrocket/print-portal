@@ -1,4 +1,4 @@
-import { Printer } from 'lucide-react';
+import { Download, FilePlus } from 'lucide-react';
 import { Button } from '../../ui/button';
 
 export const PrintButton = ({ onClick }: { onClick: () => void }) => {
@@ -6,10 +6,10 @@ export const PrintButton = ({ onClick }: { onClick: () => void }) => {
         <Button
             variant="default"
             onClick={onClick}
-            title="Print Item Details"
+            title="Download PDF Invoice"
         >
-            <Printer className="w-4 h-4 mr-2" />
-            Print Item Details
+            <Download className="w-4 h-4 mr-2" />
+            Download PDF Invoice
         </Button>
     );
 };

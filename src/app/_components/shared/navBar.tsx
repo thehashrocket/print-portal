@@ -48,7 +48,7 @@ const NavBar = async () => {
   );
 
   return (
-    <nav className="bg-[#6cab1f] py-4 px-6">
+    <nav className="bg-[#6cab1f] py-4 px-6 no-print">
       <div className="mx-auto max-w-7xl">
         <div className="flex justify-between items-center">
           {/* Mobile Menu */}
