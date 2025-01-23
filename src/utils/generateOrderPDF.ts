@@ -168,7 +168,9 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     doc.text('Quantity', 150, tableTop);
     doc.text('Amount', 180, tableTop);
 
+    const pageHeight = doc.internal.pageSize.height;
     let tableRow = 0;
+
     order.OrderItems.forEach((item: any) => {
         // Truncate description to 50 characters
         const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
@@ -180,6 +182,12 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
         
         // Determine the maximum height for the row
         const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
+        
+        // Check if adding this row will exceed the page height
+        if (tableTop + tableRow + maxHeight + 5 > pageHeight) {
+            doc.addPage();
+            tableRow = 0; // Reset row position for new page
+        }
         
         // Adjust the row height based on the maximum text height
         tableRow += maxHeight + 5; // Add some padding
@@ -310,7 +318,9 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         doc.text('Quantity', 150, tableTop);
         doc.text('Amount', 180, tableTop);
 
+        const pageHeight = doc.internal.pageSize.height;
         let tableRow = 0;
+
         order.OrderItems.forEach((item: any) => {
             // Truncate description to 50 characters
             const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
@@ -322,6 +332,12 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
             
             // Determine the maximum height for the row
             const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
+            
+            // Check if adding this row will exceed the page height
+            if (tableTop + tableRow + maxHeight + 5 > pageHeight) {
+                doc.addPage();
+                tableRow = 0; // Reset row position for new page
+            }
             
             // Adjust the row height based on the maximum text height
             tableRow += maxHeight + 5; // Add some padding
