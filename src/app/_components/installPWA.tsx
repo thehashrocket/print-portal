@@ -83,7 +83,7 @@ export function InstallPWA() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#6cab1f] text-white shadow-lg">
-      <div className="flex items-center justify-between max-w-screen-xl mx-auto">
+      <div className="flex items-center justify-between max-w-(--breakpoint-xl) mx-auto">
         <div className="flex-1">
           <p className="font-semibold">Install Print Portal</p>
           {isIOS ? (

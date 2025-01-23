@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { StockStatus } from '@prisma/client';
+import { StockStatus, type PaperProduct } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -25,6 +25,7 @@ const orderItemStockSchema = z.object({
     stockStatus: z.nativeEnum(StockStatus),
     supplier: z.string().optional(),
     orderItemId: z.string(),
+    paperProductId: z.string().optional(),
 });
 
 type OrderItemStockFormData = z.infer<typeof orderItemStockSchema>;
@@ -56,6 +57,8 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
         { enabled: !!stockId }
     );
 
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+
     const createStock = api.orderItemStocks.create.useMutation({
         onSuccess: () => {
             onSuccess();
@@ -84,6 +87,7 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                 notes: existingStock.notes || undefined,
                 stockStatus: existingStock.stockStatus,
                 supplier: existingStock.supplier || undefined,
+                paperProductId: existingStock.paperProductId || undefined,
             });
         }
     }, [existingStock, reset]);
@@ -100,6 +104,7 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
             from: data.from || undefined,
             supplier: data.supplier || undefined,
             notes: data.notes || undefined,
+            paperProductId: data.paperProductId || undefined,
         };
 
         if (stockId) {
@@ -112,8 +117,26 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
         }
     };
 
+    const formatPaperProductLabel = (product: PaperProduct) => {
+        if (!product) return '';
+        return `${product.brand} ${product.finish} ${product.paperType} ${product.size} ${product.weightLb}lbs.`;
+    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+                <Label htmlFor="paperProductId">Paper Product</Label>
+                <SelectField
+                    options={paperProducts?.map(product => ({
+                        value: product.id,
+                        label: formatPaperProductLabel(product)
+                    })) || []}
+                    value={watch('paperProductId') ?? ''}
+                    onValueChange={(value) => setValue('paperProductId', value)}
+                    placeholder="Select Paper Product"
+                />
+            </div>
+
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                 <Label htmlFor="stockQty">Quantity</Label>
                 <Input
@@ -198,7 +221,12 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                 </Button>
                 <Button
                     variant="secondary"
-                    onClick={onCancel}
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onCancel();
+                    }}
                 >
                     Cancel
                 </Button>

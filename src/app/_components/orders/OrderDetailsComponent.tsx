@@ -11,7 +11,7 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
-import { Printer, RefreshCcw, Send, FilePlus2 } from "lucide-react";
+import { Printer, RefreshCcw, Send, FilePlus2, FilePlus, Download } from "lucide-react";
 import { generateOrderPDF } from "~/utils/generateOrderPDF";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
@@ -20,6 +20,7 @@ import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
 import { Input } from "../ui/input";
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
+import { useRouter } from 'next/navigation';
 
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -175,6 +176,18 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         createQuickbooksInvoice({ orderId: orderId });
     };
 
+    const router = useRouter();
+    const handlePrint = () => {
+        if (order) {
+            router.push(`/orders/print/${order.id}`);
+            setTimeout(() => {
+                window.print();
+            }, 500); // Delay to ensure the page is fully loaded
+        } else {
+            console.error('Order is null or undefined');
+        }
+    };
+
     useEffect(() => {
         if (order) {
             setOrderItems(order.OrderItems);
@@ -255,24 +268,39 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     orderId={order.id}
                                 />}
                             />
+                            
                             <div className="grid grid-cols-2 gap-4">
+                            <InfoCard
+                                title="Download PDF Order"
+                                content={<Button
+                                    variant="default"
+                                    onClick={async () => {
+                                        try {
+                                            await generateOrderPDF(order);
+                                        } catch (error) {
+                                            console.error('Error generating PDF:', error);
+                                            toast.error('Error generating PDF');
+                                        }
+                                    }}
+                                >
+                                    <Download className="w-4 h-4" /> Download PDF Order
+                                </Button>}
+                            />
                                 {/* Print Order */}
                                 <InfoCard
                                     title="Print Order"
-                                    content={<Button
-                                        variant="default"
-                                        onClick={async () => {
-                                            try {
-                                                await generateOrderPDF(order);
-                                            } catch (error) {
-                                                console.error('Error generating PDF:', error);
-                                                toast.error('Error generating PDF');
-                                            }
-                                        }}
-                                    >
-                                        <Printer className="w-4 h-4" /> Print Order
-                                    </Button>}
+                                    content={
+                                        <Link href={`/orders/print/${order.id}`}>
+                                            <Button
+                                                variant="default"
+                                            >
+                                                <Printer className="w-4 h-4" />
+                                                Print Order
+                                            </Button>
+                                        </Link>
+                                    }
                                 />
+
                                 {/* Send Order by Email */}
                                 <InfoCard
                                     title="Send Order by Email"

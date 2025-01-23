@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Post {
@@ -146,70 +147,70 @@ model Office {
 }
 
 model Order {
-  contactPerson       User?                    @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
-  contactPersonId     String?
-  createdAt           DateTime                 @default(now())
-  createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
-  createdById         String
-  dateInvoiced        DateTime?
-  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
   id                  String                   @id @default(uuid())
-  inHandsDate         DateTime?
-  Invoice             Invoice?
-  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
-  Office              Office                   @relation(fields: [officeId], references: [id])
+  workOrderId         String                   @unique
   officeId            String
-  OrderItems          OrderItem[]
-  OrderNotes          OrderNote[]
+  status              OrderStatus              @default(Pending)
+  deposit             Decimal                  @default(0) @db.Decimal(10, 2)
+  version             Int                      @default(1)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
   orderNumber         Int                      @default(autoincrement())
-  OrderPayments       OrderPayment[]
+  shippingInfoId      String?
+  dateInvoiced        DateTime?
+  inHandsDate         DateTime?
+  invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  createdById         String
+  contactPersonId     String?
   pressRun            String?                  @default("")
   quickbooksInvoiceId String?                  @unique
-  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  shippingInfoId      String?
-  status              OrderStatus              @default(Pending)
   syncToken           String?
-  updatedAt           DateTime                 @updatedAt
-  version             Int                      @default(1)
+  Invoice             Invoice?
+  contactPerson       User?                    @relation("OrderContactPerson", fields: [contactPersonId], references: [id])
+  createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  Office              Office                   @relation(fields: [officeId], references: [id])
+  ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
   WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
-  workOrderId         String                   @unique
+  OrderItems          OrderItem[]
+  OrderNotes          OrderNote[]
+  OrderPayments       OrderPayment[]
 }
 
 model OrderItem {
-  amount              Decimal?            @db.Decimal(10, 2)
-  artwork             OrderItemArtwork[]
-  cost                Decimal?            @db.Decimal(10, 2)
-  createdAt           DateTime            @default(now())
-  createdBy           User                @relation(fields: [createdById], references: [id])
-  createdById         String
-  deleted             Boolean             @default(false)
-  description         String              @default("")
-  expectedDate        DateTime            @default(now())
-  finishedQty         Int
   id                  String              @id @default(uuid())
-  ink                 String?             @default("")
-  InvoiceItems        InvoiceItem[]
-  Order               Order               @relation(fields: [orderId], references: [id])
   orderId             String
-  orderItemNumber     Int                 @default(autoincrement())
-  OrderItemStock      OrderItemStock[]
-  other               String?
-  PaperProduct        PaperProduct?       @relation(fields: [paperProductId], references: [id])
-  paperProductId      String?
-  prepTime            Int?
+  finishedQty         Int
   pressRun            String
-  ProcessingOptions   ProcessingOptions[]
-  ProductType         ProductType?        @relation(fields: [productTypeId], references: [id])
-  productTypeId       String?
-  quantity            Int                 @default(1)
-  shippingAmount      Decimal?            @db.Decimal(10, 2)
-  shippingInfoId      String?
-  ShippingInfo        ShippingInfo?       @relation(fields: [shippingInfoId], references: [id])
   size                String?
+  amount              Decimal?            @db.Decimal(10, 2)
   specialInstructions String?
   status              OrderItemStatus     @default(Pending)
-  Typesetting         Typesetting[]
+  createdAt           DateTime            @default(now())
+  createdById         String
   updatedAt           DateTime            @updatedAt
+  description         String              @default("")
+  expectedDate        DateTime            @default(now())
+  cost                Decimal?            @db.Decimal(10, 2)
+  prepTime            Int?
+  other               String?
+  shippingAmount      Decimal?            @db.Decimal(10, 2)
+  quantity            Int                 @default(1)
+  ink                 String?             @default("")
+  orderItemNumber     Int                 @default(autoincrement())
+  deleted             Boolean             @default(false)
+  paperProductId      String?
+  productTypeId       String?
+  shippingInfoId      String?
+  InvoiceItems        InvoiceItem[]
+  createdBy           User                @relation(fields: [createdById], references: [id])
+  Order               Order               @relation(fields: [orderId], references: [id])
+  PaperProduct        PaperProduct?       @relation(fields: [paperProductId], references: [id])
+  ProductType         ProductType?        @relation(fields: [productTypeId], references: [id])
+  ShippingInfo        ShippingInfo?       @relation(fields: [shippingInfoId], references: [id])
+  artwork             OrderItemArtwork[]
+  OrderItemStock      OrderItemStock[]
+  ProcessingOptions   ProcessingOptions[]
+  Typesetting         Typesetting[]
 }
 
 model OrderPayment {
@@ -225,10 +226,10 @@ model OrderItemArtwork {
   id          String    @id @default(cuid())
   orderItemId String
   fileUrl     String
-  fileType    FileType  @default(Image)
   description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  fileType    FileType  @default(Image)
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
 }
 
@@ -244,26 +245,27 @@ model OrderNote {
 }
 
 model OrderItemStock {
-  costPerM       Decimal       @default(0) @db.Decimal(10, 2)
-  createdAt      DateTime      @default(now())
-  createdBy      User          @relation(fields: [createdById], references: [id])
-  createdById    String
-  expectedDate   DateTime?
-  from           String?
   id             String        @id @default(uuid())
-  notes          String?
+  deleted        Boolean       @default(false)
+  stockQty       Int
+  costPerM       Decimal       @default(0) @db.Decimal(10, 2)
+  totalCost      Decimal?      @db.Decimal(10, 2)
+  from           String?
+  expectedDate   DateTime?
   orderedDate    DateTime?
-  OrderItem      OrderItem     @relation(fields: [orderItemId], references: [id])
-  orderItemId    String
-  PaperProduct   PaperProduct? @relation(fields: [paperProductId], references: [id])
-  paperProductId String?
   received       Boolean       @default(false)
   receivedDate   DateTime?
-  stockQty       Int
+  notes          String?
   stockStatus    StockStatus
-  supplier       String?
-  totalCost      Decimal?      @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  orderItemId    String
+  createdById    String
+  supplier       String?
+  paperProductId String?
+  createdBy      User          @relation(fields: [createdById], references: [id])
+  OrderItem      OrderItem     @relation(fields: [orderItemId], references: [id])
+  PaperProduct   PaperProduct? @relation(fields: [paperProductId], references: [id])
 }
 
 model PaperProduct {
@@ -271,24 +273,24 @@ model PaperProduct {
   brand              PaperBrand           @default(Other)
   paperType          PaperType            @default(Other)
   finish             PaperFinish          @default(Other)
-  weightLb           Int? // The # in "80# Cover"
-  caliper            Float? // Stored in points (e.g., 3.2)
-  size               String? // e.g., "12x18"
-  width              Float? // in inches
-  height             Float? // in inches
-  mWeight            Float? // M Weight from spreadsheet
+  weightLb           Int?
+  caliper            Float?
+  size               String?
+  width              Float?
+  height             Float?
+  mWeight            Float?
   sheetsPerUnit      Int?
-  referenceId        String?              @unique // REF# from spreadsheet
+  referenceId        String?              @unique
   isHPIndigo         Boolean              @default(false)
   supplier           String               @default("")
-  customDescription  String?              @default("")
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   deleted            Boolean              @default(false)
-  OrderItemStock     OrderItemStock[]
-  WorkOrderItemStock WorkOrderItemStock[]
-  WorkOrderItem      WorkOrderItem[]
+  customDescription  String?              @default("")
   OrderItem          OrderItem[]
+  OrderItemStock     OrderItemStock[]
+  WorkOrderItem      WorkOrderItem[]
+  WorkOrderItemStock WorkOrderItemStock[]
 
   @@index([brand, paperType, finish, weightLb])
   @@index([size, weightLb, finish])
@@ -354,46 +356,46 @@ model Session {
 }
 
 model ShippingInfo {
-  Address            Address?         @relation(fields: [addressId], references: [id])
-  addressId          String?
-  attentionTo        String?
-  createdAt          DateTime         @default(now())
-  createdBy          User             @relation(fields: [createdById], references: [id])
-  createdById        String
-  estimatedDelivery  DateTime?
   id                 String           @id @default(uuid())
   instructions       String?
-  numberOfPackages   Int?             @default(1)
-  Office             Office           @relation(fields: [officeId], references: [id])
-  officeId           String
-  Order              Order[]
-  OrderItems         OrderItem[]
-  shippingCost       Decimal?         @db.Decimal(10, 2)
+  shippingOther      String?
   shippingDate       DateTime?
   shippingMethod     ShippingMethod
-  shippingNotes      String?
-  shippingOther      String?
-  ShippingPickup     ShippingPickup[]
+  shippingCost       Decimal?         @db.Decimal(10, 2)
+  officeId           String
   shipToSameAsBillTo Boolean          @default(false)
-  trackingNumber     String[]         @default([])
+  attentionTo        String?
+  addressId          String?
+  createdAt          DateTime         @default(now())
+  createdById        String
   updatedAt          DateTime         @updatedAt
+  numberOfPackages   Int?             @default(1)
+  shippingNotes      String?
+  estimatedDelivery  DateTime?
+  trackingNumber     String[]         @default([])
+  Order              Order[]
+  OrderItems         OrderItem[]
+  Address            Address?         @relation(fields: [addressId], references: [id])
+  createdBy          User             @relation(fields: [createdById], references: [id])
+  Office             Office           @relation(fields: [officeId], references: [id])
+  ShippingPickup     ShippingPickup[]
   WorkOrder          WorkOrder[]
   WorkOrderItems     WorkOrderItem[]
 }
 
 model ShippingPickup {
+  id             String       @id @default(uuid())
+  shippingInfoId String
+  pickupDate     DateTime
+  pickupTime     String
+  notes          String?
   contactName    String
   contactPhone   String
   createdAt      DateTime     @default(now())
-  createdBy      User         @relation(fields: [createdById], references: [id])
-  createdById    String
-  id             String       @id @default(uuid())
-  notes          String?
-  pickupDate     DateTime
-  pickupTime     String
-  ShippingInfo   ShippingInfo @relation(fields: [shippingInfoId], references: [id])
-  shippingInfoId String
   updatedAt      DateTime     @updatedAt
+  createdById    String
+  createdBy      User         @relation(fields: [createdById], references: [id])
+  ShippingInfo   ShippingInfo @relation(fields: [shippingInfoId], references: [id])
 }
 
 model Typesetting {
@@ -534,36 +536,36 @@ model WorkOrder {
 }
 
 model WorkOrderItem {
-  amount              Decimal?               @db.Decimal(10, 2)
-  artwork             WorkOrderItemArtwork[]
-  cost                Decimal?               @db.Decimal(10, 2)
-  createdAt           DateTime               @default(now())
-  createdBy           User                   @relation(fields: [createdById], references: [id])
-  createdById         String
-  deleted             Boolean                @default(false)
-  description         String                 @default("")
-  expectedDate        DateTime               @default(now())
   id                  String                 @id @default(uuid())
-  ink                 String?                @default("")
+  workOrderId         String?
   other               String?
-  PaperProduct        PaperProduct?          @relation(fields: [paperProductId], references: [id])
-  paperProductId      String?
-  prepTime            Int?
-  ProcessingOptions   ProcessingOptions[]
-  ProductType         ProductType?           @relation(fields: [productTypeId], references: [id])
-  productTypeId       String?
-  quantity            Int                    @default(1)
-  shippingAmount      Decimal?               @db.Decimal(10, 2)
-  shippingInfoId      String?
-  ShippingInfo        ShippingInfo?          @relation(fields: [shippingInfoId], references: [id])
   size                String?
+  amount              Decimal?               @db.Decimal(10, 2)
   specialInstructions String?
   status              WorkOrderItemStatus    @default(Pending)
-  Typesetting         Typesetting[]
+  createdAt           DateTime               @default(now())
+  createdById         String
   updatedAt           DateTime               @updatedAt
-  WorkOrder           WorkOrder?             @relation(fields: [workOrderId], references: [id])
-  workOrderId         String?
+  description         String                 @default("")
+  expectedDate        DateTime               @default(now())
+  cost                Decimal?               @db.Decimal(10, 2)
+  prepTime            Int?
+  shippingAmount      Decimal?               @db.Decimal(10, 2)
+  quantity            Int                    @default(1)
+  ink                 String?                @default("")
   workOrderItemNumber Int                    @default(autoincrement())
+  deleted             Boolean                @default(false)
+  paperProductId      String?
+  productTypeId       String?
+  shippingInfoId      String?
+  ProcessingOptions   ProcessingOptions[]
+  Typesetting         Typesetting[]
+  createdBy           User                   @relation(fields: [createdById], references: [id])
+  PaperProduct        PaperProduct?          @relation(fields: [paperProductId], references: [id])
+  ProductType         ProductType?           @relation(fields: [productTypeId], references: [id])
+  ShippingInfo        ShippingInfo?          @relation(fields: [shippingInfoId], references: [id])
+  WorkOrder           WorkOrder?             @relation(fields: [workOrderId], references: [id])
+  artwork             WorkOrderItemArtwork[]
   WorkOrderItemStock  WorkOrderItemStock[]
 }
 
@@ -571,10 +573,10 @@ model WorkOrderItemArtwork {
   id              String        @id @default(cuid())
   workOrderItemId String
   fileUrl         String
-  fileType        FileType      @default(Image)
   description     String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  fileType        FileType      @default(Image)
   workOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
 }
 
@@ -590,26 +592,26 @@ model WorkOrderNote {
 }
 
 model WorkOrderItemStock {
-  costPerM        Decimal       @default(0) @db.Decimal(10, 2)
-  createdAt       DateTime      @default(now())
-  createdBy       User          @relation(fields: [createdById], references: [id])
-  createdById     String
-  expectedDate    DateTime?
-  from            String?
   id              String        @id @default(uuid())
-  notes           String?
+  stockQty        Int
+  costPerM        Decimal       @default(0) @db.Decimal(10, 2)
+  totalCost       Decimal?      @db.Decimal(10, 2)
+  from            String?
+  expectedDate    DateTime?
   orderedDate     DateTime?
-  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
-  paperProductId  String?
   received        Boolean       @default(false)
   receivedDate    DateTime?
-  stockQty        Int
+  notes           String?
   stockStatus     StockStatus
-  supplier        String?
-  totalCost       Decimal?      @db.Decimal(10, 2)
+  createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
   workOrderItemId String
+  createdById     String
+  supplier        String?
+  paperProductId  String?
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  PaperProduct    PaperProduct? @relation(fields: [paperProductId], references: [id])
+  WorkOrderItem   WorkOrderItem @relation(fields: [workOrderItemId], references: [id])
 }
 
 model WorkOrderVersion {
@@ -650,17 +652,17 @@ enum BindingType {
 }
 
 enum FileType {
-  CSV
-  Excel
   Image
+  PDF
+  Excel
+  CSV
+  Word
+  RTF
+  Other
   JPEG
   JPG
-  Other
-  PDF
   PNG
   PSD
-  RTF
-  Word
 }
 
 enum InvoicePrintEmailOptions {

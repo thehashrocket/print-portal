@@ -9,7 +9,11 @@ The Shared/paper Products/paper Products router provides the following endpoints
 | Endpoint | Type | Description |
 |----------|------|-------------|
 | `getAll` | query | Retrieves get all |
+| `create` | mutation | Updates create |
+| `update` | mutation | Updates update |
 | `getAll` | query | Retrieves get all |
+| `create` | mutation | Updates create |
+| `update` | mutation | Updates update |
 
 ### `getAll`
 
@@ -52,6 +56,232 @@ async function MyServerComponent() {
 }
 ```
 
+### `create`
+
+**Type:** `mutation`
+
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.create.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.create.useMutation({
+  onMutate: async (newData) => {
+    await utils.create.cancel();
+    const previousData = utils.create.getData();
+
+    utils.create.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.create.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.create.invalidate();
+  },
+});
+```
+
+### `update`
+
+**Type:** `mutation`
+
+Updates update
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.update.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.update.useMutation({
+  onMutate: async (newData) => {
+    await utils.update.cancel();
+    const previousData = utils.update.getData();
+
+    utils.update.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.update.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.update.invalidate();
+  },
+});
+```
+
 ### `getAll`
 
 **Type:** `query`
@@ -91,6 +321,232 @@ async function MyServerComponent() {
   
   return <div>{/* Use your data here */}</div>;
 }
+```
+
+### `create`
+
+**Type:** `mutation`
+
+Updates create
+
+**Input:**
+```typescript
+z.object({
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.create.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.create.useMutation({
+  onMutate: async (newData) => {
+    await utils.create.cancel();
+    const previousData = utils.create.getData();
+
+    utils.create.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.create.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.create.invalidate();
+  },
+});
+```
+
+### `update`
+
+**Type:** `mutation`
+
+Updates update
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.update.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  brand: unknown,
+  paperType: unknown,
+  finish: unknown,
+  weightLb: unknown,
+  caliper: unknown,
+  size: unknown,
+  width: unknown,
+  height: unknown,
+  mWeight: unknown,
+  sheetsPerUnit: unknown,
+  referenceId: unknown,
+  customDescription: unknown
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.update.useMutation({
+  onMutate: async (newData) => {
+    await utils.update.cancel();
+    const previousData = utils.update.getData();
+
+    utils.update.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.update.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.update.invalidate();
+  },
+});
 ```
 
 ## Error Handling

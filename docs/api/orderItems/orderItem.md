@@ -15,6 +15,9 @@ The Order Items/order Item router provides the following endpoints:
 | `updateDescription` | mutation | Updates update description |
 | `updateSpecialInstructions` | mutation | Updates update special instructions |
 | `updateStatus` | mutation | Updates update status |
+| `updateArtwork` | mutation | Updates update artwork |
+| `updateFields` | mutation | Updates update fields |
+| `updateShippingInfo` | mutation | Updates update shipping info |
 | `getByID` | query | Retrieves get by i d |
 | `getByOrderId` | query | Retrieves get by order id |
 | `getAll` | query | Retrieves get all |
@@ -22,6 +25,9 @@ The Order Items/order Item router provides the following endpoints:
 | `updateDescription` | mutation | Updates update description |
 | `updateSpecialInstructions` | mutation | Updates update special instructions |
 | `updateStatus` | mutation | Updates update status |
+| `updateArtwork` | mutation | Updates update artwork |
+| `updateFields` | mutation | Updates update fields |
+| `updateShippingInfo` | mutation | Updates update shipping info |
 
 ### `getByID`
 
@@ -473,6 +479,310 @@ const mutation = api.updateStatus.useMutation({
 });
 ```
 
+### `updateArtwork`
+
+**Type:** `mutation`
+
+Updates update artwork
+
+**Input:**
+```typescript
+z.object({
+  orderItemId: z.string(),
+  artwork: z.array()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateArtwork.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  orderItemId: z.string(),
+  artwork: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateArtwork.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateArtwork.cancel();
+    const previousData = utils.updateArtwork.getData();
+
+    utils.updateArtwork.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateArtwork.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateArtwork.invalidate();
+  },
+});
+```
+
+### `updateFields`
+
+**Type:** `mutation`
+
+Updates update fields
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  data: {
+  quantity: unknown,
+  ink: unknown,
+  productTypeId: unknown
+}
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateFields.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  data: {
+  quantity: unknown,
+  ink: unknown,
+  productTypeId: unknown
+}
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateFields.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateFields.cancel();
+    const previousData = utils.updateFields.getData();
+
+    utils.updateFields.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateFields.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateFields.invalidate();
+  },
+});
+```
+
+### `updateShippingInfo`
+
+**Type:** `mutation`
+
+Updates update shipping info
+
+**Input:**
+```typescript
+z.object({
+  orderItemId: z.string(),
+  shippingInfo: {
+  addressId: unknown,
+  instructions: unknown,
+  shippingCost: unknown,
+  shippingDate: unknown,
+  shippingNotes: unknown,
+  shippingMethod: z.nativeEnum(),
+  shippingOther: unknown,
+  trackingNumber: unknown,
+  shippingPickup: unknown
+}
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateShippingInfo.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  orderItemId: z.string(),
+  shippingInfo: {
+  addressId: unknown,
+  instructions: unknown,
+  shippingCost: unknown,
+  shippingDate: unknown,
+  shippingNotes: unknown,
+  shippingMethod: z.nativeEnum(),
+  shippingOther: unknown,
+  trackingNumber: unknown,
+  shippingPickup: unknown
+}
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateShippingInfo.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateShippingInfo.cancel();
+    const previousData = utils.updateShippingInfo.getData();
+
+    utils.updateShippingInfo.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateShippingInfo.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateShippingInfo.invalidate();
+  },
+});
+```
+
 ### `getByID`
 
 **Type:** `query`
@@ -919,6 +1229,310 @@ const mutation = api.updateStatus.useMutation({
   },
   onSettled: () => {
     utils.updateStatus.invalidate();
+  },
+});
+```
+
+### `updateArtwork`
+
+**Type:** `mutation`
+
+Updates update artwork
+
+**Input:**
+```typescript
+z.object({
+  orderItemId: z.string(),
+  artwork: z.array()
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateArtwork.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  orderItemId: z.string(),
+  artwork: z.array()
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateArtwork.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateArtwork.cancel();
+    const previousData = utils.updateArtwork.getData();
+
+    utils.updateArtwork.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateArtwork.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateArtwork.invalidate();
+  },
+});
+```
+
+### `updateFields`
+
+**Type:** `mutation`
+
+Updates update fields
+
+**Input:**
+```typescript
+z.object({
+  id: z.string(),
+  data: {
+  quantity: unknown,
+  ink: unknown,
+  productTypeId: unknown
+}
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateFields.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  id: z.string(),
+  data: {
+  quantity: unknown,
+  ink: unknown,
+  productTypeId: unknown
+}
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateFields.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateFields.cancel();
+    const previousData = utils.updateFields.getData();
+
+    utils.updateFields.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateFields.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateFields.invalidate();
+  },
+});
+```
+
+### `updateShippingInfo`
+
+**Type:** `mutation`
+
+Updates update shipping info
+
+**Input:**
+```typescript
+z.object({
+  orderItemId: z.string(),
+  shippingInfo: {
+  addressId: unknown,
+  instructions: unknown,
+  shippingCost: unknown,
+  shippingDate: unknown,
+  shippingNotes: unknown,
+  shippingMethod: z.nativeEnum(),
+  shippingOther: unknown,
+  trackingNumber: unknown,
+  shippingPickup: unknown
+}
+})
+```
+
+**Returns:**
+```typescript
+unknown
+```
+
+**Usage Examples:**
+
+
+#### Client Component
+```typescript
+"use client";
+import { api } from "~/trpc/react";
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  const mutation = api.updateShippingInfo.useMutation({
+    onSuccess: () => {
+      setIsLoading(false);
+      setSuccess("Operation completed successfully!");
+      setError(null);
+      // Optional: Reset form or perform other actions
+    },
+    onError: () => {
+      setIsLoading(false);
+      setError("An error occurred during the operation.");
+      setSuccess(null);
+    },
+  });
+
+  const handleSubmit = (data: z.object({
+  orderItemId: z.string(),
+  shippingInfo: {
+  addressId: unknown,
+  instructions: unknown,
+  shippingCost: unknown,
+  shippingDate: unknown,
+  shippingNotes: unknown,
+  shippingMethod: z.nativeEnum(),
+  shippingOther: unknown,
+  trackingNumber: unknown,
+  shippingPickup: unknown
+}
+})) => {
+    setIsLoading(true);
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <div className="toast toast-top toast-end">
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+      </div>
+
+      {/* Form implementation here */}
+    </>
+  );
+}
+```
+
+#### With Optimistic Updates
+```typescript
+const utils = api.useUtils();
+
+const mutation = api.updateShippingInfo.useMutation({
+  onMutate: async (newData) => {
+    await utils.updateShippingInfo.cancel();
+    const previousData = utils.updateShippingInfo.getData();
+
+    utils.updateShippingInfo.setData(undefined, (old) => {
+      // Update logic here
+      return old;
+    });
+
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    utils.updateShippingInfo.setData(undefined, context?.previousData);
+  },
+  onSettled: () => {
+    utils.updateShippingInfo.invalidate();
   },
 });
 ```

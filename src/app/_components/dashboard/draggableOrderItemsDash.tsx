@@ -33,6 +33,35 @@ const jobBorderColor = (dateString: string, status: OrderItemStatus): string => 
     }
 };
 
+// Move this before the DraggableOrderItemsDash component
+interface OrderItemNumberFilterProps {
+    orderItemNumber: string;
+    onOrderItemNumberChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
+    onClear: () => void;
+}
+
+const OrderItemNumberFilter: React.FC<OrderItemNumberFilterProps> = ({
+    orderItemNumber,
+    onOrderItemNumberChange,
+    onSubmit,
+    onClear
+}) => (
+    <div className="w-full md:w-auto mb-4 p-4 bg-gray-700 rounded-lg">
+        <Input
+            type="text"
+            value={orderItemNumber}
+            onChange={onOrderItemNumberChange}  
+            placeholder="Filter by Item Number..."
+            className="w-[300px] mb-2"
+        />
+        <div className="flex gap-2">
+            <Button variant="default" onClick={onSubmit}>Filter</Button>
+            <Button variant="outline" onClick={onClear}>Clear</Button>
+        </div>
+    </div>
+);
+
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
     const [originalItems] = useState<OrderItemDashboard[]>(initialOrderItems);
@@ -87,8 +116,12 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     };
 
     const handleOrderItemNumberSubmit = () => {
+        if (!orderItemNumber.trim()) {
+            setDisplayedItems(originalItems);
+            return;
+        }
         const filtered = originalItems.filter(
-            item => item.orderItemNumber.toString().includes(orderItemNumber)
+            item => item.orderItemNumber.toString().includes(orderItemNumber.trim())
         );
         setDisplayedItems(filtered);
     };
@@ -97,22 +130,6 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         setOrderItemNumber("");
         setDisplayedItems(originalItems);
     };
-
-    const OrderItemNumberFilter = () => (
-        <div className="w-full md:w-auto mb-4 p-4 bg-gray-700 rounded-lg">
-            <Input
-                type="text"
-                value={orderItemNumber}
-                onChange={handleOrderItemNumberChange}  
-                placeholder="Filter by Item Number..."
-                className="w-[300px] mb-2"
-            />
-            <div className="flex gap-2">
-                <Button variant="default" onClick={handleOrderItemNumberSubmit}>Filter</Button>
-                <Button variant="outline" onClick={clearOrderItemNumberFilter}>Clear</Button>
-            </div>
-        </div>
-    );
 
     // Your existing helper functions
 
@@ -216,7 +233,12 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                 <CompanyFilter />
-                <OrderItemNumberFilter />
+                <OrderItemNumberFilter
+                    orderItemNumber={orderItemNumber}
+                    onOrderItemNumberChange={handleOrderItemNumberChange}
+                    onSubmit={handleOrderItemNumberSubmit}
+                    onClear={clearOrderItemNumberFilter}
+                />
             </div>
             
             {/* Mobile View: Vertical tabs for status columns */}
@@ -251,7 +273,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
+                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
                     >
                         <h3 className="font-semibold mb-2">{status}</h3>
                         {(orderItemsByStatus[status] || []).map(orderItem => (

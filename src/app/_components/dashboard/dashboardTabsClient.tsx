@@ -23,10 +23,19 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
                 >
                     Orders
                 </a>
+                <a
+                    className={`tab ${activeTab === "orderItems" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
+                    onClick={() => setActiveTab("orderItems")}
+                >
+                    Order Items
+                </a>
             </div>
-            <div className="flex-grow">
+            <div className="grow">
                 {activeTab === "orders" && (
                     <DraggableOrdersDash initialOrders={orders} />
+                )}
+                {activeTab === "orderItems" && (
+                    <DraggableOrderItemsDash initialOrderItems={orderItems} />
                 )}
             </div>
         </div>

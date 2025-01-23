@@ -15,14 +15,14 @@ import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF';
-import { PrintButton } from './PrintButton';
+import { DownloadPDFButton } from './DownloadPDFButton';
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 import FileUpload from "../../shared/fileUpload";
 import { Input } from "../../ui/input";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
-import { Check, X, PencilIcon } from "lucide-react";
+import { Check, X, PencilIcon, Printer, FilePlus } from "lucide-react";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 import { type SerializedProcessingOptions } from "~/types/serializedTypes";
 
@@ -47,7 +47,7 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: 
         },
     });
 
-    
+
 
     const getStatusColor = (status: OrderItemStatus): string => {
         switch (status) {
@@ -107,7 +107,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [tempQuantity, setTempQuantity] = useState<number>(0);
     const [tempInk, setTempInk] = useState<string>("");
     const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
-    
+
     // Initialize local artwork state when orderItem changes
     useEffect(() => {
         if (orderItem?.artwork) {
@@ -197,7 +197,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
     const handleCancel = (field: string) => {
         if (!orderItem) return;
-        
+
         switch (field) {
             case 'quantity':
                 setTempQuantity(orderItem.quantity);
@@ -265,40 +265,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">Item Details</h1>
-                <PrintButton
-                    onClick={async () => {
-                        try {
-                            if (!shippingInfo) {
-                                throw new Error('Shipping info is required to generate PDF');
-                            }
-                            const defaultProcessingOptions = {
-                                id: '',
-                                cutting: null,
-                                padding: null,
-                                drilling: null,
-                                folding: null,
-                                other: null,
-                                numberingStart: null,
-                                numberingEnd: null,
-                                numberingColor: null,
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
-                                orderItemId: null,
-                                workOrderItemId: null,
-                                createdById: '',
-                                description: '',
-                                stitching: null,
-                                binderyTime: null,
-                                binding: null,
-                            } as const;
-                            const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
-                            await generateOrderItemPDF(orderItem, order, normalizedTypesetting, normalizedOrderItemStocks, orderPaperProducts, shippingInfo, processingOptions);
-                        } catch (error) {
-                            console.error('Error generating PDF:', error);
-                            toast.error('Error generating PDF');
-                        }
-                    }}
-                />
                 <div className="text-sm breadcrumbs overflow-x-auto">
                     <ul>
                         <li><Link href="/">Home</Link></li>
@@ -370,12 +336,76 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 <InfoCard key={stock.id} title="Paper Product" content={findPaperProduct(stock.paperProductId || '')} />
                             ))
                         )}
+                        <InfoCard title="Download PDF Order Item Details" content={
+                            <DownloadPDFButton
+                                onClick={async () => {
+                                    try {
+                                        if (!shippingInfo) {
+                                            throw new Error('Shipping info is required to generate PDF');
+                                        }
+                                        const defaultProcessingOptions = {
+                                            id: '',
+                                            cutting: null,
+                                            padding: null,
+                                            drilling: null,
+                                            folding: null,
+                                            other: null,
+                                            numberingStart: null,
+                                            numberingEnd: null,
+                                            numberingColor: null,
+                                            createdAt: new Date().toISOString(),
+                                            updatedAt: new Date().toISOString(),
+                                            orderItemId: null,
+                                            workOrderItemId: null,
+                                            createdById: '',
+                                            description: '',
+                                            stitching: null,
+                                            binderyTime: null,
+                                            binding: null,
+                                        } as const;
+                                        const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
+                                        await generateOrderItemPDF(
+                                            orderItem, 
+                                            order, 
+                                            normalizedTypesetting, 
+                                            normalizedOrderItemStocks, 
+                                            orderPaperProducts, 
+                                            shippingInfo, 
+                                            processingOptions
+                                        );
+                                    } catch (error) {
+                                        console.error('Error generating PDF:', error);
+                                        toast.error('Error generating PDF');
+                                    }
+                                }}
+                            />
+                        } />
+                        <InfoCard title="Print Order Item Details" content={
+                            <Link href={`/orders/${orderId}/orderItem/print/${orderItemId}`}>
+
+                                <Button variant="default">
+                                    <Printer className="w-4 h-4" />
+                                    Print Order Item Details
+                                </Button>
+                            </Link>
+                        } />
+                        
                     </div>
-                    
-                    {/* Row 2 - Company and Contact */}
+                </div>
+
+                {/* Paper Stock Section */}
+                <section className="mb-2">
+                    <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
+                    <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                        <OrderItemStockComponent orderItemId={orderItem.id} />
+                    </div>
+                </section>
+
+                {/* Row 2 - Shipping Info and Contact */}
+                <div className="flex flex-col gap-4 mb-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div className="grid grid-cols-1 gap-4 mb-2">
-                        <InfoCard title="Company" content={order.Office?.Company.name} />
+                            <InfoCard title="Company" content={order.Office?.Company.name} />
                             <ShippingInfoEditor
                                 orderItemId={orderItem.id}
                                 officeId={order.officeId}
@@ -385,8 +415,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 }}
                             />
                         </div>
-                        <InfoCard 
-                            title="Contact Info" 
+                        <InfoCard
+                            title="Contact Info"
                             content={
                                 <ContactPersonEditor
                                     orderId={order.id}
@@ -396,7 +426,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         utils.orders.getByID.invalidate(orderId);
                                     }}
                                 />
-                            } 
+                            }
                         />
                     </div>
                 </div>
@@ -429,15 +459,15 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
                 {/* Status Section */}
                 <div className="mb-6">
-                    <InfoCard 
-                        title="Status" 
+                    <InfoCard
+                        title="Status"
                         content={
-                            <ItemStatusBadge 
-                                id={orderItem.id} 
-                                status={orderItem.status} 
-                                orderId={orderItem.orderId} 
+                            <ItemStatusBadge
+                                id={orderItem.id}
+                                status={orderItem.status}
+                                orderId={orderItem.orderId}
                             />
-                        } 
+                        }
                     />
                 </div>
 
@@ -481,7 +511,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     });
                                 }}
                                 onDescriptionChanged={(fileUrl: string, description: string) => {
-                                    const updatedArtwork = localArtwork.map(art => 
+                                    const updatedArtwork = localArtwork.map(art =>
                                         art.fileUrl === fileUrl ? { ...art, description } : art
                                     );
                                     setLocalArtwork(updatedArtwork);
@@ -508,6 +538,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
 
                 {/* Additional Sections */}
                 <div className="space-y-6 md:space-y-8">
+                    {/* Typesetting Section */}
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Typesetting</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -521,6 +552,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         </div>
                     </section>
 
+                    {/* Bindery Options Section */}
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Bindery Options</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -530,12 +562,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         </div>
                     </section>
 
-                    <section>
-                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
-                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-                            <OrderItemStockComponent orderItemId={orderItem.id} />
-                        </div>
-                    </section>
                 </div>
             </div>
         </div>
