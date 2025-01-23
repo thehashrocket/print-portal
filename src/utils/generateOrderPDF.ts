@@ -171,9 +171,13 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     let tableRow = 0;
     order.OrderItems.forEach((item: any) => {
         tableRow += 10;
-        doc.setFont('helvetica', 'normal');
         // Truncate description to 20 characters
         const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
+        const textHeight = doc.getTextDimensions(truncatedDescription).h;
+        if (textHeight > 10) {
+            tableRow += textHeight;
+        }
+        doc.setFont('helvetica', 'normal');
         doc.text(truncatedDescription, 20, tableTop + tableRow);
         doc.text(item.quantity.toString(), 150, tableTop + tableRow);
         doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
