@@ -161,14 +161,8 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     yPos = Math.max(leftY, rightY) + 5;
 
     // Add table for order items
-    const tableTop = yPos + 10;
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Item', 20, tableTop);
-    doc.text('Quantity', 150, tableTop);
-    doc.text('Amount', 180, tableTop);
-
     const pageHeight = doc.internal.pageSize.height;
+    const bottomMargin = 20; // Define a bottom margin
     let tableRow = 0;
 
     order.OrderItems.forEach((item: any) => {
@@ -183,19 +177,28 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
         // Determine the maximum height for the row
         const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
         
-        // Check if adding this row will exceed the page height
-        if (tableTop + tableRow + maxHeight + 5 > pageHeight) {
+        // Check if adding this row will exceed the page height minus the bottom margin
+        if (yPos + tableRow + maxHeight + 5 > pageHeight - bottomMargin) {
             doc.addPage();
+            yPos = 20; // Reset yPos for new page
             tableRow = 0; // Reset row position for new page
+
+            // Add table headers on new page
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Item', 20, yPos);
+            doc.text('Quantity', 150, yPos);
+            doc.text('Amount', 180, yPos);
+            yPos += 10; // Move yPos down for the first row
         }
         
         // Adjust the row height based on the maximum text height
         tableRow += maxHeight + 5; // Add some padding
 
         doc.setFont('helvetica', 'normal');
-        doc.text(truncatedDescription, 20, tableTop + tableRow);
-        doc.text(item.quantity.toString(), 150, tableTop + tableRow);
-        doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
+        doc.text(truncatedDescription, 20, yPos + tableRow);
+        doc.text(item.quantity.toString(), 150, yPos + tableRow);
+        doc.text(formatCurrency(item.amount), 180, yPos + tableRow);
 
         // Advance the cursor for the next row
         tableRow += maxHeight + 5;
@@ -311,14 +314,8 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
         yPos = Math.max(leftY, rightY) + 5;
 
         // Add table for order items
-        const tableTop = yPos + 10;
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Item', 20, tableTop);
-        doc.text('Quantity', 150, tableTop);
-        doc.text('Amount', 180, tableTop);
-
         const pageHeight = doc.internal.pageSize.height;
+        const bottomMargin = 20; // Define a bottom margin
         let tableRow = 0;
 
         order.OrderItems.forEach((item: any) => {
@@ -333,19 +330,28 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
             // Determine the maximum height for the row
             const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
             
-            // Check if adding this row will exceed the page height
-            if (tableTop + tableRow + maxHeight + 5 > pageHeight) {
+            // Check if adding this row will exceed the page height minus the bottom margin
+            if (yPos + tableRow + maxHeight + 5 > pageHeight - bottomMargin) {
                 doc.addPage();
+                yPos = 20; // Reset yPos for new page
                 tableRow = 0; // Reset row position for new page
+
+                // Add table headers on new page
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Item', 20, yPos);
+                doc.text('Quantity', 150, yPos);
+                doc.text('Amount', 180, yPos);
+                yPos += 10; // Move yPos down for the first row
             }
             
             // Adjust the row height based on the maximum text height
             tableRow += maxHeight + 5; // Add some padding
 
             doc.setFont('helvetica', 'normal');
-            doc.text(truncatedDescription, 20, tableTop + tableRow);
-            doc.text(item.quantity.toString(), 150, tableTop + tableRow);
-            doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
+            doc.text(truncatedDescription, 20, yPos + tableRow);
+            doc.text(item.quantity.toString(), 150, yPos + tableRow);
+            doc.text(formatCurrency(item.amount), 180, yPos + tableRow);
 
             // Advance the cursor for the next row
             tableRow += maxHeight + 5;
