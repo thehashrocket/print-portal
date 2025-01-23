@@ -29,6 +29,22 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
   const router = useRouter();
   return (
     <div className="p-8 bg-white">
+      <style jsx global>{`
+        @media print {
+          .page-break-before {
+            break-before: page;
+            page-break-before: always;
+          }
+          .page-break-after {
+            break-after: page;
+            page-break-after: always;
+          }
+          .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+        }
+      `}</style>
       <div className="flex items-center justify-between mb-8 print:hidden">
         <Button variant="default" onClick={() => {
           // Back button
@@ -47,7 +63,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       </div>
 
       {/* Item Details Section */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-2 gap-8 mb-8 avoid-break">
         {/* Left Column */}
         <div>
           <h2 className="text-xl font-bold mb-4">ITEM DETAILS</h2>
@@ -126,7 +142,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
       {/* Paper Stock Section */}
       {orderPaperProducts && orderPaperProducts.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">Paper Stock</h2>
           <div className="space-y-1">
             {orderPaperProducts.map((product: string, index: number) => (
@@ -137,7 +153,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       )}
 
       {/* Shipping Info Section */}
-      <div className="mt-8">
+      <div className="mt-8 avoid-break">
         <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
         <div className="space-y-2">
           {shippingInfo.shippingMethod === ShippingMethod.Pickup && shippingInfo.ShippingPickup ? (
@@ -189,16 +205,18 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       </div>
 
       {/* Project Description Section */}
-      {orderItem.description && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Project Description</h2>
-          <p className="whitespace-pre-wrap">{orderItem.description}</p>
-        </div>
-      )}
+      <div className="mt-8 avoid-break">
+        {orderItem.description && (
+          <div className="mt-1">
+            <h2 className="text-xl font-bold mb-4">Project Description</h2>
+            <p className="whitespace-pre-wrap">{orderItem.description}</p>
+          </div>
+        )}
+      </div>
 
       {/* Special Instructions Section */}
       {orderItem.specialInstructions && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">Special Instructions</h2>
           <p className="whitespace-pre-wrap">{orderItem.specialInstructions}</p>
         </div>
@@ -206,7 +224,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
       {/* Typesetting Section */}
       {normalizedTypesetting?.[0] && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">TYPESETTING DETAILS</h2>
           <div className="grid grid-cols-2 gap-8">
             {Object.entries(normalizedTypesetting[0] as unknown as Record<string, unknown>)
@@ -229,7 +247,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
         const proofs = normalizedTypesetting?.[0]?.TypesettingProofs;
         if (!proofs?.length) return null;
         return (
-          <div className="mt-8">
+          <div className="mt-8 avoid-break">
             <h2 className="text-xl font-bold mb-4">PROOF FILE NAME(S)</h2>
             <div className="space-y-1">
               {proofs.map((proof: any) =>
@@ -244,7 +262,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
       {/* Bindery Options Section */}
       {processingOptions?.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">BINDERY OPTIONS</h2>
           {processingOptions.map((options, index) => (
             <div key={index} className="mt-4">
@@ -343,7 +361,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       )}
 
       {/* Print Button */}
-      <Button variant="default" className="mt-8 no-print" onClick={() => window.print()}>
+      <Button variant="default" className="mt-8 print:hidden" onClick={() => window.print()}>
         Print
       </Button>
 

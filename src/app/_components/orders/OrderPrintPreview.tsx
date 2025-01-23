@@ -15,6 +15,22 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
     const router = useRouter();
     return (
         <div className="p-8 bg-white">
+            <style jsx global>{`
+                @media print {
+                    .page-break-before {
+                        break-before: page;
+                        page-break-before: always;
+                    }
+                    .page-break-after {
+                        break-after: page;
+                        page-break-after: always;
+                    }
+                    .avoid-break {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                    }
+                }
+            `}</style>
             <div className="flex items-center justify-between mb-8 print:hidden">
                 <Button variant="default" onClick={() => {
                     // Back button
@@ -27,7 +43,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                 <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
                 <h1 className="text-3xl font-bold text-green-700">Order Details</h1>
             </header>
-            <section className="grid grid-cols-2 gap-8 mb-8">
+            <section className="grid grid-cols-2 gap-8 mb-8 avoid-break">
                 <div>
                     <p><strong>Order Number:</strong> {order.orderNumber}</p>
                     <p><strong>PO Number:</strong> {order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
@@ -43,7 +59,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     <p><strong>Email:</strong> {order.contactPerson?.email}</p>
                 </div>
             </section>
-            <section className="mb-8">
+            <section className="mb-8 avoid-break">
                 <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
                 {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup ? (
                     <>
@@ -92,7 +108,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     <p>{order.ShippingInfo?.instructions || 'N/A'}</p>
                 </div>
             </section>
-            <section className="mb-8">
+            <section className="mb-8 avoid-break">
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead>
                         <tr>
@@ -112,13 +128,13 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     </tbody>
                 </table>
             </section>
-            <section className="text-right">
+            <section className="text-right avoid-break">
                 <p><strong>Item Total:</strong> {formatCurrency(order.calculatedSubTotal || 0)}</p>
                 <p><strong>Shipping:</strong> {formatCurrency(order.totalShippingAmount || 0)}</p>
                 <p><strong>Tax:</strong> {formatCurrency(order.calculatedSalesTax || 0)}</p>
                 <p className="text-lg font-bold"><strong>Total:</strong> {formatCurrency(order.totalAmount || 0)}</p>
             </section>
-            <Button variant="default" className="mt-4" onClick={() => window.print()}>
+            <Button variant="default" className="mt-4 print:hidden" onClick={() => window.print()}>
                 Print
             </Button>
         </div>
