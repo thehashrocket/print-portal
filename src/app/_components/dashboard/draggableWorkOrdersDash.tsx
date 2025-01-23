@@ -58,7 +58,7 @@ const DraggableWorkOrdersDash: React.FC<{ initialWorkOrders: SerializedWorkOrder
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="flex-1 p-4 mr-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 min-w-[150px] min-h-[200px]">
+                        className="flex-1 p-4 mr-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 transition-colors duration-200 min-w-[150px] min-h-[200px]">
                         <h3 className="text-lg font-semibold mb-2">{status}</h3>
                         {(ordersByStatus[status] || []).map(workOrder => (
                             <div key={workOrder.id}

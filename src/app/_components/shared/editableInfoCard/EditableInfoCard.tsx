@@ -24,7 +24,7 @@ export const EditableInfoCard: React.FC<EditableInfoCardProps> = ({
     <section className="mb-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
         <div className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-            <div className="flex-grow">
+            <div className="grow">
                 {isEditing ? editComponent : content}
             </div>
             <div className="ml-4 flex gap-2">

@@ -134,10 +134,10 @@ export default function UserProfileForm({
 
     if (!isEditing) {
         return (
-            <div className="bg-white shadow-sm rounded-lg p-6 space-y-4">
+            <div className="bg-white shadow-xs rounded-lg p-6 space-y-4">
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <UserIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <UserIcon className="w-5 h-5 text-blue-600 shrink-0" />
                         <div>
                             <div className="text-sm text-gray-500">Name</div>
                             <div className="font-medium">{user.name}</div>
@@ -145,7 +145,7 @@ export default function UserProfileForm({
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <Mail className="w-5 h-5 text-blue-600 shrink-0" />
                         <div>
                             <div className="text-sm text-gray-500">Email</div>
                             <div className="font-medium">{user.email}</div>
@@ -153,7 +153,7 @@ export default function UserProfileForm({
                     </div>
 
                     <div className="flex items-start gap-3">
-                        <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
+                        <Building2 className="w-5 h-5 text-blue-600 shrink-0 mt-1" />
                         <div>
                             <div className="text-sm text-gray-500">Companies & Offices</div>
                             {user.offices.length > 0 ? (
@@ -182,7 +182,7 @@ export default function UserProfileForm({
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Users className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <Users className="w-5 h-5 text-blue-600 shrink-0" />
                         <div>
                             <div className="text-sm text-gray-500">Roles</div>
                             <div className="font-medium">{user.Roles.map(role => role.name).join(", ")}</div>
@@ -213,7 +213,7 @@ export default function UserProfileForm({
                 <Input
                     {...register("name")}
                     id="name"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-300 focus:ring-3 focus:ring-indigo-200 focus:ring-opacity-50"
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
             </div>
@@ -223,7 +223,7 @@ export default function UserProfileForm({
                 <Input
                     {...register("email")}
                     id="email"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-300 focus:ring-3 focus:ring-indigo-200 focus:ring-opacity-50"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
@@ -307,7 +307,7 @@ export default function UserProfileForm({
                                 type="checkbox"
                                 id={`role-${role.id}`}
                                 value={role.id}
-                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                className="rounded border-gray-300 text-indigo-600 shadow-xs focus:border-indigo-300 focus:ring-3 focus:ring-indigo-200 focus:ring-opacity-50"
                             />
                             <label htmlFor={`role-${role.id}`} className="ml-2 text-sm text-gray-700">{role.name}</label>
                         </div>
@@ -322,7 +322,7 @@ export default function UserProfileForm({
                     {...register("password")}
                     id="password"
                     type="password"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-300 focus:ring-3 focus:ring-indigo-200 focus:ring-opacity-50"
                 />
             </div>
 

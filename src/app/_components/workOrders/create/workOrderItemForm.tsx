@@ -202,7 +202,7 @@ const WorkOrderItemForm: React.FC = () => {
 
                         {/* Stock Items Section */}
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between w-[320]">
+                            <div className="flex items-center justify-between w-320">
                                 <Label>Paper Stock Items</Label>
                                 <WorkOrderItemStockDialog />
                             </div>

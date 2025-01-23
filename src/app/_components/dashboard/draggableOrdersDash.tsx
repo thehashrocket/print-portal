@@ -133,7 +133,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
+                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
                         <h3 className="font-semibold mb-2">{status}</h3>
                         {(ordersByStatus[status] || []).map(order => (
                             <OrderCard key={order.id} order={order} onDragStart={onDragStart} />

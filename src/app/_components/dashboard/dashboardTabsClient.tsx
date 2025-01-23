@@ -30,7 +30,7 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
                     Order Items
                 </a>
             </div>
-            <div className="flex-grow">
+            <div className="grow">
                 {activeTab === "orders" && (
                     <DraggableOrdersDash initialOrders={orders} />
                 )}

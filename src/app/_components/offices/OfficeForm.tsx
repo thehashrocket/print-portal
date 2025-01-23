@@ -146,7 +146,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                     <Button
                         variant="secondary"
                         onClick={handleAddAddress}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Address
@@ -180,7 +180,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.name ?? ''}
                             onChange={(e) => handleAddressChange(address.id, 'name', e.target.value)}
                             placeholder="Address Name"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         <Input
@@ -189,7 +189,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.line1}
                             onChange={(e) => handleAddressChange(address.id, 'line1', e.target.value)}
                             placeholder="Address Line 1"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <Input
                             id="line2"
@@ -197,7 +197,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.line2 ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'line2', e.target.value)}
                             placeholder="Address Line 2 (Optional)"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <Input
                             id="line3"
@@ -205,7 +205,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.line3 ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'line3', e.target.value)}
                             placeholder="Address Line 3 (Optional)"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <Input
                             id="line4"
@@ -213,7 +213,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.line4 ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'line4', e.target.value)}
                             placeholder="Address Line 4 (Optional)"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                         <div className="grid grid-cols-2 gap-2">
                             <Input
@@ -222,7 +222,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 value={address.city}
                                 onChange={(e) => handleAddressChange(address.id, 'city', e.target.value)}
                                 placeholder="City"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                             <Input
                                 id="state"
@@ -230,7 +230,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 value={address.state}
                                 onChange={(e) => handleAddressChange(address.id, 'state', e.target.value)}
                                 placeholder="State"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
@@ -240,7 +240,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 value={address.zipCode}
                                 onChange={(e) => handleAddressChange(address.id, 'zipCode', e.target.value)}
                                 placeholder="Zip Code"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                             <Input
                                 id="country"
@@ -248,7 +248,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                                 value={address.country}
                                 onChange={(e) => handleAddressChange(address.id, 'country', e.target.value)}
                                 placeholder="Country"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
                         <Input
@@ -257,7 +257,7 @@ export default function OfficeForm({ office }: { office: SerializedOffice }) {
                             value={address.telephoneNumber ?? ""}
                             onChange={(e) => handleAddressChange(address.id, 'telephoneNumber', e.target.value)}
                             placeholder="Telephone Number"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                     </div>
                 ))}
