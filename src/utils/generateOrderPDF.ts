@@ -170,17 +170,27 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
 
     let tableRow = 0;
     order.OrderItems.forEach((item: any) => {
-        tableRow += 10;
-        // Truncate description to 20 characters
+        // Truncate description to 50 characters
         const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
-        const textHeight = doc.getTextDimensions(truncatedDescription).h;
-        if (textHeight > 10) {
-            tableRow += textHeight;
-        }
+        
+        // Measure the height of each text element
+        const descriptionHeight = doc.getTextDimensions(truncatedDescription).h;
+        const quantityHeight = doc.getTextDimensions(item.quantity.toString()).h;
+        const amountHeight = doc.getTextDimensions(formatCurrency(item.amount)).h;
+        
+        // Determine the maximum height for the row
+        const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
+        
+        // Adjust the row height based on the maximum text height
+        tableRow += maxHeight + 5; // Add some padding
+
         doc.setFont('helvetica', 'normal');
         doc.text(truncatedDescription, 20, tableTop + tableRow);
         doc.text(item.quantity.toString(), 150, tableTop + tableRow);
         doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
+
+        // Advance the cursor for the next row
+        tableRow += maxHeight + 5;
     });
 
     doc.save(`order_${order.orderNumber}.pdf`);
@@ -302,12 +312,27 @@ export const generateEmailOrderPDF = async (order: SerializedOrder): Promise<str
 
         let tableRow = 0;
         order.OrderItems.forEach((item: any) => {
-            tableRow += 10;
-            doc.setFont('helvetica', 'normal');
+            // Truncate description to 50 characters
             const truncatedDescription = item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description;
+            
+            // Measure the height of each text element
+            const descriptionHeight = doc.getTextDimensions(truncatedDescription).h;
+            const quantityHeight = doc.getTextDimensions(item.quantity.toString()).h;
+            const amountHeight = doc.getTextDimensions(formatCurrency(item.amount)).h;
+            
+            // Determine the maximum height for the row
+            const maxHeight = Math.max(descriptionHeight, quantityHeight, amountHeight);
+            
+            // Adjust the row height based on the maximum text height
+            tableRow += maxHeight + 5; // Add some padding
+
+            doc.setFont('helvetica', 'normal');
             doc.text(truncatedDescription, 20, tableTop + tableRow);
             doc.text(item.quantity.toString(), 150, tableTop + tableRow);
             doc.text(formatCurrency(item.amount), 180, tableTop + tableRow);
+
+            // Advance the cursor for the next row
+            tableRow += maxHeight + 5;
         });
 
         const pdfContent = doc.output('datauristring');
