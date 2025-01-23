@@ -218,6 +218,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         OrderItemStatus.Prepress,
         OrderItemStatus.Press,
         OrderItemStatus.Bindery,
+        OrderItemStatus.Hold,
         OrderItemStatus.Shipping,
         OrderItemStatus.Completed,
     ];
