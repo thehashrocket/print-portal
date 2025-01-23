@@ -5,7 +5,8 @@ import { SerializedOrderItem, SerializedOrder, SerializedShippingInfo, Serialize
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '~/app/_components/ui/button';
 import { ShippingMethod } from '@prisma/client';
-
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 interface OrderItemPrintPreviewProps {
   orderItem: SerializedOrderItem;
   order: SerializedOrder;
@@ -16,8 +17,8 @@ interface OrderItemPrintPreviewProps {
   processingOptions: SerializedProcessingOptions[];
 }
 
-const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({ 
-  orderItem, 
+const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
+  orderItem,
   order,
   shippingInfo,
   normalizedTypesetting,
@@ -25,8 +26,17 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
   orderPaperProducts,
   processingOptions
 }) => {
+  const router = useRouter();
   return (
     <div className="p-8 bg-white">
+      <div className="flex items-center justify-between mb-8 print:hidden">
+        <Button variant="default" onClick={() => {
+          // Back button
+          router.back();
+        }}>
+          <ArrowLeft className="w-4 h-4" /> Back
+        </Button>
+      </div>
       {/* Header with Logo and Status */}
       <div className="flex justify-between items-start mb-8">
         <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
@@ -222,7 +232,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4">PROOF FILE NAME(S)</h2>
             <div className="space-y-1">
-              {proofs.map((proof: any) => 
+              {proofs.map((proof: any) =>
                 proof.artwork?.map((art: any, index: number) => (
                   <p key={index}>{art.fileUrl}</p>
                 ))

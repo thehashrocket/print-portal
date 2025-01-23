@@ -15,7 +15,7 @@ import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF';
-import { PrintButton } from './PrintButton';
+import { DownloadPDFButton } from './DownloadPDFButton';
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
@@ -337,7 +337,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             ))
                         )}
                         <InfoCard title="Download PDF Order Item Details" content={
-                            <PrintButton
+                            <DownloadPDFButton
                                 onClick={async () => {
                                     try {
                                         if (!shippingInfo) {

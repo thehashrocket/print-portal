@@ -1,7 +1,7 @@
 import { Download, FilePlus } from 'lucide-react';
 import { Button } from '../../ui/button';
 
-export const PrintButton = ({ onClick }: { onClick: () => void }) => {
+export const DownloadPDFButton = ({ onClick }: { onClick: () => void }) => {
     return (
         <Button
             variant="default"
