@@ -5,7 +5,7 @@ import { SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '../ui/button';
 import { ShippingMethod } from '@prisma/client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 interface OrderPrintPreviewProps {
     order: SerializedOrder;
@@ -137,6 +137,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                 <p className="text-lg font-bold"><strong>Total:</strong> {formatCurrency(order.totalAmount || 0)}</p>
             </section>
             <Button variant="default" className="mt-4 print:hidden" onClick={() => window.print()}>
+                <Printer className="w-4 h-4" />
                 Print
             </Button>
         </div>
