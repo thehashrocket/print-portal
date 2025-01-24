@@ -21,6 +21,7 @@ import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator
 import { Input } from "../ui/input";
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { useRouter } from 'next/navigation';
+import InfoCard from "../shared/InfoCard/InfoCard";
 
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -79,13 +80,6 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
         />
     );
 }
-
-const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
-    </section>
-);
 
 const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const utils = api.useUtils();
@@ -174,18 +168,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
     const handleCreateQuickbooksInvoice = (orderId: string) => {
         createQuickbooksInvoice({ orderId: orderId });
-    };
-
-    const router = useRouter();
-    const handlePrint = () => {
-        if (order) {
-            router.push(`/orders/print/${order.id}`);
-            setTimeout(() => {
-                window.print();
-            }, 500); // Delay to ensure the page is fully loaded
-        } else {
-            console.error('Order is null or undefined');
-        }
     };
 
     useEffect(() => {

@@ -19,7 +19,7 @@ import ContactPersonEditor from '../shared/ContactPersonEditor/ContactPersonEdit
 import { toast } from "react-hot-toast";
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { type AppRouter } from "~/server/api/root";
-
+import InfoCard from "../shared/InfoCard/InfoCard";
 const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -76,13 +76,6 @@ const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workO
         </div>
     );
 };
-
-const InfoCard = ({ title, content }: { title: string; content: React.ReactNode }) => (
-    <section className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">{content}</div>
-    </section>
-);
 
 interface WorkOrderDetailsProps {
     initialWorkOrder: SerializedWorkOrder | null;
@@ -166,7 +159,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             content={<p className="text-2xl font-bold">{workOrder.workOrderNumber}</p>}
                         />
                         <InfoCard
-                            title="Office Name"
+                            title="Company Name"
                             content={<p className="text-2xl">{workOrder.Office.Company.name}</p>}
                         />
                         <InfoCard
