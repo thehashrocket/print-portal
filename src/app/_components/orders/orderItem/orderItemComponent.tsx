@@ -341,6 +341,61 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         content={order.Office?.Company.name ?? 'N/A'}
                     />
                 </div>
+                <div className="flex flex-row gap-4 mb-2">
+                    <InfoCard title="Download PDF Order Item Details" content={
+                        <DownloadPDFButton
+                            onClick={async () => {
+                                try {
+                                    if (!shippingInfo) {
+                                        throw new Error('Shipping info is required to generate PDF');
+                                    }
+                                    const defaultProcessingOptions = {
+                                        id: '',
+                                        cutting: null,
+                                        padding: null,
+                                        drilling: null,
+                                        folding: null,
+                                        other: null,
+                                        numberingStart: null,
+                                        numberingEnd: null,
+                                        numberingColor: null,
+                                        createdAt: new Date().toISOString(),
+                                        updatedAt: new Date().toISOString(),
+                                        orderItemId: null,
+                                        workOrderItemId: null,
+                                        createdById: '',
+                                        description: '',
+                                        stitching: null,
+                                        binderyTime: null,
+                                        binding: null,
+                                    } as const;
+                                    const processingOptions = normalizedProcessingOptions ?? [defaultProcessingOptions];
+                                    await generateOrderItemPDF(
+                                        orderItem,
+                                        order,
+                                        normalizedTypesetting,
+                                        normalizedOrderItemStocks,
+                                        orderPaperProducts,
+                                        shippingInfo,
+                                        processingOptions
+                                    );
+                                } catch (error) {
+                                    console.error('Error generating PDF:', error);
+                                    toast.error('Error generating PDF');
+                                }
+                            }}
+                        />
+                    } />
+                    <InfoCard title="Print Order Item Details" content={
+                        <Link href={`/orders/${orderId}/orderItem/print/${orderItemId}`}>
+
+                            <Button variant="default">
+                                <Printer className="w-4 h-4" />
+                                Print Order Item Details
+                            </Button>
+                        </Link>
+                    } />
+                </div>
 
                 {/* Paper Stock Section */}
                 <section className="mb-2">
