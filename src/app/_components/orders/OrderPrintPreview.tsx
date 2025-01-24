@@ -52,7 +52,6 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     <p><strong>Ship To:</strong> {order.Office.Company.name}</p>
                 </div>
                 <div>
-                    <p><strong>Shipping Method:</strong> {order.ShippingInfo?.shippingMethod || 'N/A'}</p>
                     <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber?.join(', ') || 'N/A'}</p>
                     <p><strong>Company:</strong> {order.Office.Company.name}</p>
                     <p><strong>Contact:</strong> {order.contactPerson?.name}</p>
@@ -63,6 +62,10 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                 <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
                 {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup ? (
                     <>
+                        <div className="flex">
+                            <p className="w-32 font-bold">Shipping Method</p>
+                            <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
+                        </div>
                         <div className="flex">
                             <p className="w-32 font-bold">Pickup Date</p>
                             <p>{order?.ShippingInfo?.ShippingPickup?.pickupDate ? formatDate(order?.ShippingInfo?.ShippingPickup?.pickupDate) : 'N/A'}</p>
