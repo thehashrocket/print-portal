@@ -272,7 +272,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 <InfoCard
                                     title="Print Order"
                                     content={
-                                        <Link href={`/orders/print/${order.id}`}>
+                                        <Link href={`/orders/${order.id}/print`}>
                                             <Button
                                                 variant="default"
                                             >

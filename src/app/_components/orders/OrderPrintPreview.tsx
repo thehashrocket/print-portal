@@ -43,19 +43,18 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                 <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
                 <h1 className="text-3xl font-bold text-green-700">Order Details</h1>
             </header>
-            <section className="grid grid-cols-2 gap-8 mb-8 avoid-break">
-                <div>
+            <section className="flex items-start justify-between mb-8 avoid-break">
+                <div className="flex flex-col gap-2">
+                    <p><strong>Company:</strong> {order.Office.Company.name}</p>
+                    <p><strong>Contact:</strong> {order.contactPerson?.name}</p>
+                    <p><strong>Email:</strong> {order.contactPerson?.email}</p>
+                </div>
+                <div className="flex flex-col gap-2">
                     <p><strong>Order Number:</strong> {order.orderNumber}</p>
                     <p><strong>PO Number:</strong> {order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
                     <p><strong>Date:</strong> {formatDate(order.updatedAt || '')}</p>
                     <p><strong>In Hands Date:</strong> {formatDate(order.inHandsDate || '')}</p>
-                    <p><strong>Ship To:</strong> {order.Office.Company.name}</p>
-                </div>
-                <div>
-                    <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber?.join(', ') || 'N/A'}</p>
-                    <p><strong>Company:</strong> {order.Office.Company.name}</p>
-                    <p><strong>Contact:</strong> {order.contactPerson?.name}</p>
-                    <p><strong>Email:</strong> {order.contactPerson?.email}</p>
+                    <p><strong>Ship To:</strong> {order.Office.Company.name}</p>                    
                 </div>
             </section>
             <section className="mb-8 avoid-break">

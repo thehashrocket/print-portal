@@ -387,7 +387,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         />
                     } />
                     <InfoCard title="Print Order Item Details" content={
-                        <Link href={`/orders/${orderId}/orderItem/print/${orderItemId}`}>
+                        <Link href={`/orders/${orderId}/orderItem/${orderItemId}/print`}>
 
                             <Button variant="default">
                                 <Printer className="w-4 h-4" />
