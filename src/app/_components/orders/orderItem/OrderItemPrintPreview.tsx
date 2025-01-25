@@ -45,17 +45,21 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           }
         }
       `}</style>
-      <div className="flex items-center justify-between mb-8 print:hidden">
+      <div className="flex flex-row mb-8 print:hidden">
         <Button variant="default" onClick={() => {
           // Back button
           router.back();
         }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
+        <Button variant="default" className="ml-4 print:hidden" onClick={() => window.print()}>
+                    <Printer className="w-4 h-4" />
+                    Print
+                </Button>
       </div>
       {/* Header with Logo and Status */}
       <div className="flex justify-between items-start mb-8">
-        <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
+        <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
         <h2 className="text-3xl font-bold text-green-700">Item Details</h2>
       </div>
 
@@ -93,13 +97,13 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
         {/* Right Column */}
         <div className="flex flex-col gap-1">
-
+          <h2 className="text-xl font-bold mb-1">ORDER ITEM INFORMATION</h2>
           <div className="flex">
             <p className="w-32 text-xl font-bold">Status</p>
             <p className="text-xl">{orderItem.status}</p>
           </div>
           <div className="flex">
-            <p className="w-32 font-bold">Date StartedD</p>
+            <p className="w-32 font-bold">Date Started</p>
             <p>{formatDate(orderItem.createdAt)}</p>
           </div>
 
@@ -134,9 +138,11 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       <div className='flex items-start justify-between mb-8 avoid-break'>
         <div className='flex flex-col gap-1'>
           {orderItem.ProductType && (
-            <div className='flex'>
-              <p className="w-32 font-bold">Product Type</p>
-              <p>{orderItem.ProductType.name}</p>
+            <div className='flex flex-col gap-1'>
+              <h2 className="text-xl font-bold mb-1">PRODUCT TYPE</h2>
+              <div className='flex'>
+                <p>{orderItem.ProductType.name}</p>
+              </div>
             </div>
           )}
         </div>
@@ -144,7 +150,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           {/* Paper Stock Section */}
           {orderPaperProducts && orderPaperProducts.length > 0 && (
             <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-bold mb-2">Paper Stock</h2>
+              <h2 className="text-xl font-bold mb-1">Paper Stock</h2>
               {orderPaperProducts.map((product: string, index: number) => (
                 <p key={index}>{product}</p>
               ))}
@@ -271,7 +277,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
               {index > 0 && (
                 <h3 className="font-bold mb-2">Option Set {index + 1}</h3>
               )}
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid grid-cols-2 gap64">
                 <div className="space-y-2">
                   {/* Basic Options */}
                   {options.cutting && (

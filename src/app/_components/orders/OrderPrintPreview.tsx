@@ -31,30 +31,60 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     }
                 }
             `}</style>
-            <div className="flex items-center justify-between mb-8 print:hidden">
+            <div className="flex flex-row mb-8 print:hidden">
                 <Button variant="default" onClick={() => {
                     // Back button
                     router.back();
                 }}>
                     <ArrowLeft className="w-4 h-4" /> Back
                 </Button>
+                <Button variant="default" className="ml-4 print:hidden" onClick={() => window.print()}>
+                    <Printer className="w-4 h-4" />
+                    Print
+                </Button>
             </div>
             <header className="flex items-center justify-between mb-8">
-                <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
+                <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
                 <h1 className="text-3xl font-bold text-green-700">Order Details</h1>
             </header>
             <section className="flex items-start justify-between mb-8 avoid-break">
                 <div className="flex flex-col gap-2">
-                    <p><strong>Company:</strong> {order.Office.Company.name}</p>
-                    <p><strong>Contact:</strong> {order.contactPerson?.name}</p>
-                    <p><strong>Email:</strong> {order.contactPerson?.email}</p>
+                    <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Contact:</p>
+                        <p>{order.contactPerson?.name}</p>  
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Email:</p>
+                        <p>{order.contactPerson?.email}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Phone:</p>
+                        <p>{order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                    <p><strong>Order Number:</strong> {order.orderNumber}</p>
-                    <p><strong>PO Number:</strong> {order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
-                    <p><strong>Date:</strong> {formatDate(order.updatedAt || '')}</p>
-                    <p><strong>In Hands Date:</strong> {formatDate(order.inHandsDate || '')}</p>
-                    <p><strong>Ship To:</strong> {order.Office.Company.name}</p>                    
+                    <h2 className="text-xl font-bold mb-1">ORDER INFORMATION</h2>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Order Number:</p>
+                        <p>{order.orderNumber}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">PO Number:</p>
+                        <p>{order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Date:</p>
+                        <p>{formatDate(order.updatedAt || '')}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">In Hands Date:</p>
+                        <p>{formatDate(order.inHandsDate || '')}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Ship To:</p>
+                        <p>{order.Office.Company.name}</p>
+                    </div>
                 </div>
             </section>
             <section className="mb-8 avoid-break">
