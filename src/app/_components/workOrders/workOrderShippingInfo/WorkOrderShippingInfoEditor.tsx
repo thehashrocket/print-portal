@@ -215,12 +215,12 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
 
     if (!isEditing) {
         return (
-            <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
+            <div className="space-y-6 p-6 bg-white rounded-lg shadow-xs">
                 {currentShippingInfo ? (
                     <>
                         <div className="grid gap-4">
                             <div className="flex items-center gap-3">
-                                <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <Truck className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Method</div>
                                     <div className="font-medium">{currentShippingInfo.shippingMethod}</div>
@@ -228,7 +228,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Address</div>
                                     <div className="font-medium">
@@ -245,7 +245,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <DollarSign className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <DollarSign className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Cost</div>
                                     <div className="font-medium">{currentShippingInfo.shippingCost ? formatCurrency(currentShippingInfo.shippingCost) : 'N/A'}</div>
@@ -253,7 +253,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <Calendar className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Date</div>
                                     <div className="font-medium">{currentShippingInfo.shippingDate ? formatDate(currentShippingInfo.shippingDate) : 'N/A'}</div>
@@ -261,7 +261,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <FileText className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Instructions</div>
                                     <div className="font-medium">{currentShippingInfo.instructions || 'N/A'}</div>
@@ -269,7 +269,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <Notebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <Notebook className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Notes</div>
                                     <div className="font-medium">{currentShippingInfo.shippingNotes || 'N/A'}</div>
@@ -277,7 +277,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <Package className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <Package className="w-5 h-5 text-blue-600 shrink-0" />
                                 <div>
                                     <div className="text-sm text-gray-500">Tracking Numbers</div>
                                     <div className="font-medium">

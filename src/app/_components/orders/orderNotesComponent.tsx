@@ -86,7 +86,7 @@ const OrderNotesComponent: React.FC<OrderNotesProps> = ({ notes, orderId }) => {
                 <div className="mb-4">
                     <Label htmlFor="note">Add Note</Label>
                     <Textarea
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
                         id="note"
                         name="note"
                         rows={3}

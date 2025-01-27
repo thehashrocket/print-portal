@@ -42,15 +42,15 @@ export default async function CompaniesPage() {
 
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full sm:w-auto">
-                    <div className="stat bg-base-100 shadow p-4">
+                    <div className="stat bg-base-100 shadow-sm p-4">
                         <div className="stat-title text-sm">Total Companies</div>
                         <div className="stat-value text-xl sm:text-2xl">{totalCompanies}</div>
                     </div>
-                    <div className="stat bg-base-100 shadow p-4">
+                    <div className="stat bg-base-100 shadow-sm p-4">
                         <div className="stat-title text-sm">Pending Estimates</div>
                         <div className="stat-value text-xl sm:text-2xl">${totalPendingWorkOrders.toFixed(2)}</div>
                     </div>
-                    <div className="stat bg-base-100 shadow p-4">
+                    <div className="stat bg-base-100 shadow-sm p-4">
                         <div className="stat-title text-sm">Pending Orders</div>
                         <div className="stat-value text-xl sm:text-2xl">${totalPendingOrders.toFixed(2)}</div>
                     </div>

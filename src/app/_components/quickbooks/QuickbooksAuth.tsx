@@ -165,7 +165,7 @@ const QuickBooksAuth: React.FC = () => {
     }
 
     return (
-        <div className="p-4 bg-white shadow rounded-lg">
+        <div className="p-4 bg-white shadow-sm rounded-lg">
             <h2 className="text-xl font-bold mb-4">QuickBooks Integration</h2>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             {isQuickbooksAuthenticated && (
