@@ -5,6 +5,7 @@ import DraggableOrderItemsDash from "./orderItems/draggableOrderItemsDash";
 import DraggableOrdersDash from "./orders/draggableOrdersDash";
 import { type OrderDashboard } from "~/types/orderDashboard";
 import { type OrderItemDashboard } from "~/types/orderItemDashboard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/app/_components/ui/tabs";
 // Update the component props to match the actual data being passed
 interface DashboardTabsClientProps {
     orderItems: OrderItemDashboard[];
@@ -16,28 +17,19 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
 
     return (
         <div className="flex flex-col">
-            <div role="tablist" className="tabs tabs-bordered tabs-lifted tabs-lg">
-                <a
-                    className={`tab ${activeTab === "orders" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
-                    onClick={() => setActiveTab("orders")}
-                >
-                    Orders
-                </a>
-                <a
-                    className={`tab ${activeTab === "orderItems" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-600"}`}
-                    onClick={() => setActiveTab("orderItems")}
-                >
-                    Order Items
-                </a>
-            </div>
-            <div className="grow">
-                {activeTab === "orders" && (
+            <Tabs defaultValue="orders" className="grow">
+                <TabsList>
+                    <TabsTrigger value="orders">Orders</TabsTrigger>
+                    <TabsTrigger value="orderItems">Order Items</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="orders">
                     <DraggableOrdersDash initialOrders={orders} />
-                )}
-                {activeTab === "orderItems" && (
+                </TabsContent>
+                <TabsContent value="orderItems">
                     <DraggableOrderItemsDash initialOrderItems={orderItems} />
-                )}
-            </div>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }
