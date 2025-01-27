@@ -81,6 +81,10 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           <div className="flex flex-col gap-2">
             <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
             <div className="flex">
+              <p className="w-32 font-bold">Company</p>
+              <p>{order.Office.Company.name}</p>
+            </div>
+            <div className="flex">
               <p className="w-32 font-bold">Name</p>
               <p>{order.contactPerson?.name || 'N/A'}</p>
             </div>
