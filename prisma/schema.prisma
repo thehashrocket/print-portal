@@ -692,6 +692,7 @@ enum OrderItemStatus {
   Bindery
   Cancelled
   Completed
+  Hold
   Invoiced
   Pending
   Prepress

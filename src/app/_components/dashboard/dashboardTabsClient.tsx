@@ -1,8 +1,8 @@
 // ~src/app/_components/dashboard/dashboardTabsClient.tsx
 "use client";
 import React, { useState } from "react";
-import DraggableOrderItemsDash from "./draggableOrderItemsDash";
-import DraggableOrdersDash from "./draggableOrdersDash";
+import DraggableOrderItemsDash from "./orderItems/draggableOrderItemsDash";
+import DraggableOrdersDash from "./orders/draggableOrdersDash";
 import { type OrderDashboard } from "~/types/orderDashboard";
 import { type OrderItemDashboard } from "~/types/orderItemDashboard";
 // Update the component props to match the actual data being passed

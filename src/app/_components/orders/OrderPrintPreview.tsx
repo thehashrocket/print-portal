@@ -5,7 +5,7 @@ import { SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '../ui/button';
 import { ShippingMethod } from '@prisma/client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 interface OrderPrintPreviewProps {
     order: SerializedOrder;
@@ -15,38 +15,90 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
     const router = useRouter();
     return (
         <div className="p-8 bg-white">
-            <div className="flex items-center justify-between mb-8 print:hidden">
+            <style jsx global>{`
+                @media print {
+                    .page-break-before {
+                        break-before: page;
+                        page-break-before: always;
+                    }
+                    .page-break-after {
+                        break-after: page;
+                        page-break-after: always;
+                    }
+                    .avoid-break {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                    }
+                }
+            `}</style>
+            <div className="flex flex-row mb-8 print:hidden">
                 <Button variant="default" onClick={() => {
                     // Back button
                     router.back();
                 }}>
                     <ArrowLeft className="w-4 h-4" /> Back
                 </Button>
+                <Button variant="default" className="ml-4 print:hidden" onClick={() => window.print()}>
+                    <Printer className="w-4 h-4" />
+                    Print
+                </Button>
             </div>
             <header className="flex items-center justify-between mb-8">
-                <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
+                <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
                 <h1 className="text-3xl font-bold text-green-700">Order Details</h1>
             </header>
-            <section className="grid grid-cols-2 gap-8 mb-8">
-                <div>
-                    <p><strong>Order Number:</strong> {order.orderNumber}</p>
-                    <p><strong>PO Number:</strong> {order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
-                    <p><strong>Date:</strong> {formatDate(order.updatedAt || '')}</p>
-                    <p><strong>In Hands Date:</strong> {formatDate(order.inHandsDate || '')}</p>
-                    <p><strong>Ship To:</strong> {order.Office.Company.name}</p>
+            <section className="flex items-start justify-between mb-8 avoid-break">
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Company:</p>
+                        <p>{order.Office.Company.name}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Contact:</p>
+                        <p>{order.contactPerson?.name}</p>  
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Email:</p>
+                        <p>{order.contactPerson?.email}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Phone:</p>
+                        <p>{order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
+                    </div>
                 </div>
-                <div>
-                    <p><strong>Shipping Method:</strong> {order.ShippingInfo?.shippingMethod || 'N/A'}</p>
-                    <p><strong>Tracking Number:</strong> {order.ShippingInfo?.trackingNumber?.join(', ') || 'N/A'}</p>
-                    <p><strong>Company:</strong> {order.Office.Company.name}</p>
-                    <p><strong>Contact:</strong> {order.contactPerson?.name}</p>
-                    <p><strong>Email:</strong> {order.contactPerson?.email}</p>
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-xl font-bold mb-1">ORDER INFORMATION</h2>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Order Number:</p>
+                        <p>{order.orderNumber}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">PO Number:</p>
+                        <p>{order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Date:</p>
+                        <p>{formatDate(order.updatedAt || '')}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">In Hands Date:</p>
+                        <p>{formatDate(order.inHandsDate || '')}</p>
+                    </div>
+                    <div className="flex">
+                        <p className="w-32 font-bold">Ship To:</p>
+                        <p>{order.Office.Company.name}</p>
+                    </div>
                 </div>
             </section>
-            <section className="mb-8">
+            <section className="mb-8 avoid-break">
                 <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
                 {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup ? (
                     <>
+                        <div className="flex">
+                            <p className="w-32 font-bold">Shipping Method</p>
+                            <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
+                        </div>
                         <div className="flex">
                             <p className="w-32 font-bold">Pickup Date</p>
                             <p>{order?.ShippingInfo?.ShippingPickup?.pickupDate ? formatDate(order?.ShippingInfo?.ShippingPickup?.pickupDate) : 'N/A'}</p>
@@ -92,7 +144,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     <p>{order.ShippingInfo?.instructions || 'N/A'}</p>
                 </div>
             </section>
-            <section className="mb-8">
+            <section className="mb-8 avoid-break">
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead>
                         <tr>
@@ -112,13 +164,14 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     </tbody>
                 </table>
             </section>
-            <section className="text-right">
+            <section className="text-right avoid-break">
                 <p><strong>Item Total:</strong> {formatCurrency(order.calculatedSubTotal || 0)}</p>
                 <p><strong>Shipping:</strong> {formatCurrency(order.totalShippingAmount || 0)}</p>
                 <p><strong>Tax:</strong> {formatCurrency(order.calculatedSalesTax || 0)}</p>
                 <p className="text-lg font-bold"><strong>Total:</strong> {formatCurrency(order.totalAmount || 0)}</p>
             </section>
-            <Button variant="default" className="mt-4" onClick={() => window.print()}>
+            <Button variant="default" className="mt-4 print:hidden" onClick={() => window.print()}>
+                <Printer className="w-4 h-4" />
                 Print
             </Button>
         </div>

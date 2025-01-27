@@ -5,7 +5,7 @@ import { SerializedOrderItem, SerializedOrder, SerializedShippingInfo, Serialize
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '~/app/_components/ui/button';
 import { ShippingMethod } from '@prisma/client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 interface OrderItemPrintPreviewProps {
   orderItem: SerializedOrderItem;
@@ -29,41 +29,61 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
   const router = useRouter();
   return (
     <div className="p-8 bg-white">
-      <div className="flex items-center justify-between mb-8 print:hidden">
+      <style jsx global>{`
+        @media print {
+          .page-break-before {
+            break-before: page;
+            page-break-before: always;
+          }
+          .page-break-after {
+            break-after: page;
+            page-break-after: always;
+          }
+          .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+        }
+      `}</style>
+      <div className="flex flex-row mb-8 print:hidden">
         <Button variant="default" onClick={() => {
           // Back button
           router.back();
         }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
+        <Button variant="default" className="ml-4 print:hidden" onClick={() => window.print()}>
+                    <Printer className="w-4 h-4" />
+                    Print
+                </Button>
       </div>
       {/* Header with Logo and Status */}
       <div className="flex justify-between items-start mb-8">
-        <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-32" />
-        <div className="text-right">
-          <p className="text-red-600 text-xl font-bold">STATUS</p>
-          <p className="text-xl">{orderItem.status}</p>
-        </div>
+        <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
+        <h2 className="text-3xl font-bold text-green-700">Item Details</h2>
       </div>
 
       {/* Item Details Section */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
+      <div className='flex items-start justify-between mb-8 avoid-break'>
+
+      </div>
+      <div className="flex items-start justify-between mb-8 avoid-break">
+
         {/* Left Column */}
-        <div>
-          <h2 className="text-xl font-bold mb-4">ITEM DETAILS</h2>
-          <div className="space-y-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <div className="flex">
               <p className="w-32 font-bold">ORDER</p>
-              <p>#{order.orderNumber}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">COMPANY</p>
-              <p>{order.Office?.Company.name}</p>
+              <p className="w-32 font-bold">#{order.orderNumber}</p>
             </div>
           </div>
 
-          <h2 className="text-xl font-bold mt-8 mb-4">CONTACT INFORMATION</h2>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
+            <div className="flex">
+              <p className="w-32 font-bold">Company</p>
+              <p>{order.Office.Company.name}</p>
+            </div>
             <div className="flex">
               <p className="w-32 font-bold">Name</p>
               <p>{order.contactPerson?.name || 'N/A'}</p>
@@ -77,128 +97,138 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
               <p>{shippingInfo.Address?.telephoneNumber || 'N/A'}</p>
             </div>
           </div>
-
-          {orderItem.ProductType && (
-            <>
-              <h2 className="text-xl font-bold mt-8 mb-4">Product Type</h2>
-              <p>{orderItem.ProductType.name}</p>
-            </>
-          )}
         </div>
 
         {/* Right Column */}
-        <div>
-          <div className="space-y-2">
-            <div className="flex">
-              <p className="w-32 font-bold">DATE STARTED</p>
-              <p>{formatDate(orderItem.createdAt)}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">IN HANDS DATE</p>
-              <p>{formatDate(order.inHandsDate || '')}</p>
-            </div>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl font-bold mb-1">ORDER ITEM INFORMATION</h2>
+          <div className="flex">
+            <p className="w-32 text-xl font-bold">Status</p>
+            <p className="text-xl">{orderItem.status}</p>
+          </div>
+          <div className="flex">
+            <p className="w-32 font-bold">Date Started</p>
+            <p>{formatDate(orderItem.createdAt)}</p>
           </div>
 
-          <div className="space-y-2 mt-8">
-            <div className="flex">
-              <p className="w-32 font-bold">ITEM</p>
-              <p>#{orderItem.orderItemNumber}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">P.O. NUMBER</p>
-              <p>{order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">QUANTITY</p>
-              <p>{orderItem.quantity}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">SIZE</p>
-              <p>{orderItem.size || 'N/A'}</p>
-            </div>
-            <div className="flex">
-              <p className="w-32 font-bold">COLOR</p>
-              <p>{orderItem.ink || 'N/A'}</p>
-            </div>
+          <div className="flex">
+            <p className="w-32 font-bold">In Hands Date</p>
+            <p>{formatDate(order.inHandsDate || '')}</p>
+          </div>
+
+          <div className="flex">
+            <p className="w-32 font-bold">Item</p>
+            <p>#{orderItem.orderItemNumber}</p>
+          </div>
+          <div className="flex">
+            <p className="w-32 font-bold">P.O. Number</p>
+            <p>{order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
+          </div>
+          <div className="flex">
+            <p className="w-32 font-bold">Quantity</p>
+            <p>{orderItem.quantity}</p>
+          </div>
+          <div className="flex">
+            <p className="w-32 font-bold">Size</p>
+            <p>{orderItem.size || 'N/A'}</p>
+          </div>
+          <div className="flex">
+            <p className="w-32 font-bold">Color</p>
+            <p>{orderItem.ink || 'N/A'}</p>
           </div>
         </div>
       </div>
 
-      {/* Paper Stock Section */}
-      {orderPaperProducts && orderPaperProducts.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Paper Stock</h2>
-          <div className="space-y-1">
-            {orderPaperProducts.map((product: string, index: number) => (
-              <p key={index}>{product}</p>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Shipping Info Section */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
-        <div className="space-y-2">
-          {shippingInfo.shippingMethod === ShippingMethod.Pickup && shippingInfo.ShippingPickup ? (
-            <>
-              <div className="flex">
-                <p className="w-32 font-bold">Pickup Date</p>
-                <p>{shippingInfo.ShippingPickup.pickupDate ? formatDate(shippingInfo.ShippingPickup.pickupDate) : 'N/A'}</p>
+      <div className='flex items-start justify-between mb-8 avoid-break'>
+        <div className='flex flex-col gap-1'>
+          {orderItem.ProductType && (
+            <div className='flex flex-col gap-1'>
+              <h2 className="text-xl font-bold mb-1">PRODUCT TYPE</h2>
+              <div className='flex'>
+                <p>{orderItem.ProductType.name}</p>
               </div>
-              <div className="flex">
-                <p className="w-32 font-bold">Pickup Time</p>
-                <p>{shippingInfo.ShippingPickup.pickupTime || 'N/A'}</p>
-              </div>
-              <div className="flex">
-                <p className="w-32 font-bold">Pickup Notes</p>
-                <p>{shippingInfo.ShippingPickup.notes || 'N/A'}</p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex">
-                <p className="w-32 font-bold">Shipping Method</p>
-                <p>{shippingInfo.shippingMethod || 'N/A'}</p>
-              </div>
-              {shippingInfo.Address && (
-                <div className="mt-2">
-                  <p className="font-bold mb-2">SHIPPING ADDRESS</p>
-                  <p>{shippingInfo.Address.line1}</p>
-                  {shippingInfo.Address.line2 && <p>{shippingInfo.Address.line2}</p>}
-                  {shippingInfo.Address.line3 && <p>{shippingInfo.Address.line3}</p>}
-                  {shippingInfo.Address.line4 && <p>{shippingInfo.Address.line4}</p>}
-                  <p>{shippingInfo.Address.city}, {shippingInfo.Address.state} {shippingInfo.Address.zipCode}</p>
-                </div>
-              )}
-              <div className="flex mt-2">
-                <p className="w-32 font-bold">Shipping Date</p>
-                <p>{shippingInfo.shippingDate ? formatDate(shippingInfo.shippingDate) : 'N/A'}</p>
-              </div>
-              <div className="flex">
-                <p className="w-32 font-bold">Tracking Number</p>
-                <p>{shippingInfo.trackingNumber?.join(', ') || 'N/A'}</p>
-              </div>
-            </>
+            </div>
           )}
-          <div className="flex mt-2">
-            <p className="w-32 font-bold">Shipping Inst.</p>
-            <p>{shippingInfo.instructions || 'N/A'}</p>
-          </div>
+        </div>
+        <div className='flex flex-col gap-1'>
+          {/* Paper Stock Section */}
+          {orderPaperProducts && orderPaperProducts.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-bold mb-1">Paper Stock</h2>
+              {orderPaperProducts.map((product: string, index: number) => (
+                <p key={index}>{product}</p>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Project Description Section */}
-      {orderItem.description && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Project Description</h2>
-          <p className="whitespace-pre-wrap">{orderItem.description}</p>
+      <div className='flex items-start justify-between mb-8 avoid-break'>
+        <div className='flex flex-col gap-1'>
+          {/* Shipping Info Section */}
+          <h2 className="text-xl font-bold mb-2">SHIPPING INFO</h2>
+          <div className="space-y-2">
+            {shippingInfo.shippingMethod === ShippingMethod.Pickup && shippingInfo.ShippingPickup ? (
+              <>
+                <div className="flex">
+                  <p className="w-32 font-bold">Pickup Date</p>
+                  <p>{shippingInfo.ShippingPickup.pickupDate ? formatDate(shippingInfo.ShippingPickup.pickupDate) : 'N/A'}</p>
+                </div>
+                <div className="flex">
+                  <p className="w-32 font-bold">Pickup Time</p>
+                  <p>{shippingInfo.ShippingPickup.pickupTime || 'N/A'}</p>
+                </div>
+                <div className="flex">
+                  <p className="w-32 font-bold">Pickup Notes</p>
+                  <p>{shippingInfo.ShippingPickup.notes || 'N/A'}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex">
+                  <p className="w-32 font-bold">Shipping Method</p>
+                  <p>{shippingInfo.shippingMethod || 'N/A'}</p>
+                </div>
+                {shippingInfo.Address && (
+                  <div className="mt-2">
+                    <p className="font-bold mb-2">SHIPPING ADDRESS</p>
+                    <p>{shippingInfo.Address.line1}</p>
+                    {shippingInfo.Address.line2 && <p>{shippingInfo.Address.line2}</p>}
+                    {shippingInfo.Address.line3 && <p>{shippingInfo.Address.line3}</p>}
+                    {shippingInfo.Address.line4 && <p>{shippingInfo.Address.line4}</p>}
+                    <p>{shippingInfo.Address.city}, {shippingInfo.Address.state} {shippingInfo.Address.zipCode}</p>
+                  </div>
+                )}
+                <div className="flex mt-2">
+                  <p className="w-32 font-bold">Shipping Date</p>
+                  <p>{shippingInfo.shippingDate ? formatDate(shippingInfo.shippingDate) : 'N/A'}</p>
+                </div>
+                <div className="flex">
+                  <p className="w-32 font-bold">Tracking Number</p>
+                  <p>{shippingInfo.trackingNumber?.join(', ') || 'N/A'}</p>
+                </div>
+              </>
+            )}
+            <div className="flex mt-2">
+              <p className="w-32 font-bold">Shipping Inst.</p>
+              <p>{shippingInfo.instructions || 'N/A'}</p>
+            </div>
+          </div>
         </div>
-      )}
+        <div className='flex flex-col gap-1'>
+          {/* Project Description Section */}
+          {orderItem.description && (
+            <div className="mt-8 avoid-break">
+              <h2 className="text-xl font-bold mb-2">Project Description</h2>
+              <p className="whitespace-pre-wrap">{orderItem.description}</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Special Instructions Section */}
       {orderItem.specialInstructions && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">Special Instructions</h2>
           <p className="whitespace-pre-wrap">{orderItem.specialInstructions}</p>
         </div>
@@ -206,9 +236,9 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
       {/* Typesetting Section */}
       {normalizedTypesetting?.[0] && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">TYPESETTING DETAILS</h2>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-1">
             {Object.entries(normalizedTypesetting[0] as unknown as Record<string, unknown>)
               .filter(([key]) => !['createdAt', 'updatedAt', 'createdById', 'orderItemId', 'id', 'workOrderItemId', 'TypesettingOptions', 'TypesettingProofs'].includes(key))
               .map(([key, value], index) => {
@@ -216,7 +246,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                 return (
                   <div key={key} className="flex">
                     <p className="w-32 font-bold">{formattedKey}</p>
-                    <p>{String(value || 'N/A')}</p>
+                    {formattedKey === 'Date In' ? formatDate(value as Date) : String(value || 'N/A')}
                   </div>
                 );
               })}
@@ -229,7 +259,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
         const proofs = normalizedTypesetting?.[0]?.TypesettingProofs;
         if (!proofs?.length) return null;
         return (
-          <div className="mt-8">
+          <div className="mt-8 avoid-break">
             <h2 className="text-xl font-bold mb-4">PROOF FILE NAME(S)</h2>
             <div className="space-y-1">
               {proofs.map((proof: any) =>
@@ -244,14 +274,14 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
 
       {/* Bindery Options Section */}
       {processingOptions?.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 avoid-break">
           <h2 className="text-xl font-bold mb-4">BINDERY OPTIONS</h2>
           {processingOptions.map((options, index) => (
             <div key={index} className="mt-4">
               {index > 0 && (
                 <h3 className="font-bold mb-2">Option Set {index + 1}</h3>
               )}
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-2 gap64">
                 <div className="space-y-2">
                   {/* Basic Options */}
                   {options.cutting && (
@@ -343,14 +373,10 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       )}
 
       {/* Print Button */}
-      <Button variant="default" className="mt-8 no-print" onClick={() => window.print()}>
+      <Button variant="default" className="mt-8 print:hidden" onClick={() => window.print()}>
+        <Printer className="w-4 h-4" />
         Print
       </Button>
-
-      {/* Page Number */}
-      <div className="mt-8 text-right text-sm">
-        Page 1 of 1
-      </div>
     </div>
   );
 };

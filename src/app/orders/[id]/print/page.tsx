@@ -2,7 +2,6 @@
 
 import OrderPrintPreview from '~/app/_components/orders/OrderPrintPreview';
 import { api } from '~/trpc/server';
-import { type SerializedOrder } from '~/types/serializedTypes';
 
 export default async function OrderPrintPage(
   props: {

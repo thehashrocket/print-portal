@@ -11,17 +11,19 @@ import { type SerializedWorkOrderItem, type SerializedTypesetting } from "~/type
 import { normalizeTypesetting } from "~/utils/dataNormalization";
 import { WorkOrderItemStatus } from "@prisma/client";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
-import { Pencil } from "lucide-react";
+import { Info, Pencil } from "lucide-react";
 import { Button } from "../../ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "../../ui/textarea";
 import { toast } from "react-hot-toast";
 import FileUpload from "../../shared/fileUpload";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
+import InfoCard from "../../shared/InfoCard/InfoCard";
+import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
-    
+
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.workOrderItems.updateStatus.useMutation({
         onSuccess: () => {
@@ -49,7 +51,16 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="space-y-4">
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Status is the current status of the work order item.
+                    You can change the status of the work order item by selecting a new status from the dropdown.
+                    You can toggle whether to notify the customer via email by toggling the switch.
+                    You can override the email address to notify by entering an email address in the input field.
+                </p>
+            </div>
             <span className={`px-2 py-1 rounded-full text-sm font-semibold w-fit ${getStatusColor(currentStatus)}`}>
                 {currentStatus}
             </span>
@@ -70,13 +81,6 @@ type WorkOrderItemPageProps = {
     workOrderId: string;
     workOrderItemId: string;
 };
-
-const InfoCard: React.FC<{ title: string; content: React.ReactNode }> = ({ title, content }) => (
-    <section className="mb-4">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">{title}</h2>
-        <div className="bg-gray-50 p-3 md:p-4 rounded-lg">{content}</div>
-    </section>
-);
 
 const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     workOrderId,
@@ -198,39 +202,41 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
             </div>
 
-            <div className="rounded-lg bg-white p-3 md:p-6 shadow-md">
+            <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
                 {/* Basic Info Section */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <InfoCard
-                        title="Estimate Number"
-                        content={workOrder?.workOrderNumber ?? 'N/A'}
-                    />
-                    <InfoCard
-                        title="Item Quantity"
-                        content={workOrderItem.quantity ?? 'N/A'}
-                    />
-                    <InfoCard
-                        title="Color"
-                        content={workOrderItem.ink ?? 'N/A'}
-                    />
-                    <InfoCard
-                        title="Product Type"
-                        content={workOrderItem.ProductType?.name ?? 'N/A'}
-                    />
-                    {/* If WorkOrderItemStock is not null, then loop through the stocks and display the paper product    */}
-                    {workOrderItem.WorkOrderItemStock && workOrderItem.WorkOrderItemStock.length > 0 && (
-                        workOrderItem.WorkOrderItemStock.map((stock) => (
-                            <InfoCard
-                                key={stock.id}
-                                title="Paper Product"
-                                content={
-                                    findPaperProduct(stock.paperProductId || '')
-                                }
-                            />
-                        ))
-                    )}
+                <div className="flex flex-col gap-4 mb-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-2">
+                        <InfoCard
+                            title="Estimate Number"
+                            content={workOrder?.workOrderNumber ?? 'N/A'}
+                        />
+                        <InfoCard
+                            title="Item Quantity"
+                            content={workOrderItem.quantity ?? 'N/A'}
+                        />
+                        <InfoCard
+                            title="Color"
+                            content={workOrderItem.ink ?? 'N/A'}
+                        />
+                        <InfoCard
+                            title="Product Type"
+                            content={workOrderItem.ProductType?.name ?? 'N/A'}
+                        />
+                        {/* If WorkOrderItemStock is not null, then loop through the stocks and display the paper product    */}
+                        {workOrderItem.WorkOrderItemStock && workOrderItem.WorkOrderItemStock.length > 0 && (
+                            workOrderItem.WorkOrderItemStock.map((stock) => (
+                                <InfoCard
+                                    key={stock.id}
+                                    title="Paper Product"
+                                    content={
+                                        findPaperProduct(stock.paperProductId || '')
+                                    }
+                                />
+                            ))
+                        )}
+                    </div>
                 </div>
-                
+
                 {/* Company Section */}
                 <div className="mb-6">
                     <InfoCard
@@ -239,10 +245,34 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     />
                 </div>
 
+                {/* Paper Stock Section */}
+                <section className="mb-2">
+                    <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
+                    <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
+                </section>
+
+                {/* Shipping Info Section */}
+                <div className="flex flex-col gap-4 mb-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <div className="grid grid-cols-1 gap-4 mb-2">
+                            <ShippingInfoEditor
+                                workOrderItemId={workOrderItem.id}
+                                officeId={workOrder?.Office?.id ?? ''}
+                                currentShippingInfo={workOrderItem.ShippingInfo}
+                                onUpdate={() => {
+                                    utils.workOrderItems.getByID.invalidate(workOrderItemId);
+                                }}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 mb-2">
+                        </div>
+                    </div>
+                </div>
+
                 {/* Description and Instructions Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="space-y-4">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Job Description</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Item Description</h2>
                         <Textarea
                             value={jobDescription}
                             onChange={handleDescriptionChange}
@@ -285,14 +315,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                             />
                         }
                     />
-                    <ShippingInfoEditor
-                        workOrderItemId={workOrderItem.id}
-                        officeId={workOrder?.Office?.id ?? ''}
-                        currentShippingInfo={workOrderItem.ShippingInfo}
-                        onUpdate={() => {
-                            utils.workOrderItems.getByID.invalidate(workOrderItemId);
-                        }}
-                    />
+
                 </div>
 
                 {/* Edit Button */}
@@ -331,7 +354,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                 });
                             }}
                             onDescriptionChanged={(fileUrl: string, description: string) => {
-                                const updatedArtwork = localArtwork.map(art => 
+                                const updatedArtwork = localArtwork.map(art =>
                                     art.fileUrl === fileUrl ? { ...art, description } : art
                                 );
                                 setLocalArtwork(updatedArtwork);
@@ -347,30 +370,30 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </div>
                 </div>
 
-                {/* Additional Sections */}
-                <div className="space-y-6">
-                    <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Bindery Options</h2>
-                        <ProcessingOptionsProvider workOrderItemId={workOrderItem.id}>
-                            <ProcessingOptionsComponent workOrderItemId={workOrderItem.id} />
-                        </ProcessingOptionsProvider>
-                    </div>
-
-                    <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Typesetting</h2>
-                        <TypesettingProvider>
-                            <TypesettingComponent
+                {/* Typesetting Section */}
+                <div className="space-y-6 md:space-y-8">
+                    {/* Typesetting Section */}
+                    <section>
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Typesetting</h2>
+                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                            <TypesettingProvider>
+                                <TypesettingComponent
                                 workOrderItemId={workOrderItem.id}
                                 orderItemId=""
-                                initialTypesetting={serializedTypesettingData}
-                            />
-                        </TypesettingProvider>
-                    </div>
-
-                    <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Paper Stock</h2>
-                        <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
-                    </div>
+                                    initialTypesetting={serializedTypesettingData}
+                                />
+                            </TypesettingProvider>
+                        </div>
+                    </section>
+                    {/* Bindery Options Section */}
+                    <section>
+                        <h2 className="text-xl md:text-2xl font-semibold mb-4">Bindery Options</h2>
+                        <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                            <ProcessingOptionsProvider workOrderItemId={workOrderItem.id}>
+                                <ProcessingOptionsComponent workOrderItemId={workOrderItem.id} />
+                            </ProcessingOptionsProvider>
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>
