@@ -8,6 +8,7 @@ import { type OrderDashboard } from "~/types/orderDashboard";
 import OrderCard from '../OrderCard';
 import OrderNumberFilter from './OrderNumberFilter';
 import OrderItemNumberFilter from './OrderItemNumberFilter';
+import CompanyNameFilter from './CompanyNameFilter';
 
 
 const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {
@@ -16,9 +17,9 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     const [orders, setOrders] = useState<OrderDashboard[]>(initialOrders);
     const [orderNumber, setOrderNumber] = useState<string>("");
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
+    const [companyName, setCompanyName] = useState<string>("");
     const allStatuses = [
         OrderStatus.Pending,
-        OrderStatus.Cancelled,
         OrderStatus.PaymentReceived,
         OrderStatus.Shipping,
         OrderStatus.Invoiced,
@@ -67,6 +68,26 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
         setOrders(originalOrders);
     };
 
+    const handleCompanyNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setCompanyName(event.target.value);
+    };
+
+    const handleCompanyNameSubmit = () => {
+        if (!companyName.trim()) {
+            setOrders(originalOrders);
+            return;
+        }
+        const filtered = originalOrders.filter(
+            order => order.companyName.toLowerCase().includes(companyName.trim().toLowerCase())
+        );
+        setOrders(filtered);
+    };
+
+    const clearCompanyNameFilter = () => {
+        setCompanyName("");
+        setOrders(originalOrders);
+    };
+
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
         event.currentTarget.classList.remove('bg-blue-600');
     }
@@ -112,6 +133,12 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-end md:items-center gap-4 mb-4">
+                <CompanyNameFilter
+                    companyName={companyName}
+                    onCompanyNameChange={handleCompanyNameChange}
+                    onSubmit={handleCompanyNameSubmit}
+                    onClear={clearCompanyNameFilter}
+                />
                 <OrderNumberFilter
                     orderNumber={orderNumber}
                     onOrderNumberChange={handleOrderNumberChange}
