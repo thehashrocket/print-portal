@@ -246,7 +246,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                 return (
                   <div key={key} className="flex">
                     <p className="w-32 font-bold">{formattedKey}</p>
-                    <p>{String(value || 'N/A')}</p>
+                    {formattedKey === 'Date In' ? formatDate(value as Date) : String(value || 'N/A')}
                   </div>
                 );
               })}
