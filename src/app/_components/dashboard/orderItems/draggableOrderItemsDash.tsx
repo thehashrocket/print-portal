@@ -7,8 +7,7 @@ import { OrderItemStatus } from '@prisma/client';
 import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import OrderItemNumberFilter from './OrderItemNumberFilter';
 import { Building2, CalendarDays, Eye } from 'lucide-react';
 
 const calculateDaysUntilDue = (dateString: string): number => {
@@ -32,35 +31,6 @@ const jobBorderColor = (dateString: string, status: OrderItemStatus): string => 
         return 'green';
     }
 };
-
-// Move this before the DraggableOrderItemsDash component
-interface OrderItemNumberFilterProps {
-    orderItemNumber: string;
-    onOrderItemNumberChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
-    onClear: () => void;
-}
-
-const OrderItemNumberFilter: React.FC<OrderItemNumberFilterProps> = ({
-    orderItemNumber,
-    onOrderItemNumberChange,
-    onSubmit,
-    onClear
-}) => (
-    <div className="w-full md:w-auto mb-4 p-4 bg-gray-700 rounded-lg">
-        <Input
-            type="text"
-            value={orderItemNumber}
-            onChange={onOrderItemNumberChange}  
-            placeholder="Filter by Item Number..."
-            className="w-[300px] mb-2"
-        />
-        <div className="flex gap-2">
-            <Button variant="default" onClick={onSubmit}>Filter</Button>
-            <Button variant="outline" onClick={onClear}>Clear</Button>
-        </div>
-    </div>
-);
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
@@ -218,6 +188,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         OrderItemStatus.Prepress,
         OrderItemStatus.Press,
         OrderItemStatus.Bindery,
+        OrderItemStatus.Hold,
         OrderItemStatus.Shipping,
         OrderItemStatus.Completed,
     ];
