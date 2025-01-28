@@ -49,11 +49,6 @@ export default function RootLayout({
           </Providers>
           <Toaster />
         </TRPCReactProvider>
-
-        <Script
-          src="https://www.bugherd.com/sidebarv2.js?apikey=kaslzeefnsidvbsdmhclcq"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );
