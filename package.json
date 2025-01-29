@@ -28,7 +28,8 @@
     "import-quickbooks": "tsx prisma/import-quickbooks.js",
     "import-compass-health-locations": "tsx prisma/import-compass-health-locations.js",
     "add-product-types": "tsx scripts/addProductTypes.ts",
-    "downcase-emails": "tsx scripts/downcaseEmails.ts"
+    "downcase-emails": "tsx scripts/downcaseEmails.ts",
+    "import-paper-catalog": "tsx scripts/importPaperCatalog.ts"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",
@@ -45,7 +46,7 @@
     "@honeybadger-io/react": "^6.1.25",
     "@hookform/resolvers": "^3.10.0",
     "@next/env": "15.1.3",
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.3.0",
     "@radix-ui/react-checkbox": "^1.1.3",
     "@radix-ui/react-dialog": "^1.1.5",
     "@radix-ui/react-label": "^2.1.1",
@@ -127,7 +128,7 @@
     "postcss": "^8.5.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "prisma": "6.2.1",
+    "prisma": "6.3.0",
     "tailwindcss": "^4.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
