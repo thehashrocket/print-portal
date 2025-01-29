@@ -9,6 +9,8 @@ import Link from "next/link";
 import { PlusCircle } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { type SerializedWorkOrder } from '~/types/serializedTypes';
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
     workOrderId
@@ -17,6 +19,28 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
 
     const { data: returnedWorkOrder, isLoading, isError } = api.workOrders.getByID.useQuery(workOrderId, {
         enabled: !!workOrderId,
+    });
+
+    // Add CopilotKit readable context for wizard state
+    useCopilotReadable({
+        description: "Current work order wizard state and progress",
+        value: {
+            currentStep,
+            totalSteps: 2,
+            isLoading,
+            isError,
+            workOrderId,
+        },
+    });
+
+    // Add CopilotKit readable context for work order data
+    useCopilotReadable({
+        description: "Current work order data and completion status",
+        value: {
+            workOrder,
+            hasShippingInfo: !!workOrder?.shippingInfoId,
+            hasItems: workOrder?.WorkOrderItems?.length > 0,
+        },
     });
 
     useEffect(() => {
@@ -95,6 +119,36 @@ const WorkOrderWizard: React.FC<{ workOrderId: string }> = ({
             {workOrder ? steps[currentStep] : (
                 <div className="text-center text-gray-500">No work order data available.</div>
             )}
+
+            <CopilotPopup
+                instructions={`You are an AI assistant helping users navigate the work order creation wizard in a print portal system. You have access to:
+                    1. The current wizard step and overall progress
+                    2. Work order basic information
+                    3. Shipping information status
+                    4. Work order items status
+                    5. Loading and error states
+
+                    Your role is to:
+                    - Guide users through the work order creation workflow
+                    - Explain the purpose and requirements of each step
+                    - Help users understand what information is needed
+                    - Assist with navigation between steps
+                    - Explain the relationships between different sections
+                    - Help troubleshoot any issues or errors
+
+                    When responding:
+                    - Provide step-specific guidance based on the current wizard step
+                    - Explain what information is required to complete each step
+                    - Help users understand how to proceed to the next step
+                    - Clarify the relationships between shipping info and work order items
+                    - Guide users on when it's appropriate to finish the process
+                    - Explain any validation requirements for completing the work order`}
+                labels={{
+                    title: "Work Order Creation Guide",
+                    initial: "How can I help you with creating your work order?",
+                    placeholder: "Ask about steps, requirements, or next actions...",
+                }}
+            />
         </div>
     );
 };

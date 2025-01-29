@@ -20,6 +20,8 @@ import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../shared/ui/CustomComboBox';
 import { WorkOrderItemStockDialog } from '../WorkOrderItemStock/workOrderItemStockDialog';
 import { useWorkOrderItemStockStore } from '~/app/store/workOrderItemStockStore';
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 const workOrderItemSchema = z.object({
     amount: z.number().multipleOf(0.01).default(1).optional(),
@@ -96,6 +98,80 @@ const WorkOrderItemForm: React.FC = () => {
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Add CopilotKit readable context for form state
+    useCopilotReadable({
+        description: "Current work order item form values and validation state",
+        value: {
+            formValues: {
+                amount: watch('amount'),
+                cost: watch('cost'),
+                description: watch('description'),
+                expectedDate: watch('expectedDate'),
+                ink: watch('ink'),
+                other: watch('other'),
+                prepTime: watch('prepTime'),
+                quantity: watch('quantity'),
+                size: watch('size'),
+                specialInstructions: watch('specialInstructions'),
+                status: watch('status'),
+                productTypeId: watch('productTypeId'),
+            },
+            formErrors: Object.keys(errors).length > 0 ? Object.fromEntries(
+                Object.entries(errors).map(([key, value]) => [key, value.message])
+            ) : {},
+            isSubmitting,
+            submitError,
+        },
+    });
+
+    // Add CopilotKit readable context for artwork and files
+    useCopilotReadable({
+        description: "Artwork and file attachments for the work order item",
+        value: {
+            artworks: artworks.map(art => ({
+                fileUrl: art.fileUrl,
+                description: art.description,
+            })),
+            hasFiles: artworks.length > 0,
+        },
+    });
+
+    // Add CopilotKit readable context for stock items
+    useCopilotReadable({
+        description: "Paper stock items selected for the work order item",
+        value: {
+            stockItems: tempStocks.map(stock => ({
+                stockQty: stock.stockQty,
+                paperProductId: stock.paperProductId,
+                stockStatus: stock.stockStatus,
+                supplier: stock.supplier,
+            })),
+            hasStocks: tempStocks.length > 0,
+            availablePaperProducts: paperProducts?.map(product => ({
+                id: product.id,
+                name: `${product.brand} ${product.size} ${product.paperType} ${product.finish} ${product.weightLb}`,
+            })) ?? [],
+        },
+    });
+
+    // Add CopilotKit readable context for available options
+    useCopilotReadable({
+        description: "Available product types and existing work order items",
+        value: {
+            productTypes: productTypes?.map((type: { id: string; name: string | null }) => ({
+                id: type.id,
+                name: type.name,
+            })) ?? [],
+            existingItems: workOrderItems.map(item => ({
+                id: item.id,
+                description: item.description,
+                status: item.status,
+                quantity: item.quantity,
+            })),
+            expandedItemId,
+        },
+    });
 
     const onSubmit = async (data: WorkOrderItemFormData) => {
         console.log('Form submission started');
@@ -384,6 +460,37 @@ const WorkOrderItemForm: React.FC = () => {
                     Finish
                 </Button>
             )}
+
+            <CopilotPopup
+                instructions={`You are an AI assistant helping users create work order items in a print portal system. You have access to:
+                    1. The complete form state including values and validation errors
+                    2. Artwork and file attachments
+                    3. Paper stock selections and available paper products
+                    4. Product types and specifications
+                    5. Existing work order items in this order
+
+                    Your role is to:
+                    - Guide users through the work order item creation process
+                    - Help with file uploads and artwork management
+                    - Assist with paper stock selection and specifications
+                    - Explain pricing and quantity calculations
+                    - Help with product type selection and specifications
+                    - Provide guidance on dates and status options
+
+                    When responding:
+                    - Reference specific form fields and their current values
+                    - Explain validation errors clearly
+                    - Help users understand paper stock options and requirements
+                    - Guide users through artwork and file requirements
+                    - Explain technical specifications (size, ink, etc.)
+                    - Assist with cost and pricing calculations
+                    - Help users understand the relationship between different fields`}
+                labels={{
+                    title: "Work Order Item Assistant",
+                    initial: "How can I help you create your work order item?",
+                    placeholder: "Ask about specifications, pricing, paper stock...",
+                }}
+            />
         </div>
     );
 };

@@ -20,6 +20,8 @@ import FileUpload from "../../shared/fileUpload";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 import InfoCard from "../../shared/InfoCard/InfoCard";
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -175,6 +177,53 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     const updateSpecialInstructions = () => {
         updateInstructions({ id: workOrderItemId, specialInstructions: specialInstructions });
     };
+
+    // Add CopilotKit readable context for work order item details
+    useCopilotReadable({
+        description: "Current work order item details and specifications",
+        value: {
+            workOrderItem: workOrderItem ? {
+                id: workOrderItem.id,
+                description: workOrderItem.description,
+                quantity: workOrderItem.quantity,
+                ink: workOrderItem.ink,
+                specialInstructions: workOrderItem.specialInstructions,
+                status: workOrderItem.status,
+                productType: workOrderItem.ProductType?.name,
+                workOrderNumber: workOrder?.workOrderNumber,
+                company: workOrder?.Office?.Company.name,
+            } : null,
+            isLoading: isWorkOrderLoading || isItemLoading,
+            hasError: !!workOrderError || !!itemError,
+        },
+    });
+
+    // Add CopilotKit readable context for artwork and files
+    useCopilotReadable({
+        description: "Artwork and file attachments for the work order item",
+        value: {
+            artwork: localArtwork.map(art => ({
+                fileUrl: art.fileUrl,
+                description: art.description,
+            })),
+            hasFiles: localArtwork.length > 0,
+        },
+    });
+
+    // Add CopilotKit readable context for paper stock
+    useCopilotReadable({
+        description: "Paper stock information for the work order item",
+        value: {
+            stocks: workOrderItem?.WorkOrderItemStock?.map(stock => ({
+                stockQty: stock.stockQty,
+                paperProduct: findPaperProduct(stock.paperProductId || ''),
+                supplier: stock.supplier,
+                status: stock.stockStatus,
+                expectedDate: stock.expectedDate,
+            })) ?? [],
+            hasStocks: (workOrderItem?.WorkOrderItemStock?.length ?? 0) > 0,
+        },
+    });
 
     if (isWorkOrderLoading || isItemLoading || isTypesettingLoading) {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -396,6 +445,39 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     </section>
                 </div>
             </div>
+
+            {/* Add CopilotPopup at the end of the component */}
+            <CopilotPopup
+                instructions={`You are an AI assistant helping users manage work order items in a print portal system. You have access to:
+                    1. Complete work order item specifications and details
+                    2. Artwork and file attachments
+                    3. Paper stock information and requirements
+                    4. Shipping information
+                    5. Typesetting and bindery options
+                    6. Status and progress tracking
+
+                    Your role is to:
+                    - Help users understand and manage item specifications
+                    - Guide users through file and artwork management
+                    - Assist with paper stock selection and tracking
+                    - Help with shipping information setup
+                    - Explain typesetting and bindery requirements
+                    - Guide users through status updates and tracking
+                    - Provide context-aware suggestions and explanations
+
+                    When responding:
+                    - Reference specific details from the current work order item
+                    - Explain technical specifications and requirements
+                    - Guide users through complex processes
+                    - Help troubleshoot issues and errors
+                    - Provide suggestions for optimization
+                    - Explain relationships between different components`}
+                labels={{
+                    title: "Work Order Item Assistant",
+                    initial: "How can I help you manage this work order item?",
+                    placeholder: "Ask about specifications, files, shipping...",
+                }}
+            />
         </div>
     );
 }

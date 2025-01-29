@@ -186,7 +186,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             <div>
                 <Label>Quantity</Label>
                 <Input type="number" {...register('stockQty', { valueAsNumber: true })} />
-                {errors.stockQty && <p className="text-red-500">{errors.stockQty.message}</p>}
+                {errors.stockQty && <span className="text-red-500 block">{errors.stockQty.message}</span>}
             </div>
 
             <div>
@@ -198,7 +198,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                     {...register('costPerM', { valueAsNumber: true })} 
                     placeholder="Enter cost per meter..."
                 />
-                {errors.costPerM && <p className="text-red-500">{errors.costPerM.message}</p>}
+                {errors.costPerM && <span className="text-red-500 block">{errors.costPerM.message}</span>}
             </div>
 
             <div>

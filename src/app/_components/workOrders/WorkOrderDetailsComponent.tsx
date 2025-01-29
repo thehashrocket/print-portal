@@ -20,6 +20,9 @@ import { toast } from "react-hot-toast";
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { type AppRouter } from "~/server/api/root";
 import InfoCard from "../shared/InfoCard/InfoCard";
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
+
 const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -97,6 +100,74 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
             setIsWorkOrderItemsLoading(false);
         }
     }, [workOrder?.WorkOrderItems]);
+
+    // Add CopilotKit readable context for work order details
+    useCopilotReadable({
+        description: "Current work order details and specifications",
+        value: {
+            workOrder: workOrder ? {
+                id: workOrder.id,
+                workOrderNumber: workOrder.workOrderNumber,
+                status: workOrder.status,
+                company: workOrder.Office.Company.name,
+                createdBy: workOrder.createdBy?.name,
+                createdAt: workOrder.createdAt,
+                inHandsDate: workOrder.inHandsDate,
+                totalItemAmount: workOrder.totalItemAmount,
+                totalShippingAmount: workOrder.totalShippingAmount,
+                calculatedSubTotal: workOrder.calculatedSubTotal,
+                calculatedSalesTax: workOrder.calculatedSalesTax,
+                totalAmount: workOrder.totalAmount,
+                hasOrder: workOrder.Order !== null,
+            } : null,
+            isLoading,
+            hasError: isError,
+            errorMessage: error instanceof Error ? error.message : undefined,
+        },
+    });
+
+    // Add CopilotKit readable context for work order items
+    useCopilotReadable({
+        description: "Work order items and their details",
+        value: {
+            items: workOrderItems.map(item => ({
+                id: item.id,
+                description: item.description,
+                quantity: item.quantity,
+                status: item.status,
+                productType: item.ProductType?.name,
+                hasTypesetting: (item.Typesetting?.length ?? 0) > 0,
+                hasProcessingOptions: (item.ProcessingOptions?.length ?? 0) > 0,
+                hasStockInfo: (item.WorkOrderItemStock?.length ?? 0) > 0,
+            })),
+            isLoading: isWorkOrderItemsLoading,
+            itemCount: workOrderItems.length,
+        },
+    });
+
+    // Add CopilotKit readable context for shipping information
+    useCopilotReadable({
+        description: "Work order shipping information",
+        value: {
+            shippingInfo: workOrder?.ShippingInfo ? {
+                shippingMethod: workOrder.ShippingInfo.shippingMethod,
+                shippingCost: workOrder.ShippingInfo.shippingCost,
+                shippingDate: workOrder.ShippingInfo.shippingDate,
+                hasAddress: !!workOrder.ShippingInfo.addressId,
+            } : null,
+        },
+    });
+
+    // Add CopilotKit readable context for contact person
+    useCopilotReadable({
+        description: "Work order contact person information",
+        value: {
+            contactPerson: workOrder?.contactPerson ? {
+                name: workOrder.contactPerson.name,
+                email: workOrder.contactPerson.email,
+            } : null,
+        },
+    });
 
     if (isLoading) {
         return (
@@ -280,6 +351,41 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                         </div>
                     </section>
                 </main>
+
+                {/* Add CopilotPopup at the end of the component */}
+                <CopilotPopup
+                    instructions={`You are an AI assistant helping users manage work orders (estimates) in a print portal system. You have access to:
+                        1. Complete work order details and specifications
+                        2. Work order items and their statuses
+                        3. Shipping information and requirements
+                        4. Contact person details
+                        5. Financial information and pricing
+                        6. Order status and progress tracking
+
+                        Your role is to:
+                        - Help users understand work order details and status
+                        - Guide users through item management
+                        - Assist with shipping information setup
+                        - Help with contact person management
+                        - Explain pricing and financial details
+                        - Guide users through status updates
+                        - Help with order conversion process
+                        - Provide context-aware suggestions
+
+                        When responding:
+                        - Reference specific details from the current work order
+                        - Explain pricing calculations and breakdowns
+                        - Guide users through complex processes
+                        - Help troubleshoot issues and errors
+                        - Provide suggestions for optimization
+                        - Explain relationships between different components
+                        - Help users understand the conversion to order process`}
+                    labels={{
+                        title: "Work Order Assistant",
+                        initial: "How can I help you manage this work order?",
+                        placeholder: "Ask about items, shipping, pricing...",
+                    }}
+                />
             </div>
         </>
     );

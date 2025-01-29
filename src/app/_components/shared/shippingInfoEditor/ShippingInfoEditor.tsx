@@ -13,6 +13,7 @@ import { Input } from '../../ui/input';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { toast } from 'react-hot-toast';
 import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
+import { useCopilotReadable } from '@copilotkit/react-core';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -62,35 +63,46 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [addresses, setAddresses] = useState<Address[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isCreateAddressModalOpen, setIsCreateAddressModalOpen] = useState(false);
     const [isAddressBeingCreated, setIsAddressBeingCreated] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
         resolver: zodResolver(shippingInfoSchema),
         defaultValues: {
             addressId: currentShippingInfo?.addressId ?? undefined,
             instructions: currentShippingInfo?.instructions ?? undefined,
-            shippingCost: currentShippingInfo?.shippingCost ? parseFloat(currentShippingInfo.shippingCost) : undefined,
+            shippingCost: currentShippingInfo?.shippingCost ? parseFloat(currentShippingInfo.shippingCost.toString()) : undefined,
             shippingDate: currentShippingInfo?.shippingDate ?? undefined,
             shippingMethod: currentShippingInfo?.shippingMethod ?? ShippingMethod.Courier,
             shippingNotes: currentShippingInfo?.shippingNotes ?? undefined,
             shippingOther: currentShippingInfo?.shippingOther ?? undefined,
             shipToSameAsBillTo: currentShippingInfo?.shipToSameAsBillTo ?? undefined,
-            trackingNumber: currentShippingInfo?.trackingNumber || [],
+            trackingNumber: currentShippingInfo?.trackingNumber ?? [],
             shippingPickup: currentShippingInfo?.ShippingPickup ? {
                 contactName: currentShippingInfo.ShippingPickup.contactName,
                 contactPhone: currentShippingInfo.ShippingPickup.contactPhone,
                 pickupDate: new Date(currentShippingInfo.ShippingPickup.pickupDate).toISOString().split('T')[0],
                 pickupTime: currentShippingInfo.ShippingPickup.pickupTime,
                 notes: currentShippingInfo.ShippingPickup.notes ?? undefined,
-            } : {
-                contactName: '',
-                contactPhone: '',
-                pickupDate: '',
-                pickupTime: '',
-                notes: '',
-            },
+            } : undefined,
+        },
+    });
+
+    // Only provide form-specific context for the shipping editor
+    useCopilotReadable({
+        description: "Available shipping addresses for this office",
+        value: addresses ?? null,
+    });
+
+    useCopilotReadable({
+        description: "Shipping form state and validation status",
+        value: {
+            isEditing,
+            isSubmitting,
+            isAddressBeingCreated,
+            formValues: watch(),
+            formErrors: errors,
         },
     });
 

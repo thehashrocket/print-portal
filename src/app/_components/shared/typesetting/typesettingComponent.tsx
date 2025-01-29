@@ -149,28 +149,28 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                         {/* Details Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Date In</p>
-                                <p className="text-sm">{formatDate(currentItem.dateIn)}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Date In</div>
+                                <div className="text-sm">{formatDate(currentItem.dateIn)}</div>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Time In</p>
-                                <p className="text-sm">{currentItem.timeIn}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Time In</div>
+                                <div className="text-sm">{currentItem.timeIn}</div>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Cost</p>
-                                <p className="text-sm">{formatCurrency(Number(currentItem.cost))}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Cost</div>
+                                <div className="text-sm">{formatCurrency(Number(currentItem.cost))}</div>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Design Time</p>
-                                <p className="text-sm">{currentItem.prepTime}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Design Time</div>
+                                <div className="text-sm">{currentItem.prepTime}</div>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Plate Ran</p>
-                                <p className="text-sm">{currentItem.plateRan}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Plate Ran</div>
+                                <div className="text-sm">{currentItem.plateRan}</div>
                             </div>
                             <div className="rounded-lg bg-white p-4 shadow-md">
-                                <p className="mb-2 text-gray-600 text-sm font-semibold">Approved</p>
-                                <p className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</p>
+                                <div className="mb-2 text-gray-600 text-sm font-semibold">Approved</div>
+                                <div className="text-sm">{currentItem.approved ? 'Yes' : 'No'}</div>
                             </div>
                         </div>
 
@@ -181,7 +181,7 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                 <Button
                                     variant="default"
                                     onClick={() => setAddProofMode(true)}
-                                    className="shrink-0"  // This prevents the button from shrinking
+                                    className="shrink-0"
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Proof
@@ -211,20 +211,20 @@ const TypesettingComponent: React.FC<TypesettingComponentProps> = ({
                                             ))}
                                             <div className="space-y-2">
                                                 <div>
-                                                    <p className="text-gray-600 text-sm font-semibold">Approved</p>
-                                                    <p className="text-sm">{proof.approved ? 'Yes' : 'No'}</p>
+                                                    <div className="text-gray-600 text-sm font-semibold">Approved</div>
+                                                    <div className="text-sm">{proof.approved ? 'Yes' : 'No'}</div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-gray-600 text-sm font-semibold">Date Submitted</p>
-                                                    <p className="text-sm">{proof.dateSubmitted ? formatDate(proof.dateSubmitted) : ''}</p>
+                                                    <div className="text-gray-600 text-sm font-semibold">Date Submitted</div>
+                                                    <div className="text-sm">{proof.dateSubmitted ? formatDate(proof.dateSubmitted) : ''}</div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-gray-600 text-sm font-semibold">Proof Number</p>
-                                                    <p className="text-sm">{proof.proofNumber}</p>
+                                                    <div className="text-gray-600 text-sm font-semibold">Proof Number</div>
+                                                    <div className="text-sm">{proof.proofNumber}</div>
                                                 </div>
                                                 <div>
-                                                    <p className="text-gray-600 text-sm font-semibold">Notes</p>
-                                                    <p className="text-sm">{proof.notes}</p>
+                                                    <div className="text-gray-600 text-sm font-semibold">Notes</div>
+                                                    <div className="text-sm">{proof.notes}</div>
                                                 </div>
                                             </div>
                                             <Button

@@ -91,7 +91,7 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
                     placeholder="Select brand..."
                     required
                 />
-                {errors.brand && <p className="text-red-500">{errors.brand.message}</p>}
+                {errors.brand && <span className="text-red-500 block">{errors.brand.message}</span>}
             </div>
 
             <div>
@@ -106,7 +106,7 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
                     placeholder="Select paper type..."
                     required
                 />
-                {errors.paperType && <p className="text-red-500">{errors.paperType.message}</p>}
+                {errors.paperType && <span className="text-red-500 block">{errors.paperType.message}</span>}
             </div>
 
             <div>
@@ -121,7 +121,7 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
                     placeholder="Select finish..."
                     required
                 />
-                {errors.finish && <p className="text-red-500">{errors.finish.message}</p>}
+                {errors.finish && <span className="text-red-500 block">{errors.finish.message}</span>}
             </div>
 
             <div>
@@ -131,13 +131,13 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
                     {...register('weightLb', { valueAsNumber: true })}
                     placeholder="Enter weight..."
                 />
-                {errors.weightLb && <p className="text-red-500">{errors.weightLb.message}</p>}
+                {errors.weightLb && <span className="text-red-500 block">{errors.weightLb.message}</span>}
             </div>
 
             <div>
                 <Label>Size</Label>
                 <Input {...register('size')} placeholder="Enter size (e.g., 12x18)..." />
-                {errors.size && <p className="text-red-500">{errors.size.message}</p>}
+                {errors.size && <span className="text-red-500 block">{errors.size.message}</span>}
             </div>
 
             <div>
