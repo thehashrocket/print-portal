@@ -1,12 +1,12 @@
 // ~/app/_components/shared/workOrderItemStock/workOrderItemStockForm.tsx
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { StockStatus } from '@prisma/client';
+import { PaperType, StockStatus } from '@prisma/client';
 import { Button } from '~/app/_components/ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { Input } from '~/app/_components/ui/input';
@@ -63,8 +63,15 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         stockId as string,
         { enabled: !!stockId }
     );
-
+    const [loadingPaperProducts, setLoadingPaperProducts] = useState(false);
+    const [selectedPaperType, setSelectedPaperType] = useState<PaperType | null>(null);
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const { data: paperProductsByType, isLoading: isPaperProductsLoading } = api.paperProducts.getByProductType.useQuery(
+        selectedPaperType as PaperType,
+        { 
+            enabled: !!selectedPaperType,
+        }
+    );
     const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
         index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
     );
@@ -168,16 +175,32 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 <Label>Paper Product</Label>
                 <div className="space-y-2">
                     {uniquePaperProducts && (
-                        <SelectField
-                            options={uniquePaperProducts.map((paperProduct) => ({
-                                value: paperProduct.id,
-                                label: paperProduct.customDescription || 
-                                    `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
-                            }))}
-                            value={watch('paperProductId') ?? ''}
-                            onValueChange={(value) => setValue('paperProductId', value)}
-                            placeholder="Select paper product..."
-                        />
+                        <div className="flex flex-row gap-2">
+                            <SelectField
+                                options={(
+                                    Object.values(PaperType).map((paperType) => ({
+                                        value: paperType,
+                                        label: paperType
+                                    }))
+                                )}
+                                value={selectedPaperType ?? ''}
+                                onValueChange={(value) => {
+                                    setSelectedPaperType(value as PaperType);
+                                }}
+                                placeholder="Select paper type..."
+                            />
+                            <SelectField
+                                options={(paperProductsByType ?? []).map((paperProduct) => ({
+                                    value: paperProduct.id,
+                                    label: paperProduct.customDescription ||
+                                        `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
+                                }))}
+                                value={watch('paperProductId') ?? ''}
+                                onValueChange={(value) => setValue('paperProductId', value)}
+                                placeholder={isPaperProductsLoading ? "Loading..." : "Select paper product..."}
+                                disabled={!selectedPaperType || isPaperProductsLoading}
+                            />
+                        </div>
                     )}
                     <PaperProductDialog onPaperProductCreated={handlePaperProductCreated} />
                 </div>
@@ -191,11 +214,11 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
 
             <div>
                 <Label>Cost Per M</Label>
-                <Input 
-                    type="number" 
+                <Input
+                    type="number"
                     defaultValue={0}
-                    step="0.01" 
-                    {...register('costPerM', { valueAsNumber: true })} 
+                    step="0.01"
+                    {...register('costPerM', { valueAsNumber: true })}
                     placeholder="Enter cost per meter..."
                 />
                 {errors.costPerM && <span className="text-red-500 block">{errors.costPerM.message}</span>}
@@ -243,16 +266,16 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2">
-                <Button 
-                    type="submit" 
+                <Button
+                    type="submit"
                     variant="default"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {stockId ? 'Update' : 'Add'} Stock
                 </Button>
-                <Button 
+                <Button
                     type="button"
-                    variant="secondary" 
+                    variant="secondary"
                     onClick={handleCancel}
                 >
                     Cancel

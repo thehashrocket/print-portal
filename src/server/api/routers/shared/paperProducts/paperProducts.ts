@@ -48,6 +48,14 @@ export const paperProductsRouter = createTRPCRouter({
             });
         }),
 
+    getByProductType: protectedProcedure
+        .input(z.nativeEnum(PaperType))
+        .query(async ({ ctx, input }) => {
+            return await ctx.db.paperProduct.findMany({
+                where: { paperType: input },
+            });
+        }),
+
     update: protectedProcedure
         .input(z.object({
             id: z.string(),

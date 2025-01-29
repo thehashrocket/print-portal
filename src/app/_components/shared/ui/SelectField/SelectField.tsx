@@ -18,9 +18,10 @@ interface SelectFieldProps {
     onValueChange: (value: string) => void;
     placeholder: string;
     required?: boolean;
+    disabled?: boolean;
 }
 
-export function SelectField({ options, value, onValueChange, placeholder, required }: SelectFieldProps) {
+export function SelectField({ options, value, onValueChange, placeholder, required, disabled }: SelectFieldProps) {
 
   return (
     <Select value={value} onValueChange={onValueChange} required={required}>
@@ -30,7 +31,7 @@ export function SelectField({ options, value, onValueChange, placeholder, requir
             <SelectContent>
                 <SelectGroup>
                     {options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem key={option.value} value={option.value} disabled={disabled}>
                             {option.label}
                         </SelectItem>
                     ))}
