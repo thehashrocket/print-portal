@@ -709,6 +709,10 @@ enum PaperBrand {
 enum PaperType {
   Book
   Cover
+  Envelope
+  GlossCoated
+  MatteCoated
+  PlainUncoated
   Other
 }
 
