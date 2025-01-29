@@ -9,6 +9,8 @@ import OrderCard from '../OrderCard';
 import OrderNumberFilter from './OrderNumberFilter';
 import OrderItemNumberFilter from './OrderItemNumberFilter';
 import CompanyNameFilter from './CompanyNameFilter';
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 
 const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {
@@ -130,6 +132,47 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
         return acc;
     }, {} as { [key in OrderStatus]: OrderDashboard[] });
 
+    // Add CopilotKit readable context for orders and their statuses
+    useCopilotReadable({
+        description: "Current orders and their statuses in the dashboard",
+        value: {
+            orders: orders.map(order => ({
+                id: order.id,
+                orderNumber: order.orderNumber,
+                companyName: order.companyName,
+                status: order.status,
+                itemCount: order.orderItems.length,
+            })),
+            ordersByStatus: Object.fromEntries(
+                Object.entries(ordersByStatus).map(([status, orders]) => [
+                    status,
+                    orders.length
+                ])
+            ),
+            totalOrders: orders.length,
+        },
+    });
+
+    // Add CopilotKit readable context for filtering state
+    useCopilotReadable({
+        description: "Current filtering state of the dashboard",
+        value: {
+            orderNumber,
+            orderItemNumber,
+            companyName,
+            isFiltered: orderNumber !== "" || orderItemNumber !== "" || companyName !== "",
+        },
+    });
+
+    // Add CopilotKit readable context for drag and drop state
+    useCopilotReadable({
+        description: "Drag and drop functionality state",
+        value: {
+            availableStatuses: allStatuses,
+            canDragAndDrop: true,
+        },
+    });
+
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-end md:items-center gap-4 mb-4">
@@ -167,6 +210,38 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                     </div>
                 ))}
             </div>
+
+            <CopilotPopup
+                instructions={`You are an AI assistant helping users manage orders in a dashboard view. You have access to:
+                    1. All orders and their current statuses
+                    2. Filtering options by order number, order item number, and company name
+                    3. Drag and drop functionality for status updates
+                    4. Order details including amounts and item counts
+                    5. Shipping information status
+
+                    Your role is to:
+                    - Help users understand the current state of orders
+                    - Guide users through filtering and finding specific orders
+                    - Explain the drag and drop functionality for status updates
+                    - Provide insights about order distribution
+                    - Help with status management and updates
+                    - Alert users to orders needing attention
+                    - Help track shipping information
+
+                    When responding:
+                    - Reference specific orders and their details
+                    - Guide users through status transitions
+                    - Help with filtering by multiple criteria
+                    - Provide order insights and suggestions
+                    - Explain shipping information status
+                    - Help users understand order flow
+                    - Provide workload distribution insights`}
+                labels={{
+                    title: "Orders Dashboard Assistant",
+                    initial: "How can I help you manage your orders?",
+                    placeholder: "Ask about orders, filtering, or status updates...",
+                }}
+            />
         </div>
     );
 };

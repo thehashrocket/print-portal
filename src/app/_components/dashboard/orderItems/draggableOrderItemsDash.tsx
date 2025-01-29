@@ -9,6 +9,8 @@ import { formatDate } from "~/utils/formatters";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import OrderItemNumberFilter from './OrderItemNumberFilter';
 import { Building2, CalendarDays, Eye } from 'lucide-react';
+import { CopilotPopup } from "@copilotkit/react-ui";
+import { useCopilotReadable } from "@copilotkit/react-core";
 
 const calculateDaysUntilDue = (dateString: string): number => {
     const targetDate = new Date(dateString);
@@ -200,6 +202,50 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         return acc;
     }, {} as { [key in OrderItemStatus]?: OrderItemDashboard[] });
 
+    // Add CopilotKit readable context for order items and filtering
+    useCopilotReadable({
+        description: "Current order items and their statuses in the dashboard",
+        value: {
+            items: displayedItems.map(item => ({
+                id: item.id,
+                orderItemNumber: item.orderItemNumber,
+                companyName: item.companyName,
+                status: item.status,
+                totalItems: item.totalItems,
+                position: item.position,
+            })),
+            itemsByStatus: Object.fromEntries(
+                Object.entries(orderItemsByStatus).map(([status, items]) => [
+                    status,
+                    items?.length ?? 0
+                ])
+            ),
+            totalItems: displayedItems.length,
+        },
+    });
+
+    // Add CopilotKit readable context for filtering state
+    useCopilotReadable({
+        description: "Current filtering state of the dashboard",
+        value: {
+            selectedCompany,
+            orderItemNumber,
+            selectedMobileStatus,
+            availableCompanies: companies.map(c => c.label),
+            isFiltered: selectedCompany !== "" || orderItemNumber !== "",
+        },
+    });
+
+    // Add CopilotKit readable context for drag and drop state
+    useCopilotReadable({
+        description: "Drag and drop functionality state",
+        value: {
+            availableStatuses: allStatuses,
+            canDragAndDrop: true,
+            isMobileView: false, // This would need to be updated with actual responsive state
+        },
+    });
+
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
@@ -259,6 +305,39 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                     </div>
                 ))}
             </div>
+
+            {/* Add CopilotPopup at the end of the component */}
+            <CopilotPopup
+                instructions={`You are an AI assistant helping users manage order items in a dashboard view. You have access to:
+                    1. All order items and their current statuses
+                    2. Filtering options by company and order item number
+                    3. Drag and drop functionality for status updates
+                    4. Mobile and desktop view states
+                    5. Due dates and urgency indicators
+
+                    Your role is to:
+                    - Help users understand the current state of orders
+                    - Guide users through filtering and finding specific items
+                    - Explain the drag and drop functionality
+                    - Alert users to urgent or overdue items
+                    - Provide insights about workload distribution
+                    - Help with status management and updates
+                    - Explain mobile vs desktop functionality
+
+                    When responding:
+                    - Reference specific items and their details
+                    - Explain color coding and urgency indicators
+                    - Guide users through status transitions
+                    - Help with company and order number filtering
+                    - Provide workload insights and suggestions
+                    - Alert users to items needing attention
+                    - Explain view modes and navigation`}
+                labels={{
+                    title: "Order Items Dashboard Assistant",
+                    initial: "How can I help you manage your order items?",
+                    placeholder: "Ask about items, filtering, or status updates...",
+                }}
+            />
         </div>
     );
 };
