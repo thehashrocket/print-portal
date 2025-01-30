@@ -19,7 +19,9 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import Link from "next/link";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { Button } from "../../ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Loader2, Trash2 } from "lucide-react";
+import { api } from "~/trpc/react";
+import { toast } from "react-hot-toast";
 
 // Register modules outside of component to prevent multiple registrations
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -34,6 +36,20 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const mounted = useRef(true);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const deleteWorkOrderItemMutation = api.workOrderItems.deleteWorkOrderItem.useMutation(
+        {
+            onSuccess: () => {
+                setIsDeleting(false);
+            }
+        }
+    );
+    
+    const handleDelete = (id: string) => {
+        setIsDeleting(true);
+        deleteWorkOrderItemMutation.mutate(id);
+        toast.success('Item deleted successfully');
+    };
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -42,15 +58,35 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     }), []);
 
     const actionsRenderer = (props: { data: SerializedWorkOrderItem }) => (
-        <Link href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
+        <div className="flex flex-row gap-2">
+            <Link href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
+                <Button
+                    variant="default"
+                    size="sm"
+                >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                </Button>
+            </Link>
             <Button
-                variant="default"
+                onClick={() => handleDelete(props.data.id)}
+                variant="destructive"
                 size="sm"
+                disabled={isDeleting}
             >
-                <Eye className="w-4 h-4 mr-2" />
-                View
+                {isDeleting ? (
+                    <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Deleting...
+                    </>
+                ) : (
+                    <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                    </>
+                )}
             </Button>
-        </Link>
+        </div>
     );
 
     const formatNumberAsCurrency = (params: ValueFormatterParams) => {
@@ -70,81 +106,81 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     };
 
     const columnDefs = useMemo<ColDef[]>(() => [
-        { 
-            headerName: "Item #", 
-            field: "workOrderItemNumber", 
+        {
+            headerName: "Item #",
+            field: "workOrderItemNumber",
             minWidth: 120,
             flex: 1
         },
-        { 
-            headerName: "Description", 
-            field: "description", 
+        {
+            headerName: "Description",
+            field: "description",
             minWidth: 200,
             flex: 2
         },
-        { 
-            headerName: "Status", 
-            field: "status", 
+        {
+            headerName: "Status",
+            field: "status",
             minWidth: 120,
             flex: 1
         },
-        { 
-            headerName: "Quantity", 
-            field: "quantity", 
+        {
+            headerName: "Quantity",
+            field: "quantity",
             minWidth: 120,
             flex: 1
         },
-        { 
-            headerName: "Cost", 
-            field: "cost", 
-            valueFormatter: formatNumberAsCurrency, 
+        {
+            headerName: "Cost",
+            field: "cost",
+            valueFormatter: formatNumberAsCurrency,
             minWidth: 120,
             flex: 1
         },
-        { 
-            headerName: "Total", 
-            field: "amount", 
-            valueFormatter: formatNumberAsCurrency, 
+        {
+            headerName: "Total",
+            field: "amount",
+            valueFormatter: formatNumberAsCurrency,
             minWidth: 120,
             flex: 1
         },
-        { 
-            headerName: "Actions", 
-            cellRenderer: actionsRenderer, 
+        {
+            headerName: "Actions",
+            cellRenderer: actionsRenderer,
             minWidth: 120,
             flex: 1,
-            sortable: false, 
-            filter: false 
+            sortable: false,
+            filter: false
         }
     ], []);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
-        { 
-            headerName: "Item #", 
-            field: "itemNumber", 
+        {
+            headerName: "Item #",
+            field: "itemNumber",
             minWidth: 100,
             flex: 1
         },
-        { 
-            headerName: "Status", 
-            field: "status", 
+        {
+            headerName: "Status",
+            field: "status",
             minWidth: 100,
             flex: 1
         },
-        { 
-            headerName: "Total", 
-            field: "amount", 
-            valueFormatter: formatNumberAsCurrency, 
+        {
+            headerName: "Total",
+            field: "amount",
+            valueFormatter: formatNumberAsCurrency,
             minWidth: 100,
             flex: 1
         },
-        { 
-            headerName: "Actions", 
-            cellRenderer: actionsRenderer, 
+        {
+            headerName: "Actions",
+            cellRenderer: actionsRenderer,
             minWidth: 120,
             flex: 1,
-            sortable: false, 
-            filter: false 
+            sortable: false,
+            filter: false
         }
     ], []);
 
@@ -218,7 +254,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
 
     const onFilterChanged = (event: FilterChangedEvent) => {
         if (!mounted.current || !gridApi) return;
-        
+
         try {
             const filteredRowCount = gridApi.getDisplayedRowCount();
             console.log(`Filtered row count: ${filteredRowCount}`);
@@ -244,7 +280,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     }
 
     return (
-        <div 
+        <div
             className="ag-theme-alpine w-full overflow-hidden"
             style={containerStyle}
         >

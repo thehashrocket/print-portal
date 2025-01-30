@@ -479,4 +479,24 @@ export const workOrderItemRouter = createTRPCRouter({
 
             return normalizeWorkOrderItem(updatedWorkOrderItem);
         }),
+
+    deleteWorkOrderItem: protectedProcedure
+        .input(z.string())
+        .mutation(async ({ ctx, input }): Promise<{ success: boolean }> => {
+            // First delete all related WorkOrderItemStock records
+            await ctx.db.workOrderItemStock.deleteMany({
+                where: { workOrderItemId: input }
+            });
+
+            await ctx.db.workOrderItemArtwork.deleteMany({
+                where: { workOrderItemId: input }
+            });
+
+            // Then delete the WorkOrderItem
+            await ctx.db.workOrderItem.delete({ 
+                where: { id: input } 
+            });
+            
+            return { success: true };
+        }),
 });

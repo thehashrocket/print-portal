@@ -73,7 +73,7 @@ const WorkOrderForm: React.FC = () => {
     const [isLoadingOffices, setIsLoadingOffices] = useState(false);
     const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // Add CopilotKit readable context
     useCopilotReadable({
         description: "Current form values for the work order being created",
@@ -167,9 +167,7 @@ const WorkOrderForm: React.FC = () => {
     };
 
     const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
-        console.log('Form submitted with data:', data);
-        console.log('Form errors:', errors);
-        
+        setIsSubmitting(true);
         if (!selectedOffice) {
             console.error('No office selected');
             return;
@@ -186,6 +184,7 @@ const WorkOrderForm: React.FC = () => {
         console.log('Submitting work order:', newWorkOrder);
 
         createWorkOrderMutation.mutate(newWorkOrder, {
+
             onSuccess: (createdWorkOrder: SerializedWorkOrder) => {
                 router.push(`/workOrders/create/${createdWorkOrder.id}`)
             },
@@ -193,6 +192,7 @@ const WorkOrderForm: React.FC = () => {
                 console.error('Error creating work order:', error);
             },
         });
+        setIsSubmitting(false);
     }, (errors) => {
         console.log('Form validation errors:', errors);
         return false;
@@ -418,8 +418,16 @@ const WorkOrderForm: React.FC = () => {
                 <Button
                     type="submit"
                     className="px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                    disabled={isSubmitting}
                 >
-                    Submit and Next Step
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                        </>
+                    ) : (
+                        "Submit and Next Step"
+                    )}
                 </Button>
             </form>
             <CopilotPopup

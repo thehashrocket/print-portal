@@ -22,6 +22,7 @@ import { WorkOrderItemStockDialog } from '../WorkOrderItemStock/workOrderItemSto
 import { useWorkOrderItemStockStore } from '~/app/store/workOrderItemStockStore';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import { Loader2 } from 'lucide-react';
 
 const workOrderItemSchema = z.object({
     amount: z.number().multipleOf(0.01).default(1).optional(),
@@ -58,6 +59,7 @@ const WorkOrderItemForm: React.FC = () => {
     const [isMounted, setIsMounted] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const { tempStocks, clearTempStocks } = useWorkOrderItemStockStore();
+    const [isFinished, setIsFinished] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<WorkOrderItemFormData>({
         resolver: zodResolver(workOrderItemSchema),
@@ -229,10 +231,12 @@ const WorkOrderItemForm: React.FC = () => {
     };
 
     const handleFinish = () => {
+        setIsFinished(true);
         if (isMounted) {
             router.refresh();
             router.push(`/workOrders/${workOrder.id}`);
         }
+        setIsFinished(false);
     };
 
     const handleFileUploaded = (fileUrl: string, description: string) => {
@@ -456,8 +460,16 @@ const WorkOrderItemForm: React.FC = () => {
                 <Button
                     onClick={handleFinish}
                     className="items-center justify-center gap-2 w-full flex px-[15px] py-[10px] rounded-[5px] text-[14px] font-normal text-center transition-colors bg-[#006739] text-white hover:bg-[#005730]"
+                    disabled={isFinished}
                 >
-                    Finish
+                    {isFinished ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                        </>
+                    ) : (
+                        "Finish"
+                    )}
                 </Button>
             )}
 
