@@ -30,17 +30,29 @@ interface WorkOrderItemsTableProps {
     workOrderItems: SerializedWorkOrderItem[];
 }
 
-const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItems }) => {
+const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItems: initialWorkOrderItems }) => {
     const gridRef = useRef<AgGridReact>(null);
     const [loading, setLoading] = useState(true);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const mounted = useRef(true);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [workOrderItems, setWorkOrderItems] = useState(initialWorkOrderItems);
+    const utils = api.useUtils();
     const deleteWorkOrderItemMutation = api.workOrderItems.deleteWorkOrderItem.useMutation(
         {
-            onSuccess: () => {
+            onSuccess: (_, deletedId) => {
                 setIsDeleting(false);
+                // Update local state by removing the deleted item
+                setWorkOrderItems((prevItems) => 
+                    prevItems.filter(item => item.id !== deletedId)
+                );
+                void utils.workOrderItems.getAll.invalidate();
+                toast.success('Item deleted successfully');
+            },
+            onError: (error) => {
+                setIsDeleting(false);
+                toast.error('Failed to delete item: ' + error.message);
             }
         }
     );
@@ -48,7 +60,6 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
     const handleDelete = (id: string) => {
         setIsDeleting(true);
         deleteWorkOrderItemMutation.mutate(id);
-        toast.success('Item deleted successfully');
     };
 
     const defaultColDef = useMemo(() => ({
