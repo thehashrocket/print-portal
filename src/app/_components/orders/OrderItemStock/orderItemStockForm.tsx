@@ -137,9 +137,9 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                 {uniquePaperProducts && (
                     <div className="flex flex-row gap-2">
                         <SelectField
-                            options={uniquePaperProducts.map(product => ({
-                                value: product.id,
-                                label: formatPaperProductLabel(product)
+                            options={ Object.values(PaperType).map((paperType) => ({
+                                value: paperType,
+                                label: paperType
                             }))}
                             value={selectedPaperType ?? ''}
                             onValueChange={(value) => {
