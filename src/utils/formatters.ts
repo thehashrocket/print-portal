@@ -3,6 +3,7 @@
 import {
     type ValueFormatterParams,
 } from "@ag-grid-community/core";
+import { PaperProduct } from "@prisma/client";
 
 export const formatCurrency = (amount: number | string): string => {
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -111,4 +112,12 @@ export const formatDateInTable = (params: ValueFormatterParams) => {
 export const formatNumberAsCurrencyInTable = (params: ValueFormatterParams) => {
     if (params.value === null) return "$0.00";
     return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+};
+
+export const formatPaperProductLabel = (product: PaperProduct) => {
+    if (!product) return '';
+    if (product.customDescription) {
+        return product.customDescription;
+    }
+    return `${product.brand} ${product.finish} ${product.paperType} ${product.size} ${product.weightLb}lbs.`;
 };

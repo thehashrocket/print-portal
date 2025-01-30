@@ -27,6 +27,7 @@ import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEdit
 import InfoCard from "../../shared/InfoCard/InfoCard";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import { formatPaperProductLabel } from "~/utils/formatters";
 
 type OrderItemPageProps = {
     orderId: string;
@@ -152,7 +153,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const findPaperProduct = (id: string) => {
         if (!id) return null;
         const paperProduct = paperProducts?.find(product => product.id === id);
-        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+        return paperProduct ? formatPaperProductLabel(paperProduct) : null;
     };
 
     const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
@@ -355,12 +356,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     />
                                 }
                             />
-                            {/* If orderItem.OrderItemStock is not null, then loop through the stocks and display the paper product */}
-                            {orderItem.OrderItemStock && orderItem.OrderItemStock.length > 0 && (
-                                orderItem.OrderItemStock.map((stock) => (
-                                    <InfoCard key={stock.id} title="Paper Product" content={findPaperProduct(stock.paperProductId || '')} />
-                                ))
-                            )}
                         </div>
                     </div>
 

@@ -15,7 +15,7 @@ import { Textarea } from '../../ui/textarea';
 import { CustomComboBox } from '../../../_components/shared/ui/CustomComboBox';
 import { type TempWorkOrderItemStock } from '~/app/store/workOrderItemStockStore';
 import { PaperProductDialog } from '~/app/_components/shared/paperProducts/paperProductDialog';
-
+import { formatPaperProductLabel } from '~/utils/formatters';
 // Define the schema based on Prisma types
 const workOrderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
@@ -63,7 +63,6 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         stockId as string,
         { enabled: !!stockId }
     );
-    const [loadingPaperProducts, setLoadingPaperProducts] = useState(false);
     const [selectedPaperType, setSelectedPaperType] = useState<PaperType | null>(null);
     const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const { data: paperProductsByType, isLoading: isPaperProductsLoading } = api.paperProducts.getByProductType.useQuery(
@@ -192,8 +191,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                             <SelectField
                                 options={(paperProductsByType ?? []).map((paperProduct) => ({
                                     value: paperProduct.id,
-                                    label: paperProduct.customDescription ||
-                                        `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.`
+                                    label: formatPaperProductLabel(paperProduct)
                                 }))}
                                 value={watch('paperProductId') ?? ''}
                                 onValueChange={(value) => setValue('paperProductId', value)}

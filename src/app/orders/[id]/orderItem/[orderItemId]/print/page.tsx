@@ -4,6 +4,8 @@ import OrderItemPrintPreview from '~/app/_components/orders/orderItem/OrderItemP
 import { api } from '~/trpc/server';
 import { type SerializedOrderItem, type SerializedOrder, type SerializedShippingInfo, type SerializedTypesetting, type SerializedOrderItemStock, type SerializedProcessingOptions } from '~/types/serializedTypes';
 import { normalizeTypesetting, normalizeOrderItemStock, normalizeProcessingOptions } from '~/utils/dataNormalization';
+import { formatPaperProductLabel } from '~/utils/formatters';
+
 export default async function OrderPrintPage(
     props: {
         params: Promise<{ id: string, orderItemId: string }>;
@@ -30,7 +32,7 @@ export default async function OrderPrintPage(
         const findPaperProduct = (id: string) => {
             if (!id) return null;
             const paperProduct = paperProducts?.find(product => product.id === id);
-            return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+            return paperProduct ? formatPaperProductLabel(paperProduct) : null;
         };
 
         const normalizedOrderItemStocks = orderItemStocks ?? [];

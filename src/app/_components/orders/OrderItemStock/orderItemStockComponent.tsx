@@ -13,6 +13,7 @@ import '@ag-grid-community/styles/ag-grid.css';
 import '@ag-grid-community/styles/ag-theme-alpine.css';
 import type { ColDef, ValueFormatterParams, ICellRendererParams } from '@ag-grid-community/core';
 import type { SerializedOrderItemStock } from '~/types/serializedTypes';
+import { formatPaperProductLabel } from '~/utils/formatters';
 import {
     Dialog,
     DialogContent,
@@ -51,7 +52,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
     const findPaperProduct = useCallback((id: string | null) => {
         if (!id) return '';
         const paperProduct = paperProducts?.find(product => product.id === id);
-        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : '';
+        return paperProduct ? formatPaperProductLabel(paperProduct) : '';
     }, [paperProducts]);
 
     const handleSuccess = () => {

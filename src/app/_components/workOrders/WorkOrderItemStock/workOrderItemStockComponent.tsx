@@ -7,6 +7,7 @@ import WorkOrderItemStockForm from './workOrderItemStockForm';
 import { formatDate } from '~/utils/formatters';
 import { Button } from '~/app/_components/ui/button';
 import { Pencil, PlusCircle } from 'lucide-react';
+import { formatPaperProductLabel } from '~/utils/formatters';
 
 interface WorkOrderItemStockComponentProps {
     workOrderItemId: string;
@@ -20,7 +21,7 @@ const WorkOrderItemStockComponent: React.FC<WorkOrderItemStockComponentProps> = 
     const findPaperProduct = (id: string) => {
         if (!id) return null;
         const paperProduct = paperProducts?.find(product => product.id === id);
-        return paperProduct ? `${paperProduct.brand} ${paperProduct.finish} ${paperProduct.paperType} ${paperProduct.size} ${paperProduct.weightLb}lbs.` : null;
+        return paperProduct ? formatPaperProductLabel(paperProduct) : null;
     };
 
     const { data: stocks, refetch } = api.workOrderItemStocks.getByWorkOrderItemId.useQuery(

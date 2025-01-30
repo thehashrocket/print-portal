@@ -1,17 +1,17 @@
 // ~/app/_components/orders/orderItemStock/orderItemStockForm.tsx
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { StockStatus, type PaperProduct } from '@prisma/client';
+import { StockStatus, type PaperProduct, PaperType } from '@prisma/client';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
-
+import { formatPaperProductLabel } from '~/utils/formatters';
 const orderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),
     costPerM: z.number().positive(),
@@ -52,12 +52,24 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
         },
     });
 
+    const [selectedPaperType, setSelectedPaperType] = useState<PaperType | null>(null);
+    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    const { data: paperProductsByType, isLoading: isPaperProductsLoading } = api.paperProducts.getByProductType.useQuery(
+        selectedPaperType as PaperType,
+        { 
+            enabled: !!selectedPaperType,
+        }
+    );
+    const uniquePaperProducts = paperProducts?.filter((paperProduct, index, self) =>
+        index === self.findIndex(t => t.brand === paperProduct.brand && t.size === paperProduct.size && t.paperType === paperProduct.paperType && t.finish === paperProduct.finish && t.weightLb === paperProduct.weightLb)
+    );
+
     const { data: existingStock } = api.orderItemStocks.getByID.useQuery(
         stockId as string,
         { enabled: !!stockId }
     );
 
-    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
+    
 
     const createStock = api.orderItemStocks.create.useMutation({
         onSuccess: () => {
@@ -117,24 +129,36 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
         }
     };
 
-    const formatPaperProductLabel = (product: PaperProduct) => {
-        if (!product) return '';
-        return `${product.brand} ${product.finish} ${product.paperType} ${product.size} ${product.weightLb}lbs.`;
-    };
+    
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-                <Label htmlFor="paperProductId">Paper Product</Label>
-                <SelectField
-                    options={paperProducts?.map(product => ({
-                        value: product.id,
-                        label: formatPaperProductLabel(product)
-                    })) || []}
-                    value={watch('paperProductId') ?? ''}
-                    onValueChange={(value) => setValue('paperProductId', value)}
-                    placeholder="Select Paper Product"
-                />
+            <div className="space-y-2">
+                {uniquePaperProducts && (
+                    <div className="flex flex-row gap-2">
+                        <SelectField
+                            options={uniquePaperProducts.map(product => ({
+                                value: product.id,
+                                label: formatPaperProductLabel(product)
+                            }))}
+                            value={selectedPaperType ?? ''}
+                            onValueChange={(value) => {
+                                setSelectedPaperType(value as PaperType);
+                            }}
+                            placeholder="Select paper type..."
+                        />
+                        <SelectField
+                            options={(paperProductsByType ?? []).map(product => ({
+                                value: product.id,
+                                label: formatPaperProductLabel(product)
+                            }))}
+                            value={watch('paperProductId') ?? ''}
+                            onValueChange={(value) => setValue('paperProductId', value)}
+                            placeholder={isPaperProductsLoading ? "Loading..." : "Select paper product..."}
+                            disabled={!selectedPaperType || isPaperProductsLoading}
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
