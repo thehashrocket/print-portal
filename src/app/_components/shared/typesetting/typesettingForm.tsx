@@ -11,18 +11,23 @@ import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Checkbox } from "../../ui/checkbox";
 import { SelectField } from "../../shared/ui/SelectField/SelectField";
+import { Textarea } from "../../ui/textarea";
+import { Input } from "../../ui/input";
+import { cn } from "~/lib/utils";
 
 const typesettingFormSchema = z.object({
     id: z.string().optional(),
     approved: z.boolean(),
     cost: z.number().optional().default(0),
-    dateIn: z.string(),
+    dateIn: z.string().min(1, "Date In is required"),
     followUpNotes: z.string().nullable(),
     orderItemId: z.string().nullable(),
     plateRan: z.string().nullable(),
     prepTime: z.number().nullable(),
-    status: z.nativeEnum(TypesettingStatus),
-    timeIn: z.string(),
+    status: z.nativeEnum(TypesettingStatus, {
+        required_error: "Status is required",
+    }),
+    timeIn: z.string().min(1, "Time In is required"),
     workOrderItemId: z.string().nullable(),
 });
 
@@ -54,7 +59,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
     const isAddMode = !typesetting;
     const [error, setError] = useState<string | null>(null);
 
-    const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<TypesettingFormData>({
+    const { register, handleSubmit, setValue, formState: { errors, isSubmitting }, watch } = useForm<TypesettingFormData>({
         resolver: zodResolver(typesettingFormSchema),
         defaultValues: typesetting ? {
             ...typesetting,
@@ -121,97 +126,144 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
 
     return (
         <form onSubmit={submit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            {error && <div className="alert alert-error">{error}</div>}
-            {/* Form fields */}
+            {error && (
+                <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md mb-6 flex items-center gap-2">
+                    <span className="h-4 w-4">⚠️</span>
+                    <p>{error}</p>
+                </div>
+            )}
+            
             <div className="grid grid-cols-1 gap-6 mb-4">
                 <div className="form-control">
-                    <Label htmlFor="dateIn">Date In</Label>
-                    <input
+                    <Label htmlFor="dateIn" className="flex gap-1">
+                        Date In <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
                         type="date"
-                        className="input input-bordered"
                         {...register("dateIn")}
+                        className={cn(errors.dateIn && "border-red-500")}
                     />
-                    {errors.dateIn && <span className="text-error">{errors.dateIn.message}</span>}
+                    {errors.dateIn && (
+                        <span className="text-sm text-red-500 mt-1">{errors.dateIn.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
-                    <Label htmlFor="timeIn">Time In</Label>
-                    <input type="time" className="input input-bordered" {...register("timeIn")} />
-                    {errors.timeIn && <span className="text-error">{errors.timeIn.message}</span>}
+                    <Label htmlFor="timeIn" className="flex gap-1">
+                        Time In <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                        type="time"
+                        {...register("timeIn")}
+                        className={cn(errors.timeIn && "border-red-500")}
+                    />
+                    {errors.timeIn && (
+                        <span className="text-sm text-red-500 mt-1">{errors.timeIn.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
                     <Label htmlFor="plateRan">Plate Ran</Label>
-                    <input
-                        type="text"
-                        className="input input-bordered"
+                    <Input
                         {...register("plateRan")}
+                        className={cn(errors.plateRan && "border-red-500")}
                     />
-                    {errors.plateRan && <span className="text-error">{errors.plateRan.message}</span>}
+                    {errors.plateRan && (
+                        <span className="text-sm text-red-500 mt-1">{errors.plateRan.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
                     <Label htmlFor="prepTime">Design Time</Label>
-                    <input
+                    <Input
                         type="number"
-                        className="input input-bordered"
                         {...register("prepTime", {
                             setValueAs: v => v === "" ? null : parseInt(v, 10),
                             valueAsNumber: true
                         })}
+                        className={cn(errors.prepTime && "border-red-500")}
                     />
-                    {errors.prepTime && <span className="text-error">{errors.prepTime.message}</span>}
+                    {errors.prepTime && (
+                        <span className="text-sm text-red-500 mt-1">{errors.prepTime.message}</span>
+                    )}
                 </div>
+
                 <div className="flex items-center space-x-2 mb-4">
-                    <Checkbox id="approved" {...register("approved")} />
+                    <Checkbox 
+                        id="approved" 
+                        {...register("approved")}
+                    />
                     <Label
                         htmlFor="approved"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                         Approved
                     </Label>
-                    {errors.approved && <span className="text-error">{errors.approved.message}</span>}
+                    {errors.approved && (
+                        <span className="text-sm text-red-500 mt-1">{errors.approved.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
                     <Label htmlFor="cost">Cost</Label>
-                    <input
+                    <Input
                         type="number"
-                        className="input input-bordered"
                         {...register("cost", {
                             setValueAs: v => v === "" ? null : parseInt(v, 10),
                             valueAsNumber: true
                         })}
                         step="0.01"
+                        className={cn(errors.cost && "border-red-500")}
                     />
-                    {errors.cost && <span className="text-error">{errors.cost.message}</span>}
+                    {errors.cost && (
+                        <span className="text-sm text-red-500 mt-1">{errors.cost.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status" className="flex gap-1">
+                        Status <span className="text-red-500">*</span>
+                    </Label>
                     <SelectField
                         options={Object.values(TypesettingStatus).map((status) => ({ value: status, label: status }))}
                         value={watch('status')}
                         onValueChange={(value: string) => setValue("status", value as TypesettingStatus)}
                         placeholder="Select status..."
-                        required={true}
                     />
-                    {errors.status && <span className="text-error">{errors.status.message}</span>}
+                    {errors.status && (
+                        <span className="text-sm text-red-500 mt-1">{errors.status.message}</span>
+                    )}
                 </div>
+
                 <div className="form-control">
                     <Label htmlFor="followUpNotes">Follow Up Notes</Label>
-                    <textarea
-                        className="textarea textarea-bordered"
+                    <Textarea
                         {...register("followUpNotes")}
+                        className={cn(errors.followUpNotes && "border-red-500")}
                     />
-                    {errors.followUpNotes && <span className="text-error">{errors.followUpNotes.message}</span>}
+                    {errors.followUpNotes && (
+                        <span className="text-sm text-red-500 mt-1">{errors.followUpNotes.message}</span>
+                    )}
                 </div>
             </div>
+
+            <div className="text-sm text-gray-500 mb-4">
+                <span className="text-red-500">*</span> Required fields
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
                 <Button
                     variant="default"
                     type="submit"
+                    disabled={isSubmitting}
                 >
-                    Submit
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                 </Button>
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={onCancel}
+                    type="button"
+                    disabled={isSubmitting}
                 >
                     Cancel
                 </Button>

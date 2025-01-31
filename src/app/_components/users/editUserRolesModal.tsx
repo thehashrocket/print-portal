@@ -61,7 +61,7 @@ const EditUserRolesModal: React.FC<EditUserRolesModalProps> = ({ isOpen, onClose
                     ))}
                     <div className="mt-4 flex justify-end">
                         <Button
-                            variant="secondary"
+                            variant="outline"
                             onClick={onClose}
                         >
                             Cancel

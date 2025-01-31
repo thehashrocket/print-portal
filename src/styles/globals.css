@@ -26,7 +26,7 @@
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
 
-  --color-primary: hsl(var(--primary));
+  --color-primary: hsl(153.2,100%,20.2%);
   --color-primary-foreground: hsl(var(--primary-foreground));
 
   --color-secondary: hsl(var(--secondary));
@@ -136,6 +136,15 @@
 }
 
 @layer base {
+
+  .bg-btn-primary {
+    background-color: hsl(153.2,100%,20.2%);
+  }
+
+  .bg-btn-secondary {
+    background-color: hsl(87,69.3%,39.6%);
+  }
+
   @font-face {
     font-family: 'Bliss Normal';
     src: url('/fonts/BlissNormal.woff2') format('woff2');

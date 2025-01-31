@@ -210,7 +210,7 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
                     {initialData ? "Update" : "Add"} Bindery Options
                 </Button>
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={onCancel}
                 >
                     Cancel

@@ -444,7 +444,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
                     </Button>
                     <Button
                         type="button"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => {
                             setIsEditing(false);
                             reset();

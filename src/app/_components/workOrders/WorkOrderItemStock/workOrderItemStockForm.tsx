@@ -273,7 +273,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
                 </Button>
                 <Button
                     type="button"
-                    variant="secondary"
+                    variant="outline"
                     onClick={handleCancel}
                 >
                     Cancel

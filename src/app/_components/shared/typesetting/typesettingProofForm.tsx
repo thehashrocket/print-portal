@@ -184,7 +184,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
                     Submit
                 </Button>
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={cancel}
                 >
                     Cancel

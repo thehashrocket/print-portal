@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[#006739] text-white hover:bg-[#005730]",
+          "bg-btn-primary text-primary-foreground shadow hover:bg-btn-primary/70",
         destructive:
           "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90",
         navOutline:
@@ -18,7 +18,7 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-transparent font-semibold shadow-xs hover:bg-gray-800 hover:text-white",
         secondary:
-          "bg-red-700 text-white shadow-xs hover:bg-red-500",
+          "bg-btn-secondary text-secondary-foreground shadow-xs hover:bg-btn-secondary/80",
         ghost: "hover:bg-gray-400 hover:text-white-500",
         link: "text-primary underline-offset-4 hover:underline",
       },

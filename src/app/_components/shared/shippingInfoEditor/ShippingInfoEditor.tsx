@@ -14,6 +14,7 @@ import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField
 import { toast } from 'react-hot-toast';
 import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
 import { useCopilotReadable } from '@copilotkit/react-core';
+import { Textarea } from '../../ui/textarea';
 
 const shippingInfoSchema = z.object({
     addressId: z.string().optional(),
@@ -341,10 +342,9 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                     control={control}
                     defaultValue=""
                     render={({ field }) => (
-                        <textarea
+                        <Textarea
                             {...field}
                             value={field.value || ''}
-                            className="textarea textarea-bordered w-full"
                         />
                     )}
                 />
@@ -570,7 +570,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
                     <Label htmlFor="instructions">Instructions</Label>
-                    <textarea {...register('instructions')} className="textarea textarea-bordered w-full" />
+                    <Textarea {...register('instructions')} />
                     {errors.instructions && <p className="text-red-500">{errors.instructions.message}</p>}
                 </div>
 
@@ -638,7 +638,7 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
                     </Button>
                     <Button
                         type="button"
-                        variant="secondary"
+                        variant="outline"
                         onClick={handleCancel}
                     >
                         Cancel

@@ -94,7 +94,7 @@ export function TypesettingOptionsComponent({ typesettingId, onSubmit, onCancel 
                     {isLoading ? "Creating..." : "Create"}
                 </Button>
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={onCancel}
                 >
                     Cancel

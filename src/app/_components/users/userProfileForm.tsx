@@ -328,7 +328,7 @@ export default function UserProfileForm({
 
             <div className="flex justify-end space-x-2">
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={() => setIsEditing(false)}
                 >
                     Cancel

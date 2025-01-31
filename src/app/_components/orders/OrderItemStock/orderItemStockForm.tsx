@@ -244,7 +244,7 @@ const OrderItemStockForm: React.FC<OrderItemStockFormProps> = ({
                     {stockId ? 'Update' : 'Add'} Stock
                 </Button>
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     type="button"
                     onClick={(e) => {
                         e.preventDefault();

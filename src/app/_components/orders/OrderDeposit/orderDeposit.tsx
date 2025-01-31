@@ -56,7 +56,7 @@ const OrderDeposit: React.FC<OrderDepositProps> = ({ order }) => {
                         {isPending ? "Updating..." : "Update"}
                     </Button>
                     <Button
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => setIsEditing(false)}
                         className="ml-2 text-gray-500 hover:text-gray-700"
                     >
