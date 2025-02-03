@@ -258,10 +258,18 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             title="Order Number"
                             content={<p className="text-2xl font-bold">{order.orderNumber}</p>}
                         />
-                        <InfoCard
-                            title="Company"
-                            content={<p className="text-xl">{order.Office?.Company.name}</p>}
-                        />
+                        <div className="flex flex-col gap-2">
+                            <InfoCard
+                                title="Company"
+                                content={<p className="text-xl">{order.Office?.Company.name}</p>}
+                            />
+                            {order.WalkInCustomer != null && (
+                                <InfoCard
+                                    title="Walk-in Customer"
+                                    content={<p className="text-xl">{order.WalkInCustomer.name}</p>}
+                                />
+                            )}
+                        </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="grid-cols-1 gap-4">
@@ -274,7 +282,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     orderId={order.id}
                                 />}
                             />
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Download PDF Order */}
                                 <InfoCard

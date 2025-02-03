@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { Prisma } from "@prisma/client"; // Import the Company model
-import { normalizeWorkOrder, normalizeOrder } from "~/utils/dataNormalization";
+import { normalizeWorkOrder, normalizeOrder, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 
 const SALES_TAX = 0.07;
 
@@ -53,6 +53,7 @@ export const companyRouter = createTRPCRouter({
                                     },
                                     WorkOrderNotes: true,
                                     WorkOrderVersions: true,
+                                    WalkInCustomer: true,
                                 }
                             },
                             Orders: {
@@ -96,7 +97,8 @@ export const companyRouter = createTRPCRouter({
                                         }
                                     },
                                     OrderNotes: true,
-                                    WorkOrder: true
+                                    WorkOrder: true,
+                                    WalkInCustomer: true,
                                 }
                             }
                         }
@@ -177,7 +179,8 @@ export const companyRouter = createTRPCRouter({
                             totalItemAmount,
                             totalShippingAmount,
                             totalPaid,
-                            balance
+                            balance,
+                            WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null
                         });
                     })
                 }))
