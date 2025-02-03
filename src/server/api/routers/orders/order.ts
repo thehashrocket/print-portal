@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
-import { normalizeOrder, normalizeOrderPayment } from "~/utils/dataNormalization";
+import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
@@ -81,7 +81,8 @@ export const orderRouter = createTRPCRouter({
             select: {
               purchaseOrderNumber: true,
             }
-          }
+          },
+          WalkInCustomer: true,
         },
       });
 
@@ -118,6 +119,7 @@ export const orderRouter = createTRPCRouter({
           },
           OrderItemStock: item.OrderItemStock,
         })),
+        WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
       });
     }),
 
@@ -204,7 +206,8 @@ export const orderRouter = createTRPCRouter({
             select: {
               purchaseOrderNumber: true,
             }
-          }
+          },
+          WalkInCustomer: true,
         },
       });
 
@@ -239,6 +242,7 @@ export const orderRouter = createTRPCRouter({
             name: order.contactPerson.name,
             email: order.contactPerson.email,
           } : null,
+          WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
         });
       }));
     }),
@@ -316,7 +320,8 @@ export const orderRouter = createTRPCRouter({
             select: {
               purchaseOrderNumber: true,
             }
-          }
+          },
+          WalkInCustomer: true,
         },
       });
 
@@ -351,7 +356,8 @@ export const orderRouter = createTRPCRouter({
             WorkOrder: updatedOrder.WorkOrder,
           },
         })),
-        contactPerson: updatedOrder.contactPerson || null
+        contactPerson: updatedOrder.contactPerson || null,
+        WalkInCustomer: updatedOrder.WalkInCustomer ? normalizeWalkInCustomer(updatedOrder.WalkInCustomer) : null,
       });
     }),
 
@@ -520,7 +526,8 @@ export const orderRouter = createTRPCRouter({
               select: {
                 purchaseOrderNumber: true,
               }
-            }
+            },
+            WalkInCustomer: true,
           },
         });
 
@@ -620,7 +627,8 @@ export const orderRouter = createTRPCRouter({
             select: {
               purchaseOrderNumber: true,
             }
-          }
+          },
+          WalkInCustomer: true,
         },
       });
 
@@ -710,6 +718,7 @@ export const orderRouter = createTRPCRouter({
             WorkOrder: updatedOrder.WorkOrder,
           },
         })),
+        WalkInCustomer: updatedOrder.WalkInCustomer ? normalizeWalkInCustomer(updatedOrder.WalkInCustomer) : null,
       });
     }),
 
@@ -810,6 +819,7 @@ export const orderRouter = createTRPCRouter({
             contactPerson: true,
             createdBy: true,
             WorkOrder: true,
+            WalkInCustomer: true,
           }
         });
 

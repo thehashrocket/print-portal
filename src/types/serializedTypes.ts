@@ -154,6 +154,7 @@ export interface SerializedOrder {
         name: string | null;
     };
     Office: {
+        isWalkInOffice: boolean;
         Company: {
             name: string;
         };
@@ -163,6 +164,9 @@ export interface SerializedOrder {
     OrderNotes: SerializedOrderNote[];
     OrderPayments: SerializedOrderPayment[] | null;
     ShippingInfo: SerializedShippingInfo | null;
+    isWalkIn: boolean;
+    walkInCustomerId: string | null;
+    WalkInCustomer: SerializedWalkInCustomer | null;
 }
 
 export interface SerializedOrderItem {

@@ -142,6 +142,7 @@ export function normalizeOrder(order: Order & {
     totalShippingAmount: Prisma.Decimal | null;
     OrderPayments: OrderPayment[] | null;
     Office: {
+        isWalkInOffice: boolean;
         Company: { name: string };
     };
     OrderItems?: (OrderItem & {
@@ -185,6 +186,14 @@ export function normalizeOrder(order: Order & {
     WorkOrder: {
         purchaseOrderNumber: string | null;
     };
+    WalkInCustomer: { 
+        id: string;
+        name: string;
+        email: string | null;
+        phone: string | null;
+        createdAt: string;
+        updatedAt: string;
+    } | null;
 }): SerializedOrder {
     return {
         calculatedSalesTax: order.calculatedSalesTax ? order.calculatedSalesTax.toString() : null,
@@ -213,6 +222,7 @@ export function normalizeOrder(order: Order & {
         inHandsDate: order.inHandsDate?.toISOString() ?? null,
         invoicePrintEmail: order.invoicePrintEmail,
         Office: {
+            isWalkInOffice: order.Office.isWalkInOffice,
             Company: {
                 name: order.Office.Company.name
             }
@@ -239,6 +249,9 @@ export function normalizeOrder(order: Order & {
         ShippingInfo: order.ShippingInfo ? normalizeShippingInfo(order.ShippingInfo) : null,
         Invoice: order.Invoice ? normalizeInvoice(order.Invoice) : null,
         OrderNotes: order.OrderNotes ? order.OrderNotes.map(normalizeOrderNote) : [],
+        isWalkIn: order.isWalkIn || false,
+        walkInCustomerId: order.walkInCustomerId,
+        WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
     };
 }
 
