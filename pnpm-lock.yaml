@@ -95,7 +95,7 @@ importers:
         version: 0.11.1(typescript@5.7.3)(zod@3.24.1)
       '@tailwindcss/line-clamp':
         specifier: ^0.4.4
-        version: 0.4.4(tailwindcss@4.0.0)
+        version: 0.4.4(tailwindcss@4.0.3)
       '@tanstack/react-query':
         specifier: ^5.65.0
         version: 5.65.0(react@19.0.0)
@@ -209,7 +209,7 @@ importers:
         version: 2.6.0
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.0.0)
+        version: 1.0.7(tailwindcss@4.0.3)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -225,7 +225,7 @@ importers:
         version: 4.0.0
       '@tailwindcss/typography':
         specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.0.0)
+        version: 0.5.16(tailwindcss@4.0.3)
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -299,8 +299,8 @@ importers:
         specifier: 6.3.0
         version: 6.3.0(typescript@5.7.3)
       tailwindcss:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.3
+        version: 4.0.3
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.10.10)(typescript@5.7.3)
@@ -5212,6 +5212,9 @@ packages:
   tailwindcss@4.0.0:
     resolution: {integrity: sha512-ULRPI3A+e39T7pSaf1xoi58AqqJxVCLg8F/uM5A3FadUbnyDTgltVnXJvdkTjwCOGA6NazqHVcwPJC5h2vRYVQ==}
 
+  tailwindcss@4.0.3:
+    resolution: {integrity: sha512-ImmZF0Lon5RrQpsEAKGxRvHwCvMgSC4XVlFRqmbzTEDb/3wvin9zfEZrMwgsa3yqBbPqahYcVI6lulM2S7IZAA==}
+
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
@@ -7052,9 +7055,9 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.0.0)':
+  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.0.3)':
     dependencies:
-      tailwindcss: 4.0.0
+      tailwindcss: 4.0.3
 
   '@tailwindcss/node@4.0.0':
     dependencies:
@@ -7118,13 +7121,13 @@ snapshots:
       postcss: 8.5.1
       tailwindcss: 4.0.0
 
-  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.0)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.3)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.0.0
+      tailwindcss: 4.0.3
 
   '@tanstack/query-core@5.65.0': {}
 
@@ -10800,11 +10803,13 @@ snapshots:
 
   tailwind-merge@2.6.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.0.0):
+  tailwindcss-animate@1.0.7(tailwindcss@4.0.3):
     dependencies:
-      tailwindcss: 4.0.0
+      tailwindcss: 4.0.3
 
   tailwindcss@4.0.0: {}
+
+  tailwindcss@4.0.3: {}
 
   tapable@2.2.1: {}
 
