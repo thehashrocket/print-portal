@@ -40,7 +40,7 @@
     "@ag-grid-community/react": "^32.3.3",
     "@ag-grid-community/styles": "^33.0.3",
     "@auth/prisma-adapter": "^2.7.4",
-    "@copilotkit/react-core": "^1.5.13",
+    "@copilotkit/react-core": "^1.5.14",
     "@copilotkit/react-ui": "^1.5.13",
     "@copilotkit/runtime": "^1.5.14",
     "@honeybadger-io/nextjs": "^5.9.10",
