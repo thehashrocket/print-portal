@@ -42,7 +42,7 @@
     "@auth/prisma-adapter": "^2.7.4",
     "@copilotkit/react-core": "^1.5.13",
     "@copilotkit/react-ui": "^1.5.13",
-    "@copilotkit/runtime": "^1.5.13",
+    "@copilotkit/runtime": "^1.5.14",
     "@honeybadger-io/nextjs": "^5.9.10",
     "@honeybadger-io/react": "^6.1.25",
     "@hookform/resolvers": "^3.10.0",
