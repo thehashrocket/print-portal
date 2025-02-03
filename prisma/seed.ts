@@ -488,7 +488,7 @@ async function main() {
       where: { 
         name_quickbooksId: {
           name: 'Walk-In Customers',
-          quickbooksId: null
+          quickbooksId: ''
         }
       },
       update: {},
