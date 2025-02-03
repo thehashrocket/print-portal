@@ -227,12 +227,30 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     <div className="grid md:grid-cols-2 gap-6">
                         <InfoCard
                             title="Estimate Number"
-                            content={<p className="text-2xl font-bold">{workOrder.workOrderNumber}</p>}
+                            content={<>
+                                <p className="text-2xl font-bold">{workOrder.workOrderNumber}</p>
+                                <p className="text-sm text-gray-500">
+                                    {workOrder.Office.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                </p>
+                            </>}
                         />
-                        <InfoCard
-                            title="Company Name"
-                            content={<p className="text-2xl">{workOrder.Office.Company.name}</p>}
-                        />
+                        <div className="flex flex-col gap-2">
+                            <InfoCard
+                                title="Company Name"
+                                content={<>
+                                    <p className="text-2xl font-bold">{workOrder.Office.Company.name}</p>
+                                    <p className="text-sm text-gray-500">
+                                        {workOrder.Office.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                    </p>
+                                </>}
+                            />
+                            {workOrder.WalkInCustomer != null && (
+                                <InfoCard
+                                    title="Walk-in Customer"
+                                    content={<p className="text-2xl font-bold">{workOrder.WalkInCustomer.name}</p>}
+                                />
+                            )}
+                        </div>
                         <InfoCard
                             title="Estimate Status"
                             content={<EstimateStatusBadge id={workOrder.id} status={workOrder.status} workOrderId={workOrder.id} />}

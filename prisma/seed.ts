@@ -478,21 +478,52 @@ async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, salt);
 }
 
-async function seed() {
+async function main() {
   try {
     await createRolesAndPermissions();
     await createAdminUser();
 
+    // Create the walk-in company if it doesn't exist
+    const walkInCompany = await prismaClient.company.upsert({
+      where: { 
+        name_quickbooksId: {
+          name: 'Walk-In Customers',
+          quickbooksId: null
+        }
+      },
+      update: {},
+      create: {
+        name: 'Walk-In Customers',
+        isActive: true,
+      },
+    });
+
+    // Create the counter service office if it doesn't exist
+    const counterOffice = await prismaClient.office.upsert({
+      where: { 
+        quickbooksCustomerId: 'COUNTER-SERVICE'
+      },
+      update: {},
+      create: {
+        name: 'Counter Service',
+        companyId: walkInCompany.id,
+        isActive: true,
+        createdById: process.env.SYSTEM_USER_ID || '',
+        quickbooksCustomerId: 'COUNTER-SERVICE'
+      },
+    });
+
+    console.log({ walkInCompany, counterOffice });
     console.log("Database has been seeded successfully.");
   } catch (error) {
-    console.error("Error seeding the database:", error);
-    process.exit(1);
+    console.error("Error seeding database:", error);
+    throw error;
   } finally {
     await prismaClient.$disconnect();
   }
 }
 
-seed()
+main()
   .catch((e) => {
     console.error(e);
     process.exit(1);

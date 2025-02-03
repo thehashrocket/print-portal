@@ -55,6 +55,8 @@ import {
     type SerializedWorkOrderNote,
     type SerializedWorkOrderVersion,
     type SerializedProductType,
+    type SerializedWalkInCustomer,
+    type SerializedOffice
 } from "~/types/serializedTypes";
 
 export function normalizeInvoice(invoice: Invoice & {
@@ -553,6 +555,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     Office: {
         id: string;
         name: string;
+        isWalkInOffice: boolean;
         Company: { name: string };
     };
     Order: { id: string } | null;
@@ -576,6 +579,9 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     })[];
     WorkOrderNotes: WorkOrderNote[];
     WorkOrderVersions: WorkOrderVersion[];
+    isWalkIn: boolean | null;
+    walkInCustomerId: string | null;
+    WalkInCustomer?: any;
 }): SerializedWorkOrder {
     return {
         calculatedSalesTax: workOrder.calculatedSalesTax ? workOrder.calculatedSalesTax.toString() : null,
@@ -610,16 +616,20 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         },
         Office: {
             Company: {
-                name: workOrder.Office.Company.name
+                name: workOrder.Office.Company.name,
             },
             id: workOrder.Office.id,
-            name: workOrder.Office.name
+            name: workOrder.Office.name,
+            isWalkInOffice: workOrder.Office.isWalkInOffice,
         },
         Order: workOrder.Order?.id ? { id: workOrder.Order.id } : null,
         WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
         ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
         WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),
-        WorkOrderVersions: workOrder.WorkOrderVersions.map(normalizeWorkOrderVersion)
+        WorkOrderVersions: workOrder.WorkOrderVersions.map(normalizeWorkOrderVersion),
+        isWalkIn: workOrder.isWalkIn ?? false,
+        walkInCustomerId: workOrder.walkInCustomerId,
+        WalkInCustomer: workOrder.WalkInCustomer ? normalizeWalkInCustomer(workOrder.WalkInCustomer) : null,
     };
 }
 
@@ -744,5 +754,34 @@ export function normalizeWorkOrderVersion(version: WorkOrderVersion): Serialized
         version: version.version,
         createdBy: version.createdBy,
         createdAt: version.createdAt.toISOString()
+    };
+}
+
+export function normalizeWalkInCustomer(walkInCustomer: any): SerializedWalkInCustomer {
+    return {
+        id: walkInCustomer.id,
+        name: walkInCustomer.name,
+        email: walkInCustomer.email,
+        phone: walkInCustomer.phone,
+        createdAt: walkInCustomer.createdAt.toISOString(),
+        updatedAt: walkInCustomer.updatedAt.toISOString(),
+    };
+}
+
+export function normalizeOffice(office: any): SerializedOffice {
+    return {
+        id: office.id,
+        name: office.name,
+        createdAt: office.createdAt.toISOString(),
+        updatedAt: office.updatedAt.toISOString(),
+        createdById: office.createdById,
+        companyId: office.companyId,
+        isActive: office.isActive,
+        isWalkInOffice: office.isWalkInOffice,
+        quickbooksCustomerId: office.quickbooksCustomerId,
+        Addresses: office.Addresses?.map(normalizeAddress) ?? [],
+        Company: office.Company,
+        WorkOrders: office.WorkOrders ?? [],
+        Orders: office.Orders ?? []
     };
 }

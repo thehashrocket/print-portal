@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
-import { type SerializedWorkOrder } from '~/types/serializedTypes';
+import { type SerializedWorkOrder, type SerializedOffice } from '~/types/serializedTypes';
 import { CustomComboBox } from '~/app/_components/shared/ui/CustomComboBox';
 import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
@@ -15,6 +15,7 @@ import { CreateContactModal } from '~/app/_components/shared/contacts/createCont
 import debounce from "lodash/debounce";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import type { WalkInCustomer } from '@prisma/client';
 
 const workOrderSchema = z.object({
     dateIn: z.string().min(1, 'Date In is required'),
@@ -27,6 +28,20 @@ const workOrderSchema = z.object({
     status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']).default('Draft'),
     version: z.number().default(0),
     workOrderNumber: z.string().optional().nullable(),
+    isWalkIn: z.boolean().default(false),
+    walkInCustomerName: z.string().optional(),
+    walkInCustomerEmail: z.string().email().optional().nullable(),
+    walkInCustomerPhone: z.string().optional().nullable(),
+    walkInCustomerId: z.string().optional().nullable(),
+}).refine((data) => {
+    // If it's a walk-in customer, require the name
+    if (data.isWalkIn) {
+        return !!data.walkInCustomerName;
+    }
+    return true;
+}, {
+    message: "Customer name is required for walk-in customers",
+    path: ["walkInCustomerName"],
 });
 
 type WorkOrderFormData = z.infer<typeof workOrderSchema>;
@@ -49,6 +64,11 @@ interface Employee {
 const WorkOrderForm: React.FC = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch, clearErrors } = useForm<WorkOrderFormData>({
         resolver: zodResolver(workOrderSchema),
+        defaultValues: {
+            isWalkIn: false,
+            status: 'Draft',
+            invoicePrintEmail: 'Print',
+        }
     });
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
@@ -67,13 +87,37 @@ const WorkOrderForm: React.FC = () => {
     );
     const { data: officeData, refetch: refetchOffices } = api.offices.getByCompanyId.useQuery(selectedCompany || '', { enabled: false });
     const { data: employeeData, refetch: refetchEmployees } = api.users.getByOfficeId.useQuery(selectedOffice || '', { enabled: false });
-    const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation<SerializedWorkOrder>();
+    const createWorkOrderMutation = api.workOrders.createWorkOrder.useMutation({
+        onSuccess: (createdWorkOrder) => {
+            router.push(`/workOrders/create/${createdWorkOrder.id}`);
+        },
+    });
+    const createWalkInCustomerMutation = api.walkInCustomers.create.useMutation({
+        onSuccess: async (customer, variables, context) => {
+            if (newWorkOrderData) {
+                const workOrderData = {
+                    ...newWorkOrderData,
+                    walkInCustomerId: customer.id,
+                };
+                await createWorkOrderMutation.mutateAsync(workOrderData);
+            }
+        },
+    });
     const router = useRouter();
     const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
     const [isLoadingOffices, setIsLoadingOffices] = useState(false);
     const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isWalkIn, setIsWalkIn] = useState(false);
+    const [newWorkOrderData, setNewWorkOrderData] = useState<any>(null);
+    const [walkInOffice, setWalkInOffice] = useState<SerializedOffice | null>(null);
+    // walk-in office data should be of type SerializedOffice
+    const { data: walkInOfficeData, isLoading: isWalkInOfficeLoading } = api.offices.getWalkInOffice.useQuery(undefined, {
+        retry: 3,
+        staleTime: 0,
+        refetchOnMount: true
+    });
     // Add CopilotKit readable context
     useCopilotReadable({
         description: "Current form values for the work order being created",
@@ -153,6 +197,13 @@ const WorkOrderForm: React.FC = () => {
         }
     }, [employeeData]);
 
+    useEffect(() => {
+        if (walkInOfficeData) {
+            console.log('Walk-in office data:', walkInOfficeData);
+            setWalkInOffice(walkInOfficeData);
+        }
+    }, [walkInOfficeData]);
+
     const debouncedSearch = useMemo(
         () =>
             debounce((term: string) => {
@@ -166,144 +217,243 @@ const WorkOrderForm: React.FC = () => {
         debouncedSearch(term);
     };
 
-    const handleFormSubmit = handleSubmit((data: WorkOrderFormData) => {
-        setIsSubmitting(true);
-        if (!selectedOffice) {
-            console.error('No office selected');
-            return;
+    const handleFormSubmit = handleSubmit(async (data) => {
+        try {
+            setIsSubmitting(true);
+            console.log('Form data:', data);
+            
+            const officeId = isWalkIn 
+                ? walkInOfficeData?.id 
+                : selectedOffice;
+
+            if (!officeId) {
+                console.error('No office ID available');
+                if (isWalkIn) {
+                    console.error('Walk-in office not found. Please ensure the walk-in office is properly configured.');
+                }
+                return;
+            }
+
+            const workOrderData = {
+                officeId,
+                dateIn: data.dateIn ? new Date(data.dateIn + 'T12:00:00') : new Date(),
+                inHandsDate: data.inHandsDate ? new Date(data.inHandsDate + 'T12:00:00') : new Date(),
+                isWalkIn,
+                status: data.status,
+                invoicePrintEmail: data.invoicePrintEmail,
+                estimateNumber: data.estimateNumber || undefined,
+                purchaseOrderNumber: data.purchaseOrderNumber || undefined,
+                workOrderNumber: data.workOrderNumber || undefined,
+                contactPersonId: data.contactPersonId || undefined,
+            };
+
+            console.log('Work order data:', workOrderData); // Add this for debugging
+
+            setNewWorkOrderData(workOrderData);
+
+            if (isWalkIn && data.walkInCustomerName) {
+                console.log('Creating walk-in customer...'); // Add this for debugging
+                // Create walk-in customer first
+                await createWalkInCustomerMutation.mutateAsync({
+                    name: data.walkInCustomerName,
+                    email: data.walkInCustomerEmail || undefined,
+                    phone: data.walkInCustomerPhone || undefined,
+                });
+            } else {
+                console.log('Creating regular work order...'); // Add this for debugging
+                await createWorkOrderMutation.mutateAsync(workOrderData);
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        } finally {
+            setIsSubmitting(false);
         }
-
-        const newWorkOrder = {
-            ...data,
-            officeId: selectedOffice,
-            shippingInfoId: null,
-            createdById: '',
-            dateIn: data.dateIn ? new Date(data.dateIn + 'T12:00:00') : new Date(),
-            inHandsDate: data.inHandsDate ? new Date(data.inHandsDate + 'T12:00:00') : new Date(),
-        };
-        console.log('Submitting work order:', newWorkOrder);
-
-        createWorkOrderMutation.mutate(newWorkOrder, {
-
-            onSuccess: (createdWorkOrder: SerializedWorkOrder) => {
-                router.push(`/workOrders/create/${createdWorkOrder.id}`)
-            },
-            onError: (error) => {
-                console.error('Error creating work order:', error);
-            },
-        });
-        setIsSubmitting(false);
-    }, (errors) => {
-        console.log('Form validation errors:', errors);
-        return false;
     });
 
     return (
         <div className="space-y-6">
             <form onSubmit={handleFormSubmit} className="space-y-4">
-                {/* Company Section */}
-                <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="company">Company <span className="text-red-500">*</span></Label>
-                    <div className="relative">
-                        <CustomComboBox
-                            options={companies.map(company => ({
-                                value: company.id,
-                                label: company.name ?? 'Unnamed Company'
-                            }))}
-                            value={selectedCompany ?? ""}
-                            onValueChange={setSelectedCompany}
-                            placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
-                            emptyText={
-                                isCompanyFetching 
-                                    ? "Loading..." 
-                                    : searchTerm 
-                                        ? "No companies found" 
-                                        : "Type to search companies..."
+                {/* Walk-in Customer Toggle */}
+                <div className="flex items-center space-x-2">
+                    <Label htmlFor="isWalkIn">Walk-in Customer</Label>
+                    <input
+                        type="checkbox"
+                        id="isWalkIn"
+                        checked={isWalkIn}
+                        onChange={(e) => {
+                            const isChecked = e.target.checked;
+                            setIsWalkIn(isChecked);
+                            setValue('isWalkIn', isChecked);
+                            if (isChecked) {
+                                setSelectedCompany(null);
+                                setSelectedOffice(null);
+                                // Set the walk-in office ID if available
+                                if (walkInOffice?.id) {
+                                    setValue('officeId', walkInOffice.id);
+                                } else {
+                                    console.error('Walk-in office not found');
+                                }
+                            } else {
+                                setValue('walkInCustomerName', undefined);
+                                setValue('walkInCustomerEmail', undefined);
+                                setValue('walkInCustomerPhone', undefined);
+                                setValue('officeId', '');
                             }
-                            searchPlaceholder="Search company..."
-                            className="w-[300px]"
-                            onSearchChange={handleSearch}
-                            showSpinner={isCompanyFetching}
-                        />
-                        {isCompanyFetching && (
-                            <Loader2 className="h-4 w-4 animate-spin absolute right-8 top-3 text-gray-500" />
-                        )}
-                    </div>
+                            // Clear any existing errors
+                            clearErrors();
+                        }}
+                        className="form-checkbox h-4 w-4 text-[#006739] transition duration-150 ease-in-out"
+                    />
                 </div>
 
-                {/* Office Section */}
-                {selectedCompany && (
-                    <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="office">Office <span className="text-red-500">*</span></Label>
-                        <CustomComboBox
-                            options={offices.map(office => ({
-                                value: office.id,
-                                label: office.name ?? 'Unnamed Office'
-                            }))}
-                            value={selectedOffice ?? ""}
-                            onValueChange={(value) => {
-                                setSelectedOffice(value);
-                                setValue('officeId', value);
-                                clearErrors('officeId');
-                            }}
-                            placeholder={isLoadingOffices ? "Loading..." : "Select office..."}
-                            emptyText="No office found."
-                            searchPlaceholder="Search office..."
-                            className="w-[300px]"
-                        />
+                {/* Walk-in Customer Fields */}
+                {isWalkIn && (
+                    <div className="space-y-4">
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="walkInCustomerName">Customer Name <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="walkInCustomerName"
+                                {...register('walkInCustomerName', { required: isWalkIn })}
+                                placeholder="Enter customer name..."
+                            />
+                            {errors.walkInCustomerName && (
+                                <p className="text-sm text-red-500">{errors.walkInCustomerName.message}</p>
+                            )}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="walkInCustomerEmail">Customer Email</Label>
+                            <Input
+                                id="walkInCustomerEmail"
+                                type="email"
+                                {...register('walkInCustomerEmail')}
+                                placeholder="Enter customer email..."
+                            />
+                            {errors.walkInCustomerEmail && (
+                                <p className="text-sm text-red-500">{errors.walkInCustomerEmail.message}</p>
+                            )}
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <Label htmlFor="walkInCustomerPhone">Customer Phone</Label>
+                            <Input
+                                id="walkInCustomerPhone"
+                                {...register('walkInCustomerPhone')}
+                                placeholder="Enter customer phone..."
+                            />
+                            {errors.walkInCustomerPhone && (
+                                <p className="text-sm text-red-500">{errors.walkInCustomerPhone.message}</p>
+                            )}
+                        </div>
                     </div>
                 )}
 
-                {/* Contact Person Section */}
-                {selectedOffice && (
-                    <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="contactPersonId" className="flex gap-1">
-                            Contact Person
-                        </Label>
-                        <div className="flex gap-2 items-start">
-                            <CustomComboBox
-                                options={employees.map(employee => ({
-                                    value: employee.id,
-                                    label: employee.name ?? `Employee ${employee.id}`
-                                }))}
-                                value={watch('contactPersonId') ?? ""}
-                                onValueChange={(value) => {
-                                    setValue('contactPersonId', value);
-                                    clearErrors('contactPersonId');
-                                }}
-                                placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
-                                emptyText="No contact found."
-                                searchPlaceholder="Search contact..."
-                                className={cn(
-                                    "w-[300px]",
-                                    errors.contactPersonId && "border-red-500"
+                {/* Existing Company/Office Selection - Only show if not walk-in */}
+                {!isWalkIn && (
+                    <>
+                        {/* Company Section */}
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="company">Company <span className="text-red-500">*</span></Label>
+                            <div className="relative">
+                                <CustomComboBox
+                                    options={companies.map(company => ({
+                                        value: company.id,
+                                        label: company.name ?? 'Unnamed Company'
+                                    }))}
+                                    value={selectedCompany ?? ""}
+                                    onValueChange={setSelectedCompany}
+                                    placeholder={isLoadingCompanies ? "Loading..." : "Select company..."}
+                                    emptyText={
+                                        isCompanyFetching 
+                                            ? "Loading..." 
+                                            : searchTerm 
+                                                ? "No companies found" 
+                                                : "Type to search companies..."
+                                    }
+                                    searchPlaceholder="Search company..."
+                                    className="w-[300px]"
+                                    onSearchChange={handleSearch}
+                                    showSpinner={isCompanyFetching}
+                                />
+                                {isCompanyFetching && (
+                                    <Loader2 className="h-4 w-4 animate-spin absolute right-8 top-3 text-gray-500" />
                                 )}
-                            />
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
-                                onClick={() => setIsCreateContactModalOpen(true)}
-                            >
-                                <PlusCircle className="h-4 w-4" />
-                                Create Contact
-                            </Button>
+                            </div>
                         </div>
-                        {errors.contactPersonId && (
-                            <p className="text-sm text-red-500">{errors.contactPersonId.message}</p>
+
+                        {/* Office Section */}
+                        {selectedCompany && (
+                            <div className="flex flex-col space-y-1.5">
+                                <Label htmlFor="office">Office <span className="text-red-500">*</span></Label>
+                                <CustomComboBox
+                                    options={offices.map(office => ({
+                                        value: office.id,
+                                        label: office.name ?? 'Unnamed Office'
+                                    }))}
+                                    value={selectedOffice ?? ""}
+                                    onValueChange={(value) => {
+                                        setSelectedOffice(value);
+                                        setValue('officeId', value);
+                                        clearErrors('officeId');
+                                    }}
+                                    placeholder={isLoadingOffices ? "Loading..." : "Select office..."}
+                                    emptyText="No office found."
+                                    searchPlaceholder="Search office..."
+                                    className="w-[300px]"
+                                />
+                            </div>
                         )}
-                        <CreateContactModal
-                            isOpen={isCreateContactModalOpen}
-                            onClose={() => setIsCreateContactModalOpen(false)}
-                            officeId={selectedOffice}
-                            onContactCreated={(newContact) => {
-                                setEmployees(prev => [...prev, newContact]);
-                                setValue('contactPersonId', newContact.id);
-                                refetchEmployees();
-                            }}
-                        />
-                    </div>
+
+                        {/* Contact Person Section */}
+                        {selectedOffice && (
+                            <div className="flex flex-col space-y-1.5">
+                                <Label htmlFor="contactPersonId" className="flex gap-1">
+                                    Contact Person
+                                </Label>
+                                <div className="flex gap-2 items-start">
+                                    <CustomComboBox
+                                        options={employees.map(employee => ({
+                                            value: employee.id,
+                                            label: employee.name ?? `Employee ${employee.id}`
+                                        }))}
+                                        value={watch('contactPersonId') ?? ""}
+                                        onValueChange={(value) => {
+                                            setValue('contactPersonId', value);
+                                            clearErrors('contactPersonId');
+                                        }}
+                                        placeholder={isLoadingEmployees ? "Loading..." : "Select contact..."}
+                                        emptyText="No contact found."
+                                        searchPlaceholder="Search contact..."
+                                        className={cn(
+                                            "w-[300px]",
+                                            errors.contactPersonId && "border-red-500"
+                                        )}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="flex items-center gap-1 text-[#006739] hover:text-[#005730]"
+                                        onClick={() => setIsCreateContactModalOpen(true)}
+                                    >
+                                        <PlusCircle className="h-4 w-4" />
+                                        Create Contact
+                                    </Button>
+                                </div>
+                                {errors.contactPersonId && (
+                                    <p className="text-sm text-red-500">{errors.contactPersonId.message}</p>
+                                )}
+                                <CreateContactModal
+                                    isOpen={isCreateContactModalOpen}
+                                    onClose={() => setIsCreateContactModalOpen(false)}
+                                    officeId={selectedOffice}
+                                    onContactCreated={(newContact) => {
+                                        setEmployees(prev => [...prev, newContact]);
+                                        setValue('contactPersonId', newContact.id);
+                                        refetchEmployees();
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">

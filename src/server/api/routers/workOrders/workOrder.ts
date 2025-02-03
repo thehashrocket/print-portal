@@ -4,6 +4,7 @@ import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma,
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
+import { TRPCError } from "@trpc/server";
 
 const SALES_TAX = 0.07;
 
@@ -45,6 +46,7 @@ export const workOrderRouter = createTRPCRouter({
           },
           WorkOrderNotes: true,
           WorkOrderVersions: true,
+          WalkInCustomer: true,
         },
       });
 
@@ -76,105 +78,71 @@ export const workOrderRouter = createTRPCRouter({
   createWorkOrder: protectedProcedure
     .input(z.object({
       dateIn: z.date(),
-      estimateNumber: z.string().optional().nullable(),
-      contactPersonId: z.string().optional().nullable(),
-      inHandsDate: z.date(),
-      invoicePrintEmail: z.nativeEnum(InvoicePrintEmailOptions),
       officeId: z.string(),
-      purchaseOrderNumber: z.string().optional().nullable(),
-      shippingInfoId: z.string().optional().nullable(),
-      status: z.nativeEnum(WorkOrderStatus),
-      workOrderNumber: z.string().optional().nullable(),
-      workOrderItems: z.array(z.object({
-        quantity: z.number(),
-        description: z.string(),
-        expectedDate: z.date(),
-        status: z.nativeEnum(WorkOrderItemStatus), // Changed from WorkOrderStatus to WorkOrderItemStatus
-      })).optional(),
+      inHandsDate: z.date(),
+      invoicePrintEmail: z.enum(['Print', 'Email', 'Both']),
+      status: z.enum(['Approved', 'Cancelled', 'Draft', 'Pending']),
+      contactPersonId: z.string().optional(),
+      estimateNumber: z.string().optional(),
+      purchaseOrderNumber: z.string().optional(),
+      shippingInfoId: z.string().optional(),
+      workOrderNumber: z.string().optional(),
+      isWalkIn: z.boolean().optional(),
+      walkInCustomerId: z.string().optional(),
     }))
-    .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
-      // If the estimateNumber is not provided, auto generate it using a timestamp
-      const estimateNumber = input.estimateNumber ? input.estimateNumber : `EST-${Date.now()}`;
-      const workOrderNumber = input.workOrderNumber ? input.workOrderNumber : `WO-${Date.now()}`;
-      const purchaseOrderNumber = input.purchaseOrderNumber ? input.purchaseOrderNumber : `PO-${Date.now()}`;
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'User not authenticated',
+        });
+      }
+
       const data: Prisma.WorkOrderCreateInput = {
         dateIn: input.dateIn,
-        estimateNumber,
         inHandsDate: input.inHandsDate,
         invoicePrintEmail: input.invoicePrintEmail,
-        purchaseOrderNumber,
         status: input.status,
-        workOrderNumber,
-        Office: { connect: { id: input.officeId } },
-        ShippingInfo: {
-          create: {
-            shippingMethod: ShippingMethod.Courier,
-            officeId: input.officeId,
-            createdById: ctx.session.user.id,
-          }
+        estimateNumber: input.estimateNumber,
+        purchaseOrderNumber: input.purchaseOrderNumber,
+        workOrderNumber: input.workOrderNumber,
+        isWalkIn: input.isWalkIn ?? false,
+        Office: {
+          connect: { id: input.officeId }
         },
-        contactPerson: input.contactPersonId ? { connect: { id: input.contactPersonId } } : {},
-        createdBy: { connect: { id: ctx.session.user.id } },
-        WorkOrderItems: {
-          create: input.workOrderItems?.map(item => ({
-            ...item,
-            createdBy: { connect: { id: ctx.session.user.id } },
-          })) || [],
-        },
+        createdBy: {
+          connect: { id: ctx.session.user.id }
+        }
       };
 
-      const createdWorkOrder = await ctx.db.workOrder.create({
+      if (input.contactPersonId) {
+        data.contactPerson = {
+          connect: { id: input.contactPersonId }
+        };
+      }
+
+      if (input.shippingInfoId) {
+        data.ShippingInfo = {
+          connect: { id: input.shippingInfoId }
+        };
+      }
+
+      if (input.walkInCustomerId) {
+        data.WalkInCustomer = {
+          connect: { id: input.walkInCustomerId }
+        };
+      }
+
+      return ctx.db.workOrder.create({
         data,
         include: {
+          Office: true,
+          ShippingInfo: true,
+          WorkOrderItems: true,
           contactPerson: true,
           createdBy: true,
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: true,
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
+          WalkInCustomer: true,
         },
-      });
-
-      const totalItemAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const totalCost = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const totalShippingAmount = createdWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
-      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
-
-      return normalizeWorkOrder({
-        ...createdWorkOrder,
-        totalAmount,
-        totalCost,
-        totalItemAmount,
-        calculatedSalesTax,
-        calculatedSubTotal,
-        totalShippingAmount,
-        Order: null
       });
     }),
 

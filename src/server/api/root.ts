@@ -30,6 +30,7 @@ import { workOrderItemStockRouter } from "./routers/workOrderItemStocks/workOrde
 import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
+import { walkInCustomerRouter } from "./routers/walkInCustomers/walkInCustomer";
 /**
  * This is the primary router for your server.
  *
@@ -67,6 +68,7 @@ export const appRouter = createTRPCRouter({
   workOrders: workOrderRouter,
   workOrderItems: workOrderItemRouter,
   workOrderItemStocks: workOrderItemStockRouter,
+  walkInCustomers: walkInCustomerRouter,
 });
 
 // export type definition of API

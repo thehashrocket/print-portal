@@ -104,6 +104,7 @@ export interface SerializedOffice {
     companyId: string;
     isActive: boolean;
     name: string;
+    isWalkInOffice: boolean;
     quickbooksCustomerId: string | null;
     Addresses: SerializedAddress[];
     Company: {
@@ -379,6 +380,15 @@ export interface SerializedTypesettingProofArtwork {
     updatedAt: Date;
 }
 
+export interface SerializedWalkInCustomer {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface SerializedWorkOrder {
     calculatedSalesTax: string | null;
     calculatedSubTotal: string | null;
@@ -411,6 +421,7 @@ export interface SerializedWorkOrder {
         name: string | null;
     };
     Office: {
+        isWalkInOffice: boolean;
         Company: {
             name: string;
         };
@@ -424,6 +435,9 @@ export interface SerializedWorkOrder {
     WorkOrderItems: SerializedWorkOrderItem[];
     WorkOrderNotes: SerializedWorkOrderNote[];
     WorkOrderVersions: SerializedWorkOrderVersion[];
+    isWalkIn: boolean;
+    walkInCustomerId: string | null;
+    WalkInCustomer: SerializedWalkInCustomer | null;
 }
 
 export interface SerializedWorkOrderItem {

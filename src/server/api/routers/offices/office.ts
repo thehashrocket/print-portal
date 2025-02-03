@@ -6,6 +6,7 @@ import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { AddressType } from "@prisma/client"; // Import the Office model
 import { TRPCError } from "@trpc/server";
+import { normalizeOffice } from "~/utils/dataNormalization";
 
 export const officeRouter = createTRPCRouter({
     // Get an Office by ID
@@ -226,5 +227,34 @@ export const officeRouter = createTRPCRouter({
             });
 
             return { success: true };
+        }),
+    // Get the walk-in office
+    getWalkInOffice: protectedProcedure
+        .query(async ({ ctx }) => {
+            const walkInOffice = await ctx.db.office.findFirst({
+                where: {
+                    isWalkInOffice: true,
+                    deleted: false,
+                },
+                include: {
+                    Addresses: {
+                        where: { deleted: false }
+                    },
+                    Company: {
+                        select: { name: true }
+                    },
+                    WorkOrders: false,
+                    Orders: false
+                }
+            });
+
+            if (!walkInOffice) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Walk-in office not found. Please configure a walk-in office in the system.",
+                });
+            }
+
+            return normalizeOffice(walkInOffice);
         }),
 });

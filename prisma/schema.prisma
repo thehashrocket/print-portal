@@ -135,6 +135,7 @@ model Office {
   fullyQualifiedName   String?
   deleted              Boolean          @default(false)
   isActive             Boolean          @default(true)
+  isWalkInOffice       Boolean          @default(false)
   Addresses            Address[]
   Company              Company          @relation(fields: [companyId], references: [id])
   createdBy            User             @relation("CreatedBy", fields: [createdById], references: [id])
@@ -160,6 +161,8 @@ model Order {
   dateInvoiced        DateTime?
   inHandsDate         DateTime?
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
+  isWalkIn            Boolean                  @default(false)
+  walkInCustomerId    String?
   createdById         String
   contactPersonId     String?
   pressRun            String?                  @default("")
@@ -174,6 +177,7 @@ model Order {
   OrderItems          OrderItem[]
   OrderNotes          OrderNote[]
   OrderPayments       OrderPayment[]
+  WalkInCustomer      WalkInCustomer?          @relation(fields: [walkInCustomerId], references: [id])
 }
 
 model OrderItem {
@@ -509,6 +513,17 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model WalkInCustomer {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Orders        Order[]
+  WorkOrders    WorkOrder[]
+}
+
 model WorkOrder {
   id                  String                   @id @default(uuid())
   officeId            String
@@ -525,11 +540,14 @@ model WorkOrder {
   invoicePrintEmail   InvoicePrintEmailOptions @default(Both)
   createdById         String
   contactPersonId     String?
+  isWalkIn            Boolean                  @default(false)
+  walkInCustomerId    String?
   Order               Order?
   contactPerson       User?                    @relation("WorkOrderContactPerson", fields: [contactPersonId], references: [id])
   createdBy           User                     @relation("WorkOrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
+  WalkInCustomer      WalkInCustomer?          @relation(fields: [walkInCustomerId], references: [id])
   WorkOrderItems      WorkOrderItem[]
   WorkOrderNotes      WorkOrderNote[]
   WorkOrderVersions   WorkOrderVersion[]

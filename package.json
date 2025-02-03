@@ -29,7 +29,8 @@
     "import-compass-health-locations": "tsx prisma/import-compass-health-locations.js",
     "add-product-types": "tsx scripts/addProductTypes.ts",
     "downcase-emails": "tsx scripts/downcaseEmails.ts",
-    "import-paper-catalog": "tsx scripts/importPaperCatalog.ts"
+    "import-paper-catalog": "tsx scripts/importPaperCatalog.ts",
+    "setup-walk-in": "tsx scripts/create-walk-in-office.ts"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.3",
