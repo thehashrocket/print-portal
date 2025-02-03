@@ -93,8 +93,43 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
     // Only provide form-specific context for the shipping editor
     useCopilotReadable({
         description: "Available shipping addresses for this office",
-        value: addresses ?? null,
+        value: addresses?.map(addr => ({
+            id: addr.id,
+            name: addr.name,
+            line1: addr.line1,
+            line2: addr.line2,
+            city: addr.city,
+            state: addr.state,
+            zipCode: addr.zipCode
+        })) ?? [],
     });
+
+    const formValues = watch();
+    const safeFormValues = {
+        addressId: String(formValues.addressId ?? ''),
+        instructions: String(formValues.instructions ?? ''),
+        shippingCost: Number(formValues.shippingCost ?? 0),
+        shippingDate: formValues.shippingDate ? String(formValues.shippingDate) : null,
+        shippingMethod: String(formValues.shippingMethod ?? ''),
+        shippingNotes: String(formValues.shippingNotes ?? ''),
+        shippingOther: String(formValues.shippingOther ?? ''),
+        shipToSameAsBillTo: Boolean(formValues.shipToSameAsBillTo),
+        trackingNumber: Array.isArray(formValues.trackingNumber) ? formValues.trackingNumber.map(String) : [],
+        shippingPickup: formValues.shippingPickup ? {
+            contactName: String(formValues.shippingPickup.contactName ?? ''),
+            contactPhone: String(formValues.shippingPickup.contactPhone ?? ''),
+            pickupDate: String(formValues.shippingPickup.pickupDate ?? ''),
+            pickupTime: String(formValues.shippingPickup.pickupTime ?? ''),
+            notes: String(formValues.shippingPickup.notes ?? '')
+        } : null
+    };
+
+    const safeErrors = errors ? Object.fromEntries(
+        Object.entries(errors).map(([key, value]) => [
+            key,
+            { message: String(value?.message ?? '') }
+        ])
+    ) : null;
 
     useCopilotReadable({
         description: "Shipping form state and validation status",
@@ -102,8 +137,8 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
             isEditing,
             isSubmitting,
             isAddressBeingCreated,
-            formValues: watch(),
-            formErrors: errors,
+            formValues: safeFormValues,
+            formErrors: safeErrors
         },
     });
 
