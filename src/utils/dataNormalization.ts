@@ -776,8 +776,8 @@ export function normalizeWalkInCustomer(walkInCustomer: any): SerializedWalkInCu
         name: walkInCustomer.name,
         email: walkInCustomer.email,
         phone: walkInCustomer.phone,
-        createdAt: walkInCustomer.createdAt.toISOString(),
-        updatedAt: walkInCustomer.updatedAt.toISOString(),
+        createdAt: walkInCustomer.createdAt instanceof Date ? walkInCustomer.createdAt.toISOString() : walkInCustomer.createdAt,
+        updatedAt: walkInCustomer.updatedAt instanceof Date ? walkInCustomer.updatedAt.toISOString() : walkInCustomer.updatedAt,
     };
 }
 

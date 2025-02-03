@@ -82,7 +82,16 @@ export const orderRouter = createTRPCRouter({
               purchaseOrderNumber: true,
             }
           },
-          WalkInCustomer: true,
+          WalkInCustomer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
         },
       });
 
@@ -207,7 +216,16 @@ export const orderRouter = createTRPCRouter({
               purchaseOrderNumber: true,
             }
           },
-          WalkInCustomer: true,
+          WalkInCustomer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
         },
       });
 
@@ -321,7 +339,16 @@ export const orderRouter = createTRPCRouter({
               purchaseOrderNumber: true,
             }
           },
-          WalkInCustomer: true,
+          WalkInCustomer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
         },
       });
 
@@ -527,7 +554,16 @@ export const orderRouter = createTRPCRouter({
                 purchaseOrderNumber: true,
               }
             },
-            WalkInCustomer: true,
+            WalkInCustomer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true
+              }
+            },
           },
         });
 
@@ -628,7 +664,16 @@ export const orderRouter = createTRPCRouter({
               purchaseOrderNumber: true,
             }
           },
-          WalkInCustomer: true,
+          WalkInCustomer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
         },
       });
 
@@ -819,7 +864,16 @@ export const orderRouter = createTRPCRouter({
             contactPerson: true,
             createdBy: true,
             WorkOrder: true,
-            WalkInCustomer: true,
+            WalkInCustomer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true
+              }
+            },
           }
         });
 

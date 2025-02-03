@@ -381,6 +381,7 @@ export const workOrderRouter = createTRPCRouter({
           },
           WorkOrderNotes: true,
           WorkOrderVersions: true,
+          WalkInCustomer: true,
         },
       });
       if (!fullWorkOrder) {

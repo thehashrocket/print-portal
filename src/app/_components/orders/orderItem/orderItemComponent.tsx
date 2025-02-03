@@ -363,8 +363,19 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     <div className="mb-6">
                         <InfoCard
                             title="Company"
-                            content={order.Office?.Company.name ?? 'N/A'}
+                            content={<>
+                                <p className="text-xl">{order.Office?.Company.name}</p>
+                                <p className="text-sm text-gray-500">
+                                    {order.Office?.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                </p>
+                            </>}
                         />
+                        {order.WalkInCustomer != null && (
+                            <InfoCard
+                                title="Walk-in Customer"
+                                content={<p className="text-xl">{order.WalkInCustomer.name}</p>}
+                            />
+                        )}
                     </div>
                     <div className="flex flex-row gap-4 mb-2">
                         <InfoCard title="Download PDF Order Item Details" content={

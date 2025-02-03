@@ -52,19 +52,35 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
                     <div className="flex">
                         <p className="w-32 font-bold">Company:</p>
-                        <p>{order.Office.Company.name}</p>
+                        {order.Office.isWalkInOffice ? (
+                            <p>{order.WalkInCustomer?.name}</p>
+                        ) : (
+                            <p>{order.Office.Company.name}</p>
+                        )}
                     </div>
                     <div className="flex">
                         <p className="w-32 font-bold">Contact:</p>
-                        <p>{order.contactPerson?.name}</p>  
+                            {order.Office.isWalkInOffice ? (
+                                <p>{order.WalkInCustomer?.name}</p>
+                            ) : (
+                                <p>{order.contactPerson?.name}</p>
+                            )}
                     </div>
                     <div className="flex">
                         <p className="w-32 font-bold">Email:</p>
-                        <p>{order.contactPerson?.email}</p>
+                        {order.Office.isWalkInOffice ? (
+                            <p>{order.WalkInCustomer?.email}</p>
+                        ) : (
+                            <p>{order.contactPerson?.email}</p>
+                        )}
                     </div>
                     <div className="flex">
                         <p className="w-32 font-bold">Phone:</p>
-                        <p>{order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
+                        {order.Office.isWalkInOffice ? (
+                            <p>{order.WalkInCustomer?.phone}</p>
+                        ) : (
+                            <p>{order.ShippingInfo?.Address?.telephoneNumber || 'N/A'}</p>
+                        )}
                     </div>
                 </div>
                 <div className="flex flex-col gap-2">

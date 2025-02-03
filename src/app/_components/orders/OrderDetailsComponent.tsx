@@ -235,13 +235,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Order Details</h1>
-                        <Link href="/workOrders/create">
-                            <Button
-                                variant="default"
-                            >
-                                <FilePlus2 className="w-4 h-4" /> Create Order
-                            </Button>
-                        </Link>
+                        
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
@@ -256,12 +250,22 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     <div className="grid md:grid-cols-2 gap-6">
                         <InfoCard
                             title="Order Number"
-                            content={<p className="text-2xl font-bold">{order.orderNumber}</p>}
+                            content={<>
+                                <p className="text-2xl font-bold">{order.orderNumber}</p>
+                                <p className="text-sm text-gray-500">
+                                    {order.Office?.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                </p>
+                            </>}
                         />
                         <div className="flex flex-col gap-2">
                             <InfoCard
                                 title="Company"
-                                content={<p className="text-xl">{order.Office?.Company.name}</p>}
+                                content={<>
+                                    <p className="text-xl">{order.Office?.Company.name}</p>
+                                    <p className="text-sm text-gray-500">
+                                        {order.Office?.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                    </p>
+                                </>}
                             />
                             {order.WalkInCustomer != null && (
                                 <InfoCard

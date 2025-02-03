@@ -86,6 +86,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
             Order: true,
             WorkOrderNotes: true,
             WorkOrderVersions: true,
+            WalkInCustomer: true,
         },
     });
 
@@ -149,6 +150,8 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
             invoicePrintEmail: workOrder.invoicePrintEmail,
             contactPersonId: workOrder.contactPersonId || undefined,
             shippingInfoId: workOrder.shippingInfoId || undefined,
+            isWalkIn: workOrder.isWalkIn,
+            walkInCustomerId: workOrder.walkInCustomerId || undefined,
         },
     });
 
