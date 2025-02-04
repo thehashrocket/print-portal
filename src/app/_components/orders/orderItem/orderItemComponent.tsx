@@ -133,7 +133,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [tempQuantity, setTempQuantity] = useState<number>(0);
     const [tempInk, setTempInk] = useState<string>("");
     const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
-
+    const [tempCost, setTempCost] = useState<number>(0);
+    const [tempAmount, setTempAmount] = useState<number>(0);
     // Initialize local artwork state when orderItem changes
     useEffect(() => {
         if (orderItem?.artwork) {
@@ -212,6 +213,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 break;
             case 'productType':
                 updates.productTypeId = tempProductTypeId;
+                break;
+            case 'cost':
+                updates.cost = tempCost;
+                break;
+            case 'amount':
+                updates.amount = tempAmount;
                 break;
         }
 
@@ -353,6 +360,38 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         value={tempProductTypeId}
                                         onValueChange={setTempProductTypeId}
                                         placeholder="Select product type..."
+                                    />
+                                }
+                            />
+                            <EditableInfoCard
+                                title="Item Cost"
+                                content={orderItem.cost ?? 'N/A'}
+                                isEditing={editingField === 'cost'}
+                                onEdit={() => setEditingField('cost')}
+                                onSave={() => handleSave('cost')}
+                                onCancel={() => handleCancel('cost')}
+                                editComponent={
+                                    <Input
+                                        type="number"
+                                        value={tempCost}
+                                        onChange={(e) => setTempCost(parseFloat(e.target.value))}
+                                        className="w-full"
+                                    />
+                                }
+                            />
+                            <EditableInfoCard
+                                title="Amount we bill to customer"
+                                content={orderItem.amount ?? 'N/A'}
+                                isEditing={editingField === 'amount'}
+                                onEdit={() => setEditingField('amount')}
+                                onSave={() => handleSave('amount')}
+                                onCancel={() => handleCancel('amount')}
+                                editComponent={
+                                    <Input
+                                        type="number"
+                                        value={tempAmount}
+                                        onChange={(e) => setTempAmount(parseFloat(e.target.value))}
+                                        className="w-full"
                                     />
                                 }
                             />

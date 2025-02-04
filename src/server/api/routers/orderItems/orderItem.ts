@@ -381,6 +381,8 @@ export const orderItemRouter = createTRPCRouter({
                 quantity: z.number().optional(),
                 ink: z.string().optional(),
                 productTypeId: z.string().optional(),
+                cost: z.number().optional(),
+                amount: z.number().optional(),
             })
         }))
         .mutation(async ({ ctx, input }) => {
