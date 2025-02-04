@@ -126,6 +126,7 @@ export interface SerializedOrder {
     id: string;
     inHandsDate: string | null;
     invoicePrintEmail: InvoicePrintEmailOptions;
+    notes: string | null;
     officeId: string;
     orderNumber: number;
     pressRun: string | null;

@@ -134,6 +134,7 @@ export function normalizeInvoicePayment(payment: InvoicePayment): SerializedInvo
 export function normalizeOrder(order: Order & {
     calculatedSalesTax: Prisma.Decimal | null;
     calculatedSubTotal: Prisma.Decimal | null;
+    notes: string | null;
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
@@ -200,6 +201,7 @@ export function normalizeOrder(order: Order & {
         calculatedSubTotal: order.calculatedSubTotal ? order.calculatedSubTotal.toString() : null,
         contactPersonId: order.contactPersonId ?? null,
         createdAt: order.createdAt.toISOString(),
+        notes: order.notes,
         quickbooksInvoiceId: order.quickbooksInvoiceId,
         syncToken: order.syncToken,
         contactPerson: order.contactPerson ? {

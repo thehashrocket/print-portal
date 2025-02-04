@@ -23,6 +23,7 @@ import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import InfoCard from "../shared/InfoCard/InfoCard";
+import { Textarea } from "../ui/textarea";
 
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -145,6 +146,26 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
         initialData: initialOrder,
     });
+    const [orderNotes, setOrderNotes] = useState(order?.notes ?? "");
+
+    const { mutate: updateNotes } = api.orders.updateNotes.useMutation({
+        onSuccess: () => {
+            toast.success('Order notes updated');
+            utils.orders.getByID.invalidate(orderId);
+        },
+        onError: (error) => {
+            console.error('Failed to update order notes:', error);
+            toast.error('Failed to update order notes');
+        }
+    });
+
+    const handleOrderNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setOrderNotes(e.target.value);
+    };
+
+    const updateOrderNotes = () => {
+        updateNotes({ id: orderId, notes: orderNotes });
+    };
 
     // Use sendOrderEmail from orders/order.ts
     const { mutate: sendOrderEmail } = api.orders.sendOrderEmail.useMutation({
@@ -486,6 +507,17 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     </div>
                                 }
                             />
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold text-gray-700 mb-2">Order Notes</h2>
+                                <Textarea
+                                    value={orderNotes}
+                                    onChange={handleOrderNotesChange}
+                                    className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                                />
+                                <Button variant="default" onClick={updateOrderNotes}>
+                                    Update Notes
+                                </Button>
+                            </div>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">

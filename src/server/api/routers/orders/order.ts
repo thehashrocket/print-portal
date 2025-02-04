@@ -767,6 +767,122 @@ export const orderRouter = createTRPCRouter({
       });
     }),
 
+  updateNotes: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      notes: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { id, notes } = input;
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: id },
+        data: { notes: notes },
+        include: {
+          Office: {
+            include: {
+              Company: true,
+            },
+          },
+          OrderItems: {
+            include: {
+              artwork: true,
+              OrderItemStock: true,
+              ProductType: true,
+              Order: {
+                select: {
+                  Office: {
+                    select: {
+                      Company: true,
+                    }
+                  },
+                  WorkOrder: {
+                    select: {
+                      purchaseOrderNumber: true,
+                    }
+                  }
+                }
+              }
+            },
+          },
+          contactPerson: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          OrderPayments: true,
+          ShippingInfo: {
+            include: {
+              Address: true,
+              ShippingPickup: true,
+            },
+          },
+          Invoice: {
+            include: {
+              InvoiceItems: true,
+              InvoicePayments: true,
+              createdBy: true,
+            },
+          },
+          OrderNotes: true,
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          },
+          WalkInCustomer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
+        },
+      });
+
+      const nonCancelledOrderItems = updatedOrder.OrderItems.filter(item => item.status !== 'Cancelled');
+      const totalCost = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.cost ?? 0), new Prisma.Decimal(0));
+      const totalItemAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.amount ?? 0), new Prisma.Decimal(0));
+      const totalShippingAmount = nonCancelledOrderItems.reduce((sum, item) => sum.add(item.shippingAmount ?? 0), new Prisma.Decimal(0));
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
+      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const balance = totalAmount.sub(totalPaid);
+
+      return normalizeOrder({
+        ...updatedOrder,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalAmount,
+        totalItemAmount,
+        totalShippingAmount,
+        totalCost,
+        totalPaid,
+        balance,
+        OrderItems: updatedOrder.OrderItems.map(item => ({
+          ...item,
+          Order: {
+            Office: updatedOrder.Office,
+            WorkOrder: updatedOrder.WorkOrder,
+          },
+        })),
+        WalkInCustomer: updatedOrder.WalkInCustomer ? normalizeWalkInCustomer(updatedOrder.WalkInCustomer) : null,
+      });
+    }),
+
   // Order Dashbaord
   // Shows all orders, their status, and the company they are associated with
   // Includes OrderItemStatus, returns the status that all OrderItems equal,
