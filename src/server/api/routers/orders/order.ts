@@ -893,7 +893,7 @@ export const orderRouter = createTRPCRouter({
       const orders = await ctx.db.order.findMany({
         where: {
           status: {
-            notIn: ['Cancelled', 'Invoiced', 'PaymentReceived']
+            notIn: ['Cancelled', 'Invoiced', 'PaymentReceived', 'Completed']
           }
         },
         include: {

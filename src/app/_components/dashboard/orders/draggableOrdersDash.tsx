@@ -11,6 +11,7 @@ import OrderItemNumberFilter from './OrderItemNumberFilter';
 import CompanyNameFilter from './CompanyNameFilter';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
+import { Info } from 'lucide-react';
 
 
 const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {
@@ -195,7 +196,14 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                     onClear={clearOrderItemNumberFilter}
                 />
             </div>
-            
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Status is the current status of the order.
+                    You can change the status of the order by dragging and dropping the order card into a new status.
+                    Orders placed in the completed status are not visible in the dashboard after they are completed and the page is refreshed.
+                </p>
+            </div>
             <div className="flex gap-4 overflow-x-auto pb-4">
                 {allStatuses.map((status) => (
                     <div key={status}
