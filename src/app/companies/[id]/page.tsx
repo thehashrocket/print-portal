@@ -45,6 +45,7 @@ export default async function CompanyPage(props: { params: Promise<{ id: string 
                         <HeaderClient 
                             companyName={serializedCompany.name || "Company"} 
                             companyId={id}
+                            isActive={serializedCompany.isActive}
                             quickbooksId={serializedCompany.quickbooksId}
                         />
                     </div>

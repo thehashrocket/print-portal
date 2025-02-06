@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
 import { Button } from '~/app/_components/ui/button';
-import { PlusCircle, RefreshCcw, RefreshCwOff } from 'lucide-react';
+import { Lightbulb, LightbulbOff, PlusCircle, RefreshCcw, RefreshCwOff } from 'lucide-react';
 import CreateOfficeForm from '../offices/CreateOfficeForm';
 import {
     Dialog,
@@ -15,7 +15,7 @@ import {
     DialogTitle,
 } from "~/app/_components/ui/dialog";
 
-const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbooksId: string | null }> = ({ companyName, companyId, quickbooksId }) => {
+const HeaderClient: React.FC<{ companyName: string; isActive: boolean; companyId: string; quickbooksId: string | null }> = ({ companyName, isActive, companyId, quickbooksId }) => {
     const router = useRouter();
     const isAuthenticated = useQuickbooksStore((state: { isAuthenticated: any; }) => state.isAuthenticated);
     const [isAddOfficeModalOpen, setIsAddOfficeModalOpen] = useState(false);
@@ -26,6 +26,12 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
         },
         onError: (error) => {
             toast.error(`Error syncing with QuickBooks: ${error.message}`);
+        },
+    });
+    const toggleActiveMutation = api.companies.toggleActive.useMutation({
+        onSuccess: () => {
+            toast.success('Company activated/deactivated successfully');
+            router.refresh(); // Refresh the page data
         },
     });
 
@@ -61,6 +67,18 @@ const HeaderClient: React.FC<{ companyName: string; companyId: string; quickbook
                 </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={() => toggleActiveMutation.mutate(companyId)}
+                >
+                    {isActive ? 
+                        <LightbulbOff className="w-4 h-4 mr-2" />
+                        :
+                        <Lightbulb className="w-4 h-4 mr-2" />
+                    }
+                    {isActive ? 'Deactivate' : 'Activate'}
+                </Button>
                 <Button
                     variant="outline"
                     className={`w-full sm:w-auto ${syncCompanyMutation.isPending ? 'loading' : ''}`}

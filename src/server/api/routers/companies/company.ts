@@ -222,6 +222,19 @@ export const companyRouter = createTRPCRouter({
                 },
             });
         }),
+    toggleActive: protectedProcedure
+        .input(z.string()).mutation(({ ctx, input }) => {
+            return ctx.db.company.findUnique({ where: { id: input } })
+                .then(company => {
+                    if (!company) {
+                        throw new Error('Company not found');
+                    }
+                    return ctx.db.company.update({
+                        where: { id: input },
+                        data: { isActive: !company.isActive },
+                    });
+                });
+        }),
     // Update a Company
     update: protectedProcedure
         .input(z.object({

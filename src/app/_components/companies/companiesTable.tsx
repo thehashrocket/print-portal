@@ -79,14 +79,49 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         void refetch();
     }, [refetch]);
 
-    useEffect(() => {
-        if (companies) {
-            if (gridRef.current?.api && !gridRef.current.api.isDestroyed()) {
-                gridRef.current.api.sizeColumnsToFit();
+    const onGridReady = useCallback((params: GridReadyEvent) => {
+        const gridApi = params.api;
+        
+        const updateGridSize = () => {
+            if (gridApi && !gridApi.isDestroyed()) {
+                setTimeout(() => {
+                    try {
+                        gridApi.sizeColumnsToFit();
+                    } catch (error) {
+                        console.warn('Failed to size columns:', error);
+                    }
+                }, 100);
             }
+        };
+
+        // Initial sizing
+        updateGridSize();
+
+        // Add resize listener
+        window.addEventListener('resize', updateGridSize);
+
+        // Store the cleanup function
+        return () => {
+            window.removeEventListener('resize', updateGridSize);
+        };
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
             setLoading(false);
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (companies && !loading && gridRef.current?.api) {
+            try {
+                gridRef.current.api.sizeColumnsToFit();
+            } catch (error) {
+                console.warn('Failed to size columns:', error);
+            }
         }
-    }, [companies]);
+    }, [companies, loading]);
 
     const actionsCellRenderer = (props: { data: SerializedCompany }) => (
         <div className="flex gap-1">
@@ -120,8 +155,8 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
         { 
             headerName: "Name", 
             field: "name",
-            minWidth: 120,
-            flex: 1,
+            minWidth: 200,
+            flex: 2,
             cellRenderer: (params: { value: string }) => (
                 <div className="truncate max-w-[150px] sm:max-w-none" title={params.value}>
                     {params.value}
@@ -133,29 +168,36 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             field: "workOrderTotalPending", 
             valueFormatter: formatNumberAsCurrency,
             headerClass: 'hide-below-lg',
-            cellClass: 'hide-below-lg',
-            width: 100,
+            cellClass: 'hide-below-lg text-right',
+            minWidth: 120,
+            flex: 1,
+            type: 'numericColumn'
         },
         { 
             headerName: "Orders", 
             field: "orderTotalPending", 
             valueFormatter: formatNumberAsCurrency,
             headerClass: 'hide-below-md',
-            cellClass: 'hide-below-md',
-            width: 100,
+            cellClass: 'hide-below-md text-right',
+            minWidth: 120,
+            flex: 1,
+            type: 'numericColumn'
         },
         { 
             headerName: "Done", 
             field: "orderTotalCompleted", 
             valueFormatter: formatNumberAsCurrency,
             headerClass: 'hide-below-md',
-            cellClass: 'hide-below-md',
-            width: 100,
+            cellClass: 'hide-below-md text-right',
+            minWidth: 120,
+            flex: 1,
+            type: 'numericColumn'
         },
         {
             headerName: "QB",
             field: "quickbooksId",
-            width: 90,
+            minWidth: 130,
+            flex: 1,
             cellRenderer: (params: { value: string | null }) => (
                 <div className={`flex items-center justify-center ${params.value ? "text-green-600" : "text-red-600"}`}>
                     {params.value ? (
@@ -173,42 +215,30 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             ),
         },
         {
+            headerName: "Active",
+            field: "isActive",
+            minWidth: 100,
+            flex: 0.5,
+            cellRenderer: (params: { value: boolean }) => (
+                <div className={`flex items-center justify-center ${params.value ? "text-green-600" : "text-red-600"}`}>
+                    {params.value ? "Yes" : "No"}
+                </div>
+            )
+        },
+        {
             headerName: "Actions",
             cellRenderer: actionsCellRenderer,
             sortable: false,
             filter: false,
-            width: 140,
+            minWidth: 150,
+            flex: 0.8,
             cellClass: "action-cell",
         },
     ];
 
-    const onGridReady = (params: GridReadyEvent) => {
-        const gridApi = params.api;
-        const updateGridSize = () => {
-            if (gridApi && !gridApi.isDestroyed()) {
-                setTimeout(() => {
-                    gridApi.sizeColumnsToFit();
-                }, 100);
-            }
-        };
-
-        // Initial sizing - only if grid is ready
-        if (gridApi) {
-            updateGridSize();
-        }
-
-        // Add resize listener
-        window.addEventListener('resize', updateGridSize);
-
-        // Return cleanup function
-        return () => {
-            window.removeEventListener('resize', updateGridSize);
-        };
-    };
-
     if (loading) {
         return (
-            <div className="flex items-center h-64">
+            <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
             </div>
         );
