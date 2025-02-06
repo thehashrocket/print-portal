@@ -16,8 +16,9 @@ import Link from "next/link";
 import QuickbooksCompanyButton from "./QuickbooksCompanyButton";
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
-import { Eye, RefreshCcw, RefreshCwOff, Trash } from "lucide-react";
+import { Eye, Lightbulb, LightbulbOff, RefreshCcw, RefreshCwOff, Trash } from "lucide-react";
 import "~/styles/ag-grid-custom.css";
+import { toast } from "react-hot-toast";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 type SerializedCompany = {
@@ -41,7 +42,7 @@ interface CompaniesTableProps {
 const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) => {
     const gridRef = useRef<AgGridReact>(null);
     const [loading, setLoading] = useState(true);
-
+    const utils = api.useUtils();
     const defaultColDef = {
         resizable: true,
         sortable: true,
@@ -62,6 +63,13 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             enabled: true,
         }
     );
+
+    const toggleActiveMutation = api.companies.toggleActive.useMutation({
+        onSuccess: () => {
+            toast.success('Company activated/deactivated successfully');
+            utils.companies.companyDashboard.invalidate();
+        },
+    });
 
     const deleteCompanyMutation = api.companies.delete.useMutation({
         onSuccess: async () => {
@@ -134,6 +142,18 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
                     <Eye className="w-4 h-4" />
                 </Button>
             </Link>
+            <Button
+                variant="outline"
+                size="xs"
+                className="h-8 px-2 sm:px-3"
+                onClick={() => toggleActiveMutation.mutate(props.data.id)}
+            >
+                {props.data.isActive ? 
+                        <Lightbulb className="w-4 h-4 mr-2" />
+                        :
+                        <LightbulbOff className="w-4 h-4 mr-2" />
+                    }
+            </Button>
             <QuickbooksCompanyButton params={{ row: props.data }} onSyncSuccess={handleSyncSuccess} />
             <Button
                 variant="destructive"
@@ -189,7 +209,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             valueFormatter: formatNumberAsCurrency,
             headerClass: 'hide-below-md',
             cellClass: 'hide-below-md text-right',
-            minWidth: 120,
+            minWidth: 70,
             flex: 1,
             type: 'numericColumn'
         },
@@ -230,7 +250,7 @@ const CompaniesTable = ({ companies: initialCompanies }: CompaniesTableProps) =>
             cellRenderer: actionsCellRenderer,
             sortable: false,
             filter: false,
-            minWidth: 150,
+            minWidth: 200,
             flex: 0.8,
             cellClass: "action-cell",
         },

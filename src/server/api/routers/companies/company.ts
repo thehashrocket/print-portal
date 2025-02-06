@@ -222,6 +222,7 @@ export const companyRouter = createTRPCRouter({
                 },
             });
         }),
+    // Toggle Active
     toggleActive: protectedProcedure
         .input(z.string()).mutation(({ ctx, input }) => {
             return ctx.db.company.findUnique({ where: { id: input } })

@@ -11,11 +11,12 @@ import HeaderClient from "~/app/_components/companies/HeaderClient";
 
 import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
 
-const Breadcrumbs: React.FC = () => (
+const Breadcrumbs: React.FC<{ companyName: string }> = ({ companyName }) => (
     <nav className="flex mb-4" aria-label="Breadcrumb">
         <ol className="flex items-center space-x-2">
             <li><Link href="/" className="text-sm">Home</Link></li>
-            <li className="text-sm before:content-['>'] before:mx-2">Companies</li>
+            <li><Link href="/companies" className="text-sm before:content-['>'] before:mx-2">Companies</Link></li>
+            <li className="text-sm before:content-['>'] before:mx-2">{companyName}</li>
         </ol>
     </nav>
 );
@@ -51,7 +52,7 @@ export default async function CompanyPage(props: { params: Promise<{ id: string 
                     </div>
                 </div>
 
-                <Breadcrumbs />
+                <Breadcrumbs companyName={serializedCompany.name || "Company"} />
 
                 <div className="bg-base-100 rounded-lg shadow-lg p-4">
                     <IndividualCompanyPage company={serializedCompany} />
