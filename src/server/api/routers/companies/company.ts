@@ -19,7 +19,12 @@ export const companyRouter = createTRPCRouter({
                     Offices: {
                         include: {
                             Company: true,
-                            Addresses: true,
+                            // Get Addresses that are not deleted
+                            Addresses: {
+                                where: {
+                                    deleted: false
+                                }
+                            },
                             WorkOrders: {
                                 include: {
                                     contactPerson: true,
