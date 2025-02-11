@@ -42,10 +42,11 @@ export default async function OrderPrintPage(
             // Build a list of paper products
             orderPaperProducts = orderItemStocks.map(stock => findPaperProduct(stock.paperProductId || ''));
         }
+        const shippingInfo = orderItem.ShippingInfo ? orderItem.ShippingInfo : order?.ShippingInfo;
         return <OrderItemPrintPreview
             orderItem={orderItem as SerializedOrderItem}
             order={order as SerializedOrder}
-            shippingInfo={order?.ShippingInfo as SerializedShippingInfo}
+            shippingInfo={shippingInfo as SerializedShippingInfo}
             normalizedTypesetting={normalizedTypesetting as SerializedTypesetting[]}
             normalizedOrderItemStocks={normalizedOrderItemStocks as SerializedOrderItemStock[]}
             orderPaperProducts={orderPaperProducts as any[]}
