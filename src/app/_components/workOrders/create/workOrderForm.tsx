@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { useRouter } from 'next/navigation'
-import { type SerializedWorkOrder, type SerializedOffice } from '~/types/serializedTypes';
+import { type SerializedOffice } from '~/types/serializedTypes';
 import { CustomComboBox } from '~/app/_components/shared/ui/CustomComboBox';
 import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
@@ -15,7 +15,6 @@ import { CreateContactModal } from '~/app/_components/shared/contacts/createCont
 import debounce from "lodash/debounce";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import type { WalkInCustomer } from '@prisma/client';
 
 const workOrderSchema = z.object({
     dateIn: z.string().min(1, 'Date In is required'),

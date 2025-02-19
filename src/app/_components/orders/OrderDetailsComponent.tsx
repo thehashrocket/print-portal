@@ -12,7 +12,6 @@ import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
 import { Printer, RefreshCcw, Send, FilePlus2, FilePlus, Download } from "lucide-react";
-import { generateOrderPDF } from "~/utils/generateOrderPDF";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
@@ -24,7 +23,7 @@ import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import InfoCard from "../shared/InfoCard/InfoCard";
 import { Textarea } from "../ui/textarea";
-
+import TransferOwnership from "./TransferOwnership/TransferOwnership";
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -294,6 +293,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     content={<p className="text-xl">{order.WalkInCustomer.name}</p>}
                                 />
                             )}
+                            <TransferOwnership orderId={order.id} />
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
@@ -309,23 +309,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             />
 
                             <div className="grid grid-cols-2 gap-4">
-                                {/* Download PDF Order */}
-                                <InfoCard
-                                    title="Download PDF Order"
-                                    content={<Button
-                                        variant="default"
-                                        onClick={async () => {
-                                            try {
-                                                await generateOrderPDF(order);
-                                            } catch (error) {
-                                                console.error('Error generating PDF:', error);
-                                                toast.error('Error generating PDF');
-                                            }
-                                        }}
-                                    >
-                                        <Download className="w-4 h-4" /> Download PDF Order
-                                    </Button>}
-                                />
 
                                 {/* Print Order */}
                                 <InfoCard

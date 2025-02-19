@@ -5,6 +5,7 @@ import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
+import { transcode } from "buffer";
 const SALES_TAX = 0.07;
 
 export const orderRouter = createTRPCRouter({
@@ -1035,5 +1036,23 @@ export const orderRouter = createTRPCRouter({
           message: error instanceof Error ? error.message : 'Failed to send order email',
         });
       }
-    })
+    }),
+
+  transferOwnership: protectedProcedure
+    .input(z.object({
+      orderId: z.string(),
+      companyId: z.string(),
+      officeId: z.string(),
+      contactPersonId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { orderId, companyId, officeId, contactPersonId } = input;
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: orderId },
+        data: { contactPersonId: contactPersonId, officeId: officeId },
+      });
+
+      return updatedOrder;
+    }),
 });
