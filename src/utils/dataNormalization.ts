@@ -421,12 +421,12 @@ export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
         trackingNumber: shippingInfo.trackingNumber,
         attentionTo: shippingInfo.attentionTo,
         addressId: shippingInfo.addressId,
-        createdAt: shippingInfo.createdAt.toISOString(),
-        updatedAt: shippingInfo.updatedAt.toISOString(),
+        createdAt: shippingInfo.createdAt?.toISOString() ?? new Date().toISOString(),
+        updatedAt: shippingInfo.updatedAt?.toISOString() ?? new Date().toISOString(),
         createdById: shippingInfo.createdById,
         officeId: shippingInfo.officeId,
         Address: shippingInfo.Address ? normalizeAddress(shippingInfo.Address) : null,
-        ShippingPickup: shippingInfo.ShippingPickup.length > 0 && shippingInfo.ShippingPickup[0]
+        ShippingPickup: shippingInfo.ShippingPickup && shippingInfo.ShippingPickup.length > 0 && shippingInfo.ShippingPickup[0]
             ? normalizeShippingPickup(shippingInfo.ShippingPickup[0])
             : null,
         OrderItems: shippingInfo.OrderItems ? shippingInfo.OrderItems.map(normalizeOrderItem) : [],
