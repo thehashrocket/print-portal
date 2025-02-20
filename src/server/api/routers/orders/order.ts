@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
+import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer, normalizeOrderItem } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
@@ -105,6 +105,7 @@ export const orderRouter = createTRPCRouter({
           id: undefined,
           orderId: newOrder.id,
           createdById: ctx.session.user.id,
+          status: OrderItemStatus.Pending,
         })),
       });
 
