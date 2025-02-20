@@ -36,12 +36,13 @@ export const WorkOrderItemStockDialog: React.FC<WorkOrderItemStockDialogProps> =
                     variant="outline" 
                     onClick={handleTriggerClick}
                     type="button"
+                    className="h-8 px-3"
                 >
                     Add Paper Stock
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl" onClick={(e) => e.stopPropagation()}>
-                <DialogHeader>
+            <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[500px]" onClick={(e) => e.stopPropagation()}>
+                <DialogHeader className="pb-2">
                     <DialogTitle>Add Paper Stock</DialogTitle>
                 </DialogHeader>
                 <WorkOrderItemStockForm

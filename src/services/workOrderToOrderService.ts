@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus } from "@prisma/client";
+import { PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus, WorkOrderItemStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
@@ -278,6 +278,12 @@ async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string
             status: WorkOrderStatus.Approved,
             Orders: {
                 connect: { id: orderId }
+            },
+            WorkOrderItems: {
+                updateMany: {
+                    where: { workOrderId },
+                    data: { status: WorkOrderItemStatus.Approved }
+                }
             }
         },
         include: {
