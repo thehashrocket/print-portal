@@ -118,7 +118,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                 calculatedSubTotal: workOrder.calculatedSubTotal,
                 calculatedSalesTax: workOrder.calculatedSalesTax,
                 totalAmount: workOrder.totalAmount,
-                hasOrder: workOrder.Order !== null,
+                hasOrder: workOrder.Orders !== null,
             } : null,
             isLoading,
             hasError: isError,
@@ -199,18 +199,20 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Estimate Details</h1>
                         <div className="space-x-2">
-                            {workOrder.Order === null && (
+                            {workOrder.Orders === null && (
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
-                            {workOrder.Order !== null && (
-                                <Link href={`/orders/${workOrder.Order.id}`}>
-                                    <Button
-                                        variant="default"
-                                    >
-                                        <Eye className="w-4 h-4 mr-2" />
-                                        View Order
-                                    </Button>
-                                </Link>
+                            {workOrder.Orders !== null && (
+                                [workOrder.Orders].map(order => (
+                                    <Link href={`/orders/${order.id}`} key={order.id}>
+                                        <Button
+                                            variant="default"
+                                        >
+                                            <Eye className="w-4 h-4 mr-2" />
+                                            View Order
+                                        </Button>
+                                    </Link>
+                                ))
                             )}
                         </div>
                     </div>

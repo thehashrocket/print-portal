@@ -12,21 +12,30 @@ export async function convertWorkOrderToOrder(workOrderId: string, officeId: str
         const workOrder = await getWorkOrder(tx, workOrderId);
         const order = await createOrder(tx, workOrder, officeId);
         await createOrderItems(tx, workOrder, order.id);
-        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id);
+        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id) as unknown as {
+            WorkOrderItems: Array<{
+                cost: Prisma.Decimal | null;
+                amount: Prisma.Decimal | null;
+                shippingAmount: Prisma.Decimal | null;
+            }>;
+        };
 
         // Calculate totalAmount and totalCost
         const totalCost = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
+            (sum: Prisma.Decimal, item: { cost: Prisma.Decimal | null }) => 
+                sum.add(item.cost || new Prisma.Decimal(0)),
             new Prisma.Decimal(0)
         );
 
         const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+            (sum: Prisma.Decimal, item: { amount: Prisma.Decimal | null }) => 
+                sum.add(item.amount || new Prisma.Decimal(0)),
             new Prisma.Decimal(0)
         );
 
         const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
+            (sum: Prisma.Decimal, item: { shippingAmount: Prisma.Decimal | null }) => 
+                sum.add(item.shippingAmount || new Prisma.Decimal(0)),
             new Prisma.Decimal(0)
         );
 
@@ -83,7 +92,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
             },
             contactPerson: true,
             createdBy: true,
-            Order: true,
+            Orders: true,
             WorkOrderNotes: true,
             WorkOrderVersions: true,
             WalkInCustomer: true,
@@ -126,7 +135,7 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         totalCost,
         totalItemAmount,
         totalShippingAmount,
-        Order: workOrder.Order ? { id: workOrder.Order.id } : null,
+        Order: { id: workOrder.Orders?.[0]?.id ?? null },
         contactPerson: {
             id: workOrder.contactPerson?.id ?? '',
             name: workOrder.contactPerson?.name ?? null,
@@ -267,12 +276,11 @@ async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string
         where: { id: workOrderId },
         data: {
             status: WorkOrderStatus.Approved,
-            Order: {
+            Orders: {
                 connect: { id: orderId }
             }
         },
         include: {
-            // Include all necessary relations here
             contactPerson: true,
             createdBy: true,
             Office: {
@@ -280,7 +288,7 @@ async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string
                     Company: true,
                 }
             },
-            Order: true,
+            Orders: true,
             ShippingInfo: {
                 include: {
                     Address: true,
@@ -298,6 +306,7 @@ async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string
                     },
                     ProcessingOptions: true,
                     WorkOrderItemStock: true,
+                    createdBy: true,
                 }
             },
             WorkOrderNotes: true,

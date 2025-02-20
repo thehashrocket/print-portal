@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderStatus, Prisma, ShippingMethod } from "@prisma/client";
-import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "~/utils/dataNormalization";
+import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer, normalizeOrderItem } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
@@ -214,7 +214,7 @@ export const orderRouter = createTRPCRouter({
       const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
       const balance = totalAmount.sub(totalPaid);
 
-      return normalizeOrder({
+      const normalizedOrder = {
         ...order,
         calculatedSalesTax,
         calculatedSubTotal,
@@ -225,17 +225,54 @@ export const orderRouter = createTRPCRouter({
         balance,
         totalPaid,
         OrderItems: order.OrderItems.map(item => ({
-          ...item,
-          artwork: item.artwork,
-          ProductType: item.ProductType,
+          status: item.status,
+          description: item.description,
+          other: item.other,
+          id: item.id,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          createdById: item.createdById,
+          deleted: item.deleted,
+          orderId: item.orderId,
+          finishedQty: item.finishedQty,
+          pressRun: item.pressRun,
+          size: item.size,
+          amount: item.amount,
+          specialInstructions: item.specialInstructions,
+          cost: item.cost,
+          prepTime: item.prepTime,
+          shippingAmount: item.shippingAmount,
+          quantity: item.quantity,
+          ink: item.ink,
+          orderItemNumber: item.orderItemNumber,
+          paperProductId: item.paperProductId,
+          productTypeId: item.productTypeId,
+          shippingInfoId: item.shippingInfoId,
+          expectedDate: item.expectedDate,
           Order: {
-            Office: order.Office,
-            WorkOrder: order.WorkOrder,
+            Office: {
+              Company: { name: order.Office.Company.name }
+            },
+            WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }
           },
+          artwork: item.artwork,
           OrderItemStock: item.OrderItemStock,
+          ProductType: item.ProductType,
+          ShippingInfo: item.shippingInfoId
         })),
         WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
-      });
+        WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null },
+        createdBy: {
+          id: order.createdBy.id,
+          name: order.createdBy.name,
+        },
+        contactPerson: order.contactPerson ? {
+          id: order.contactPerson.id,
+          name: order.contactPerson.name,
+          email: order.contactPerson.email,
+        } : null,
+      };
+      return normalizeOrder(normalizedOrder);
     }),
 
   getAll: protectedProcedure
@@ -356,6 +393,42 @@ export const orderRouter = createTRPCRouter({
           totalCost,
           totalShippingAmount,
           totalPaid,
+          OrderItems: order.OrderItems.map(item => ({
+            status: item.status,
+            description: item.description,
+            other: item.other,
+            id: item.id,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            createdById: item.createdById,
+            deleted: item.deleted,
+            orderId: item.orderId,
+            finishedQty: item.finishedQty,
+            pressRun: item.pressRun,
+            size: item.size,
+            amount: item.amount,
+            specialInstructions: item.specialInstructions,
+            cost: item.cost,
+            prepTime: item.prepTime,
+            shippingAmount: item.shippingAmount,
+            quantity: item.quantity,
+            ink: item.ink,
+            orderItemNumber: item.orderItemNumber,
+            paperProductId: item.paperProductId,
+            productTypeId: item.productTypeId,
+            shippingInfoId: item.shippingInfoId,
+            expectedDate: item.expectedDate,
+            Order: {
+              Office: {
+                Company: { name: order.Office.Company.name }
+              },
+              WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }
+            },
+            artwork: item.artwork,
+            OrderItemStock: item.OrderItemStock,
+            ProductType: item.ProductType,
+            ShippingInfo: item.shippingInfoId
+          })),
           balance,
           createdBy: {
             id: order.createdBy.id,
@@ -367,6 +440,7 @@ export const orderRouter = createTRPCRouter({
             email: order.contactPerson.email,
           } : null,
           WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
+          WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null },
         });
       }));
     }),
@@ -602,7 +676,7 @@ export const orderRouter = createTRPCRouter({
           ...item,
           Order: {
             Office: updatedOrder.Office,
-            WorkOrder: updatedOrder.WorkOrder,
+            WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }
           },
         })),
         contactPerson: updatedOrder.contactPerson || null,
@@ -982,10 +1056,11 @@ export const orderRouter = createTRPCRouter({
           ...item,
           Order: {
             Office: updatedOrder.Office,
-            WorkOrder: updatedOrder.WorkOrder,
+            WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }
           },
         })),
         WalkInCustomer: updatedOrder.WalkInCustomer ? normalizeWalkInCustomer(updatedOrder.WalkInCustomer) : null,
+        WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null },
       });
     }),
 
@@ -1098,10 +1173,11 @@ export const orderRouter = createTRPCRouter({
           ...item,
           Order: {
             Office: updatedOrder.Office,
-            WorkOrder: updatedOrder.WorkOrder,
+            WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }
           },
         })),
         WalkInCustomer: updatedOrder.WalkInCustomer ? normalizeWalkInCustomer(updatedOrder.WalkInCustomer) : null,
+        WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null },
       });
     }),
 

@@ -34,7 +34,7 @@ export const companyRouter = createTRPCRouter({
                                             Company: true,
                                         }
                                     },
-                                    Order: true,
+                                    Orders: true,
                                     ShippingInfo: {
                                         include: {
                                             Address: true,
@@ -73,18 +73,26 @@ export const companyRouter = createTRPCRouter({
                                     OrderItems: {
                                         include: {
                                             artwork: true,
+                                            OrderItemStock: true,
+                                            ProductType: true,
                                             Order: {
                                                 include: {
                                                     Office: {
                                                         include: {
-                                                            Company: true
+                                                            Company: {
+                                                                select: {
+                                                                    name: true
+                                                                }
+                                                            }
                                                         }
                                                     },
-                                                    WorkOrder: true
+                                                    WorkOrder: {
+                                                        select: {
+                                                            purchaseOrderNumber: true
+                                                        }
+                                                    }
                                                 }
-                                            },
-                                            OrderItemStock: true,
-                                            ProductType: true
+                                            }
                                         }
                                     },
                                     OrderPayments: true,
@@ -185,6 +193,16 @@ export const companyRouter = createTRPCRouter({
                             totalShippingAmount,
                             totalPaid,
                             balance,
+                            WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null },
+                            OrderItems: order.OrderItems.map(item => ({
+                                ...item,
+                                Order: {
+                                    Office: {
+                                        Company: { name: item.Order.Office.Company.name }
+                                    },
+                                    WorkOrder: { purchaseOrderNumber: item.Order.WorkOrder?.purchaseOrderNumber ?? null }
+                                }
+                            })),
                             WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null
                         });
                     })

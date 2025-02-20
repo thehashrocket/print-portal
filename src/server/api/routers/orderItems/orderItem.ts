@@ -30,7 +30,11 @@ export const orderItemRouter = createTRPCRouter({
                                     Company: true
                                 }
                             },
-                            WorkOrder: true,
+                            WorkOrder: {
+                                select: {
+                                    purchaseOrderNumber: true
+                                }
+                            },
                             contactPerson: true
                         }
                     },
@@ -87,7 +91,13 @@ export const orderItemRouter = createTRPCRouter({
             });
 
             if (!orderItem) return null;
-            return normalizeOrderItem(orderItem);
+            return normalizeOrderItem({
+                ...orderItem,
+                Order: {
+                    ...orderItem.Order,
+                    WorkOrder: { purchaseOrderNumber: orderItem.Order.WorkOrder?.purchaseOrderNumber ?? null }
+                }
+            });
         }),
     getByOrderId: protectedProcedure
         .input(z.string())

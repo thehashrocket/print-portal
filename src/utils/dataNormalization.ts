@@ -573,7 +573,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         isWalkInOffice: boolean;
         Company: { name: string };
     };
-    Order: { id: string } | null;
+    Orders: { id: string }[];
     ShippingInfo: (ShippingInfo & {
         Address: Address | null;
         ShippingPickup: ShippingPickup[];
@@ -637,7 +637,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
             name: workOrder.Office.name,
             isWalkInOffice: workOrder.Office.isWalkInOffice,
         },
-        Order: workOrder.Order?.id ? { id: workOrder.Order.id } : null,
+        Orders: { id: workOrder.Orders[0]?.id || '' },
         WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
         ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
         WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),

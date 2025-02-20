@@ -68,18 +68,6 @@ const WorkOrdersTable: React.FC = () => {
                     Estimate
                 </Button>
             </Link>
-            {props.data.Order && (
-                <Link href={`/orders/${props.data.Order.id}`}>
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="h-8"
-                    >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Order
-                    </Button>
-                </Link>
-            )}
         </div>
     );
 

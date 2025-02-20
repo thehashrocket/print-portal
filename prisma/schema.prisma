@@ -149,7 +149,7 @@ model Office {
 
 model Order {
   id                  String                   @id @default(uuid())
-  workOrderId         String?
+  workOrderId         String
   officeId            String
   status              OrderStatus              @default(Pending)
   deposit             Decimal                  @default(0) @db.Decimal(10, 2)

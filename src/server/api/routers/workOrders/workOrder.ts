@@ -22,7 +22,7 @@ export const workOrderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -157,7 +157,7 @@ export const workOrderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -223,7 +223,7 @@ export const workOrderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -295,7 +295,7 @@ export const workOrderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -357,7 +357,7 @@ export const workOrderRouter = createTRPCRouter({
               Company: true,
             },
           },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,
@@ -493,7 +493,7 @@ export const workOrderRouter = createTRPCRouter({
           contactPerson: true,
           createdBy: true,
           Office: { include: { Company: true } },
-          Order: true,
+          Orders: true,
           ShippingInfo: {
             include: {
               Address: true,

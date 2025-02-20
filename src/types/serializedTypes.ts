@@ -433,7 +433,7 @@ export interface SerializedWorkOrder {
         id: string;
         name: string;
     };
-    Order: {
+    Orders: {
         id: string;
     } | null;
     ShippingInfo: SerializedShippingInfo | null;
