@@ -199,20 +199,16 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Estimate Details</h1>
                         <div className="space-x-2">
-                            {workOrder.Orders === null && (
+                            {!workOrder.Orders && (
                                 <ConvertWorkOrderButton workOrderId={workOrder.id} officeId={workOrder.Office.id} />
                             )}
-                            {workOrder.Orders !== null && (
-                                [workOrder.Orders].map(order => (
-                                    <Link href={`/orders/${order.id}`} key={order.id}>
-                                        <Button
-                                            variant="default"
-                                        >
-                                            <Eye className="w-4 h-4 mr-2" />
-                                            View Order
-                                        </Button>
-                                    </Link>
-                                ))
+                            {workOrder.Orders && (
+                                <Link href={`/orders/${workOrder.Orders.id}`}>
+                                    <Button variant="default">
+                                        <Eye className="w-4 h-4 mr-2" />
+                                        View Order
+                                    </Button>
+                                </Link>
                             )}
                         </div>
                     </div>

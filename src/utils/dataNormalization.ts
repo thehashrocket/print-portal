@@ -637,7 +637,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
             name: workOrder.Office.name,
             isWalkInOffice: workOrder.Office.isWalkInOffice,
         },
-        Orders: { id: workOrder.Orders[0]?.id || '' },
+        Orders: workOrder.Orders[0] ? { id: workOrder.Orders[0].id } : null,
         WorkOrderItems: workOrder.WorkOrderItems.map(normalizeWorkOrderItem),
         ShippingInfo: workOrder.ShippingInfo ? normalizeShippingInfo(workOrder.ShippingInfo) : null,
         WorkOrderNotes: workOrder.WorkOrderNotes.map(normalizeWorkOrderNote),
