@@ -9,6 +9,111 @@ import { transcode } from "buffer";
 const SALES_TAX = 0.07;
 
 export const orderRouter = createTRPCRouter({
+
+  // Order Dashbaord
+  // Shows all orders, their status, and the company they are associated with
+  // Includes OrderItemStatus, returns the status that all OrderItems equal,
+  // otherwise, it returns the lowest status of all OrderItems
+  // We don't need to show Orders that are Cancelled, Invoiced, or Completed
+  dashboard: protectedProcedure
+    .query(async ({ ctx }) => {
+      const orders = await ctx.db.order.findMany({
+        where: {
+          status: {
+            notIn: ['Cancelled', 'Invoiced', 'PaymentReceived', 'Completed']
+          }
+        },
+        include: {
+          WorkOrder: {
+            select: {
+              purchaseOrderNumber: true,
+            }
+          },
+          OrderItems: true,
+          Office: {
+            include: {
+              Company: true,
+            }
+          }
+        }
+      });
+      return orders.map(order => {
+        const orderItemStatuses = order.OrderItems.map(orderItem => orderItem.status);
+        // Loop through OrderItems and find the status that is the lowest
+        // If all OrderItems are the same, return that status
+        // Otherwise, return the lowest status
+        const orderStatus = orderItemStatuses.every(status => status === orderItemStatuses[0]) ?
+          orderItemStatuses[0] :
+          orderItemStatuses.reduce((prev, current) => prev < current ? prev : current);
+
+        // Loop through the OrderItems, sort by expectedDate, and return the first one  
+        const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
+        return {
+          ...order,
+          orderNumber: order.orderNumber.toString(),
+          purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber || '',
+          deposit: Number(order.deposit),
+          OrderItems: order.OrderItems.map(item => ({
+            ...item,
+            amount: item.amount ? Number(item.amount) : null,
+            cost: item.cost ? Number(item.cost) : null,
+            shippingAmount: item.shippingAmount ? Number(item.shippingAmount) : null,
+          })),
+          OrderItemStatus: orderStatus,
+          inHandsDate: firstOrderItem?.expectedDate,
+          companyName: order.Office.Company.name,
+        };
+      });
+    }),
+
+  duplicateOrder: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const order = await ctx.db.order.findUnique({
+        where: { id: input },
+        include: {
+          OrderItems: true,
+        },
+      });
+
+      if (!order) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Order not found' });
+      }
+      // Duplicate the order info and order items
+
+      const newOrder = await ctx.db.order.create({
+        data: {
+          createdById: ctx.session.user.id,
+          status: OrderStatus.Pending,
+          workOrderId: order.workOrderId,
+          version: 1,
+          dateInvoiced: null,
+          inHandsDate: order.inHandsDate,
+          invoicePrintEmail: order.invoicePrintEmail,
+          contactPersonId: order.contactPersonId,
+          shippingInfoId: order.shippingInfoId,
+          isWalkIn: order.isWalkIn,
+          walkInCustomerId: order.walkInCustomerId || undefined,
+          officeId: order.officeId,
+        },
+      });
+
+      // Duplicate the order items
+      const newOrderItems = await ctx.db.orderItem.createMany({
+        data: order.OrderItems.map(item => ({
+          ...item,
+          id: undefined,
+          orderId: newOrder.id,
+          createdById: ctx.session.user.id,
+        })),
+      });
+
+      return {
+        order: newOrder,
+        orderItems: newOrderItems,
+      };
+    }),
+
   getByID: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input }): Promise<SerializedOrder | null> => {
@@ -264,6 +369,122 @@ export const orderRouter = createTRPCRouter({
           WalkInCustomer: order.WalkInCustomer ? normalizeWalkInCustomer(order.WalkInCustomer) : null,
         });
       }));
+    }),
+
+  sendOrderEmail: protectedProcedure
+    .input(z.object({
+      orderId: z.string(),
+      recipientEmail: z.string().email(),
+      pdfContent: z.string().min(1, "PDF content cannot be empty"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        console.log('Received PDF content length:', input.pdfContent.length);
+        const order = await ctx.db.order.findUnique({
+          where: { id: input.orderId },
+          include: {
+            Office: {
+              include: {
+                Company: true,
+              }
+            },
+            OrderItems: {
+              include: {
+                artwork: true,
+                OrderItemStock: true,
+                Order: {
+                  select: {
+                    Office: {
+                      select: {
+                        Company: true,
+                      }
+                    },
+                    WorkOrder: {
+                      select: {
+                        purchaseOrderNumber: true,
+                      }
+                    }
+                  }
+                }
+              },
+            },
+            OrderPayments: true,
+            contactPerson: true,
+            createdBy: true,
+            WorkOrder: true,
+            WalkInCustomer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true
+              }
+            },
+          }
+        });
+
+        if (!order) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Order not found',
+          });
+        }
+
+        const emailHtml = `
+          <h1>Order ${order.orderNumber}</h1>
+          <p>Please find attached the order for your recent order.</p>
+        `;
+
+        const dynamicTemplateData = {
+          subject: `Order ${order.orderNumber} from ${order.Office.Company.name}`,
+          html: emailHtml,
+          orderNumber: order.orderNumber.toString(),
+          companyName: order.Office.Company.name,
+          officeName: order.Office.name,
+        };
+
+        const emailSent = await sendOrderEmail(
+          input.recipientEmail,
+          `Order ${order.orderNumber} from ${order.Office.Company.name}`,
+          dynamicTemplateData,
+          input.pdfContent
+        );
+
+        if (!emailSent) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to send email',
+          });
+        }
+
+        return { success: true, message: 'Order sent successfully' };
+      } catch (error) {
+        console.error('Error in sendOrderEmail:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Failed to send order email',
+        });
+      }
+    }),
+
+  transferOwnership: protectedProcedure
+    .input(z.object({
+      orderId: z.string(),
+      companyId: z.string(),
+      officeId: z.string(),
+      contactPersonId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { orderId, companyId, officeId, contactPersonId } = input;
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: orderId },
+        data: { contactPersonId: contactPersonId, officeId: officeId },
+      });
+
+      return updatedOrder;
     }),
 
   updateDeposit: protectedProcedure
@@ -884,175 +1105,4 @@ export const orderRouter = createTRPCRouter({
       });
     }),
 
-  // Order Dashbaord
-  // Shows all orders, their status, and the company they are associated with
-  // Includes OrderItemStatus, returns the status that all OrderItems equal,
-  // otherwise, it returns the lowest status of all OrderItems
-  // We don't need to show Orders that are Cancelled, Invoiced, or Completed
-  dashboard: protectedProcedure
-    .query(async ({ ctx }) => {
-      const orders = await ctx.db.order.findMany({
-        where: {
-          status: {
-            notIn: ['Cancelled', 'Invoiced', 'PaymentReceived', 'Completed']
-          }
-        },
-        include: {
-          WorkOrder: {
-            select: {
-              purchaseOrderNumber: true,
-            }
-          },
-          OrderItems: true,
-          Office: {
-            include: {
-              Company: true,
-            }
-          }
-        }
-      });
-      return orders.map(order => {
-        const orderItemStatuses = order.OrderItems.map(orderItem => orderItem.status);
-        // Loop through OrderItems and find the status that is the lowest
-        // If all OrderItems are the same, return that status
-        // Otherwise, return the lowest status
-        const orderStatus = orderItemStatuses.every(status => status === orderItemStatuses[0]) ?
-          orderItemStatuses[0] :
-          orderItemStatuses.reduce((prev, current) => prev < current ? prev : current);
-
-        // Loop through the OrderItems, sort by expectedDate, and return the first one  
-        const firstOrderItem = order.OrderItems.sort((a, b) => new Date(a.expectedDate).getTime() - new Date(b.expectedDate).getTime())[0];
-        return {
-          ...order,
-          orderNumber: order.orderNumber.toString(),
-          purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber || '',
-          deposit: Number(order.deposit),
-          OrderItems: order.OrderItems.map(item => ({
-            ...item,
-            amount: item.amount ? Number(item.amount) : null,
-            cost: item.cost ? Number(item.cost) : null,
-            shippingAmount: item.shippingAmount ? Number(item.shippingAmount) : null,
-          })),
-          OrderItemStatus: orderStatus,
-          inHandsDate: firstOrderItem?.expectedDate,
-          companyName: order.Office.Company.name,
-        };
-      });
-    }),
-
-  sendOrderEmail: protectedProcedure
-    .input(z.object({
-      orderId: z.string(),
-      recipientEmail: z.string().email(),
-      pdfContent: z.string().min(1, "PDF content cannot be empty"),
-    }))
-    .mutation(async ({ ctx, input }) => {
-      try {
-        console.log('Received PDF content length:', input.pdfContent.length);
-        const order = await ctx.db.order.findUnique({
-          where: { id: input.orderId },
-          include: {
-            Office: {
-              include: {
-                Company: true,
-              }
-            },
-            OrderItems: {
-              include: {
-                artwork: true,
-                OrderItemStock: true,
-                Order: {
-                  select: {
-                    Office: {
-                      select: {
-                        Company: true,
-                      }
-                    },
-                    WorkOrder: {
-                      select: {
-                        purchaseOrderNumber: true,
-                      }
-                    }
-                  }
-                }
-              },
-            },
-            OrderPayments: true,
-            contactPerson: true,
-            createdBy: true,
-            WorkOrder: true,
-            WalkInCustomer: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-                createdAt: true,
-                updatedAt: true
-              }
-            },
-          }
-        });
-
-        if (!order) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Order not found',
-          });
-        }
-
-        const emailHtml = `
-          <h1>Order ${order.orderNumber}</h1>
-          <p>Please find attached the order for your recent order.</p>
-        `;
-
-        const dynamicTemplateData = {
-          subject: `Order ${order.orderNumber} from ${order.Office.Company.name}`,
-          html: emailHtml,
-          orderNumber: order.orderNumber.toString(),
-          companyName: order.Office.Company.name,
-          officeName: order.Office.name,
-        };
-
-        const emailSent = await sendOrderEmail(
-          input.recipientEmail,
-          `Order ${order.orderNumber} from ${order.Office.Company.name}`,
-          dynamicTemplateData,
-          input.pdfContent
-        );
-
-        if (!emailSent) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to send email',
-          });
-        }
-
-        return { success: true, message: 'Order sent successfully' };
-      } catch (error) {
-        console.error('Error in sendOrderEmail:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Failed to send order email',
-        });
-      }
-    }),
-
-  transferOwnership: protectedProcedure
-    .input(z.object({
-      orderId: z.string(),
-      companyId: z.string(),
-      officeId: z.string(),
-      contactPersonId: z.string(),
-    }))
-    .mutation(async ({ ctx, input }) => {
-      const { orderId, companyId, officeId, contactPersonId } = input;
-
-      const updatedOrder = await ctx.db.order.update({
-        where: { id: orderId },
-        data: { contactPersonId: contactPersonId, officeId: officeId },
-      });
-
-      return updatedOrder;
-    }),
 });

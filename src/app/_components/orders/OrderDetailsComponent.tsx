@@ -24,6 +24,7 @@ import { useCopilotReadable } from "@copilotkit/react-core";
 import InfoCard from "../shared/InfoCard/InfoCard";
 import { Textarea } from "../ui/textarea";
 import TransferOwnership from "./TransferOwnership/TransferOwnership";
+import DuplicateOrder from "./DuplicateOrder/DuplicateOrder";
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -293,7 +294,10 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     content={<p className="text-xl">{order.WalkInCustomer.name}</p>}
                                 />
                             )}
-                            <TransferOwnership orderId={order.id} />
+                            <div className="flex flex-row gap-2">
+                                <TransferOwnership orderId={order.id} />
+                                <DuplicateOrder orderId={order.id} />
+                            </div>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">

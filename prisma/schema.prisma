@@ -149,7 +149,7 @@ model Office {
 
 model Order {
   id                  String                   @id @default(uuid())
-  workOrderId         String                   @unique
+  workOrderId         String?
   officeId            String
   status              OrderStatus              @default(Pending)
   deposit             Decimal                  @default(0) @db.Decimal(10, 2)
@@ -174,7 +174,7 @@ model Order {
   createdBy           User                     @relation("OrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
   ShippingInfo        ShippingInfo?            @relation(fields: [shippingInfoId], references: [id])
-  WorkOrder           WorkOrder                @relation(fields: [workOrderId], references: [id])
+  WorkOrder           WorkOrder?               @relation(fields: [workOrderId], references: [id])
   OrderItems          OrderItem[]
   OrderNotes          OrderNote[]
   OrderPayments       OrderPayment[]
@@ -543,7 +543,7 @@ model WorkOrder {
   contactPersonId     String?
   isWalkIn            Boolean                  @default(false)
   walkInCustomerId    String?
-  Order               Order?
+  Orders              Order[]
   contactPerson       User?                    @relation("WorkOrderContactPerson", fields: [contactPersonId], references: [id])
   createdBy           User                     @relation("WorkOrderCreatedBy", fields: [createdById], references: [id])
   Office              Office                   @relation(fields: [officeId], references: [id])
