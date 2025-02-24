@@ -55,8 +55,19 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
     } = useForm({
         resolver: zodResolver(processingOptionsSchema),
         defaultValues: {
-            ...initialData,
+            id: initialData?.id,
             binderyTime: initialData?.binderyTime || 0,
+            binding: initialData?.binding || '',
+            cutting: initialData?.cutting || '',
+            description: initialData?.description || '',
+            drilling: initialData?.drilling || '',
+            folding: initialData?.folding || '',
+            numberingColor: initialData?.numberingColor || '',
+            numberingEnd: initialData?.numberingEnd || 0,
+            numberingStart: initialData?.numberingStart || 0,
+            other: initialData?.other || '',
+            padding: initialData?.padding || '',
+            stitching: initialData?.stitching || '',
             orderItemId: initialData?.orderItemId || orderItemId,
             workOrderItemId: initialData?.workOrderItemId || workOrderItemId
         },
