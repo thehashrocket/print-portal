@@ -75,7 +75,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
                 onClick={() => handleEditRoles(props.data)}
             >
                 <Pencil className="w-4 h-4 mr-2" />
-                Edit Roles
             </Button>
             <Link href={`/users/${props.data.id}`}>
                 <Button 
@@ -83,7 +82,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
                     variant="secondary"
                 >
                     <Eye className="w-4 h-4 mr-2" />
-                    View User
                 </Button>
             </Link>
             <Button
@@ -92,7 +90,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
                 onClick={() => deleteUser(props.data.id)}
             >
                 <Trash className="w-4 h-4 mr-2" />
-                Delete User
             </Button>
         </div>
 
