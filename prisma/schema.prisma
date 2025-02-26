@@ -668,6 +668,7 @@ enum BindingType {
   CoilBound
   WireO
   Other
+  None
 }
 
 enum FileType {

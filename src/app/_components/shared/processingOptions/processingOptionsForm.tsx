@@ -57,7 +57,7 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
         defaultValues: {
             id: initialData?.id,
             binderyTime: initialData?.binderyTime || 0,
-            binding: initialData?.binding || '',
+            binding: initialData?.binding || BindingType.None,
             cutting: initialData?.cutting || '',
             description: initialData?.description || '',
             drilling: initialData?.drilling || '',
