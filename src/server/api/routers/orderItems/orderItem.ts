@@ -2,10 +2,8 @@ import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { OrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
 import { sendOrderStatusEmail } from "~/utils/sengrid";
-import { normalizeShippingInfo } from "~/utils/dataNormalization";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
-import { normalizeOrderItem } from "~/utils/dataNormalization";
-import { type OrderItem, type OrderItemArtwork, type OrderItemStock, type ProductType, type ShippingInfo, type Address, type ShippingPickup } from "@prisma/client";
+import { normalizeOrderItem, normalizeOutsourcedOrderItemInfo } from "~/utils/dataNormalization";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),
@@ -22,6 +20,7 @@ export const orderItemRouter = createTRPCRouter({
                 include: {
                     artwork: true,
                     OrderItemStock: true,
+                    OutsourcedOrderItemInfo: true,
                     ProductType: true,
                     Order: {
                         include: {
@@ -93,6 +92,7 @@ export const orderItemRouter = createTRPCRouter({
             if (!orderItem) return null;
             return normalizeOrderItem({
                 ...orderItem,
+                OutsourcedOrderItemInfo: orderItem.OutsourcedOrderItemInfo?.[0] || null,
                 Order: {
                     ...orderItem.Order,
                     WorkOrder: { purchaseOrderNumber: orderItem.Order.WorkOrder?.purchaseOrderNumber ?? null }
@@ -215,7 +215,7 @@ export const orderItemRouter = createTRPCRouter({
         const orderItems = await ctx.db.orderItem.findMany({
             where: {
                 status: {
-                    notIn: ['Cancelled', 'Invoiced']
+                    notIn: ['Cancelled', 'Invoiced', 'Completed']
                 }
             },
             include: {
@@ -269,6 +269,30 @@ export const orderItemRouter = createTRPCRouter({
         }));
 
         return orderItemPositions;
+    }),
+    // Get all Outsourced Order Items for Dashboard
+    dashboardOutsourced: protectedProcedure.query(async ({ ctx }) => {
+        const orderItems = await ctx.db.orderItem.findMany({
+            where: { status: 'Outsourced' },
+            include: {
+                OutsourcedOrderItemInfo: true,
+                Order: {
+                    select: {
+                        orderNumber: true,
+                        Office: {
+                            select: {
+                                Company: {
+                                    select: {
+                                        name: true,
+                                    }
+                                }
+                            }
+                        },
+                    }
+                }
+            }
+        });
+        return orderItems;
     }),
     updateDescription: protectedProcedure
         .input(z.object({
@@ -564,5 +588,45 @@ export const orderItemRouter = createTRPCRouter({
             });
 
             return updatedOrderItem;
+        }),
+    updateOutsourcedInfo: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            data: z.object({
+                companyName: z.string().optional(),
+                contactName: z.string().optional(),
+                contactPhone: z.string().optional(),
+                contactEmail: z.string().optional(),
+                jobDescription: z.string().optional(),
+                orderNumber: z.string().optional(),
+                estimatedDeliveryDate: z.date().optional(),
+            })
+        }))
+        .mutation(async ({ ctx, input }) => {
+
+            // Check if the OutsourcedOrderItemInfo already exists
+            const existingOutsourcedInfo = await ctx.db.orderItem.findUnique({
+                where: { id: input.id },
+                include: {
+                    OutsourcedOrderItemInfo: true,
+                },
+            });
+
+            if (existingOutsourcedInfo) {
+                // Update the existing OutsourcedOrderItemInfo
+                return ctx.db.outsourcedOrderItemInfo.update({
+                    where: { id: existingOutsourcedInfo.OutsourcedOrderItemInfo?.[0]?.id },
+                    data: input.data,
+                });
+            }
+
+            // Create a new OutsourcedOrderItemInfo
+            return ctx.db.outsourcedOrderItemInfo.create({
+                data: {
+                    ...input.data,
+                    orderItemId: input.id,
+                    createdById: ctx.session.user.id,
+                },
+            });
         }),
 });

@@ -6,10 +6,12 @@ import DraggableOrdersDash from "./orders/draggableOrdersDash";
 import { type OrderDashboard } from "~/types/orderDashboard";
 import { type OrderItemDashboard } from "~/types/orderItemDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/app/_components/ui/tabs";
-// Update the component props to match the actual data being passed
+import OutsourcedOrderItemsDash from "./orderItems/OutsourcedOrderItemsDash";
+
 interface DashboardTabsClientProps {
     orderItems: OrderItemDashboard[];
     orders: OrderDashboard[];
+    outsourcedOrderItems: OrderItemDashboard[];
 }
 
 export default function DashboardTabsClient({ orderItems, orders }: DashboardTabsClientProps) {
@@ -21,6 +23,7 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
                 <TabsList>
                     <TabsTrigger value="orders">Orders</TabsTrigger>
                     <TabsTrigger value="orderItems">Order Items</TabsTrigger>
+                    <TabsTrigger value="outsourcedOrderItems">Outsourced Order Items</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="orders">
@@ -28,6 +31,9 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
                 </TabsContent>
                 <TabsContent value="orderItems">
                     <DraggableOrderItemsDash initialOrderItems={orderItems} />
+                </TabsContent>
+                <TabsContent value="outsourcedOrderItems">
+                    <OutsourcedOrderItemsDash />
                 </TabsContent>
             </Tabs>
         </div>

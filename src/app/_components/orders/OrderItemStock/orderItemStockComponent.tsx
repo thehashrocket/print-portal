@@ -138,8 +138,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                             handleEdit(data.id);
                         }}
                     >
-                        <PencilIcon className="w-4 h-4 mr-1" />
-                        Edit
+                        <PencilIcon className="w-4 h-4" />
                     </Button>
                     <Button
                         variant="destructive"
@@ -149,8 +148,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                             handleDelete(data.id);
                         }}
                     >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
+                        <Trash2 className="w-4 h-4" />
                         </Button>
                     </div>
                 );

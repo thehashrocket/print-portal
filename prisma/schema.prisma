@@ -182,40 +182,41 @@ model Order {
 }
 
 model OrderItem {
-  id                  String              @id @default(uuid())
-  orderId             String
-  finishedQty         Int
-  pressRun            String
-  size                String?
-  amount              Decimal?            @db.Decimal(10, 2)
-  specialInstructions String?
-  status              OrderItemStatus     @default(Pending)
-  createdAt           DateTime            @default(now())
-  createdById         String
-  updatedAt           DateTime            @updatedAt
-  description         String              @default("")
-  expectedDate        DateTime            @default(now())
-  cost                Decimal?            @db.Decimal(10, 2)
-  prepTime            Int?
-  other               String?
-  shippingAmount      Decimal?            @db.Decimal(10, 2)
-  quantity            Int                 @default(1)
-  ink                 String?             @default("")
-  orderItemNumber     Int                 @default(autoincrement())
-  deleted             Boolean             @default(false)
-  paperProductId      String?
-  productTypeId       String?
-  shippingInfoId      String?
-  InvoiceItems        InvoiceItem[]
-  createdBy           User                @relation(fields: [createdById], references: [id])
-  Order               Order               @relation(fields: [orderId], references: [id])
-  PaperProduct        PaperProduct?       @relation(fields: [paperProductId], references: [id])
-  ProductType         ProductType?        @relation(fields: [productTypeId], references: [id])
-  ShippingInfo        ShippingInfo?       @relation(fields: [shippingInfoId], references: [id])
-  artwork             OrderItemArtwork[]
-  OrderItemStock      OrderItemStock[]
-  ProcessingOptions   ProcessingOptions[]
-  Typesetting         Typesetting[]
+  id                      String                    @id @default(uuid())
+  orderId                 String
+  finishedQty             Int
+  pressRun                String
+  size                    String?
+  amount                  Decimal?                  @db.Decimal(10, 2)
+  specialInstructions     String?
+  status                  OrderItemStatus           @default(Pending)
+  createdAt               DateTime                  @default(now())
+  createdById             String
+  updatedAt               DateTime                  @updatedAt
+  description             String                    @default("")
+  expectedDate            DateTime                  @default(now())
+  cost                    Decimal?                  @db.Decimal(10, 2)
+  prepTime                Int?
+  other                   String?
+  shippingAmount          Decimal?                  @db.Decimal(10, 2)
+  quantity                Int                       @default(1)
+  ink                     String?                   @default("")
+  orderItemNumber         Int                       @default(autoincrement())
+  deleted                 Boolean                   @default(false)
+  paperProductId          String?
+  productTypeId           String?
+  shippingInfoId          String?
+  InvoiceItems            InvoiceItem[]
+  createdBy               User                      @relation(fields: [createdById], references: [id])
+  Order                   Order                     @relation(fields: [orderId], references: [id])
+  PaperProduct            PaperProduct?             @relation(fields: [paperProductId], references: [id])
+  ProductType             ProductType?              @relation(fields: [productTypeId], references: [id])
+  ShippingInfo            ShippingInfo?             @relation(fields: [shippingInfoId], references: [id])
+  artwork                 OrderItemArtwork[]
+  OrderItemStock          OrderItemStock[]
+  ProcessingOptions       ProcessingOptions[]
+  Typesetting             Typesetting[]
+  OutsourcedOrderItemInfo OutsourcedOrderItemInfo[]
 }
 
 model OrderPayment {
@@ -271,6 +272,23 @@ model OrderItemStock {
   createdBy      User          @relation(fields: [createdById], references: [id])
   OrderItem      OrderItem     @relation(fields: [orderItemId], references: [id])
   PaperProduct   PaperProduct? @relation(fields: [paperProductId], references: [id])
+}
+
+model OutsourcedOrderItemInfo {
+  id                    String    @id @default(uuid())
+  createdById           String
+  orderItemId           String
+  companyName           String?
+  contactName           String?
+  contactPhone          String?
+  contactEmail          String?
+  jobDescription        String?
+  orderNumber           String?
+  estimatedDeliveryDate DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  orderItem             OrderItem @relation(fields: [orderItemId], references: [id])
+  createdBy             User      @relation(fields: [createdById], references: [id])
 }
 
 model PaperProduct {
@@ -467,25 +485,25 @@ model TypesettingProofArtwork {
 }
 
 model User {
-  id                      String               @id @default(cuid())
+  id                      String                    @id @default(cuid())
   name                    String?
-  email                   String?              @unique
+  email                   String?                   @unique
   emailVerified           DateTime?
   image                   String?
-  createdAt               DateTime             @default(now())
-  updatedAt               DateTime             @default(now())
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @default(now())
   quickbooksAccessToken   String?
   quickbooksRealmId       String?
   quickbooksRefreshToken  String?
   quickbooksTokenExpiry   DateTime?
   quickbooksAuthState     String?
-  deleted                 Boolean              @default(false)
+  deleted                 Boolean                   @default(false)
   password                String?
   accounts                Account[]
   Invoice                 Invoice[]
-  CreatedOffices          Office[]             @relation("CreatedBy")
-  ContactPersonOrders     Order[]              @relation("OrderContactPerson")
-  CreatedOrders           Order[]              @relation("OrderCreatedBy")
+  CreatedOffices          Office[]                  @relation("CreatedBy")
+  ContactPersonOrders     Order[]                   @relation("OrderContactPerson")
+  CreatedOrders           Order[]                   @relation("OrderCreatedBy")
   OrderItem               OrderItem[]
   OrderItemStock          OrderItemStock[]
   OrderNote               OrderNote[]
@@ -498,12 +516,13 @@ model User {
   TypesettingOption       TypesettingOption[]
   TypesettingProof        TypesettingProof[]
   offices                 UsersOnOffices[]
-  ContactPersonWorkOrders WorkOrder[]          @relation("WorkOrderContactPerson")
-  CreatedWorkOrders       WorkOrder[]          @relation("WorkOrderCreatedBy")
+  ContactPersonWorkOrders WorkOrder[]               @relation("WorkOrderContactPerson")
+  CreatedWorkOrders       WorkOrder[]               @relation("WorkOrderCreatedBy")
   WorkOrderItem           WorkOrderItem[]
   WorkOrderItemStock      WorkOrderItemStock[]
   WorkOrderNote           WorkOrderNote[]
-  Roles                   Role[]               @relation("RoleToUser")
+  OutsourcedOrderItemInfo OutsourcedOrderItemInfo[]
+  Roles                   Role[]                    @relation("RoleToUser")
 }
 
 model VerificationToken {
@@ -714,6 +733,7 @@ enum OrderItemStatus {
   Completed
   Hold
   Invoiced
+  Outsourced
   Pending
   Prepress
   Press

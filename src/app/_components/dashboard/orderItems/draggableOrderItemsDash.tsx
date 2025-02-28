@@ -8,7 +8,7 @@ import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import OrderItemNumberFilter from './OrderItemNumberFilter';
-import { Building2, CalendarDays, Eye } from 'lucide-react';
+import { Building2, CalendarDays, Eye, Info } from 'lucide-react';
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 
@@ -284,6 +284,14 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
             </div>
 
             {/* Desktop View: Horizontal columns */}
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Status is the current status of the order item.
+                    You can change the status of the order item by dragging and dropping the order item card into a new status.
+                    Order items placed in the completed status are not visible in the dashboard after they are completed and the page is refreshed.
+                </p>
+            </div>
             <div className="hidden md:flex gap-4 overflow-x-auto pb-4">
                 {allStatuses.map((status) => (
                     <div key={status}

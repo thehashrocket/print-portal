@@ -9,6 +9,7 @@ import {
     type ShippingPickup,
     type Address,
     type OrderPayment,
+    type OutsourcedOrderItemInfo,
     type ProcessingOptions,
     type Typesetting,
     type TypesettingOption,
@@ -26,7 +27,7 @@ import {
     type WorkOrderVersion,
     type Prisma,
     type PaperProduct,
-    type ProductType
+    type ProductType,
 } from "@prisma/client";
 
 import {
@@ -56,8 +57,31 @@ import {
     type SerializedWorkOrderVersion,
     type SerializedProductType,
     type SerializedWalkInCustomer,
-    type SerializedOffice
+    type SerializedOffice,
+    SerializedOutsourcedOrderItemInfo
 } from "~/types/serializedTypes";
+
+export function normalizeAddress(address: Address): SerializedAddress {
+    return {
+        id: address.id,
+        officeId: address.officeId,
+        name: address.name,
+        line1: address.line1,
+        line2: address.line2,
+        line3: address.line3,
+        line4: address.line4,
+        city: address.city,
+        deleted: address.deleted,
+        quickbooksId: address.quickbooksId,
+        state: address.state,
+        zipCode: address.zipCode,
+        country: address.country,
+        telephoneNumber: address.telephoneNumber,
+        addressType: address.addressType,
+        createdAt: address.createdAt.toISOString(),
+        updatedAt: address.updatedAt.toISOString(),
+    };
+}
 
 export function normalizeInvoice(invoice: Invoice & {
     InvoiceItems: InvoiceItem[];
@@ -187,7 +211,7 @@ export function normalizeOrder(order: Order & {
     WorkOrder: {
         purchaseOrderNumber: string | null;
     };
-    WalkInCustomer: { 
+    WalkInCustomer: {
         id: string;
         name: string;
         email: string | null;
@@ -259,6 +283,7 @@ export function normalizeOrder(order: Order & {
 
 export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
+    OutsourcedOrderItemInfo?: OutsourcedOrderItemInfo | null;
     OrderItemStock: OrderItemStock[];
     ProductType: ProductType | null;
     shippingInfoId?: string | null;
@@ -297,25 +322,25 @@ export function normalizeOrderItem(item: OrderItem & {
                 purchaseOrderNumber: item.Order.WorkOrder.purchaseOrderNumber ?? null
             }
         },
+        artwork: item.artwork.map(normalizeOrderItemArtwork),
         orderId: item.orderId,
         orderItemNumber: item.orderItemNumber,
+        OutsourcedOrderItemInfo: item.OutsourcedOrderItemInfo ? normalizeOutsourcedOrderItemInfo(item.OutsourcedOrderItemInfo) : null,
+        OrderItemStock: item.OrderItemStock.map(normalizeOrderItemStock),
         other: item.other,
         prepTime: item.prepTime,
         pressRun: item.pressRun,
+        ProductType: item.ProductType ? normalizeProductType(item.ProductType) : null,
         quantity: item.quantity,
         shippingAmount: item.shippingAmount ? item.shippingAmount.toString() : null,
-        shippingInfoId: item.shippingInfoId ?? null,
         ShippingInfo: item.ShippingInfo ? normalizeShippingInfo(item.ShippingInfo) : null,
+        shippingInfoId: item.shippingInfoId ?? null,
         size: item.size,
         specialInstructions: item.specialInstructions,
         status: item.status,
         updatedAt: item.updatedAt.toISOString(),
-        artwork: item.artwork.map(normalizeOrderItemArtwork),
-        OrderItemStock: item.OrderItemStock.map(normalizeOrderItemStock),
-        ProductType: item.ProductType ? normalizeProductType(item.ProductType) : null,
     };
 }
-
 
 export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): SerializedOrderItemArtwork {
     return {
@@ -327,6 +352,21 @@ export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): Serialized
         updatedAt: artwork.updatedAt.toISOString(),
     };
 }
+
+export function normalizeOutsourcedOrderItemInfo(info: OutsourcedOrderItemInfo): SerializedOutsourcedOrderItemInfo {
+    return {
+        id: info.id,
+        orderItemId: info.orderItemId,
+        companyName: info.companyName ?? "",
+        contactName: info.contactName ?? "",
+        contactPhone: info.contactPhone ?? "",
+        contactEmail: info.contactEmail ?? "",
+        jobDescription: info.jobDescription ?? "",
+        orderNumber: info.orderNumber ?? "",
+        estimatedDeliveryDate: info.estimatedDeliveryDate?.toISOString() ?? null,
+    };
+}
+
 
 export function normalizeOrderItemStock(stock: OrderItemStock & {
     PaperProduct?: PaperProduct | null;
@@ -431,28 +471,6 @@ export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
             : null,
         OrderItems: shippingInfo.OrderItems ? shippingInfo.OrderItems.map(normalizeOrderItem) : [],
         WorkOrderItems: shippingInfo.WorkOrderItems ? shippingInfo.WorkOrderItems.map(normalizeWorkOrderItem) : [],
-    };
-}
-
-export function normalizeAddress(address: Address): SerializedAddress {
-    return {
-        id: address.id,
-        officeId: address.officeId,
-        name: address.name,
-        line1: address.line1,
-        line2: address.line2,
-        line3: address.line3,
-        line4: address.line4,
-        city: address.city,
-        deleted: address.deleted,
-        quickbooksId: address.quickbooksId,
-        state: address.state,
-        zipCode: address.zipCode,
-        country: address.country,
-        telephoneNumber: address.telephoneNumber,
-        addressType: address.addressType,
-        createdAt: address.createdAt.toISOString(),
-        updatedAt: address.updatedAt.toISOString(),
     };
 }
 

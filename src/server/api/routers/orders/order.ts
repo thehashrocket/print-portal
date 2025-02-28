@@ -88,13 +88,16 @@ export const orderRouter = createTRPCRouter({
           workOrderId: order.workOrderId,
           version: 1,
           dateInvoiced: null,
-          inHandsDate: order.inHandsDate,
+          inHandsDate: null,
           invoicePrintEmail: order.invoicePrintEmail,
           contactPersonId: order.contactPersonId,
           shippingInfoId: order.shippingInfoId,
           isWalkIn: order.isWalkIn,
           walkInCustomerId: order.walkInCustomerId || undefined,
           officeId: order.officeId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deposit: 0,
         },
       });
 
@@ -106,6 +109,10 @@ export const orderRouter = createTRPCRouter({
           orderId: newOrder.id,
           createdById: ctx.session.user.id,
           status: OrderItemStatus.Pending,
+          expectedDate: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          inHandsDate: null,
         })),
       });
 

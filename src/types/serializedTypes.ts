@@ -206,6 +206,7 @@ export interface SerializedOrderItem {
     artwork: SerializedOrderItemArtwork[];
     OrderItemStock: SerializedOrderItemStock[];
     ProductType: SerializedProductType | null;
+    OutsourcedOrderItemInfo: SerializedOutsourcedOrderItemInfo | null;
 }
 
 export interface SerializedOrderItemArtwork {
@@ -217,6 +218,17 @@ export interface SerializedOrderItemArtwork {
     updatedAt: string;
 }
 
+export interface SerializedOutsourcedOrderItemInfo {
+    id: string;
+    orderItemId: string;
+    companyName: string;
+    contactName: string;
+    contactPhone: string;
+    contactEmail: string;
+    jobDescription: string;
+    orderNumber: string;
+    estimatedDeliveryDate: string | null;
+}
 export interface SerializedOrderItemStock {
     costPerM: string;
     createdAt: string;

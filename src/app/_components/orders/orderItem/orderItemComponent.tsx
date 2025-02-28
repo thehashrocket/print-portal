@@ -10,12 +10,9 @@ import TypesettingComponent from "~/app/_components/shared/typesetting/typesetti
 import { EditableInfoCard } from "../../shared/editableInfoCard/EditableInfoCard";
 import ProcessingOptionsComponent from "~/app/_components/shared/processingOptions/processingOptionsComponent";
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
-import { normalizeProcessingOptions, normalizeShippingInfo, normalizeTypesetting } from "~/utils/dataNormalization";
+import { normalizeTypesetting } from "~/utils/dataNormalization";
 import OrderItemStockComponent from "../OrderItemStock/orderItemStockComponent";
 import { toast } from "react-hot-toast";
-import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
-import { generateOrderItemPDF } from '~/utils/generateOrderItemPDF';
-import { DownloadPDFButton } from './DownloadPDFButton';
 import ContactPersonEditor from "../../shared/ContactPersonEditor/ContactPersonEditor";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
@@ -28,64 +25,28 @@ import InfoCard from "../../shared/InfoCard/InfoCard";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { formatPaperProductLabel } from "~/utils/formatters";
+import ItemStatusBadge from "./ItemStatusBadge";
+import OutsourcedOrderItemInfoForm from "./OutsourcedOrderItemInfoForm";
+import { z } from "zod";
 
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
 };
 
-const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
-    const [currentStatus, setCurrentStatus] = useState(status);
-    const utils = api.useUtils();
+// Define the form schema to match OutsourcedOrderItemInfoForm
+const outsourcedOrderItemInfoSchema = z.object({
+  companyName: z.string().min(1, "Company name is required"),
+  contactName: z.string().min(1, "Contact name is required"),
+  contactPhone: z.string().min(1, "Contact phone is required"),
+  contactEmail: z.string().optional(),
+  jobDescription: z.string().optional(),
+  orderNumber: z.string().optional(),
+  estimatedDeliveryDate: z.string().optional(),
+});
 
-    const { mutate: updateStatus } = api.orderItems.updateStatus.useMutation({
-        onSuccess: (data) => {
-            console.log('data', data);
-            utils.orders.getByID.invalidate(orderId);
-            toast.success('Status updated successfully', { duration: 4000, position: 'top-right' });
-        },
-        onError: (error) => {
-            console.error('Failed to update status:', error);
-            toast.error('Failed to update status', { duration: 4000, position: 'top-right' });
-        },
-    });
-
-
-
-    const getStatusColor = (status: OrderItemStatus): string => {
-        switch (status) {
-            case "Completed": return "bg-green-100 text-green-800";
-            case "Cancelled": return "bg-red-100 text-red-800";
-            case "Pending": return "bg-yellow-100 text-yellow-800";
-            case "Hold": return "bg-gray-100 text-gray-800";
-            default: return "bg-gray-100 text-gray-800";
-        }
-    };
-
-    const handleStatusChange = (newStatus: OrderItemStatus, sendEmail: boolean, emailOverride: string) => {
-        updateStatus({
-            id,
-            status: newStatus,
-            sendEmail,
-            emailOverride
-        });
-        setCurrentStatus(newStatus);
-    };
-
-    return (
-        <StatusBadge<OrderItemStatus>
-            id={id}
-            status={status}
-            currentStatus={currentStatus}
-            orderId={orderId}
-            onStatusChange={handleStatusChange}
-            getStatusColor={getStatusColor}
-            statusOptions={Object.values(OrderItemStatus)}
-        />
-    );
-};
-
-
+// Define the form data type
+type OutsourcedOrderItemInfoFormData = z.infer<typeof outsourcedOrderItemInfoSchema>;
 
 const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     orderId,
@@ -165,6 +126,17 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         onError: (error) => {
             console.error('Failed to update item description:', error);
             toast.error('Failed to update item description');
+        }
+    });
+
+    const { mutate: updateOutsourcedInfo } = api.orderItems.updateOutsourcedInfo.useMutation({
+        onSuccess: () => {
+            toast.success('Outsourced order information updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update outsourced order information:', error);
+            toast.error('Failed to update outsourced order information');
         }
     });
 
@@ -260,6 +232,23 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         setSpecialInstructions(e.target.value);
     };
 
+    const handleOusourcedOrderItemSave = async (data: OutsourcedOrderItemInfoFormData) => {
+        console.log("Saving outsourced order info", data);
+        updateOutsourcedInfo({
+            id: orderItemId,
+            data: {
+                companyName: data.companyName,
+                contactName: data.contactName,
+                contactPhone: data.contactPhone,
+                contactEmail: data.contactEmail || "",
+                jobDescription: data.jobDescription || "",
+                orderNumber: data.orderNumber || "",
+                estimatedDeliveryDate: data.estimatedDeliveryDate ? new Date(data.estimatedDeliveryDate) : new Date()
+            }
+        });
+        return Promise.resolve();
+    };
+
     const updateJobDescription = () => {
         updateDescription({ id: orderItemId, description: jobDescription });
     };
@@ -281,17 +270,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     }
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
-    const normalizedOrderItemStocks = orderItemStocks ?? [];
-    const normalizedProcessingOptions = processingOptions ? processingOptions.map(normalizeProcessingOptions) : [];
-
+    
     let orderPaperProducts: any[] = [];
     if (orderItemStocks) {
         // Build a list of paper products
         orderPaperProducts = orderItemStocks.map(stock => findPaperProduct(stock.paperProductId || ''));
     }
-
-    const shippingInfo = orderItem.ShippingInfo ? orderItem.ShippingInfo : order.ShippingInfo;
-
 
     return (
         <>
@@ -505,6 +489,13 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             }
                         />
                     </div>
+                    {/* Outsourced Order Item Info Section - Show if orderItem.status is Outsourced */}
+                    {orderItem.status === OrderItemStatus.Outsourced && (
+                        <div className="mb-6">
+                            <h2 className="text-xl font-semibold text-gray-700 mb-2">Outsourced Order Item Info</h2>
+                            <OutsourcedOrderItemInfoForm info={orderItem.OutsourcedOrderItemInfo} onSave={handleOusourcedOrderItemSave} isEditable={true} />
+                        </div>
+                    )}
 
                     {/* Artwork Section */}
                     <div className="mb-6">
