@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod } from "@prisma/client";
+import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus, OrderItem } from "@prisma/client";
 import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer, normalizeOrderItem } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
@@ -72,7 +72,25 @@ export const orderRouter = createTRPCRouter({
       const order = await ctx.db.order.findUnique({
         where: { id: input },
         include: {
-          OrderItems: true,
+          OrderItems: {
+            include: {
+              ProcessingOptions: true,
+              Typesetting: {
+                include: {
+                  TypesettingOptions: true,
+                  TypesettingProofs: {
+                    include: {
+                      artwork: true,
+                    }
+                  }
+                }
+              },
+              ProductType: true,
+              PaperProduct: true,
+              OrderItemStock: true,
+              artwork: true,
+            }
+          },
         },
       });
 
@@ -101,20 +119,159 @@ export const orderRouter = createTRPCRouter({
         },
       });
 
-      // Duplicate the order items
-      const newOrderItems = await ctx.db.orderItem.createMany({
-        data: order.OrderItems.map(item => ({
-          ...item,
-          id: undefined,
-          orderId: newOrder.id,
-          createdById: ctx.session.user.id,
-          status: OrderItemStatus.Pending,
-          expectedDate: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          inHandsDate: null,
-        })),
-      });
+      const newOrderItems: OrderItem[] = [];
+      // Duplicate the order items with their associated data
+      for (const item of order.OrderItems) {
+        const newOrderItem = await ctx.db.orderItem.create({
+          data: {
+            orderId: newOrder.id,
+            createdById: ctx.session.user.id,
+            status: OrderItemStatus.Pending,
+            expectedDate: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            description: item.description || "",
+            finishedQty: item.finishedQty || 0,
+            pressRun: item.pressRun || "",
+            size: item.size,
+            specialInstructions: item.specialInstructions,
+            prepTime: item.prepTime,
+            other: item.other,
+            quantity: item.quantity,
+            ink: item.ink,
+            productTypeId: item.productTypeId,
+            paperProductId: item.paperProductId,
+            deleted: false,
+            amount: item.amount,
+            cost: item.cost,
+            shippingAmount: item.shippingAmount,
+          },
+        });
+
+        newOrderItems.push(newOrderItem);
+
+        // Duplicate artwork if it exists
+        if (item.artwork && item.artwork.length > 0) {
+          for (const art of item.artwork) {
+            await ctx.db.orderItemArtwork.create({
+              data: {
+                orderItemId: newOrderItem.id,
+                fileUrl: art.fileUrl,
+                description: art.description,
+                fileType: art.fileType,
+              },
+            });
+          }
+        }
+
+        // Duplicate OrderItemStock
+        if (item.OrderItemStock && item.OrderItemStock.length > 0) {
+          for (const stock of item.OrderItemStock) {
+            await ctx.db.orderItemStock.create({
+              data: {
+                ...stock,
+                id: undefined,
+                orderItemId: newOrderItem.id,
+                createdById: ctx.session.user.id,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            });
+          }
+        }
+
+        // Duplicate ProcessingOptions
+        if (item.ProcessingOptions && item.ProcessingOptions.length > 0) {
+          for (const processingOption of item.ProcessingOptions) {
+            await ctx.db.processingOptions.create({
+              data: {
+                orderItemId: newOrderItem.id,
+                createdById: ctx.session.user.id,
+                cutting: processingOption.cutting,
+                padding: processingOption.padding,
+                drilling: processingOption.drilling,
+                folding: processingOption.folding,
+                other: processingOption.other || "",
+                numberingStart: processingOption.numberingStart,
+                numberingEnd: processingOption.numberingEnd,
+                numberingColor: processingOption.numberingColor,
+                description: processingOption.description,
+                stitching: processingOption.stitching,
+                binderyTime: processingOption.binderyTime,
+                binding: processingOption.binding,
+              },
+            });
+          }
+        }
+
+        // Duplicate Typesetting and related entities
+        if (item.Typesetting && item.Typesetting.length > 0) {
+          for (const typesetting of item.Typesetting) {
+            // Create new typesetting record
+            const newTypesetting = await ctx.db.typesetting.create({
+              data: {
+                orderItemId: newOrderItem.id,
+                createdById: ctx.session.user.id,
+                dateIn: typesetting.dateIn,
+                timeIn: typesetting.timeIn,
+                approved: false, // Reset approval status for the new order
+                prepTime: typesetting.prepTime,
+                plateRan: typesetting.plateRan,
+                cost: typesetting.cost,
+                followUpNotes: typesetting.followUpNotes,
+                status: TypesettingStatus.InProgress, // Reset status for the new order
+              },
+            });
+
+            // Duplicate TypesettingOptions
+            if (typesetting.TypesettingOptions && typesetting.TypesettingOptions.length > 0) {
+              for (const option of typesetting.TypesettingOptions) {
+                await ctx.db.typesettingOption.create({
+                  data: {
+                    typesettingId: newTypesetting.id,
+                    option: option.option,
+                    selected: option.selected,
+                    createdById: ctx.session.user.id,
+                  },
+                });
+              }
+            }
+
+            // Duplicate TypesettingProofs (without approval status)
+            if (typesetting.TypesettingProofs && typesetting.TypesettingProofs.length > 0) {
+              for (const proof of typesetting.TypesettingProofs) {
+                const newProof = await ctx.db.typesettingProof.create({
+                  data: {
+                    typesettingId: newTypesetting.id,
+                    proofNumber: proof.proofNumber,
+                    dateSubmitted: proof.dateSubmitted,
+                    notes: proof.notes,
+                    approved: false, // Reset approval status
+                    proofCount: proof.proofCount,
+                    proofMethod: proof.proofMethod,
+                    createdById: ctx.session.user.id,
+                  },
+                });
+
+                // Duplicate TypesettingProofArtwork if exists
+                if (proof.artwork && proof.artwork.length > 0) {
+                  for (const artwork of proof.artwork) {
+                    await ctx.db.typesettingProofArtwork.create({
+                      data: {
+                        typesettingProofId: newProof.id,
+                        fileUrl: artwork.fileUrl,
+                        description: artwork.description,
+                      },
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        
+      }
 
       return {
         order: newOrder,
