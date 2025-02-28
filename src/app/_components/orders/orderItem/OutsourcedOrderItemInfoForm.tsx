@@ -1,6 +1,5 @@
-import { OutsourcedOrderItemInfo } from "@prisma/client";
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "~/app/_components/ui/button";
@@ -8,7 +7,7 @@ import { Input } from "~/app/_components/ui/input";
 import { Label } from "~/app/_components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/app/_components/ui/card";
 import { Textarea } from "~/app/_components/ui/textarea";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { SerializedOutsourcedOrderItemInfo } from "~/types/serializedTypes";
 
 // Define the props interface
@@ -46,7 +45,7 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
       jobDescription: info?.jobDescription || "",
       orderNumber: info?.orderNumber || "",
       estimatedDeliveryDate: info?.estimatedDeliveryDate 
-        ? format(new Date(info.estimatedDeliveryDate), "yyyy-MM-dd")
+        ? dayjs(info.estimatedDeliveryDate).format("YYYY-MM-DD")
         : undefined,
     },
   });
@@ -124,7 +123,7 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
             <h3 className="text-sm font-medium text-gray-500">Estimated Delivery Date</h3>
             <p className="mt-1">
               {info?.estimatedDeliveryDate 
-                ? format(new Date(info.estimatedDeliveryDate), "MMMM d, yyyy")
+                ? dayjs(info.estimatedDeliveryDate).format("MMMM D, YYYY")
                 : "Not specified"}
             </p>
           </div>

@@ -288,6 +288,11 @@ export const orderItemRouter = createTRPCRouter({
                                 }
                             }
                         },
+                        WorkOrder: {
+                            select: {
+                                purchaseOrderNumber: true,
+                            }
+                        }
                     }
                 }
             }

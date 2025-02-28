@@ -5,9 +5,29 @@ import { OrderItem, OrderItemStatus } from "@prisma/client";
 import { Building2, CalendarDays, Eye, Mail, Phone, User } from "lucide-react";
 import { formatDate } from "~/utils/formatters";
 
+// Define the type for the data returned by the API
+type OutsourcedOrderItemWithRelations = OrderItem & {
+    Order: {
+        orderNumber: number;
+        Office: {
+            Company: {
+                name: string;
+            }
+        }
+    };
+    OutsourcedOrderItemInfo: Array<{
+        id: string;
+        companyName: string | null;
+        contactName: string | null;
+        contactPhone: string | null;
+        estimatedDeliveryDate: Date | null;
+    }>;
+};
+
 interface OutsourcedOrderItemCardProps {
-    orderItem: OrderItem;
+    orderItem: OutsourcedOrderItemWithRelations;
 }
+
 const calculateDaysUntilDue = (dateString: string): number => {
     const targetDate = new Date(dateString);
     const currentDate = new Date();
@@ -79,7 +99,8 @@ const OutsourcedOrderItemCard = ({ orderItem }: OutsourcedOrderItemCardProps) =>
             <div className="flex items-center mb-2">
                 <CalendarDays className="w-5 h-5 mr-2" />
                 <div className="text-sm font-bold mb-1">
-                    {formatDate(orderItem.OutsourcedOrderItemInfo?.[0]?.estimatedDeliveryDate)}
+                    {orderItem.OutsourcedOrderItemInfo?.[0]?.estimatedDeliveryDate && 
+                     formatDate(orderItem.OutsourcedOrderItemInfo[0].estimatedDeliveryDate)}
                 </div>
             </div>
             <div className="flex items-center">
@@ -96,11 +117,11 @@ const OutsourcedOrderItemCard = ({ orderItem }: OutsourcedOrderItemCardProps) =>
 
 export default function OutsourcedOrderItemsDash() {
     const { data: orderItems } = api.orderItems.dashboardOutsourced.useQuery();
-
+    
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             {orderItems?.map((orderItem) => (
-                <OutsourcedOrderItemCard key={orderItem.id} orderItem={orderItem} />
+                <OutsourcedOrderItemCard key={orderItem.id} orderItem={orderItem as OutsourcedOrderItemWithRelations} />
             ))}
         </div>
     );

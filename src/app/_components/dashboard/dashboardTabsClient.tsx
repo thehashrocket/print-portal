@@ -11,7 +11,6 @@ import OutsourcedOrderItemsDash from "./orderItems/OutsourcedOrderItemsDash";
 interface DashboardTabsClientProps {
     orderItems: OrderItemDashboard[];
     orders: OrderDashboard[];
-    outsourcedOrderItems: OrderItemDashboard[];
 }
 
 export default function DashboardTabsClient({ orderItems, orders }: DashboardTabsClientProps) {
