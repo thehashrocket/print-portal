@@ -81,7 +81,7 @@
     "intuit-oauth": "^4.2.0",
     "jspdf": "^2.5.2",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.469.0",
+    "lucide-react": "^0.477.0",
     "next": "^15.2.0",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.0",
