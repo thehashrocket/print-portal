@@ -212,8 +212,8 @@ importers:
         version: 5.0.3(@types/react@19.0.3)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))
     devDependencies:
       '@faker-js/faker':
-        specifier: 9.4.0
-        version: 9.4.0
+        specifier: 9.5.1
+        version: 9.5.1
       '@tailwindcss/postcss':
         specifier: ^4.0.9
         version: 4.0.9
@@ -610,8 +610,8 @@ packages:
     resolution: {integrity: sha512-JubJ5B2pJ4k4yGxaNLdbjrnk9d/iDz6/q8wOilpIowd6PJPgaxCuHBnBszq7Ce2TyMrywm5r4PnKm6V3iiZF+g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@faker-js/faker@9.4.0':
-    resolution: {integrity: sha512-85+k0AxaZSTowL0gXp8zYWDIrWclTbRPg/pm/V0dSFZ6W6D4lhcG3uuZl4zLsEKfEvs69xDbLN2cHQudwp95JA==}
+  '@faker-js/faker@9.5.1':
+    resolution: {integrity: sha512-0fzMEDxkExR2cn731kpDaCCnBGBUOIXEi2S1N5l8Hltp6aPf4soTMJ+g4k8r2sI5oB+rpwIW8Uy/6jkwGpnWPg==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
 
   '@floating-ui/core@1.6.9':
@@ -2049,6 +2049,9 @@ packages:
 
   '@types/node@18.19.76':
     resolution: {integrity: sha512-yvR7Q9LdPz2vGpmpJX5LolrgRdWvB67MJKDPSgIIzpFbaf9a1j/f5DnLp5VDyHGMR0QZHlTr1afsD87QCXFHKw==}
+
+  '@types/node@18.19.78':
+    resolution: {integrity: sha512-m1ilZCTwKLkk9rruBJXFeYN0Bc5SbjirwYX/Td3MqPfioYbgun3IvK/m8dQxMCnrPGZPg1kvXjp3SIekCN/ynw==}
 
   '@types/node@22.13.5':
     resolution: {integrity: sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==}
@@ -5429,7 +5432,7 @@ snapshots:
 
   '@browserbasehq/sdk@2.3.0':
     dependencies:
-      '@types/node': 18.19.76
+      '@types/node': 18.19.78
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
@@ -5826,7 +5829,7 @@ snapshots:
       '@eslint/core': 0.12.0
       levn: 0.4.1
 
-  '@faker-js/faker@9.4.0': {}
+  '@faker-js/faker@9.5.1': {}
 
   '@floating-ui/core@1.6.9':
     dependencies:
@@ -5941,7 +5944,7 @@ snapshots:
   '@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.1)(zod@3.24.2)))':
     dependencies:
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.1)(zod@3.24.2)))
-      '@types/node': 18.19.76
+      '@types/node': 18.19.78
       extend: 3.0.2
       ibm-cloud-sdk-core: 5.1.3
     transitivePeerDependencies:
@@ -6915,6 +6918,10 @@ snapshots:
   '@types/node@10.14.22': {}
 
   '@types/node@18.19.76':
+    dependencies:
+      undici-types: 5.26.5
+
+  '@types/node@18.19.78':
     dependencies:
       undici-types: 5.26.5
 
