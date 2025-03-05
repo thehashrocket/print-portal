@@ -67,6 +67,10 @@ const OrdersTable: React.FC = () => {
     </div>
   );
 
+  const getPurchaseOrderNumber = (params: { data: SerializedOrder }) => {
+    return params.data.WorkOrder ? params.data.WorkOrder.purchaseOrderNumber : "";
+  };
+
   const getRowStyle = (params: RowClassParams<SerializedOrder>): { backgroundColor: string } | undefined => {
     if (!params.data) return undefined;
 
@@ -90,6 +94,14 @@ const OrdersTable: React.FC = () => {
       valueGetter: getCompanyName, 
       minWidth: 200,
       flex: 2
+    },
+    {
+      headerName: "PO #",
+      field: "purchaseOrderNumber",
+      minWidth: 120,
+      flex: 1,
+      valueGetter: getPurchaseOrderNumber,
+      filter: "agTextColumnFilter",
     },
     { 
       headerName: "Status", 
