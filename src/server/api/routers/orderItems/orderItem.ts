@@ -608,7 +608,6 @@ export const orderItemRouter = createTRPCRouter({
             })
         }))
         .mutation(async ({ ctx, input }) => {
-
             // Check if the OutsourcedOrderItemInfo already exists
             const existingOutsourcedInfo = await ctx.db.orderItem.findUnique({
                 where: { id: input.id },
@@ -617,10 +616,10 @@ export const orderItemRouter = createTRPCRouter({
                 },
             });
 
-            if (existingOutsourcedInfo) {
+            if (existingOutsourcedInfo?.OutsourcedOrderItemInfo?.[0]) {
                 // Update the existing OutsourcedOrderItemInfo
                 return ctx.db.outsourcedOrderItemInfo.update({
-                    where: { id: existingOutsourcedInfo.OutsourcedOrderItemInfo?.[0]?.id },
+                    where: { id: existingOutsourcedInfo.OutsourcedOrderItemInfo[0].id },
                     data: input.data,
                 });
             }
