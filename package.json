@@ -67,7 +67,7 @@
     "ag-charts-community": "^10.3.3",
     "ag-charts-react": "^10.3.3",
     "ag-grid-community": "^33.1.1",
-    "axios": "^1.8.1",
+    "axios": "^1.8.2",
     "bcryptjs": "2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
