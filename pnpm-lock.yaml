@@ -109,8 +109,8 @@ importers:
         specifier: ^10.3.3
         version: 10.3.3
       ag-charts-react:
-        specifier: ^10.3.3
-        version: 10.3.3(ag-charts-community@10.3.3)(react@19.0.0)
+        specifier: ^11.1.1
+        version: 11.1.1(react@19.0.0)
       ag-grid-community:
         specifier: ^33.1.1
         version: 33.1.1
@@ -2203,14 +2203,22 @@ packages:
   ag-charts-community@10.3.3:
     resolution: {integrity: sha512-LUlbVS+4sX1UHqZNuE9m3LISr7D4FEO/Y88fwit1fYPTk2l1ZJG/82gFnm5bQ+iG4QgNIwRa2TWm7w2MLnyJlA==}
 
+  ag-charts-community@11.1.1:
+    resolution: {integrity: sha512-ja+JyTICjo2Ic3dG90f3ylD7EqF6Vet7JtiPZa6b9Ffov7VP1DnHUmZsJKfzlQVrWMR6H8Yw/Ij2izLy3hxGZA==}
+
+  ag-charts-core@11.1.1:
+    resolution: {integrity: sha512-18VuqqzA2uC/flzz/Ry/ByYVWbbJA9/IlO5qLokdpXqLzWfO8FVWcCJ7IOu9+L+LRhREyqSCnVaa+THCVCe14w==}
+
   ag-charts-locale@10.3.3:
     resolution: {integrity: sha512-+ZAQYhkFHbdEwLYP1jZeF44X/8wwSH6SNiTykEIIk6EUuP6mm45X2YfQ0bvyekTkEJlLvFspvRQ+C6mspwLx4w==}
 
-  ag-charts-react@10.3.3:
-    resolution: {integrity: sha512-atsx6Bj/Kus307ls7rCTOnsBkscnOeqbqSqsVNIx3OR22OcAKbBnbgJYLMitTfLraA0BP/GAiqD9iygmHFohcg==}
+  ag-charts-locale@11.1.1:
+    resolution: {integrity: sha512-yEsC83zUTQ29GG8absKfiVNmDV0NkeoUx1uYy9Qyor/r5zU0B9Ve8/pHSB9jK0OYGH7/ayu1BNBzrXacPr2QPA==}
+
+  ag-charts-react@11.1.1:
+    resolution: {integrity: sha512-SWRPA07LbAGegkVxv562ieKXcpHZE5AfXlwluAr0qTmwu7AMbkURiOs16TKLF7xIdXVwgoss3IHqZjnRtH/dkw==}
     peerDependencies:
-      ag-charts-community: 10.3.3
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
 
   ag-charts-types@10.3.3:
     resolution: {integrity: sha512-8rmyquaTkwfP4Lzei/W/cbkq9wwEl8+grIo3z97mtxrMIXh9sHJK1oJipd/u08MmBZrca5Jjtn5F1+UNPu/4fQ==}
@@ -7113,11 +7121,21 @@ snapshots:
       ag-charts-locale: 10.3.3
       ag-charts-types: 10.3.3
 
+  ag-charts-community@11.1.1:
+    dependencies:
+      ag-charts-core: 11.1.1
+      ag-charts-locale: 11.1.1
+      ag-charts-types: 11.1.1
+
+  ag-charts-core@11.1.1: {}
+
   ag-charts-locale@10.3.3: {}
 
-  ag-charts-react@10.3.3(ag-charts-community@10.3.3)(react@19.0.0):
+  ag-charts-locale@11.1.1: {}
+
+  ag-charts-react@11.1.1(react@19.0.0):
     dependencies:
-      ag-charts-community: 10.3.3
+      ag-charts-community: 11.1.1
       react: 19.0.0
 
   ag-charts-types@10.3.3: {}
