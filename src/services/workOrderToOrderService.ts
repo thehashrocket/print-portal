@@ -157,6 +157,7 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
             dateInvoiced: null,
             inHandsDate: new Date(workOrder.inHandsDate),
             invoicePrintEmail: workOrder.invoicePrintEmail,
+            purchaseOrderNumber: workOrder.purchaseOrderNumber,
             contactPersonId: workOrder.contactPersonId || undefined,
             shippingInfoId: workOrder.shippingInfoId || undefined,
             isWalkIn: workOrder.isWalkIn,

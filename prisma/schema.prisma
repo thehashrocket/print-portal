@@ -157,6 +157,7 @@ model Order {
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
   orderNumber         Int                      @default(autoincrement())
+  purchaseOrderNumber String?
   notes               String?                  @default("")
   shippingInfoId      String?
   dateInvoiced        DateTime?

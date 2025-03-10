@@ -129,6 +129,7 @@ export interface SerializedOrder {
     notes: string | null;
     officeId: string;
     orderNumber: number;
+    purchaseOrderNumber: string | null;
     pressRun: string | null;
     quickbooksInvoiceId: string | null;
     shippingInfoId: string | null;

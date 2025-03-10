@@ -25,6 +25,7 @@ import InfoCard from "../shared/InfoCard/InfoCard";
 import { Textarea } from "../ui/textarea";
 import TransferOwnership from "./TransferOwnership/TransferOwnership";
 import DuplicateOrder from "./DuplicateOrder/DuplicateOrder";
+import { EditableInfoCard } from "../shared/editableInfoCard/EditableInfoCard";
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -141,6 +142,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
     const [recipientEmail, setRecipientEmail] = useState('');
+    const [editingField, setEditingField] = useState<string | null>(null);
     const utils = api.useUtils();
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
     const { data: order, isLoading, isError, error } = api.orders.getByID.useQuery(orderId, {
@@ -158,6 +160,40 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             toast.error('Failed to update order notes');
         }
     });
+
+    const { mutate: updateOrder } = api.orders.updateFields.useMutation({
+        onSuccess: () => {
+            toast.success('Order updated successfully');
+            utils.orders.getByID.invalidate(orderId);
+        },
+        
+    });
+
+    const handleSave = (field: string) => {
+        if (!order) return;
+
+        const updates: Record<string, unknown> = {};
+        switch (field) {
+            case 'purchaseOrderNumber':
+                updates.purchaseOrderNumber = tempPurchaseOrderNumber;
+                break;
+        }
+
+        updateOrder({
+            id: order.id,
+            data: updates
+        });
+    };
+
+    const handleCancel = (field: string) => {
+        if (!order) return;
+
+        switch (field) {
+            case 'purchaseOrderNumber':
+                setTempPurchaseOrderNumber(order.purchaseOrderNumber ?? "");
+                break;
+        }
+    };
 
     const handleOrderNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setOrderNotes(e.target.value);
@@ -197,6 +233,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             setOrderItems(order.OrderItems);
         }
     }, [order]);
+
+    const [tempPurchaseOrderNumber, setTempPurchaseOrderNumber] = useState(order?.purchaseOrderNumber ?? "");
 
     useEffect(() => {
         if (orderItems) {
@@ -269,15 +307,38 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
 
                 <main className="space-y-8">
                     <div className="grid md:grid-cols-2 gap-6">
-                        <InfoCard
-                            title="Order Number"
-                            content={<>
-                                <p className="text-2xl font-bold">{order.orderNumber}</p>
-                                <p className="text-sm text-gray-500">
-                                    {order.Office?.isWalkInOffice == true ? "Walk-in" : "In-office"}
-                                </p>
-                            </>}
-                        />
+                        <div className="flex flex-col gap-2">
+                            <InfoCard
+                                title="Order Number"
+                                content={<>
+                                    <p className="text-2xl font-bold">{order.orderNumber}</p>
+                                    <p className="text-sm text-gray-500">
+                                        {order.Office?.isWalkInOffice == true ? "Walk-in" : "In-office"}
+                                    </p>
+                                </>}
+                            />
+                            <EditableInfoCard
+                                title="Purchase Order Number"
+                                content={order.purchaseOrderNumber ?? ""}
+                                isEditing={editingField === "purchaseOrderNumber"}
+                                onEdit={() => {
+                                    setEditingField("purchaseOrderNumber");
+                                }}
+                                onSave={() => {
+                                    handleSave("purchaseOrderNumber");
+                                }}
+                                onCancel={() => {
+                                    handleCancel("purchaseOrderNumber");
+                                }}
+                                editComponent={
+                                    <Input 
+                                    type="text" 
+                                    value={tempPurchaseOrderNumber} 
+                                    onChange={(e) => setTempPurchaseOrderNumber(e.target.value)} 
+                                    />
+                                }
+                            />
+                        </div>
                         <div className="flex flex-col gap-2">
                             <InfoCard
                                 title="Company"

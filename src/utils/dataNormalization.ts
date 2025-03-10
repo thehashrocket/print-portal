@@ -159,6 +159,7 @@ export function normalizeOrder(order: Order & {
     calculatedSalesTax: Prisma.Decimal | null;
     calculatedSubTotal: Prisma.Decimal | null;
     notes: string | null;
+    purchaseOrderNumber: string | null;
     totalAmount: Prisma.Decimal | null;
     totalCost: Prisma.Decimal | null;
     totalItemAmount: Prisma.Decimal | null;
@@ -255,6 +256,7 @@ export function normalizeOrder(order: Order & {
         },
         officeId: order.officeId,
         orderNumber: order.orderNumber,
+        purchaseOrderNumber: order.purchaseOrderNumber ?? null,
         shippingInfoId: order.shippingInfoId,
         status: order.status,
         totalAmount: order.totalAmount ? order.totalAmount.toString() : null,
