@@ -22,6 +22,7 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
+    "copy-purchase-order-numbers": "tsx scripts/copyPurchaseOrderNumbers.ts",
     "generate-docs": "tsx scripts/generateApiDocs.ts",
     "generate-font": "node scripts/generateFontBase64.mjs",
     "import-paper-products": "tsx scripts/importPaperProducts.ts",
