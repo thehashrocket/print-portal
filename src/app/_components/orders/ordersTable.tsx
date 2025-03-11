@@ -68,7 +68,7 @@ const OrdersTable: React.FC = () => {
   );
 
   const getPurchaseOrderNumber = (params: { data: SerializedOrder }) => {
-    return params.data.WorkOrder ? params.data.WorkOrder.purchaseOrderNumber : "";
+    return params.data.purchaseOrderNumber ? params.data.purchaseOrderNumber : "";
   };
 
   const getRowStyle = (params: RowClassParams<SerializedOrder>): { backgroundColor: string } | undefined => {
