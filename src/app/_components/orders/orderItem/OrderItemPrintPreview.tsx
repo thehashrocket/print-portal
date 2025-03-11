@@ -112,7 +112,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           <h2 className="text-3xl font-bold text-green-700">Item Details</h2>
           <div className="flex">
             <p className="w-32 font-bold">P.O. Number</p>
-            <p>{order.WorkOrder?.purchaseOrderNumber || 'N/A'}</p>
+            <p>{order.purchaseOrderNumber || 'N/A'}</p>
           </div>
 
           <div className="flex">
