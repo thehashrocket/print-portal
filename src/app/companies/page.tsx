@@ -6,7 +6,6 @@ import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 import CompaniesTable from "../_components/companies/companiesTable";
 import Link from "next/link";
-import CompaniesChart from "../_components/companies/CompaniesChart";
 import { type CompanyDashboardData } from "~/types/company";
 import NoPermission from "~/app/_components/noPermission/noPermission";
 import { Button } from "../_components/ui/button";
@@ -63,12 +62,6 @@ export default async function CompaniesPage() {
                         <PlusCircle className="w-4 h-4" /> Create Company
                     </Button>
                 </Link>
-            </div>
-
-            <div className="bg-base-100 shadow-xl rounded-lg p-4 sm:p-6 mb-4 sm:mb-8">
-                <Suspense fallback={<div>Loading chart...</div>}>
-                    <CompaniesChart companies={serializedData} />
-                </Suspense>
             </div>
 
             <div className="bg-base-100 shadow-xl rounded-lg p-4 sm:p-6">

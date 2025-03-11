@@ -14,19 +14,19 @@ importers:
     dependencies:
       '@ag-grid-community/client-side-row-model':
         specifier: ^32.3.3
-        version: 32.3.3
+        version: 32.3.4
       '@ag-grid-community/core':
         specifier: ^32.3.3
-        version: 32.3.3
+        version: 32.3.4
       '@ag-grid-community/csv-export':
         specifier: ^32.3.3
-        version: 32.3.3
+        version: 32.3.4
       '@ag-grid-community/infinite-row-model':
         specifier: ^32.3.3
-        version: 32.3.3
+        version: 32.3.4
       '@ag-grid-community/react':
         specifier: ^32.3.3
-        version: 32.3.3(@ag-grid-community/core@32.3.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 32.3.4(@ag-grid-community/core@32.3.4)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@ag-grid-community/styles':
         specifier: ^33.0.3
         version: 33.0.3
@@ -315,22 +315,22 @@ packages:
       graphql:
         optional: true
 
-  '@ag-grid-community/client-side-row-model@32.3.3':
-    resolution: {integrity: sha512-/6OFltj9qax/xfOcYMOKGFQRFTrPX8hrELfS2jChWwpo/+rpnnFqN2iUlIiAB1tDJZsi2ryl8S4UoFSTcEv/VA==}
+  '@ag-grid-community/client-side-row-model@32.3.4':
+    resolution: {integrity: sha512-AZyLSemPyaCJi8wPJ/wvwow6v4MZKMkg9152TameKvaEf+m+N+gWJNKb1dQoqjgWCgEByqvM6SO8dJtYRrdr/A==}
 
-  '@ag-grid-community/core@32.3.3':
-    resolution: {integrity: sha512-JMr5ahDjjl+pvQbBM1/VrfVFlioCVnMl1PKWc6MC1ENhpXT1+CPQdfhUEUw2VytOulQeQ4eeP0pFKPuBZ5Jn2g==}
+  '@ag-grid-community/core@32.3.4':
+    resolution: {integrity: sha512-g1CJOQuA4uRx1U3VP9SZLnTJBYdMwCTM348FsubdI6anaqxnHv3X0kridq9v1v26qXbl7yytm5X3v1hPcV8wVA==}
 
-  '@ag-grid-community/csv-export@32.3.3':
-    resolution: {integrity: sha512-uu5BdegnQCpoySFbhd7n0/yK9mMoepZMN6o36DblPydLXCOLEqOuroIPqQv008slDOK676Pe/O6bMszY3/MUlQ==}
+  '@ag-grid-community/csv-export@32.3.4':
+    resolution: {integrity: sha512-LNVes/iz7y6F3Rbo1kcv/1WbvGTOp5QABPqvkqVEkQd6Fmj7gCkLYjfZ8HVRdcS+IssQq8v0ZLAi/qStC1zAaw==}
 
-  '@ag-grid-community/infinite-row-model@32.3.3':
-    resolution: {integrity: sha512-q1R8gW/JhyjctiMzQcQWed0at8JHHCckoeT1XuD3KSEEKk1+x6fiRLbio05maHkIKYpSaXLLr2w7xEhSgiyk6g==}
+  '@ag-grid-community/infinite-row-model@32.3.4':
+    resolution: {integrity: sha512-GWlUoU9UPGp0ZYdBCiV8R+A/mwdYweoB3HsVOEeQiNZYDC1TQJxiCSKBCCg9qk3KDY+VbJ/6ebV/BUN7cLwIuQ==}
 
-  '@ag-grid-community/react@32.3.3':
-    resolution: {integrity: sha512-YU8nOMZjvJsrbbW41PT1jFZQw67p1RGvTk3W7w1dFmtzXFOoXzpB2pWf2jMxREyLYGvz2P9TwmfeHEM50osSPQ==}
+  '@ag-grid-community/react@32.3.4':
+    resolution: {integrity: sha512-N6t5rA/GjMjNgxMS9dRtHGUSB6o9x5AIFUI1ulbhnzausVWZtv1Ay6t9vy2wRjIWok7zWE6x1LJxuxb625s61A==}
     peerDependencies:
-      '@ag-grid-community/core': 32.3.3
+      '@ag-grid-community/core': 32.3.4
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -2222,6 +2222,9 @@ packages:
 
   ag-charts-types@10.3.3:
     resolution: {integrity: sha512-8rmyquaTkwfP4Lzei/W/cbkq9wwEl8+grIo3z97mtxrMIXh9sHJK1oJipd/u08MmBZrca5Jjtn5F1+UNPu/4fQ==}
+
+  ag-charts-types@10.3.4:
+    resolution: {integrity: sha512-MU+3gvKn1jEyLlMHS0Vu0nHmIQxiVJAnA6ftUatLZvV0c7hOWap4VWghqZ0cVZUJsCdMI59Iuq1u3xquKv4LOQ==}
 
   ag-charts-types@11.1.1:
     resolution: {integrity: sha512-bRmUcf5VVhEEekhX8Vk0NSwa8Te8YM/zchjyYKR2CX4vDYiwoohM1Jg9RFvbIhVbLC1S6QrPEbx5v2C6RDfpSA==}
@@ -5377,29 +5380,29 @@ snapshots:
     optionalDependencies:
       graphql: 16.10.0
 
-  '@ag-grid-community/client-side-row-model@32.3.3':
+  '@ag-grid-community/client-side-row-model@32.3.4':
     dependencies:
-      '@ag-grid-community/core': 32.3.3
+      '@ag-grid-community/core': 32.3.4
       tslib: 2.8.1
 
-  '@ag-grid-community/core@32.3.3':
+  '@ag-grid-community/core@32.3.4':
     dependencies:
-      ag-charts-types: 10.3.3
+      ag-charts-types: 10.3.4
       tslib: 2.8.1
 
-  '@ag-grid-community/csv-export@32.3.3':
+  '@ag-grid-community/csv-export@32.3.4':
     dependencies:
-      '@ag-grid-community/core': 32.3.3
+      '@ag-grid-community/core': 32.3.4
       tslib: 2.8.1
 
-  '@ag-grid-community/infinite-row-model@32.3.3':
+  '@ag-grid-community/infinite-row-model@32.3.4':
     dependencies:
-      '@ag-grid-community/core': 32.3.3
+      '@ag-grid-community/core': 32.3.4
       tslib: 2.8.1
 
-  '@ag-grid-community/react@32.3.3(@ag-grid-community/core@32.3.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@ag-grid-community/react@32.3.4(@ag-grid-community/core@32.3.4)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@ag-grid-community/core': 32.3.3
+      '@ag-grid-community/core': 32.3.4
       prop-types: 15.8.1
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -7139,6 +7142,8 @@ snapshots:
       react: 19.0.0
 
   ag-charts-types@10.3.3: {}
+
+  ag-charts-types@10.3.4: {}
 
   ag-charts-types@11.1.1: {}
 
