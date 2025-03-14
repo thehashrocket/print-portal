@@ -8,13 +8,19 @@ import { Label } from "~/app/_components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/app/_components/ui/card";
 import { Textarea } from "~/app/_components/ui/textarea";
 import dayjs from "dayjs";
-import { SerializedOutsourcedOrderItemInfo } from "~/types/serializedTypes";
+import { SerializedOutsourcedOrderItemInfo, SerializedOutsourcedOrderItemInfoFile } from "~/types/serializedTypes";
+import FileUpload from "~/app/_components/shared/fileUpload";
 
 // Define the props interface
 interface OutsourcedOrderItemInfoProps {
   info?: SerializedOutsourcedOrderItemInfo | null;
   onSave?: (data: OutsourcedOrderItemInfoFormData) => Promise<void>;
   isEditable?: boolean;
+  orderItemId?: string;
+  initialFiles?: SerializedOutsourcedOrderItemInfoFile[];
+  onFileUploaded?: (fileUrl: string, description: string) => Promise<void>;
+  onFileRemoved?: (fileUrl: string) => Promise<void>;
+  onFileDescriptionChanged?: (fileUrl: string, description: string) => Promise<void>;
 }
 
 // Define the form schema
@@ -26,16 +32,35 @@ const outsourcedOrderItemInfoSchema = z.object({
   jobDescription: z.string().optional(),
   orderNumber: z.string().optional(),
   estimatedDeliveryDate: z.string().optional(),
+  files: z.array(z.object({
+    fileUrl: z.string(),
+    description: z.string().optional(),
+  })).optional(),
 });
 
 // Define the form data type
 export type OutsourcedOrderItemInfoFormData = z.infer<typeof outsourcedOrderItemInfoSchema>;
 
-export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable = false }: OutsourcedOrderItemInfoProps) {
+export default function OutsourcedOrderItemInfoForm({ 
+  info, 
+  onSave, 
+  isEditable = false,
+  orderItemId,
+  initialFiles = [],
+  onFileUploaded,
+  onFileRemoved,
+  onFileDescriptionChanged
+}: OutsourcedOrderItemInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [files, setFiles] = useState<{ fileUrl: string; description: string }[]>(
+    initialFiles.map(file => ({
+      fileUrl: file.fileUrl,
+      description: file.description ?? ''
+    }))
+  );
   
   // Initialize the form with the current info data
-  const { register, handleSubmit, control, formState: { errors, isDirty } } = useForm<OutsourcedOrderItemInfoFormData>({
+  const { register, handleSubmit, control, formState: { errors, isDirty }, setValue } = useForm<OutsourcedOrderItemInfoFormData>({
     resolver: zodResolver(outsourcedOrderItemInfoSchema),
     defaultValues: {
       companyName: info?.companyName || "",
@@ -47,6 +72,10 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
       estimatedDeliveryDate: info?.estimatedDeliveryDate 
         ? dayjs(info.estimatedDeliveryDate).format("YYYY-MM-DD")
         : undefined,
+      files: initialFiles.map(file => ({
+        fileUrl: file.fileUrl,
+        description: file.description ?? ''
+      })),
     },
   });
 
@@ -54,8 +83,39 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
   const handleFormSubmit = async (data: OutsourcedOrderItemInfoFormData) => {
     if (onSave) {
       console.log("Saving outsourced order info", data);
-      await onSave(data);
+      await onSave({
+        ...data,
+        files // Include the current files state
+      });
       setIsEditing(false);
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (fileUrl: string, description: string) => {
+    const newFile = { fileUrl, description };
+    setFiles(prev => [...prev, newFile]);
+    setValue('files', [...files, newFile], { shouldDirty: true });
+    if (onFileUploaded) {
+      await onFileUploaded(fileUrl, description);
+    }
+  };
+
+  // Handle file removal
+  const handleFileRemove = async (fileUrl: string) => {
+    setFiles(prev => prev.filter(file => file.fileUrl !== fileUrl));
+    setValue('files', files.filter(file => file.fileUrl !== fileUrl), { shouldDirty: true });
+    if (onFileRemoved) {
+      await onFileRemoved(fileUrl);
+    }
+  };
+
+  // Handle file description change
+  const handleFileDescriptionChange = async (fileUrl: string, description: string) => {
+    setFiles(prev => prev.map(file => file.fileUrl === fileUrl ? { ...file, description } : file));
+    setValue('files', files.map(file => file.fileUrl === fileUrl ? { ...file, description } : file), { shouldDirty: true });
+    if (onFileDescriptionChanged) {
+      await onFileDescriptionChanged(fileUrl, description);
     }
   };
 
@@ -126,6 +186,18 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
                 ? dayjs(info.estimatedDeliveryDate).format("MMMM D, YYYY")
                 : "Not specified"}
             </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Attachments</h3>
+            <div className="mt-1 space-y-2">
+              {info?.files.map(file => (
+                <div key={file.id} className="flex items-center gap-2">
+                  <a href={file.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    {file.description || file.fileUrl.split('/').pop()}
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
         {isEditable && (
@@ -232,6 +304,20 @@ export default function OutsourcedOrderItemInfoForm({ info, onSave, isEditable =
               <p className="text-sm text-red-500">{errors.estimatedDeliveryDate.message}</p>
             )}
           </div>
+
+          {/* Add FileUpload component */}
+          {isEditable && (
+            <div className="space-y-2">
+              <Label>Attachments</Label>
+              <FileUpload
+                workOrderItemId={orderItemId}
+                initialFiles={files}
+                onFileUploaded={handleFileUpload}
+                onFileRemoved={handleFileRemove}
+                onDescriptionChanged={handleFileDescriptionChange}
+              />
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>

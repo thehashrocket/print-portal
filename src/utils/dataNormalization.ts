@@ -28,6 +28,7 @@ import {
     type Prisma,
     type PaperProduct,
     type ProductType,
+    OutsourcedOrderItemInfoFile,
 } from "@prisma/client";
 
 import {
@@ -58,7 +59,8 @@ import {
     type SerializedProductType,
     type SerializedWalkInCustomer,
     type SerializedOffice,
-    SerializedOutsourcedOrderItemInfo
+    SerializedOutsourcedOrderItemInfo,
+    SerializedOutsourcedOrderItemInfoFile
 } from "~/types/serializedTypes";
 
 export function normalizeAddress(address: Address): SerializedAddress {
@@ -355,7 +357,9 @@ export function normalizeOrderItemArtwork(artwork: OrderItemArtwork): Serialized
     };
 }
 
-export function normalizeOutsourcedOrderItemInfo(info: OutsourcedOrderItemInfo): SerializedOutsourcedOrderItemInfo {
+export function normalizeOutsourcedOrderItemInfo(info: OutsourcedOrderItemInfo & {
+    files?: OutsourcedOrderItemInfoFile[];
+}): SerializedOutsourcedOrderItemInfo {
     return {
         id: info.id,
         orderItemId: info.orderItemId,
@@ -366,10 +370,19 @@ export function normalizeOutsourcedOrderItemInfo(info: OutsourcedOrderItemInfo):
         jobDescription: info.jobDescription ?? "",
         orderNumber: info.orderNumber ?? "",
         estimatedDeliveryDate: info.estimatedDeliveryDate?.toISOString() ?? null,
+        files: info.files?.map(normalizeOutsourcedOrderItemInfoFile) ?? [],
     };
 }
 
-
+export function normalizeOutsourcedOrderItemInfoFile(file: OutsourcedOrderItemInfoFile): SerializedOutsourcedOrderItemInfoFile {
+    return {
+        id: file.id,
+        fileUrl: file.fileUrl,
+        description: file.description ?? "",
+        createdAt: file.createdAt.toISOString(),
+        updatedAt: file.updatedAt.toISOString(),
+    };
+}
 export function normalizeOrderItemStock(stock: OrderItemStock & {
     PaperProduct?: PaperProduct | null;
 }): SerializedOrderItemStock {

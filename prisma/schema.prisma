@@ -290,6 +290,17 @@ model OutsourcedOrderItemInfo {
   updatedAt             DateTime  @updatedAt
   orderItem             OrderItem @relation(fields: [orderItemId], references: [id])
   createdBy             User      @relation(fields: [createdById], references: [id])
+  files                 OutsourcedOrderItemInfoFile[]
+}
+
+model OutsourcedOrderItemInfoFile {
+  id String @id @default(uuid())
+  fileUrl String
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  outsourcedOrderItemInfoId String
+  outsourcedOrderItemInfo OutsourcedOrderItemInfo @relation(fields: [outsourcedOrderItemInfoId], references: [id])
 }
 
 model PaperProduct {

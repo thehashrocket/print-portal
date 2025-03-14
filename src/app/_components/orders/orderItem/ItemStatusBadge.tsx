@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";
 
 
-const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string }> = ({ id, status, orderId }) => {
+const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: string, onUpdate: () => void }> = ({ id, status, orderId, onUpdate }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
 
@@ -14,6 +14,7 @@ const ItemStatusBadge: React.FC<{ id: string, status: OrderItemStatus, orderId: 
             console.log('data', data);
             utils.orders.getByID.invalidate(orderId);
             toast.success('Status updated successfully', { duration: 4000, position: 'top-right' });
+            onUpdate();
         },
         onError: (error) => {
             console.error('Failed to update status:', error);

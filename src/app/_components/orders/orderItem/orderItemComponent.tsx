@@ -36,13 +36,17 @@ type OrderItemPageProps = {
 
 // Define the form schema to match OutsourcedOrderItemInfoForm
 const outsourcedOrderItemInfoSchema = z.object({
-  companyName: z.string().min(1, "Company name is required"),
-  contactName: z.string().min(1, "Contact name is required"),
-  contactPhone: z.string().min(1, "Contact phone is required"),
-  contactEmail: z.string().optional(),
-  jobDescription: z.string().optional(),
-  orderNumber: z.string().optional(),
-  estimatedDeliveryDate: z.string().optional(),
+    companyName: z.string().min(1, "Company name is required"),
+    contactName: z.string().min(1, "Contact name is required"),
+    contactPhone: z.string().min(1, "Contact phone is required"),
+    contactEmail: z.string().optional(),
+    jobDescription: z.string().optional(),
+    orderNumber: z.string().optional(),
+    estimatedDeliveryDate: z.string().optional(),
+    files: z.array(z.object({
+        fileUrl: z.string(),
+        description: z.string().optional(),
+    })).optional(),
 });
 
 // Define the form data type
@@ -90,6 +94,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [jobDescription, setJobDescription] = useState("");
     const [specialInstructions, setSpecialInstructions] = useState("");
     const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
+    const [localOutsourcedFiles, setLocalOutsourcedFiles] = useState<{ fileUrl: string; description: string }[]>([]);
     const [editingField, setEditingField] = useState<string | null>(null);
     const [tempQuantity, setTempQuantity] = useState<number>(0);
     const [tempInk, setTempInk] = useState<string>("");
@@ -243,10 +248,26 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 contactEmail: data.contactEmail || "",
                 jobDescription: data.jobDescription || "",
                 orderNumber: data.orderNumber || "",
-                estimatedDeliveryDate: data.estimatedDeliveryDate ? new Date(data.estimatedDeliveryDate) : new Date()
+                estimatedDeliveryDate: data.estimatedDeliveryDate ? new Date(data.estimatedDeliveryDate) : new Date(),
+                files: localOutsourcedFiles
             }
         });
         return Promise.resolve();
+    };
+
+    const handleFileUploaded = (fileUrl: string, description: string) => {
+        console.log("File uploaded", fileUrl, description);
+        setLocalOutsourcedFiles([...localOutsourcedFiles, { fileUrl, description }]);
+    };
+
+    const handleFileRemoved = (fileUrl: string) => {
+        console.log("File removed", fileUrl);
+        setLocalOutsourcedFiles(localOutsourcedFiles.filter(file => file.fileUrl !== fileUrl));
+    };
+
+    const handleFileDescriptionChanged = (fileUrl: string, description: string) => {
+        console.log("File description changed", fileUrl, description);
+        setLocalOutsourcedFiles(localOutsourcedFiles.map(file => file.fileUrl === fileUrl ? { ...file, description } : file));
     };
 
     const updateJobDescription = () => {
@@ -270,7 +291,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     }
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
-    
+
     let orderPaperProducts: any[] = [];
     if (orderItemStocks) {
         // Build a list of paper products
@@ -485,6 +506,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     id={orderItem.id}
                                     status={orderItem.status}
                                     orderId={orderItem.orderId}
+                                    onUpdate={() => {
+                                        utils.orderItems.getByID.invalidate(orderItemId);
+                                    }}
                                 />
                             }
                         />
@@ -493,7 +517,22 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     {orderItem.status === OrderItemStatus.Outsourced && (
                         <div className="mb-6">
                             <h2 className="text-xl font-semibold text-gray-700 mb-2">Outsourced Order Item Info</h2>
-                            <OutsourcedOrderItemInfoForm info={orderItem.OutsourcedOrderItemInfo} onSave={handleOusourcedOrderItemSave} isEditable={true} />
+                            <OutsourcedOrderItemInfoForm
+                                info={orderItem.OutsourcedOrderItemInfo}
+                                onSave={handleOusourcedOrderItemSave}
+                                isEditable={true}
+                                orderItemId={orderItem.id}
+                                initialFiles={orderItem.OutsourcedOrderItemInfo?.files || []}
+                                onFileUploaded={async (fileUrl: string, description: string) => {
+                                    await handleFileUploaded(fileUrl, description);
+                                }}
+                                onFileRemoved={async (fileUrl: string) => {
+                                    await handleFileRemoved(fileUrl);
+                                }}
+                                onFileDescriptionChanged={async (fileUrl: string, description: string) => {
+                                    await handleFileDescriptionChanged(fileUrl, description);
+                                }}
+                            />
                         </div>
                     )}
 

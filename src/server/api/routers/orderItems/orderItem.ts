@@ -20,7 +20,11 @@ export const orderItemRouter = createTRPCRouter({
                 include: {
                     artwork: true,
                     OrderItemStock: true,
-                    OutsourcedOrderItemInfo: true,
+                    OutsourcedOrderItemInfo: {
+                        include: {
+                            files: true,
+                        },
+                    },
                     ProductType: true,
                     Order: {
                         include: {
@@ -605,6 +609,10 @@ export const orderItemRouter = createTRPCRouter({
                 jobDescription: z.string().optional(),
                 orderNumber: z.string().optional(),
                 estimatedDeliveryDate: z.date().optional(),
+                files: z.array(z.object({
+                    fileUrl: z.string(),
+                    description: z.string().optional(),
+                })).optional(),
             })
         }))
         .mutation(async ({ ctx, input }) => {
@@ -612,7 +620,11 @@ export const orderItemRouter = createTRPCRouter({
             const existingOutsourcedInfo = await ctx.db.orderItem.findUnique({
                 where: { id: input.id },
                 include: {
-                    OutsourcedOrderItemInfo: true,
+                    OutsourcedOrderItemInfo: {
+                        include: {
+                            files: true,
+                        },
+                    },
                 },
             });
 
@@ -620,7 +632,12 @@ export const orderItemRouter = createTRPCRouter({
                 // Update the existing OutsourcedOrderItemInfo
                 return ctx.db.outsourcedOrderItemInfo.update({
                     where: { id: existingOutsourcedInfo.OutsourcedOrderItemInfo[0].id },
-                    data: input.data,
+                    data: {
+                        ...input.data,
+                        files: {
+                            create: input.data.files,
+                        },
+                    },
                 });
             }
 
@@ -630,6 +647,9 @@ export const orderItemRouter = createTRPCRouter({
                     ...input.data,
                     orderItemId: input.id,
                     createdById: ctx.session.user.id,
+                    files: {
+                        create: input.data.files,
+                    },
                 },
             });
         }),

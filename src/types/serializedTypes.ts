@@ -229,6 +229,15 @@ export interface SerializedOutsourcedOrderItemInfo {
     jobDescription: string;
     orderNumber: string;
     estimatedDeliveryDate: string | null;
+    files: SerializedOutsourcedOrderItemInfoFile[];
+}
+
+export interface SerializedOutsourcedOrderItemInfoFile {
+    id: string;
+    fileUrl: string;
+    description: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 export interface SerializedOrderItemStock {
     costPerM: string;
