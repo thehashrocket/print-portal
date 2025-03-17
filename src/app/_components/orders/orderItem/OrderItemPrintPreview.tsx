@@ -108,7 +108,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
         </div>
 
         {/* Right Column: Item Details */}
-        <div className="flex flex-col">
+        <div className="flex flex-col w-1/2">
           <h2 className="text-3xl font-bold text-green-700">Item Details</h2>
           <div className="flex">
             <p className="w-32 font-bold">P.O. Number</p>
@@ -174,7 +174,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           )}
         </div>
         {/* Paper Stock, Special Instructions, and Project Description Section */}
-        <div className='flex flex-col'>
+        <div className='flex flex-col w-1/2'>
           {orderPaperProducts && orderPaperProducts.length > 0 && (
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-bold">Paper Stock</h2>
@@ -253,7 +253,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
             </div>
           </div>
         </div>
-        <div className='flex flex-col'>
+        <div className='flex flex-col w-1/2'>
           {/* Bindery Options Section */}
           {processingOptions?.length > 0 && (
             <div className="avoid-break">
@@ -263,7 +263,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                   {index > 0 && (
                     <h3 className="font-bold mb-2">Option Set {index + 1}</h3>
                   )}
-                  <div className="grid grid-cols-2">
+                  <div className="flex flex-col gap-1">
                     <div className="">
                       {/* Basic Options */}
                       {options.cutting && (
@@ -306,13 +306,13 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                     </div>
                     <div className="">
                       {/* Numbering Options */}
-                      {options.numberingStart && (
+                      {(options.numberingStart !== null && options.numberingStart !== undefined) && (
                         <div className="flex">
                           <p className="w-32 font-bold">Numbering Start</p>
                           <p>{options.numberingStart}</p>
                         </div>
                       )}
-                      {options.numberingEnd && (
+                      {(options.numberingEnd !== null && options.numberingEnd !== undefined) && (
                         <div className="flex">
                           <p className="w-32 font-bold">Numbering End</p>
                           <p>{options.numberingEnd}</p>
@@ -324,7 +324,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                           <p>{options.numberingColor}</p>
                         </div>
                       )}
-                      {options.binderyTime && (
+                      {(options.binderyTime !== null && options.binderyTime !== undefined) && (
                         <div className="flex">
                           <p className="w-32 font-bold">Bindery Time</p>
                           <p>{options.binderyTime}</p>
