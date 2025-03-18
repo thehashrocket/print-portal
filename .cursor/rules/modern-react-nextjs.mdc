@@ -294,6 +294,10 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 - Prefer const arrow functions over function declarations
 - Keep components focused and single-responsibility
 - Implement proper TypeScript interfaces
+- Utilize shadcn (not shadcn-ui) components
+- Utilize react-hooks-forms and zod when building forms.
+- When possible, break larger components into smaller components.
+- Comment components regarding their purpose and file path.
 
 ### Accessibility
 - Use semantic HTML elements
@@ -316,18 +320,14 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 ### Performance
 - Use proper image optimization
 - Implement proper loading states
-- Use proper caching strategies
-- Optimize bundle size
-
-### Code Organization
-- Separate types into dedicated files
+-strdleionype files
 - Use proper file naming conventions
 - Implement proper imports
 - Maintain consistent structure
 
 ## Resources
-- [React Documentation](mdc:https:/react.dev)
-- [Next.js Documentation](mdc:https:/nextjs.org/docs)
-- [TypeScript Documentation](mdc:https:/www.typescriptlang.org/docs)
-- [Tailwind CSS](mdc:https:/tailwindcss.com/docs)
-- [WCAG Guidelines](mdc:https:/www.w3.org/WAI/standards-guidelines/wcag)
+- @React Documentation
+- @Next.js Documentation
+- @TypeScript Documentation
+- @Tailwind CSS
+- @WCAG Guidelines
