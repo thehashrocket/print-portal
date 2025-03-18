@@ -80,7 +80,7 @@
     "formidable": "^3.5.2",
     "iconv-lite": "^0.6.3",
     "intuit-oauth": "^4.2.0",
-    "jspdf": "^2.5.2",
+    "jspdf": "^3.0.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.477.0",
     "next": "^15.2.2",
