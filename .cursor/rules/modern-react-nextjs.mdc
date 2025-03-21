@@ -1,45 +1,44 @@
 ---
-description: Best practices for modern React and Next.js development with TypeScript, Tailwind CSS, and accessibility
-globs: **/*.{ts,tsx}, **/components/**/*, **/hooks/**/*, **/lib/**/*
+description: 
+globs: *.tsx,*.ts,**/app/**,**/components/**
 alwaysApply: false
 ---
 
 # Modern React Next.js
 
-// Description: Best practices for modern React and Next.js development with TypeScript, Tailwind CSS, and accessibility
-// Recommended Globs: **/*.{ts,tsx}, **/components/**/*, **/hooks/**/*, **/lib/**/*
+// Description: Best practices for modern NextJS/React web development using Tailwind, React, and Postgres
+// Recommended Globs: **/*.{ts,tsx}, **/app/**/*, **/components/**/*, **/lib/**/*
 
 ## Project Structure
 ```
 src/
+  app/
+    (auth)/
+      login/
+        page.tsx
+      register/
+        page.tsx
+    (dashboard)/
+      layout.tsx
+      page.tsx
+    api/
+      route.ts
   components/
     ui/
-      button/
-        button.tsx
-        types.ts
-      card/
-        card.tsx
-        types.ts
-    features/
-      product-card/
-        product-card.tsx
-        types.ts
-        use-product.ts
-    layout/
-      header/
-        header.tsx
-        nav-menu.tsx
-  hooks/
-    use-keyboard.ts
-    use-intersection.ts
+      button.tsx
+      card.tsx
+    auth-wizard/
+      auth-form.tsx
+      password-input.tsx
+    dashboard/
+      stats-card.tsx
   lib/
-    utils/
-      cn.ts
-      format.ts
-    constants/
-      routes.ts
+    utils.ts
+    constants.ts
   types/
     index.ts
+  styles/
+    globals.css
 ```
 
 ## Component Structure
@@ -320,14 +319,20 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
 ### Performance
 - Use proper image optimization
 - Implement proper loading states
--strdleionype files
+- Use proper caching strategies
+- Optimize bundle size
+
+### Code Organization
+- Separate types into dedicated files
 - Use proper file naming conventions
 - Implement proper imports
 - Maintain consistent structure
 
 ## Resources
-- @React Documentation
-- @Next.js Documentation
-- @TypeScript Documentation
-- @Tailwind CSS
+- [React Documentation](mdc:https:/react.dev) https://react.dev/reference/react
+- [Next.js Documentation](mdc:https:/nextjs.org/docs) https://nextjs.org/docs
+- [TypeScript Documentation](mdc:https:/www.typescriptlang.org/docs) https://www.typescriptlang.org/docs/
+- [Tailwind CSS](mdc:https:/tailwindcss.com/docs) https://tailwindcss.com/docs
+- Lucide-React for icons
+- @Shadcn UI - Use shadcn@latest instead of shadcn-ui@latest
 - @WCAG Guidelines

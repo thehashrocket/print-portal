@@ -4,7 +4,7 @@ import React from 'react';
 import { SerializedOrderItem, SerializedOrder, SerializedShippingInfo, SerializedTypesetting, SerializedOrderItemStock, SerializedProcessingOptions } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '~/app/_components/ui/button';
-import { ShippingMethod } from '@prisma/client';
+import { OrderItemStatus, ShippingMethod } from '@prisma/client';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -70,6 +70,12 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
             <p className="w-32 text-xl font-bold">Status</p>
             <p className="text-xl">{orderItem.status}</p>
           </div>
+          {orderItem.status === OrderItemStatus.Outsourced && (
+            <div className="flex flex-row gap-1">
+              <p className="w-32 text-xl font-bold">Outsourced</p>
+              <p className="text-xl">{orderItem.OutsourcedOrderItemInfo?.companyName}</p>
+            </div>
+          )}
         </div>
       </div>
       {/* Row 2: Contact Information and Item Details */}
