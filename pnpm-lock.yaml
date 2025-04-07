@@ -41,7 +41,7 @@ importers:
         version: 1.8.4(@types/react@19.0.3)(graphql@16.10.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@copilotkit/runtime':
         specifier: ^1.8.4
-        version: 1.8.4(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(axios@1.8.4)(fast-xml-parser@4.5.3)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(playwright@1.50.1)(ws@8.18.1)
+        version: 1.8.4(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(axios@1.8.4)(fast-xml-parser@5.2.0)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(playwright@1.50.1)(ws@8.18.1)
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.55.0(react@19.1.0))
@@ -139,8 +139,8 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0
       fast-xml-parser:
-        specifier: ^4.5.3
-        version: 4.5.3
+        specifier: ^5.2.0
+        version: 5.2.0
       formidable:
         specifier: ^3.5.2
         version: 3.5.2
@@ -269,8 +269,8 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1
       daisyui:
-        specifier: 5.0.13
-        version: 5.0.13
+        specifier: 5.0.0-beta.2
+        version: 5.0.0-beta.2
       esbuild:
         specifier: ^0.25.2
         version: 0.25.2
@@ -2767,8 +2767,8 @@ packages:
     resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
     engines: {node: '>=12'}
 
-  daisyui@5.0.13:
-    resolution: {integrity: sha512-ZYQgZhfMqyFNh4aIzcsILzuErBbp1/tfUIs18/D3oKuJgmfiuPf1KUZzvoGjc8f2/JK0LWZh+BAYSVtWZq2awQ==}
+  daisyui@5.0.0-beta.2:
+    resolution: {integrity: sha512-H1gXtcQhjcKze3UBq23dJUyKYIxHrVIKb6XtDfnSh6Ft4d0BMfPOwuvzIsuEe5PkbBm9kZH0ny+aQqiDosqpPQ==}
 
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -3172,8 +3172,8 @@ packages:
   fast-text-encoding@1.0.6:
     resolution: {integrity: sha512-VhXlQgj9ioXCqGstD37E/HBeqEGV/qOD/kmbVG8h5xKBYvM1L3lR1Zn4555cQ8GkYbJa8aJSipLPndE1k6zK2w==}
 
-  fast-xml-parser@4.5.3:
-    resolution: {integrity: sha512-RKihhV+SHsIUGXObeVy9AXiBbFwkVk7Syp8XgwN5U3JV416+Gwp/GO9i0JYKmikykgz/UHRrrV4ROuZEo/T0ig==}
+  fast-xml-parser@5.2.0:
+    resolution: {integrity: sha512-Uw9+Mjt4SBRud1IcaYuW/O0lW8SKKdMl5g7g24HiIuyH5fQSD+AVLybSlJtqLYEbytVFjWQa5DMGcNgeksdRBg==}
     hasBin: true
 
   fastq@1.19.1:
@@ -5037,8 +5037,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  strnum@1.1.2:
-    resolution: {integrity: sha512-vrN+B7DBIoTTZjnPNewwhx6cBA/H+IS7rfW68n7XxC1y7uoiGQBxaKzqucGUgavX15dJgiGztLJ8vxuEzwqBdA==}
+  strnum@2.0.5:
+    resolution: {integrity: sha512-YAT3K/sgpCUxhxNMrrdhtod3jckkpYwH6JAuwmUdXZsmzH1wUyzTMrrK2wYCEEqlKwrWDd35NeuUkbBy/1iK+Q==}
 
   strtok3@6.3.0:
     resolution: {integrity: sha512-fZtbhtvI9I48xDSywd/somNqgUHl2L2cstmXCCif0itOf96jeW18MBSyrLuNicYQVkvpOxkZtkzujiTJ9LW5Jw==}
@@ -5625,12 +5625,12 @@ snapshots:
       - encoding
       - graphql
 
-  '@copilotkit/runtime@1.8.4(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(axios@1.8.4)(fast-xml-parser@4.5.3)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(playwright@1.50.1)(ws@8.18.1)':
+  '@copilotkit/runtime@1.8.4(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(axios@1.8.4)(fast-xml-parser@5.2.0)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(playwright@1.50.1)(ws@8.18.1)':
     dependencies:
       '@anthropic-ai/sdk': 0.27.3
       '@copilotkit/shared': 1.8.4
       '@graphql-yoga/plugin-defer-stream': 3.13.2(graphql-yoga@5.13.2(graphql@16.10.0))(graphql@16.10.0)
-      '@langchain/community': 0.3.39(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(fast-xml-parser@4.5.3)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.1)
+      '@langchain/community': 0.3.39(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(fast-xml-parser@5.2.0)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.1)
       '@langchain/core': 0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))
       '@langchain/google-gauth': 0.1.8(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2)
       '@langchain/langgraph-sdk': 0.0.36
@@ -6180,7 +6180,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@langchain/community@0.3.39(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(fast-xml-parser@4.5.3)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.1)':
+  '@langchain/community@0.3.39(@browserbasehq/sdk@2.5.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(fast-xml-parser@5.2.0)(google-auth-library@8.9.0)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.1)':
     dependencies:
       '@browserbasehq/stagehand': 1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.92.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
       '@ibm-cloud/watsonx-ai': 1.5.0(@langchain/core@0.3.43(openai@4.92.0(ws@8.18.1)(zod@3.24.2)))
@@ -6199,7 +6199,7 @@ snapshots:
       zod-to-json-schema: 3.24.5(zod@3.24.2)
     optionalDependencies:
       '@browserbasehq/sdk': 2.5.0
-      fast-xml-parser: 4.5.3
+      fast-xml-parser: 5.2.0
       google-auth-library: 8.9.0
       ignore: 5.3.2
       jsonwebtoken: 9.0.2
@@ -7493,7 +7493,7 @@ snapshots:
   axios@1.7.9(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
-      form-data: 4.0.0
+      form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -7804,7 +7804,7 @@ snapshots:
 
   d3-timer@3.0.1: {}
 
-  daisyui@5.0.13: {}
+  daisyui@5.0.0-beta.2: {}
 
   damerau-levenshtein@1.0.8: {}
 
@@ -8360,9 +8360,9 @@ snapshots:
 
   fast-text-encoding@1.0.6: {}
 
-  fast-xml-parser@4.5.3:
+  fast-xml-parser@5.2.0:
     dependencies:
-      strnum: 1.1.2
+      strnum: 2.0.5
 
   fastq@1.19.1:
     dependencies:
@@ -10482,7 +10482,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  strnum@1.1.2: {}
+  strnum@2.0.5: {}
 
   strtok3@6.3.0:
     dependencies:
@@ -10943,10 +10943,6 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
-
-  zod-to-json-schema@3.24.5(zod@3.24.2):
-    dependencies:
-      zod: 3.24.2
 
   zod-to-json-schema@3.24.5(zod@3.24.2):
     dependencies:
