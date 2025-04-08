@@ -514,7 +514,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                         />
                     </div>
                     {/* Outsourced Order Item Info Section - Show if orderItem.status is Outsourced */}
-                    {orderItem.status === OrderItemStatus.Outsourced && (
+                    {(orderItem.status === OrderItemStatus.Outsourced || orderItem.OutsourcedOrderItemInfo != null) && (
                         <div className="mb-6">
                             <h2 className="text-xl font-semibold text-gray-700 mb-2">Outsourced Order Item Info</h2>
                             <OutsourcedOrderItemInfoForm
