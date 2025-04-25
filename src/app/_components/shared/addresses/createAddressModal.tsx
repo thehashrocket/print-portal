@@ -73,105 +73,107 @@ export const CreateAddressModal: React.FC<CreateAddressModalProps> = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create New Address</DialogTitle>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[425px] md:max-w-[600px] p-4 sm:p-6">
+                <DialogHeader className="mb-4">
+                    <DialogTitle className="text-xl font-semibold">Create New Address</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div>
-                        <Label htmlFor="name" className='flex gap-1'>
-                            Name
-                        </Label>
-                        <Input {...register('name')} />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="name" className='flex gap-1'>
+                                Name
+                            </Label>
+                            <Input {...register('name')} className="w-full" />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="line1" className='flex gap-1'>
+                                Address Line 1
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('line1')} className="w-full" />
+                            {errors.line1 && <p className="text-sm text-red-500">{errors.line1.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="line2">Address Line 2</Label>
+                            <Input {...register('line2')} className="w-full" />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="line3">Address Line 3</Label>
+                            <Input {...register('line3')} className="w-full" />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="line4">Address Line 4</Label>
+                            <Input {...register('line4')} className="w-full" />
+                        </div>
+
+                        <div className="sm:col-span-1">
+                            <Label htmlFor="city" className='flex gap-1'>
+                                City
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('city')} className="w-full" />
+                            {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-1">
+                            <Label htmlFor="state" className='flex gap-1'>
+                                State
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('state')} className="w-full" />
+                            {errors.state && <p className="text-sm text-red-500">{errors.state.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-1">
+                            <Label htmlFor="zipCode" className='flex gap-1'>
+                                Zip Code
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('zipCode')} className="w-full" />
+                            {errors.zipCode && <p className="text-sm text-red-500">{errors.zipCode.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-1">
+                            <Label htmlFor="country" className='flex gap-1'>
+                                Country
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('country')} className="w-full" />
+                            {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="telephoneNumber" className='flex gap-1'>
+                                Telephone Number
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <Input {...register('telephoneNumber')} className="w-full" />
+                            {errors.telephoneNumber && <p className="text-sm text-red-500">{errors.telephoneNumber.message}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="addressType" className='flex gap-1'>
+                                Address Type
+                                <span className='text-red-500'>*</span>
+                            </Label>
+                            <SelectField
+                                options={Object.values(AddressType).map(type => ({
+                                    value: type,
+                                    label: type
+                                }))}
+                                value={watch('addressType')}
+                                onValueChange={(value) => setValue('addressType', value as AddressType)}
+                                placeholder="Select address type..."
+                            />
+                            {errors.addressType && <p className="text-sm text-red-500">{errors.addressType.message}</p>}
+                        </div>
                     </div>
 
-                    <div>
-                        <Label htmlFor="line1" className='flex gap-1'>
-                            Address Line 1
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('line1')} />
-                        {errors.line1 && <p className="text-sm text-red-500">{errors.line1.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="line2">Address Line 2</Label>
-                        <Input {...register('line2')} />
-                    </div>
-
-                    <div>
-                        <Label htmlFor="line3">Address Line 3</Label>
-                        <Input {...register('line3')} />
-                    </div>
-
-                    <div>
-                        <Label htmlFor="line4">Address Line 4</Label>
-                        <Input {...register('line4')} />
-                    </div>
-
-                    <div>
-                        <Label htmlFor="city" className='flex gap-1'>
-                            City
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('city')} />
-                        {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="state" className='flex gap-1'>
-                            State
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('state')} />
-                        {errors.state && <p className="text-sm text-red-500">{errors.state.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="zipCode" className='flex gap-1'>
-                            Zip Code
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('zipCode')} />
-                        {errors.zipCode && <p className="text-sm text-red-500">{errors.zipCode.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="country" className='flex gap-1'>
-                            Country
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('country')} />
-                        {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="telephoneNumber" className='flex gap-1'>
-                            Telephone Number
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <Input {...register('telephoneNumber')} />
-                        {errors.telephoneNumber && <p className="text-sm text-red-500">{errors.telephoneNumber.message}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="addressType" className='flex gap-1'>
-                            Address Type
-                            <span className='text-red-500'>*</span>
-                        </Label>
-                        <SelectField
-                            options={Object.values(AddressType).map(type => ({
-                                value: type,
-                                label: type
-                            }))}
-                            value={watch('addressType')}
-                            onValueChange={(value) => setValue('addressType', value as AddressType)}
-                            placeholder="Select address type..."
-                        />
-                        {errors.addressType && <p className="text-sm text-red-500">{errors.addressType.message}</p>}
-                    </div>
-
-                    <div className="flex justify-end gap-4">
+                    <div className="flex justify-end gap-4 pt-4 mt-6 border-t">
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
