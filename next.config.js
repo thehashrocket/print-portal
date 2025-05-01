@@ -7,7 +7,7 @@ await import("./src/env.js");
 /** @type {import("next").NextConfig} */
 const config = {
     reactStrictMode: true,
-    allowedDevOrigins: ["http://localhost:3005", "http://localhost:3000", "https://print-portal.1905newmedia.com", "https://client-frontend.ngrok.io", "https://placedog.net"],
+    allowedDevOrigins: ["http://localhost:3005", "http://localhost:3000", "https://print-portal.1905newmedia.com", "https://client-frontend.ngrok.io", "https://placedog.net", '*.ngrok.io', '*.ngrok-free.app'],
     images: {
         remotePatterns: [
             {
@@ -21,6 +21,14 @@ const config = {
             },
             {
                 hostname: "placedog.net",
+            },
+            {
+                protocol: 'https',
+                hostname: '*.ngrok.io',
+            },
+            {
+                protocol: 'https',
+                hostname: '*.ngrok-free.app',
             },
         ],
     },
