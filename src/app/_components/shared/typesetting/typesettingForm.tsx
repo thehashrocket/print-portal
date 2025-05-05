@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
@@ -60,7 +60,7 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
     const [error, setError] = useState<string | null>(null);
 
     const { register, handleSubmit, setValue, formState: { errors, isSubmitting }, watch } = useForm<TypesettingFormData>({
-        resolver: zodResolver(typesettingFormSchema),
+        resolver: zodResolver(typesettingFormSchema) as any,
         defaultValues: typesetting ? {
             ...typesetting,
             cost: typesetting.cost !== null ? new Decimal(typesetting.cost).toNumber() : 0,
@@ -114,13 +114,13 @@ export function TypesettingForm({ typesetting, orderItemId, workOrderItemId, onS
         };
 
         if (isAddMode) {
-            createTypesetting.mutate(formattedData);
+            createTypesetting.mutate(formattedData as any);
         } else {
             const updateData = {
                 ...formattedData,
                 id: data.id || '',
             };
-            updateTypesetting.mutate(updateData);
+            updateTypesetting.mutate(updateData as any);
         }
     });
 

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
@@ -51,11 +51,12 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     isTemporary = false
 }) => {
     const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
-        resolver: zodResolver(workOrderItemStockSchema),
+        resolver: zodResolver(workOrderItemStockSchema) as any,
         defaultValues: {
             workOrderItemId,
             received: false,
             stockStatus: StockStatus.OnHand,
+            costPerM: 0,
         },
     });
 
@@ -123,7 +124,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
         }
     }, [existingStock, reset]);
 
-    const onSubmit = (data: WorkOrderItemStockFormData) => {
+    const onSubmit: SubmitHandler<WorkOrderItemStockFormData> = (data) => {
         const formattedData = {
             ...data,
             expectedDate: data.expectedDate ? new Date(data.expectedDate + 'T12:00:00') : undefined,

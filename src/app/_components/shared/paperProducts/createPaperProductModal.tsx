@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PaperBrand, PaperType, PaperFinish } from "@prisma/client";
@@ -37,12 +37,17 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
     onClose,
     onPaperProductCreated,
 }) => {
-    const [selectedBrand, setSelectedBrand] = useState("");
-    const [selectedPaperType, setSelectedPaperType] = useState("");
-    const [selectedFinish, setSelectedFinish] = useState("");
+    const [selectedBrand, setSelectedBrand] = useState<PaperBrand>(PaperBrand.BlazerDigital);
+    const [selectedPaperType, setSelectedPaperType] = useState<PaperType>(PaperType.Book);
+    const [selectedFinish, setSelectedFinish] = useState<PaperFinish>(PaperFinish.Gloss);
 
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<CreatePaperProductFormData>({
-        resolver: zodResolver(createPaperProductSchema),
+        resolver: zodResolver(createPaperProductSchema) as any,
+        defaultValues: {
+            brand: PaperBrand.BlazerDigital,
+            paperType: PaperType.Book,
+            finish: PaperFinish.Gloss
+        }
     });
 
     const createPaperProduct = api.paperProducts.create.useMutation({
@@ -50,9 +55,9 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
             onPaperProductCreated({ id: paperProduct.id });
             onClose();
             reset();
-            setSelectedBrand("");
-            setSelectedPaperType("");
-            setSelectedFinish("");
+            setSelectedBrand(PaperBrand.BlazerDigital);
+            setSelectedPaperType(PaperType.Book);
+            setSelectedFinish(PaperFinish.Gloss);
             toast.success("Paper product created successfully");
         },
         onError: (error) => {
@@ -62,9 +67,9 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
 
     const handleClose = () => {
         reset();
-        setSelectedBrand("");
-        setSelectedPaperType("");
-        setSelectedFinish("");
+        setSelectedBrand(PaperBrand.BlazerDigital);
+        setSelectedPaperType(PaperType.Book);
+        setSelectedFinish(PaperFinish.Gloss);
         onClose();
     };
 
@@ -86,7 +91,7 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
                                     }))}
                                     value={selectedBrand}
                                     onValueChange={(value) => {
-                                        setSelectedBrand(value);
+                                        setSelectedBrand(value as PaperBrand);
                                         setValue("brand", value as PaperBrand);
                                     }}
                                     placeholder="Select brand"
@@ -103,7 +108,7 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
                                     }))}
                                     value={selectedPaperType}
                                     onValueChange={(value) => {
-                                        setSelectedPaperType(value);
+                                        setSelectedPaperType(value as PaperType);
                                         setValue("paperType", value as PaperType);
                                     }}
                                     placeholder="Select paper type"
@@ -120,7 +125,7 @@ export const CreatePaperProductModal: React.FC<CreatePaperProductModalProps> = (
                                     }))}
                                     value={selectedFinish}
                                     onValueChange={(value) => {
-                                        setSelectedFinish(value);
+                                        setSelectedFinish(value as PaperFinish);
                                         setValue("finish", value as PaperFinish);
                                     }}
                                     placeholder="Select finish"

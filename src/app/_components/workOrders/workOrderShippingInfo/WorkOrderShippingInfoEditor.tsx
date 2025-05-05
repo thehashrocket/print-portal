@@ -71,7 +71,7 @@ export const WorkOrderShippingInfoEditor: React.FC<WorkOrderShippingInfoEditorPr
     });
 
     const { control, register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<ShippingInfoFormData>({
-        resolver: zodResolver(shippingInfoSchema),
+        resolver: zodResolver(shippingInfoSchema) as any,
         defaultValues: {
             addressId: currentShippingInfo?.addressId ?? undefined,
             instructions: currentShippingInfo?.instructions ?? undefined,

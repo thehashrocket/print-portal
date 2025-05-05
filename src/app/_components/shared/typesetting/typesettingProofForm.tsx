@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
@@ -32,7 +32,13 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
     onCancel: () => void;
 }) {
     const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<TypesettingProofFormData>({
-        resolver: zodResolver(typesettingProofFormSchema),
+        resolver: zodResolver(typesettingProofFormSchema) as any,
+        defaultValues: {
+            proofCount: 0,
+            proofMethod: ProofMethod.Digital,
+            approved: false,
+            dateSubmitted: new Date().toISOString().split('T')[0],
+        }
     });
     const [artworks, setArtworks] = useState<{ fileUrl: string; description: string }[]>([]);
     const { typesetting, setTypesetting } = useTypesettingContext();
@@ -65,7 +71,7 @@ export function TypesettingProofForm({ typesettingId, onSubmit, onCancel }: {
         },
     });
 
-    const onSubmitHandler = (data: TypesettingProofFormData) => {
+    const onSubmitHandler: SubmitHandler<TypesettingProofFormData> = (data) => {
         setIsLoading(true);
         createTypesettingProof.mutate({
             typesettingId,

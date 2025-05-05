@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
@@ -37,7 +37,7 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
     onCancel,
 }) => {
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<PaperProductFormData>({
-        resolver: zodResolver(paperProductSchema),
+        resolver: zodResolver(paperProductSchema) as any,
         defaultValues: {
             brand: PaperBrand.Other,
             paperType: PaperType.Other,
@@ -52,7 +52,7 @@ export const CreatePaperProductForm: React.FC<CreatePaperProductFormProps> = ({
         },
     });
 
-    const onSubmit = async (data: PaperProductFormData) => {
+    const onSubmit: SubmitHandler<PaperProductFormData> = async (data) => {
         try {
             const formattedData = {
                 ...data,
