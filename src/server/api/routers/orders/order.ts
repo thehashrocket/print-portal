@@ -416,6 +416,8 @@ export const orderRouter = createTRPCRouter({
           expectedDate: item.expectedDate,
           Order: {
             Office: {
+              isWalkInOffice: order.Office.isWalkInOffice,
+              name: order.Office.name,
               Company: { name: order.Office.Company.name }
             },
             WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }
@@ -585,6 +587,8 @@ export const orderRouter = createTRPCRouter({
             expectedDate: item.expectedDate,
             Order: {
               Office: {
+                isWalkInOffice: order.Office.isWalkInOffice,
+                name: order.Office.name,
                 Company: { name: order.Office.Company.name }
               },
               WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }

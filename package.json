@@ -119,7 +119,7 @@
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
     "@typescript-eslint/typescript-estree": "^8.31.1",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
     "daisyui": "^5.0.35",
     "esbuild": "^0.25.3",

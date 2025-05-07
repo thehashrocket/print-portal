@@ -349,6 +349,14 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     </p>
                                 </>}
                             />
+                            {order.WalkInCustomer == null && (
+                                <InfoCard
+                                    title='Office'
+                                    content={<p className="text-xl">{
+                                        order.Office.name
+                                        }</p>}
+                                />
+                            )}
                             {order.WalkInCustomer != null && (
                                 <InfoCard
                                     title="Walk-in Customer"
@@ -356,8 +364,14 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                 />
                             )}
                             <div className="flex flex-row gap-2">
-                                <TransferOwnership orderId={order.id} />
-                                <DuplicateOrder orderId={order.id} />
+                                <InfoCard
+                                    title="&nbsp;"
+                                    content={<TransferOwnership orderId={order.id} />}
+                                />
+                                <InfoCard
+                                    title="&nbsp;"
+                                    content={<DuplicateOrder orderId={order.id} />}
+                                />
                             </div>
                         </div>
                     </div>

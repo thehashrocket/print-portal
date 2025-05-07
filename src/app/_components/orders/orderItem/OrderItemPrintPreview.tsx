@@ -89,13 +89,20 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
               <p className="w-32 text-xl font-bold">Company</p>
               <p className="text-xl font-bold">{order.Office.Company.name}</p>
             </div>
-            <div className="flex">
-              {order.WalkInCustomer != null ? (
-                <p>{order.WalkInCustomer.name}</p>
-              ) : (
-                <p>{order.contactPerson?.name || 'N/A'}</p>
-              )}
-            </div>
+            {order.Office.isWalkInOffice == false && (
+              <div className="flex">
+                {order.WalkInCustomer != null ? (
+                  <p>{order.WalkInCustomer.name}</p>
+                ) : (
+                  <>
+                    <p>{order.Office.name}</p>
+                  </>
+                )}
+              </div>
+            )}
+            {order.Office.isWalkInOffice == false && (
+              <p>{order.contactPerson?.name || 'N/A'}</p>
+            )}
             <div className="flex">
               {order.WalkInCustomer != null ? (
                 <p>{order.WalkInCustomer.email}</p>

@@ -171,12 +171,15 @@ export function normalizeOrder(order: Order & {
     OrderPayments: OrderPayment[] | null;
     Office: {
         isWalkInOffice: boolean;
+        name: string;
         Company: { name: string };
     };
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
         Order: {
             Office: {
+                isWalkInOffice: boolean;
+                name: string;
                 Company: {
                     name: string;
                 };
@@ -252,6 +255,7 @@ export function normalizeOrder(order: Order & {
         invoicePrintEmail: order.invoicePrintEmail,
         Office: {
             isWalkInOffice: order.Office.isWalkInOffice,
+            name: order.Office.name,
             Company: {
                 name: order.Office.Company.name
             }
@@ -297,6 +301,8 @@ export function normalizeOrderItem(item: OrderItem & {
     }) | null;
     Order: {
         Office: {
+            isWalkInOffice: boolean;
+            name: string;
             Company: {
                 name: string;
             };
@@ -318,6 +324,8 @@ export function normalizeOrderItem(item: OrderItem & {
         ink: item.ink,
         Order: {
             Office: {
+                isWalkInOffice: item.Order.Office.isWalkInOffice,
+                name: item.Order.Office.name,
                 Company: {
                     name: item.Order.Office.Company.name
                 },
@@ -438,6 +446,8 @@ export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
         ProductType: ProductType | null;
         Order: {
             Office: {
+                isWalkInOffice: boolean;
+                name: string;
                 Company: {
                     name: string;
                 };

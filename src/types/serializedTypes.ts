@@ -157,6 +157,7 @@ export interface SerializedOrder {
     };
     Office: {
         isWalkInOffice: boolean;
+        name: string;
         Company: {
             name: string;
         };
@@ -183,6 +184,8 @@ export interface SerializedOrderItem {
     ink: string | null;
     Order: {
         Office: {
+            isWalkInOffice: boolean;
+            name: string;
             Company: {
                 name: string;
             };

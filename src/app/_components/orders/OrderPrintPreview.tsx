@@ -63,6 +63,14 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                         )}
                     </div>
                     <div className="flex">
+                        <p className="w-32 font-bold">Office:</p>
+                        {order.Office.isWalkInOffice ? (
+                            <p>Walk-in</p>
+                        ) : (
+                            <p>{order.Office.name}</p>
+                        )}
+                    </div>
+                    <div className="flex">
                         <p className="w-32 font-bold">Contact:</p>
                         {order.Office.isWalkInOffice ? (
                             <p>{order.WalkInCustomer?.name}</p>

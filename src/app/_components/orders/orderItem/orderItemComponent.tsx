@@ -421,6 +421,12 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                             />
                         )}
                     </div>
+                    {order.Office.isWalkInOffice == false && (
+                        <InfoCard
+                            title="Office"
+                            content={<p className="text-xl">{order.Office.name}</p>}
+                        />
+                    )}
                     <div className="flex flex-row gap-4 mb-2">
                         <InfoCard title="Print Order Item Details" content={
                             <Link href={`/orders/${orderId}/orderItem/${orderItemId}/print`}>
