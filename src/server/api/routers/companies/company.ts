@@ -198,6 +198,8 @@ export const companyRouter = createTRPCRouter({
                                 ...item,
                                 Order: {
                                     Office: {
+                                        isWalkInOffice: item.Order.Office.isWalkInOffice,
+                                        name: item.Order.Office.name,
                                         Company: { name: item.Order.Office.Company.name }
                                     },
                                     WorkOrder: { purchaseOrderNumber: item.Order.WorkOrder?.purchaseOrderNumber ?? null }
