@@ -604,7 +604,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         />
                         <InfoCard
                             title="In Hands Date"
-                            content={<p>{formatDate(order.inHandsDate ?? "")}</p>}
+                            content={<p>{order.inHandsDate ? formatDate(order.inHandsDate) : "N/A"}</p>}
                         />
                     </div>
 

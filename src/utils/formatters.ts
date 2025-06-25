@@ -106,6 +106,8 @@ export const formatPercentage = (percentage: number): string => {
 }
 
 export const formatDateInTable = (params: ValueFormatterParams) => {
+    // Check for NULL values before formatting
+    if (params.value === null) return 'N/A';
     return new Date(params.value).toLocaleDateString();
 };
 
