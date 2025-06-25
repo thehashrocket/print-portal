@@ -19,6 +19,9 @@ export const formatCurrency = (amount: number | string): string => {
 export const formatDate = (date: Date | string): string => {
     let dateObject: Date;
 
+    // If the date is null, return 'N/A'
+    if (!date) return 'N/A';
+
     if (date instanceof Date) {
         dateObject = date;
     } else if (typeof date === 'string') {
