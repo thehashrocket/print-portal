@@ -11,7 +11,7 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
-import { Printer, RefreshCcw, Send, FilePlus2, FilePlus, Download } from "lucide-react";
+import { Printer, RefreshCcw, Send, FilePlus2, FilePlus, Download, CalendarIcon } from "lucide-react";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
@@ -26,6 +26,10 @@ import { Textarea } from "../ui/textarea";
 import TransferOwnership from "./TransferOwnership/TransferOwnership";
 import DuplicateOrder from "./DuplicateOrder/DuplicateOrder";
 import { EditableInfoCard } from "../shared/editableInfoCard/EditableInfoCard";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import dayjs from "dayjs";
+import { cn } from "~/lib/utils";
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -161,12 +165,16 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         }
     });
 
-    const { mutate: updateOrder } = api.orders.updateFields.useMutation({
+        const { mutate: updateOrder } = api.orders.updateFields.useMutation({
         onSuccess: () => {
             toast.success('Order updated successfully');
             utils.orders.getByID.invalidate(orderId);
+            setEditingField(null); // Exit editing mode after successful save
         },
-        
+        onError: (error) => {
+            console.error('Failed to update order:', error);
+            toast.error('Failed to update order');
+        }
     });
 
     const handleSave = (field: string) => {
@@ -176,6 +184,9 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         switch (field) {
             case 'purchaseOrderNumber':
                 updates.purchaseOrderNumber = tempPurchaseOrderNumber;
+                break;
+            case 'inHandsDate':
+                updates.inHandsDate = tempInHandsDate;
                 break;
         }
 
@@ -191,6 +202,9 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         switch (field) {
             case 'purchaseOrderNumber':
                 setTempPurchaseOrderNumber(order.purchaseOrderNumber ?? "");
+                break;
+            case 'inHandsDate':
+                setTempInHandsDate(order.inHandsDate ? new Date(order.inHandsDate) : undefined);
                 break;
         }
     };
@@ -235,6 +249,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     }, [order]);
 
     const [tempPurchaseOrderNumber, setTempPurchaseOrderNumber] = useState(order?.purchaseOrderNumber ?? "");
+    const [tempInHandsDate, setTempInHandsDate] = useState<Date | undefined>(order?.inHandsDate ? new Date(order.inHandsDate) : undefined);
 
     useEffect(() => {
         if (orderItems) {
@@ -294,7 +309,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                 <header className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-3xl font-bold">Order Details</h1>
-                        
+
                     </div>
                     <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                         <ul>
@@ -331,10 +346,10 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     handleCancel("purchaseOrderNumber");
                                 }}
                                 editComponent={
-                                    <Input 
-                                    type="text" 
-                                    value={tempPurchaseOrderNumber} 
-                                    onChange={(e) => setTempPurchaseOrderNumber(e.target.value)} 
+                                    <Input
+                                        type="text"
+                                        value={tempPurchaseOrderNumber}
+                                        onChange={(e) => setTempPurchaseOrderNumber(e.target.value)}
                                     />
                                 }
                             />
@@ -354,7 +369,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     title='Office'
                                     content={<p className="text-xl">{
                                         order.Office.name
-                                        }</p>}
+                                    }</p>}
                                 />
                             )}
                             {order.WalkInCustomer != null && (
@@ -601,6 +616,45 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                     utils.orders.getByID.invalidate(orderId);
                                 }}
                             />}
+                        />
+                        <EditableInfoCard
+                            title="In Hands Date"
+                            content={order.inHandsDate ? formatDate(order.inHandsDate) : "N/A"}
+                            isEditing={editingField === "inHandsDate"}
+                            onEdit={() => {
+                                setEditingField("inHandsDate");
+                                setTempInHandsDate(order.inHandsDate ? new Date(order.inHandsDate) : undefined);
+                            }}
+                            onSave={() => {
+                                handleSave("inHandsDate");
+                            }}
+                            onCancel={() => {
+                                handleCancel("inHandsDate");
+                            }}
+                            editComponent={
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !tempInHandsDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {tempInHandsDate ? dayjs(tempInHandsDate).format("MMMM D, YYYY") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={tempInHandsDate}
+                                            onSelect={setTempInHandsDate}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            }
                         />
                         <InfoCard
                             title="In Hands Date"

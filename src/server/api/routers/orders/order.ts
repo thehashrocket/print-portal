@@ -1355,15 +1355,16 @@ export const orderRouter = createTRPCRouter({
       id: z.string(),
       data: z.object({
         purchaseOrderNumber: z.string().optional(),
+        inHandsDate: z.date().optional(),
       }),
     }))
     .mutation(async ({ ctx, input }) => {
       const { id, data } = input;
-      const { purchaseOrderNumber } = data;
+      const { purchaseOrderNumber, inHandsDate } = data;
 
       const updatedOrder = await ctx.db.order.update({
         where: { id },
-        data: { purchaseOrderNumber },
+        data: { purchaseOrderNumber, inHandsDate },
       });
 
       return updatedOrder;
