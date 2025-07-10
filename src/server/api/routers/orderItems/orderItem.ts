@@ -38,7 +38,14 @@ export const orderItemRouter = createTRPCRouter({
                                     purchaseOrderNumber: true
                                 }
                             },
-                            contactPerson: true
+                            contactPerson: true,
+                            createdBy: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    email: true
+                                }
+                            }
                         }
                     },
                     ShippingInfo: {
@@ -87,7 +94,8 @@ export const orderItemRouter = createTRPCRouter({
                     createdBy: {
                         select: {
                             id: true,
-                            name: true
+                            name: true,
+                            email: true
                         }
                     }
                 }
@@ -99,7 +107,12 @@ export const orderItemRouter = createTRPCRouter({
                 OutsourcedOrderItemInfo: orderItem.OutsourcedOrderItemInfo?.[0] || null,
                 Order: {
                     ...orderItem.Order,
-                    WorkOrder: { purchaseOrderNumber: orderItem.Order.WorkOrder?.purchaseOrderNumber ?? null }
+                    WorkOrder: { 
+                        purchaseOrderNumber: orderItem.Order.WorkOrder?.purchaseOrderNumber ?? null 
+                    }
+                },
+                createdBy: {
+                    ...orderItem.createdBy,
                 }
             });
         }),
@@ -168,6 +181,12 @@ export const orderItemRouter = createTRPCRouter({
                     ProcessingOptions: true,
                     PaperProduct: true,
                     ProductType: true,
+                    createdBy: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
                 }
             })
         }),

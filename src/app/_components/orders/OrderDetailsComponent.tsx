@@ -599,7 +599,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     </div>
                     <div className="grid md:grid-cols-2 gap-6">
                         <InfoCard
-                            title="Created By"
+                            title="Order Created By"
                             content={<p>{order.createdBy?.name}</p>}
                         />
                         <InfoCard

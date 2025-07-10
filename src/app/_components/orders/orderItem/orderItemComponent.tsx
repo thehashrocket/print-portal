@@ -400,6 +400,11 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     />
                                 }
                             />
+                            <InfoCard
+                                title="Order Item Created By"
+                                content={<p>{orderItem.createdBy?.name}</p>}
+                            />
+
                         </div>
                     </div>
 

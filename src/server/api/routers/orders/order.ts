@@ -322,6 +322,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           OrderPayments: true,
@@ -423,6 +424,11 @@ export const orderRouter = createTRPCRouter({
             WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }
           },
           artwork: item.artwork,
+          createdBy: {
+            id: item.createdById,
+            name: order.createdBy.name,
+            email: order.createdBy.email
+          },
           OrderItemStock: item.OrderItemStock,
           ProductType: item.ProductType,
           ShippingInfo: item.shippingInfoId
@@ -432,6 +438,7 @@ export const orderRouter = createTRPCRouter({
         createdBy: {
           id: order.createdBy.id,
           name: order.createdBy.name,
+          email: order.createdBy.email,
         },
         contactPerson: order.contactPerson ? {
           id: order.contactPerson.id,
@@ -489,6 +496,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           OrderPayments: true,
@@ -594,6 +602,11 @@ export const orderRouter = createTRPCRouter({
               WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null }
             },
             artwork: item.artwork,
+            createdBy: {
+              id: item.createdById,
+              name: order.createdBy.name,
+              email: order.createdBy.email
+            },
             OrderItemStock: item.OrderItemStock,
             ProductType: item.ProductType,
             ShippingInfo: item.shippingInfoId
@@ -602,6 +615,7 @@ export const orderRouter = createTRPCRouter({
           createdBy: {
             id: order.createdBy.id,
             name: order.createdBy.name,
+            email: order.createdBy.email,
           },
           contactPerson: order.contactPerson ? {
             id: order.contactPerson.id,
@@ -782,6 +796,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           OrderPayments: true,
@@ -843,6 +858,11 @@ export const orderRouter = createTRPCRouter({
         },
         OrderItems: updatedOrder.OrderItems.map(item => ({
           ...item,
+          createdBy: {
+            id: item.createdById,
+            name: updatedOrder.createdBy.name,
+            email: updatedOrder.createdBy.email
+          },
           Order: {
             Office: updatedOrder.Office,
             WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }
@@ -997,6 +1017,7 @@ export const orderRouter = createTRPCRouter({
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
             OrderPayments: true,
@@ -1107,6 +1128,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           OrderPayments: true,
@@ -1223,6 +1245,11 @@ export const orderRouter = createTRPCRouter({
         balance,
         OrderItems: updatedOrder.OrderItems.map(item => ({
           ...item,
+          createdBy: {
+            id: item.createdById,
+            name: updatedOrder.createdBy.name,
+            email: updatedOrder.createdBy.email
+          },
           Order: {
             Office: updatedOrder.Office,
             WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }
@@ -1282,6 +1309,7 @@ export const orderRouter = createTRPCRouter({
             select: {
               id: true,
               name: true,
+              email: true,
             },
           },
           OrderPayments: true,
@@ -1340,6 +1368,11 @@ export const orderRouter = createTRPCRouter({
         balance,
         OrderItems: updatedOrder.OrderItems.map(item => ({
           ...item,
+          createdBy: {
+            id: item.createdById,
+            name: updatedOrder.createdBy.name,
+            email: updatedOrder.createdBy.email
+          },
           Order: {
             Office: updatedOrder.Office,
             WorkOrder: { purchaseOrderNumber: updatedOrder.WorkOrder?.purchaseOrderNumber ?? null }

@@ -52,7 +52,7 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                 </div>
             </header>
             <section className="flex items-start justify-between mb-8 avoid-break">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-[40%]">
                     <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
                     <div className="flex">
                         <p className="w-32 font-bold">Company:</p>
@@ -119,65 +119,74 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
                     </div>
                 </div>
             </section>
-            <div className="flex flex-row justify-between avoid-break">
-                <section className="mb-8">
-                    <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
-                    {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup ? (
-                        <>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Shipping Method</p>
-                                <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
-                            </div>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Pickup Date</p>
-                                <p>{order?.ShippingInfo?.ShippingPickup?.pickupDate ? formatDate(order?.ShippingInfo?.ShippingPickup?.pickupDate) : 'N/A'}</p>
-                            </div>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Pickup Time</p>
-                                <p>{order?.ShippingInfo?.ShippingPickup?.pickupTime || 'N/A'}</p>
-                            </div>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Pickup Notes</p>
-                                <p>{order?.ShippingInfo?.ShippingPickup?.notes || 'N/A'}</p>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Shipping Method</p>
-                                <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
-                            </div>
-                            {order.ShippingInfo?.Address && (
-                                <div className="mt-2">
-                                    <p className="font-bold mb-2">SHIPPING ADDRESS</p>
-                                    <p>{order.ShippingInfo.Address.name}</p>
-                                    <p>{order.ShippingInfo.Address.line1}</p>
-                                    {order.ShippingInfo.Address.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
-                                    {order.ShippingInfo.Address.line3 && <p>{order.ShippingInfo.Address.line3}</p>}
-                                    {order.ShippingInfo.Address.line4 && <p>{order.ShippingInfo.Address.line4}</p>}
-                                    <p>{order.ShippingInfo.Address.city}, {order.ShippingInfo.Address.state} {order.ShippingInfo.Address.zipCode}</p>
+            <section className="flex items-start justify-between mb-8 avoid-break">
+                <div className="flex flex-col gap-2 w-[40%]">
+                    <section className="mb-8">
+                        <h2 className="text-xl font-bold mb-4">SHIPPING INFO</h2>
+                        {order?.ShippingInfo?.shippingMethod === ShippingMethod.Pickup ? (
+                            <>
+                                <div className="flex">
+                                    <p className="w-32 font-bold">Shipping Method</p>
+                                    <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
                                 </div>
-                            )}
-                            <div className="flex mt-2">
-                                <p className="w-32 font-bold">Shipping Date</p>
-                                <p>{order.ShippingInfo?.shippingDate ? formatDate(order.ShippingInfo.shippingDate) : 'N/A'}</p>
-                            </div>
-                            <div className="flex">
-                                <p className="w-32 font-bold">Tracking Number</p>
-                                <p>{order.ShippingInfo?.trackingNumber?.join(', ') || 'N/A'}</p>
-                            </div>
-                        </>
-                    )}
-                    <div className="flex mt-2">
-                        <p className="w-32 font-bold">Shipping Inst.</p>
-                        <p>{order.ShippingInfo?.instructions || 'N/A'}</p>
-                    </div>
-                </section>
-                <section className="mb-8 w-[40%]">
-                    <h2 className="text-xl font-bold mb-4">NOTES</h2>
-                    <p>{order.notes || 'N/A'}</p>
-                </section>
-            </div>
+                                <div className="flex">
+                                    <p className="w-32 font-bold">Pickup Date</p>
+                                    <p>{order?.ShippingInfo?.ShippingPickup?.pickupDate ? formatDate(order?.ShippingInfo?.ShippingPickup?.pickupDate) : 'N/A'}</p>
+                                </div>
+                                <div className="flex">
+                                    <p className="w-32 font-bold">Pickup Time</p>
+                                    <p>{order?.ShippingInfo?.ShippingPickup?.pickupTime || 'N/A'}</p>
+                                </div>
+                                <div className="flex">
+                                    <p className="w-32 font-bold">Pickup Notes</p>
+                                    <p>{order?.ShippingInfo?.ShippingPickup?.notes || 'N/A'}</p>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex">
+                                    <p className="w-32 font-bold">Shipping Method</p>
+                                    <p>{order?.ShippingInfo?.shippingMethod || 'N/A'}</p>
+                                </div>
+                                {order.ShippingInfo?.Address && (
+                                    <div className="mt-2">
+                                        <p className="font-bold mb-2">SHIPPING ADDRESS</p>
+                                        <p>{order.ShippingInfo.Address.name}</p>
+                                        <p>{order.ShippingInfo.Address.line1}</p>
+                                        {order.ShippingInfo.Address.line2 && <p>{order.ShippingInfo.Address.line2}</p>}
+                                        {order.ShippingInfo.Address.line3 && <p>{order.ShippingInfo.Address.line3}</p>}
+                                        {order.ShippingInfo.Address.line4 && <p>{order.ShippingInfo.Address.line4}</p>}
+                                        <p>{order.ShippingInfo.Address.city}, {order.ShippingInfo.Address.state} {order.ShippingInfo.Address.zipCode}</p>
+                                    </div>
+                                )}
+                                <div className="flex mt-2">
+                                    <p className="w-32 font-bold">Shipping Date</p>
+                                    <p>{order.ShippingInfo?.shippingDate ? formatDate(order.ShippingInfo.shippingDate) : 'N/A'}</p>
+                                </div>
+                                <div className="flex mt-2">
+                                    <p className="w-32 font-bold">Tracking Number</p>
+                                    <p>{order.ShippingInfo?.trackingNumber?.join(', ') || 'N/A'}</p>
+                                </div>
+                            </>
+                        )}
+                        <div className="flex mt-2">
+                            <p className="w-32 font-bold">Shipping Inst.</p>
+                            <p>{order.ShippingInfo?.instructions || 'N/A'}</p>
+                        </div>
+                    </section>
+                </div>
+                <div className="flex flex-col gap-2 w-[40%]">
+                    <section className="mb-8">
+                        <h2 className="text-xl font-bold mb-4">NOTES</h2>
+                        <p>{order.notes || 'N/A'}</p>
+                    </section>
+                    <section className="mb-8">
+                        <h2 className="text-xl font-bold mb-4">CREATED BY</h2>
+                        <p>{order.createdBy.name}</p>
+                        <p>{order.createdBy.email}</p>
+                    </section>
+                </div>
+            </section>
             <section className="mb-8 avoid-break">
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead>

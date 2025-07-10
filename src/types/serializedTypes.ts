@@ -154,6 +154,7 @@ export interface SerializedOrder {
     createdBy: {
         id: string;
         name: string | null;
+        email: string | null;
     };
     Office: {
         isWalkInOffice: boolean;
@@ -178,6 +179,11 @@ export interface SerializedOrderItem {
     cost: string | null;
     createdAt: string;
     createdById: string;
+    createdBy: {
+        id: string;
+        name: string | null;
+        email: string | null;
+    };
     description: string;
     expectedDate: string | null;
     finishedQty: number;

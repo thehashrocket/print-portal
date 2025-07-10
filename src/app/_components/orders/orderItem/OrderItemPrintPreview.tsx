@@ -82,7 +82,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       <div className="flex items-start justify-between mb-8 avoid-break">
 
         {/* Left Column: Contact Information */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2 w-[40%]">
           <div className="flex flex-col">
             <h2 className="text-xl font-bold mb-1">CONTACT INFORMATION</h2>
             <div className="flex flex-col gap-1">
@@ -95,7 +95,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                   <p>{order.WalkInCustomer.name}</p>
                 ) : (
                   <>
-                    <p>{order.Office.name}</p>
+                    <p></p>
                   </>
                 )}
               </div>
@@ -117,11 +117,16 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
                 <p className="text-xl">{shippingInfo.Address?.telephoneNumber || 'N/A'}</p>
               )}
             </div>
+            <div className="flex mt-2 flex-col">
+              <h2 className="text-xl font-bold">Created By</h2>
+              <p>{orderItem.createdBy.name}</p>
+              <p>{orderItem.createdBy.email}</p>
+            </div>
           </div>
         </div>
 
         {/* Right Column: Item Details */}
-        <div className="flex flex-col w-1/2">
+        <div className="flex flex-col gap-2 w-[40%]">
           <h2 className="text-3xl font-bold text-green-700">Item Details</h2>
           <div className="flex">
             <p className="w-32 font-bold">P.O. Number</p>
@@ -166,7 +171,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       {/* Row 3: Typesetting Details and Paper Stock */}
       <div className='flex items-start justify-between avoid-break mt-2'>
         {/* Typesetting Section */}
-        <div className='flex flex-col'>
+        <div className='flex flex-col gap-2 w-[40%]'>
           {normalizedTypesetting?.[0] && (
             <div className="">
               <h2 className="text-xl font-bold">TYPESETTING DETAILS</h2>
@@ -187,7 +192,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           )}
         </div>
         {/* Paper Stock, Special Instructions, and Project Description Section */}
-        <div className='flex flex-col w-1/2'>
+        <div className='flex flex-col gap-2 w-[40%]'>
           {orderPaperProducts && orderPaperProducts.length > 0 && (
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-bold">Paper Stock</h2>

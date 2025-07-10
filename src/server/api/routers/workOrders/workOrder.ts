@@ -16,7 +16,13 @@ export const workOrderRouter = createTRPCRouter({
         where: { id: input },
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: {
             include: {
               Company: true,
@@ -41,7 +47,13 @@ export const workOrderRouter = createTRPCRouter({
               ProcessingOptions: true,
               ProductType: true,
               WorkOrderItemStock: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
             },
           },
           WorkOrderNotes: true,
@@ -151,7 +163,13 @@ export const workOrderRouter = createTRPCRouter({
       const workOrders = await ctx.db.workOrder.findMany({
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: {
             include: {
               Company: true,
@@ -167,7 +185,13 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -217,7 +241,13 @@ export const workOrderRouter = createTRPCRouter({
         data: { status: input.status },
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: {
             include: {
               Company: true,
@@ -233,7 +263,13 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -289,7 +325,13 @@ export const workOrderRouter = createTRPCRouter({
         },
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: {
             include: {
               Company: true,
@@ -305,7 +347,13 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -351,7 +399,13 @@ export const workOrderRouter = createTRPCRouter({
         where: { id: input.id },
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: {
             include: {
               Company: true,
@@ -367,7 +421,13 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -491,7 +551,13 @@ export const workOrderRouter = createTRPCRouter({
         },
         include: {
           contactPerson: true,
-          createdBy: true,
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           Office: { include: { Company: true } },
           Orders: true,
           ShippingInfo: {
@@ -503,7 +569,13 @@ export const workOrderRouter = createTRPCRouter({
           WorkOrderItems: {
             include: {
               artwork: true,
-              createdBy: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              },
               Typesetting: {
                 include: {
                   TypesettingOptions: true,

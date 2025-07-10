@@ -176,6 +176,11 @@ export function normalizeOrder(order: Order & {
     };
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
+        createdBy: {
+            id: string;
+            name: string | null;
+            email: string | null;
+        };
         Order: {
             Office: {
                 isWalkInOffice: boolean;
@@ -199,6 +204,7 @@ export function normalizeOrder(order: Order & {
     createdBy: {
         id: string;
         name: string | null;
+        email: string | null;
     };
     ShippingInfo?: (ShippingInfo & {
         Address: Address | null;
@@ -245,7 +251,8 @@ export function normalizeOrder(order: Order & {
         },
         createdBy: {
             id: order.createdBy.id,
-            name: order.createdBy.name
+            name: order.createdBy.name,
+            email: order.createdBy.email
         },
         createdById: order.createdById,
         dateInvoiced: order.dateInvoiced?.toISOString() ?? null,
@@ -291,6 +298,11 @@ export function normalizeOrder(order: Order & {
 
 export function normalizeOrderItem(item: OrderItem & {
     artwork: OrderItemArtwork[];
+    createdBy: {
+        id: string;
+        name: string | null;
+        email: string | null;
+    };
     OutsourcedOrderItemInfo?: OutsourcedOrderItemInfo | null;
     OrderItemStock: OrderItemStock[];
     ProductType: ProductType | null;
@@ -318,6 +330,11 @@ export function normalizeOrderItem(item: OrderItem & {
         cost: item.cost ? item.cost.toString() : null,
         createdAt: item.createdAt.toISOString(),
         createdById: item.createdById,
+        createdBy: {
+            id: item.createdById,
+            name: item.createdBy.name,
+            email: item.createdBy.email
+        },
         description: item.description,
         expectedDate: item.expectedDate ? item.expectedDate.toISOString() : null,
         finishedQty: item.finishedQty,
@@ -442,6 +459,11 @@ export function normalizeShippingInfo(shippingInfo: ShippingInfo & {
     ShippingPickup: ShippingPickup[];
     OrderItems?: (OrderItem & {
         artwork: OrderItemArtwork[];
+        createdBy: {
+            id: string;
+            name: string | null;
+            email: string | null;
+        };
         OrderItemStock: OrderItemStock[];
         ProductType: ProductType | null;
         Order: {
@@ -609,7 +631,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     calculatedSubTotal: Prisma.Decimal | null;
     totalShippingAmount: Prisma.Decimal | null;
     contactPerson: { id: string; name: string | null; email: string | null } | null;
-    createdBy: { id: string; name: string | null };
+    createdBy: { id: string; name: string | null; email: string | null };
     Office: {
         id: string;
         name: string;
@@ -632,7 +654,8 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         WorkOrderItemStock: WorkOrderItemStock[];
         createdBy: {
             id: string;
-            name: string | null
+            name: string | null;
+            email: string | null;
         };
     })[];
     WorkOrderNotes: WorkOrderNote[];
