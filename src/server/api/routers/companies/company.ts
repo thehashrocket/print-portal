@@ -196,6 +196,11 @@ export const companyRouter = createTRPCRouter({
                             WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null },
                             OrderItems: order.OrderItems.map(item => ({
                                 ...item,
+                                createdBy: {
+                                    id: item.createdById,
+                                    name: order.createdBy.name,
+                                    email: order.createdBy.email
+                                },
                                 Order: {
                                     Office: {
                                         isWalkInOffice: item.Order.Office.isWalkInOffice,
