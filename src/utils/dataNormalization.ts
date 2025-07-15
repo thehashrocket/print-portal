@@ -104,8 +104,8 @@ export function normalizeInvoice(invoice: Invoice & {
         createdById: invoice.createdById,
         createdBy: {
             id: invoice.createdBy.id,
-            name: invoice.createdBy.name,
-            email: invoice.createdBy.email
+            name: invoice.createdBy?.name ?? null,
+            email: invoice.createdBy?.email ?? null
         },
         dateDue: invoice.dateDue.toISOString(),
         dateIssued: invoice.dateIssued.toISOString(),
@@ -251,8 +251,8 @@ export function normalizeOrder(order: Order & {
         },
         createdBy: {
             id: order.createdBy.id,
-            name: order.createdBy.name,
-            email: order.createdBy.email
+            name: order.createdBy?.name ?? null,
+            email: order.createdBy?.email ?? null
         },
         createdById: order.createdById,
         dateInvoiced: order.dateInvoiced?.toISOString() ?? null,
@@ -332,8 +332,8 @@ export function normalizeOrderItem(item: OrderItem & {
         createdById: item.createdById,
         createdBy: {
             id: item.createdById,
-            name: item.createdBy.name,
-            email: item.createdBy.email
+            name: item.createdBy?.name ?? null,
+            email: item.createdBy?.email ?? null
         },
         description: item.description,
         expectedDate: item.expectedDate ? item.expectedDate.toISOString() : null,
@@ -693,7 +693,7 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
         },
         createdBy: {
             id: workOrder.createdBy.id,
-            name: workOrder.createdBy.name
+            name: workOrder.createdBy?.name ?? null
         },
         Office: {
             Company: {

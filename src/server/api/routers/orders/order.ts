@@ -426,8 +426,8 @@ export const orderRouter = createTRPCRouter({
           artwork: item.artwork,
           createdBy: {
             id: item.createdById,
-            name: order.createdBy.name,
-            email: order.createdBy.email
+            name: order.createdBy?.name ?? null,
+            email: order.createdBy?.email ?? null
           },
           OrderItemStock: item.OrderItemStock,
           ProductType: item.ProductType,
@@ -437,8 +437,8 @@ export const orderRouter = createTRPCRouter({
         WorkOrder: { purchaseOrderNumber: order.WorkOrder?.purchaseOrderNumber ?? null },
         createdBy: {
           id: order.createdBy.id,
-          name: order.createdBy.name,
-          email: order.createdBy.email,
+          name: order.createdBy?.name ?? null,
+          email: order.createdBy?.email ?? null,
         },
         contactPerson: order.contactPerson ? {
           id: order.contactPerson.id,
@@ -604,8 +604,8 @@ export const orderRouter = createTRPCRouter({
             artwork: item.artwork,
             createdBy: {
               id: item.createdById,
-              name: order.createdBy.name,
-              email: order.createdBy.email
+              name: order.createdBy?.name ?? null,
+              email: order.createdBy?.email ?? null
             },
             OrderItemStock: item.OrderItemStock,
             ProductType: item.ProductType,
@@ -614,8 +614,8 @@ export const orderRouter = createTRPCRouter({
           balance,
           createdBy: {
             id: order.createdBy.id,
-            name: order.createdBy.name,
-            email: order.createdBy.email,
+            name: order.createdBy?.name ?? null,
+            email: order.createdBy?.email ?? null,
           },
           contactPerson: order.contactPerson ? {
             id: order.contactPerson.id,
@@ -860,8 +860,8 @@ export const orderRouter = createTRPCRouter({
           ...item,
           createdBy: {
             id: item.createdById,
-            name: updatedOrder.createdBy.name,
-            email: updatedOrder.createdBy.email
+            name: updatedOrder.createdBy?.name ?? null,
+            email: updatedOrder.createdBy?.email ?? null
           },
           Order: {
             Office: updatedOrder.Office,
