@@ -462,6 +462,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                     officeId={order.officeId}
                                     currentShippingInfo={orderItem.ShippingInfo ? orderItem.ShippingInfo : null}
                                     onUpdate={() => {
+                                        // Invalidate the OrderItem and the Order
+                                        utils.orderItems.getByID.invalidate(orderItemId);
                                         utils.orders.getByID.invalidate(orderId);
                                     }}
                                 />
@@ -474,6 +476,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         currentContactPerson={order.contactPerson}
                                         officeId={order.officeId}
                                         onUpdate={() => {
+                                            // Invalidate the OrderItem and the Order
+                                            utils.orderItems.getByID.invalidate(orderItemId);
                                             utils.orders.getByID.invalidate(orderId);
                                         }}
                                     />
