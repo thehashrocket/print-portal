@@ -75,6 +75,7 @@ export const orderRouter = createTRPCRouter({
           OrderItems: {
             include: {
               ProcessingOptions: true,
+              ShippingInfo: true,
               Typesetting: {
                 include: {
                   TypesettingOptions: true,
@@ -91,6 +92,7 @@ export const orderRouter = createTRPCRouter({
               artwork: true,
             }
           },
+          ShippingInfo: true,
         },
       });
 
@@ -109,7 +111,6 @@ export const orderRouter = createTRPCRouter({
           inHandsDate: null,
           invoicePrintEmail: order.invoicePrintEmail,
           contactPersonId: order.contactPersonId,
-          shippingInfoId: order.shippingInfoId,
           isWalkIn: order.isWalkIn,
           walkInCustomerId: order.walkInCustomerId || undefined,
           officeId: order.officeId,
@@ -118,6 +119,23 @@ export const orderRouter = createTRPCRouter({
           deposit: 0,
         },
       });
+
+      // Duplicate ShippingInfo
+      if (order.ShippingInfo) {
+        const newShippingInfo = await ctx.db.shippingInfo.create({
+          data: {
+            ...order.ShippingInfo,
+            id: undefined, // Exclude the original id to let Prisma generate a new one
+          },
+        });
+        // update newOrder with the newShippingInfoId
+        await ctx.db.order.update({
+          where: { id: newOrder.id },
+          data: {
+            shippingInfoId: newShippingInfo.id,
+          },
+        });
+      }
 
       const newOrderItems: OrderItem[] = [];
       // Duplicate the order items with their associated data
@@ -147,6 +165,25 @@ export const orderRouter = createTRPCRouter({
             shippingAmount: item.shippingAmount,
           },
         });
+
+                // Duplicate ShippingInfo
+        if (item.ShippingInfo) {
+          const newShippingInfo = await ctx.db.shippingInfo.create({
+            data: {
+              ...item.ShippingInfo,
+              id: undefined, // Exclude the original id to let Prisma generate a new one
+            },
+          });
+          // update newOrderItem with the newShippingInfoId
+          newOrderItem.shippingInfoId = newShippingInfo.id;
+          // save newOrderItem to the database
+          await ctx.db.orderItem.update({
+            where: { id: newOrderItem.id },
+            data: {
+              shippingInfoId: newShippingInfo.id,
+            },
+          });
+        }
 
         newOrderItems.push(newOrderItem);
 
@@ -203,6 +240,7 @@ export const orderRouter = createTRPCRouter({
             });
           }
         }
+
 
         // Duplicate Typesetting and related entities
         if (item.Typesetting && item.Typesetting.length > 0) {
