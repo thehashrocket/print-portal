@@ -1,59 +1,83 @@
-import { PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus, WorkOrderItemStatus } from "@prisma/client";
+import { type PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus, WorkOrderItemStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
 
-const prisma = new PrismaClient();
 const SALES_TAX = 0.07;
 
-export async function convertWorkOrderToOrder(workOrderId: string, officeId: string) {
+interface CalculatedTotals {
+    totalCost: Prisma.Decimal;
+    totalItemAmount: Prisma.Decimal;
+    totalShippingAmount: Prisma.Decimal;
+    totalAmount: Prisma.Decimal;
+    calculatedSalesTax: Prisma.Decimal;
+    calculatedSubTotal: Prisma.Decimal;
+}
 
-    return await prisma.$transaction(async (tx) => {
+export async function convertWorkOrderToOrder(
+    workOrderId: string,
+    officeId: string,
+    prisma?: PrismaClient
+): Promise<SerializedWorkOrder & { Order: { id: string } }> {
+    // Import prisma client if not provided (for backward compatibility)
+    const { PrismaClient } = await import("@prisma/client");
+    const client = prisma || new PrismaClient();
+
+    return await client.$transaction(async (tx) => {
         const workOrder = await getWorkOrder(tx, workOrderId);
         const order = await createOrder(tx, workOrder, officeId);
         await createOrderItems(tx, workOrder, order.id);
-        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id) as unknown as {
-            WorkOrderItems: Array<{
-                cost: Prisma.Decimal | null;
-                amount: Prisma.Decimal | null;
-                shippingAmount: Prisma.Decimal | null;
-            }>;
-        };
+        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id);
 
-        // Calculate totalAmount and totalCost
-        const totalCost = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum: Prisma.Decimal, item: { cost: Prisma.Decimal | null }) => 
-                sum.add(item.cost || new Prisma.Decimal(0)),
-            new Prisma.Decimal(0)
-        );
+        // Calculate totals once using the updated work order items
+        const totals = calculateTotals(updatedWorkOrder.WorkOrderItems);
 
-        const totalItemAmount = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum: Prisma.Decimal, item: { amount: Prisma.Decimal | null }) => 
-                sum.add(item.amount || new Prisma.Decimal(0)),
-            new Prisma.Decimal(0)
-        );
-
-        const totalShippingAmount = updatedWorkOrder.WorkOrderItems.reduce(
-            (sum: Prisma.Decimal, item: { shippingAmount: Prisma.Decimal | null }) => 
-                sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-            new Prisma.Decimal(0)
-        );
-
-        const totalAmount = totalItemAmount.add(totalShippingAmount);
-        const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-        const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
+        // Normalize the updated work order to ensure proper serialization
+        const normalizedWorkOrder = normalizeWorkOrder({
+            ...updatedWorkOrder,
+            ...totals,
+            Orders: [{ id: order.id }], // Use Orders array as expected by normalizeWorkOrder
+        });
 
         return {
-            ...updatedWorkOrder,
-            calculatedSalesTax,
-            calculatedSubTotal,
-            totalAmount,
-            totalCost,
-            totalItemAmount,
-            totalShippingAmount,
-            Order: { id: order.id },
+            ...normalizedWorkOrder,
+            Order: { id: order.id }, // Add the Order property for the return type
         };
     });
+}
+
+function calculateTotals(workOrderItems: Array<{
+    cost: Prisma.Decimal | null;
+    amount: Prisma.Decimal | null;
+    shippingAmount: Prisma.Decimal | null;
+}>): CalculatedTotals {
+    const totalCost = workOrderItems.reduce(
+        (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
+        new Prisma.Decimal(0)
+    );
+
+    const totalItemAmount = workOrderItems.reduce(
+        (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
+        new Prisma.Decimal(0)
+    );
+
+    const totalShippingAmount = workOrderItems.reduce(
+        (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
+        new Prisma.Decimal(0)
+    );
+
+    const totalAmount = totalItemAmount.add(totalShippingAmount);
+    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+    const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
+
+    return {
+        totalCost,
+        totalItemAmount,
+        totalShippingAmount,
+        totalAmount,
+        calculatedSalesTax,
+        calculatedSubTotal,
+    };
 }
 
 async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): Promise<SerializedWorkOrder> {
@@ -62,16 +86,22 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         include: {
             WorkOrderItems: {
                 include: {
-                    artwork: true, // Add this line
+                    artwork: true,
                     createdBy: true,
+                    ProcessingOptions: true,
+                    ProductType: true,
+                    ShippingInfo: {
+                        include: {
+                            Address: true,
+                            ShippingPickup: true,
+                        },
+                    },
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
                             TypesettingProofs: true,
                         },
                     },
-                    ProcessingOptions: true,
-                    ProductType: true,
                     WorkOrderItemStock: {
                         include: {
                             PaperProduct: true,
@@ -106,35 +136,13 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         });
     }
 
-    // Calculate totalCost
-    const totalCost = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.cost || new Prisma.Decimal(0));
-    }, new Prisma.Decimal(0));
-
-    // Calculate totalAmount
-    const totalItemAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.amount || new Prisma.Decimal(0));
-    }, new Prisma.Decimal(0));
-
-    // Calculate totalShippingAmount
-    const totalShippingAmount = workOrder.WorkOrderItems.reduce((sum, item) => {
-        return sum.add(item.shippingAmount || new Prisma.Decimal(0));
-    }, new Prisma.Decimal(0));
-
-    // Calculate totalAmount
-    const totalAmount = totalItemAmount.add(totalShippingAmount)
-    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-    const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
+    // Calculate totals for the work order
+    const totals = calculateTotals(workOrder.WorkOrderItems);
 
     // Prepare the data for normalization
     const workOrderData = {
         ...workOrder,
-        calculatedSalesTax,
-        calculatedSubTotal,
-        totalAmount,
-        totalCost,
-        totalItemAmount,
-        totalShippingAmount,
+        ...totals,
         Order: { id: workOrder.Orders?.[0]?.id ?? null },
         contactPerson: {
             id: workOrder.contactPerson?.id ?? '',
@@ -169,16 +177,56 @@ async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWo
 }
 
 async function createOrderItems(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, orderId: string) {
-
     for (const workOrderItem of workOrder.WorkOrderItems) {
         const orderItem = await createOrderItem(tx, workOrderItem, orderId, workOrderItem.createdById);
-        await updateTypesetting(tx, workOrderItem.id, orderItem.id);
-        await createProcessingOptions(tx, workOrderItem.id, orderItem.id);
-        await createOrderItemStock(tx, workOrderItem.id, orderItem.id);
+        await Promise.all([
+            updateTypesetting(tx, workOrderItem.id, orderItem.id),
+            createProcessingOptions(tx, workOrderItem.id, orderItem.id),
+            createOrderItemStock(tx, workOrderItem.id, orderItem.id),
+        ]);
     }
 }
 
 async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: SerializedWorkOrderItem, orderId: string, createdById: string) {
+    // Duplicate shipping info if it exists on the WorkOrderItem
+    let duplicatedShippingInfoId: string | undefined;
+    if (workOrderItem.ShippingInfo) {
+        const duplicatedShippingInfo = await tx.shippingInfo.create({
+            data: {
+                instructions: workOrderItem.ShippingInfo.instructions,
+                shippingOther: workOrderItem.ShippingInfo.shippingOther,
+                shippingDate: workOrderItem.ShippingInfo.shippingDate ? new Date(workOrderItem.ShippingInfo.shippingDate) : null,
+                shippingMethod: workOrderItem.ShippingInfo.shippingMethod,
+                shippingCost: workOrderItem.ShippingInfo.shippingCost ? new Prisma.Decimal(workOrderItem.ShippingInfo.shippingCost) : null,
+                officeId: workOrderItem.ShippingInfo.officeId,
+                shipToSameAsBillTo: workOrderItem.ShippingInfo.shipToSameAsBillTo,
+                attentionTo: workOrderItem.ShippingInfo.attentionTo,
+                addressId: workOrderItem.ShippingInfo.addressId,
+                createdById: createdById,
+                numberOfPackages: workOrderItem.ShippingInfo.numberOfPackages,
+                shippingNotes: workOrderItem.ShippingInfo.shippingNotes,
+                estimatedDelivery: workOrderItem.ShippingInfo.estimatedDelivery ? new Date(workOrderItem.ShippingInfo.estimatedDelivery) : null,
+                trackingNumber: workOrderItem.ShippingInfo.trackingNumber || [],
+            },
+        });
+        duplicatedShippingInfoId = duplicatedShippingInfo.id;
+
+        // Duplicate ShippingPickup record if it exists
+        if (workOrderItem.ShippingInfo.ShippingPickup) {
+            await tx.shippingPickup.create({
+                data: {
+                    shippingInfoId: duplicatedShippingInfo.id,
+                    pickupDate: new Date(workOrderItem.ShippingInfo.ShippingPickup.pickupDate),
+                    pickupTime: workOrderItem.ShippingInfo.ShippingPickup.pickupTime,
+                    notes: workOrderItem.ShippingInfo.ShippingPickup.notes,
+                    contactName: workOrderItem.ShippingInfo.ShippingPickup.contactName,
+                    contactPhone: workOrderItem.ShippingInfo.ShippingPickup.contactPhone,
+                    createdById: createdById,
+                },
+            });
+        }
+    }
+
     const orderItem = await tx.orderItem.create({
         data: {
             orderId,
@@ -198,11 +246,12 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             size: workOrderItem.size,
             specialInstructions: null,
             status: OrderItemStatus.Prepress,
+            shippingInfoId: duplicatedShippingInfoId,
         },
     });
 
     // Add the artwork
-    if (workOrderItem.artwork) {
+    if (workOrderItem.artwork?.length) {
         await Promise.all(workOrderItem.artwork.map(async (artwork) => {
             return tx.orderItemArtwork.create({
                 data: {
@@ -213,20 +262,15 @@ async function createOrderItem(tx: Prisma.TransactionClient, workOrderItem: Seri
             });
         }));
     }
+
     return orderItem;
 }
 
 async function updateTypesetting(tx: Prisma.TransactionClient, workOrderItemId: string, orderItemId: string) {
-    const typesettings = await tx.typesetting.findMany({
+    await tx.typesetting.updateMany({
         where: { workOrderItemId },
+        data: { orderItemId },
     });
-
-    for (const typesetting of typesettings) {
-        await tx.typesetting.update({
-            where: { id: typesetting.id },
-            data: { orderItemId },
-        });
-    }
 }
 
 async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderItemId: string, orderItemId: string) {
@@ -234,14 +278,24 @@ async function createProcessingOptions(tx: Prisma.TransactionClient, workOrderIt
         where: { workOrderItemId },
     });
 
-    for (const processingOption of processingOptions) {
-        await tx.processingOptions.create({
-            data: {
-                ...processingOption,
-                id: undefined,
+    if (processingOptions.length > 0) {
+        await tx.processingOptions.createMany({
+            data: processingOptions.map(option => ({
+                cutting: option.cutting,
+                padding: option.padding,
+                drilling: option.drilling,
+                folding: option.folding,
+                other: option.other,
+                numberingStart: option.numberingStart,
+                numberingEnd: option.numberingEnd,
+                numberingColor: option.numberingColor,
+                createdById: option.createdById,
+                description: option.description,
+                stitching: option.stitching,
+                binderyTime: option.binderyTime,
+                binding: option.binding,
                 orderItemId,
-                workOrderItemId: undefined,
-            },
+            })),
         });
     }
 }
@@ -251,9 +305,9 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
         where: { workOrderItemId },
     });
 
-    for (const stock of stocks) {
-        await tx.orderItemStock.create({
-            data: {
+    if (stocks.length > 0) {
+        await tx.orderItemStock.createMany({
+            data: stocks.map(stock => ({
                 stockQty: stock.stockQty,
                 costPerM: stock.costPerM,
                 totalCost: stock.totalCost,
@@ -267,7 +321,7 @@ async function createOrderItemStock(tx: Prisma.TransactionClient, workOrderItemI
                 createdById: stock.createdById,
                 orderItemId,
                 paperProductId: stock.paperProductId,
-            },
+            })),
         });
     }
 }
@@ -305,19 +359,31 @@ async function updateWorkOrder(tx: Prisma.TransactionClient, workOrderId: string
             WorkOrderItems: {
                 include: {
                     artwork: true,
+                    createdBy: true,
+                    ProcessingOptions: true,
+                    ProductType: true,
+                    ShippingInfo: {
+                        include: {
+                            Address: true,
+                            ShippingPickup: true,
+                        },
+                    },
                     Typesetting: {
                         include: {
                             TypesettingOptions: true,
                             TypesettingProofs: true,
-                        }
+                        },
                     },
-                    ProcessingOptions: true,
-                    WorkOrderItemStock: true,
-                    createdBy: true,
-                }
+                    WorkOrderItemStock: {
+                        include: {
+                            PaperProduct: true,
+                        },
+                    },
+                },
             },
             WorkOrderNotes: true,
             WorkOrderVersions: true,
+            WalkInCustomer: true,
         }
     });
 }

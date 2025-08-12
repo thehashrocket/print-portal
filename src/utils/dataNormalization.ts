@@ -646,11 +646,15 @@ export function normalizeWorkOrder(workOrder: WorkOrder & {
     WorkOrderItems: (WorkOrderItem & {
         artwork: WorkOrderItemArtwork[];
         ProductType: ProductType | null;
+        ProcessingOptions: ProcessingOptions[];
+        ShippingInfo?: (ShippingInfo & {
+            Address: Address | null;
+            ShippingPickup: ShippingPickup[];
+        }) | null;
         Typesetting: (Typesetting & {
             TypesettingOptions: TypesettingOption[];
             TypesettingProofs: TypesettingProof[];
         })[];
-        ProcessingOptions: ProcessingOptions[];
         WorkOrderItemStock: WorkOrderItemStock[];
         createdBy: {
             id: string;

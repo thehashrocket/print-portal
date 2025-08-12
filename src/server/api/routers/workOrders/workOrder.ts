@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { InvoicePrintEmailOptions, WorkOrderStatus, WorkOrderItemStatus, Prisma, ShippingMethod } from "@prisma/client";
+import { WorkOrderStatus, Prisma, ShippingMethod } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
@@ -436,6 +436,12 @@ export const workOrderRouter = createTRPCRouter({
               },
               ProcessingOptions: true,
               ProductType: true,
+              ShippingInfo: {
+                include: {
+                  Address: true,
+                  ShippingPickup: true,
+                },
+              },
               WorkOrderItemStock: true,
             },
           },
@@ -447,14 +453,21 @@ export const workOrderRouter = createTRPCRouter({
       if (!fullWorkOrder) {
         throw new Error("Work order not found");
       }
+      const totalCost = fullWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.cost || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalItemAmount = fullWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.amount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const totalShippingAmount = fullWorkOrder.WorkOrderItems.reduce((sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)), new Prisma.Decimal(0));
+      const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
+      const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
+      const totalAmount = totalItemAmount.add(totalShippingAmount);
+
       return normalizeWorkOrder({
         ...fullWorkOrder,
-        totalAmount: convertedWorkOrder.totalAmount,
-        totalCost: convertedWorkOrder.totalCost,
-        totalItemAmount: convertedWorkOrder.totalItemAmount,
-        calculatedSalesTax: convertedWorkOrder.calculatedSalesTax,
-        calculatedSubTotal: convertedWorkOrder.calculatedSubTotal,
-        totalShippingAmount: null
+        totalAmount,
+        totalCost,
+        totalItemAmount,
+        calculatedSalesTax,
+        calculatedSubTotal,
+        totalShippingAmount
       });
     }),
 
