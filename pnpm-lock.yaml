@@ -106,8 +106,8 @@ importers:
         specifier: 11.0.0-rc.567
         version: 11.0.0-rc.567
       ag-charts-community:
-        specifier: ^11.3.2
-        version: 11.3.2
+        specifier: ^12.2.0
+        version: 12.2.0
       ag-charts-react:
         specifier: ^11.3.2
         version: 11.3.2(react@19.1.1)
@@ -2916,11 +2916,20 @@ packages:
   ag-charts-community@11.3.2:
     resolution: {integrity: sha512-4ZshRqfeCoQKgJ8WNxLfgkKtLszIxEF9WWOSuT2Uvyyy3x0rUUPQbl98+kVh+sRyGGQ6Qj8uoStqHAhwPwgTOQ==}
 
+  ag-charts-community@12.2.0:
+    resolution: {integrity: sha512-j5IYDtePqOde5LdnmpcKGSkgqhWRCke4W3uJvIFRFDQrFmI+hrnIRFgoea6+QBmtsKcho2vv5N8FqHOwN/udOw==}
+
   ag-charts-core@11.3.2:
     resolution: {integrity: sha512-D66lTBVXRDI6vFTcmL91KeBghOx63MmWrgDSJEEhsrK1ioWeYnFcRXStX0msx60D12i+Ba+uhM9xrxgRmqzM5w==}
 
+  ag-charts-core@12.2.0:
+    resolution: {integrity: sha512-3hTpW9MGJCyvonfHHOrIeN3VPW7Crses9Os2W/TFJzRqFD0O4Zf0lzIYTQFfPCQRhCLM8Ch211XvoCkX/Goo5g==}
+
   ag-charts-locale@11.3.2:
     resolution: {integrity: sha512-6DrHD53PfdVNqFAlmNkHTnlQ9QY9EzME0vvaiotUpO8boKflGivgqmfx/uNTp6AsvOrsnRBBZW4b4XSg0LKG2w==}
+
+  ag-charts-locale@12.2.0:
+    resolution: {integrity: sha512-xwMTzoNi/SAV6EwApRuBXOc3K+Thi/ijsKIkIhaGPmc3VPkCVCWW/TcAontiZ3dXUgxsL3jXBNyarH7f+XzWkQ==}
 
   ag-charts-react@11.3.2:
     resolution: {integrity: sha512-AcDvXTe6cdxF3B9scQA5ftN6h0ApIohr74XjndOF7Ka4yRzMDF1X/cFP1IIwiwj/AR3gJTmx1B7L00yv/tVQCw==}
@@ -2932,6 +2941,9 @@ packages:
 
   ag-charts-types@11.3.2:
     resolution: {integrity: sha512-trPGqgGYiTeLgtf9nLuztDYOPOFOLbqHn1g2D99phf7QowcwdX0TPx0wfWG8Hm90LjB8IH+G2s3AZe2vrdAtMQ==}
+
+  ag-charts-types@12.2.0:
+    resolution: {integrity: sha512-d2qQrQirt9wP36YW5HPuOvXsiajyiFnr1CTsoCbs02bavPDz7Lk2jHp64+waM4YKgXb3GN7gafbBI9Qgk33BmQ==}
 
   ag-grid-community@33.3.2:
     resolution: {integrity: sha512-9bx0e/+ykOyLvUxHqmdy0cRVANH6JAtv0yZdnBZEXYYqBAwN+G5a4NY+2I1KvoOCYzbk8SnStG7y4hCdVAAWOQ==}
@@ -9392,11 +9404,23 @@ snapshots:
       ag-charts-locale: 11.3.2
       ag-charts-types: 11.3.2
 
+  ag-charts-community@12.2.0:
+    dependencies:
+      ag-charts-core: 12.2.0
+      ag-charts-locale: 12.2.0
+      ag-charts-types: 12.2.0
+
   ag-charts-core@11.3.2:
     dependencies:
       ag-charts-types: 11.3.2
 
+  ag-charts-core@12.2.0:
+    dependencies:
+      ag-charts-types: 12.2.0
+
   ag-charts-locale@11.3.2: {}
+
+  ag-charts-locale@12.2.0: {}
 
   ag-charts-react@11.3.2(react@19.1.1):
     dependencies:
@@ -9406,6 +9430,8 @@ snapshots:
   ag-charts-types@10.3.9: {}
 
   ag-charts-types@11.3.2: {}
+
+  ag-charts-types@12.2.0: {}
 
   ag-grid-community@33.3.2:
     dependencies:
@@ -9564,7 +9590,7 @@ snapshots:
   axios@1.7.9(debug@4.4.3):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
-      form-data: 4.0.0
+      form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
