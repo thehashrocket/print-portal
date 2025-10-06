@@ -30,6 +30,7 @@ type CompanyWithOffices = Company & {
 interface ChartDataItem {
     name: string;
     value: number;
+    [key: string]: any; // Recharts expects data objects to have an index signature
 }
 
 interface CostByStatusDataItem {
