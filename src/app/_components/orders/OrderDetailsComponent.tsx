@@ -11,10 +11,24 @@ import { type SerializedOrder, type SerializedOrderItem } from "~/types/serializ
 import OrderDeposit from "./OrderDeposit/orderDeposit";
 import ShippingInfoEditor from "~/app/_components/shared/shippingInfoEditor/ShippingInfoEditor";
 import { toast } from "react-hot-toast";
-import { Printer, RefreshCcw, Send, FilePlus2, FilePlus, Download, CalendarIcon } from "lucide-react";
+import {
+    Printer,
+    RefreshCcw,
+    Send,
+    FilePlus2,
+    CalendarIcon,
+    Receipt,
+    Truck,
+    Calculator,
+    Percent,
+    DollarSign,
+    FileText,
+    ReceiptIcon,
+    PlusCircle,
+    Loader2,
+} from "lucide-react";
 import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
-import { Receipt, Truck, Calculator, Percent, DollarSign, FileText, ReceiptIcon, PlusCircle } from 'lucide-react';
 import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
 import { Input } from "../ui/input";
@@ -30,6 +44,8 @@ import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import dayjs from "dayjs";
 import { cn } from "~/lib/utils";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
     const utils = api.useUtils();
@@ -90,7 +106,7 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
 
 const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     const utils = api.useUtils();
-    const { mutate: createInvoice } = api.invoices.create.useMutation({
+    const createInvoiceMutation = api.invoices.create.useMutation({
         onSuccess: () => {
             utils.orders.getByID.invalidate(order.id);
             toast.success('Invoice created');
@@ -102,7 +118,11 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
     });
 
     const handleCreateInvoice = () => {
-        createInvoice({
+        if (order.Invoice || createInvoiceMutation.isPending) {
+            return;
+        }
+
+        createInvoiceMutation.mutate({
             orderId: order.id,
             dateIssued: new Date(),
             dateDue: new Date(new Date().setDate(new Date().getDate() + 14)),
@@ -123,15 +143,25 @@ const CreateInvoiceButton = ({ order }: { order: SerializedOrder }) => {
 
     const isInvoiceCreated = order.Invoice !== null;
 
-    const buttonText = isInvoiceCreated ? "Invoice Created" : "Create Invoice";
+    const buttonText = isInvoiceCreated
+        ? "Invoice Created"
+        : createInvoiceMutation.isPending
+            ? "Creating..."
+            : "Create Invoice";
 
     return (
         <Button
             variant="default"
-            disabled={isInvoiceCreated}
+            disabled={isInvoiceCreated || createInvoiceMutation.isPending}
             onClick={handleCreateInvoice}
         >
-            <FilePlus2 className="w-4 h-4" />
+            {isInvoiceCreated ? (
+                <FilePlus2 className="w-4 h-4" />
+            ) : createInvoiceMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+                <FilePlus2 className="w-4 h-4" />
+            )}
             {buttonText}
         </Button>
     );
@@ -146,6 +176,9 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
     const [orderItems, setOrderItems] = useState<SerializedOrderItem[]>([]);
     const [isOrderItemsLoading, setIsOrderItemsLoading] = useState(true);
     const [recipientEmail, setRecipientEmail] = useState('');
+    const [emailStatus, setEmailStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+    const [emailTouched, setEmailTouched] = useState(false);
+    const [hasUserEditedRecipient, setHasUserEditedRecipient] = useState(false);
     const [editingField, setEditingField] = useState<string | null>(null);
     const utils = api.useUtils();
     const isAuthenticated = useQuickbooksStore((state) => state.isAuthenticated);
@@ -153,6 +186,8 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         initialData: initialOrder,
     });
     const [orderNotes, setOrderNotes] = useState(order?.notes ?? "");
+    const contactPersonEmail = order?.contactPerson?.email ?? "";
+    const normalizedContactEmail = contactPersonEmail.trim();
 
     const { mutate: updateNotes } = api.orders.updateNotes.useMutation({
         onSuccess: () => {
@@ -165,7 +200,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         }
     });
 
-        const { mutate: updateOrder } = api.orders.updateFields.useMutation({
+    const { mutate: updateOrder } = api.orders.updateFields.useMutation({
         onSuccess: () => {
             toast.success('Order updated successfully');
             utils.orders.getByID.invalidate(orderId);
@@ -217,8 +252,69 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         updateNotes({ id: orderId, notes: orderNotes });
     };
 
+    const handleRecipientEmailChange = (value: string) => {
+        if (emailStatus) {
+            setEmailStatus(null);
+        }
+        setRecipientEmail(value);
+        const trimmedValue = value.trim();
+        setHasUserEditedRecipient(trimmedValue !== normalizedContactEmail);
+    };
+
+    const handleRecipientEmailBlur = () => {
+        if (!emailTouched) {
+            setEmailTouched(true);
+        }
+    };
+
+    const handleSendOrderEmail = async () => {
+        if (!order) {
+            return;
+        }
+
+        setEmailTouched(true);
+
+        const trimmedEmail = recipientEmail.trim();
+
+        if (!EMAIL_REGEX.test(trimmedEmail)) {
+            setEmailStatus({ type: "error", message: "Enter a valid email address." });
+            return;
+        }
+
+        setEmailStatus(null);
+
+        try {
+            const latestOrder = await utils.orders.getByID.fetch(order.id);
+            if (!latestOrder) {
+                throw new Error("Unable to fetch the latest order details.");
+            }
+
+            const pdfData = await generateOrderPDFData(latestOrder);
+            if (!pdfData) {
+                throw new Error("Failed to generate order PDF.");
+            }
+
+            const base64Content = pdfData.split(",")[1] ?? '';
+
+            await sendOrderEmailMutation.mutateAsync({
+                orderId: order.id,
+                recipientEmail: trimmedEmail,
+                pdfContent: base64Content
+            });
+
+            setEmailStatus({ type: "success", message: `Order sent to ${trimmedEmail}` });
+            setEmailTouched(false);
+            setRecipientEmail(trimmedEmail);
+            setHasUserEditedRecipient(trimmedEmail !== normalizedContactEmail);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to send order email.';
+            console.error('Error sending order email:', err);
+            setEmailStatus({ type: "error", message });
+        }
+    };
+
     // Use sendOrderEmail from orders/order.ts
-    const { mutate: sendOrderEmail } = api.orders.sendOrderEmail.useMutation({
+    const sendOrderEmailMutation = api.orders.sendOrderEmail.useMutation({
         onSuccess: () => {
             toast.success('Order sent by email');
         },
@@ -228,18 +324,19 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
         }
     });
 
-    const { mutate: createQuickbooksInvoice } = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
+    const createQuickbooksInvoiceMutation = api.qbInvoices.createQbInvoiceFromOrder.useMutation({
         onSuccess: () => {
             toast.success('Quickbooks invoice created');
             utils.orders.getByID.invalidate(orderId);
         },
         onError: (error) => {
             console.error('Failed to create Quickbooks invoice:', error);
+            toast.error('Failed to create QuickBooks invoice');
         }
     });
 
-    const handleCreateQuickbooksInvoice = (orderId: string) => {
-        createQuickbooksInvoice({ orderId: orderId });
+    const handleCreateQuickbooksInvoice = async (orderId: string) => {
+        await createQuickbooksInvoiceMutation.mutateAsync({ orderId });
     };
 
     useEffect(() => {
@@ -247,6 +344,20 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             setOrderItems(order.OrderItems);
         }
     }, [order]);
+
+    useEffect(() => {
+        if (!normalizedContactEmail || hasUserEditedRecipient) {
+            return;
+        }
+
+        if (recipientEmail === normalizedContactEmail) {
+            return;
+        }
+
+        setRecipientEmail(normalizedContactEmail);
+        setEmailTouched(false);
+        setEmailStatus(null);
+    }, [normalizedContactEmail, hasUserEditedRecipient, recipientEmail]);
 
     const [tempPurchaseOrderNumber, setTempPurchaseOrderNumber] = useState(order?.purchaseOrderNumber ?? "");
     const [tempInHandsDate, setTempInHandsDate] = useState<Date | undefined>(order?.inHandsDate ? new Date(order.inHandsDate) : undefined);
@@ -300,6 +411,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             </div>
         );
     }
+
+    const trimmedRecipientEmail = recipientEmail.trim();
+    const canSendEmail = EMAIL_REGEX.test(trimmedRecipientEmail);
+    const showEmailError = emailTouched && !canSendEmail;
+    const emailHelperId = "order-email-helper";
 
 
 
@@ -380,11 +496,11 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             )}
                             <div className="flex flex-row gap-2">
                                 <InfoCard
-                                    title="&nbsp;"
+                                    title="Transfer Ownership"
                                     content={<TransferOwnership orderId={order.id} />}
                                 />
                                 <InfoCard
-                                    title="&nbsp;"
+                                    title="Duplicate Order"
                                     content={<DuplicateOrder orderId={order.id} />}
                                 />
                             </div>
@@ -426,67 +542,46 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                         <div className="flex flex-col gap-2">
                                             <Input
                                                 type="email"
-                                                placeholder="Recipient Email"
+                                                placeholder={normalizedContactEmail || "recipient@example.com"}
                                                 value={recipientEmail}
-                                                onChange={(e) => setRecipientEmail(e.target.value)}
+                                                onChange={(e) => handleRecipientEmailChange(e.target.value)}
+                                                onBlur={handleRecipientEmailBlur}
+                                                aria-invalid={showEmailError}
+                                                aria-describedby={emailHelperId}
+                                                autoComplete="email"
                                             />
 
                                             <Button
+                                                type="button"
                                                 variant="default"
-                                                onClick={async () => {
-                                                    try {
-                                                        console.log('Testing PDF generation...');
-                                                        // Test PDF generation first
-                                                        const testOrder = await utils.orders.getByID.fetch(order.id);
-                                                        if (!testOrder) {
-                                                            console.error('Could not fetch order');
-                                                            return;
-                                                        }
-                                                        // If recipient email is not set, use the contact person email
-                                                        const emailToUse = recipientEmail || testOrder.contactPerson?.email;
-                                                        if (!emailToUse) {
-                                                            toast.error('No recipient email provided');
-                                                            return;
-                                                        }
-
-                                                        // Try to generate PDF and log the result
-                                                        const testPdf = await generateOrderPDFData(testOrder);
-                                                        console.log('PDF generated successfully:', {
-                                                            hasContent: !!testPdf,
-                                                            length: testPdf?.length,
-                                                            firstFewChars: testPdf?.substring(0, 50)
-                                                        });
-
-                                                        // Only proceed with email if PDF generation worked
-                                                        if (testPdf) {
-                                                            console.log('Proceeding with email send...');
-                                                            // Extract base64 content from data URI
-                                                            const base64Content = testPdf?.split(',')[1] ?? '';
-
-                                                            await sendOrderEmail({
-                                                                orderId: order.id,
-                                                                recipientEmail: emailToUse,
-                                                                pdfContent: base64Content
-                                                            });
-                                                            console.log('Email sent successfully');
-                                                        } else {
-                                                            console.error('PDF generation failed');
-                                                            toast.error('Failed to generate PDF');
-                                                        }
-                                                    } catch (error) {
-                                                        console.error('Error in button click handler:', error);
-                                                        if (error instanceof Error) {
-                                                            console.error('Error details:', {
-                                                                message: error.message,
-                                                                stack: error.stack
-                                                            });
-                                                        }
-                                                        toast.error('Failed to process request');
-                                                    }
-                                                }}
+                                                className="flex items-center gap-2"
+                                                disabled={!canSendEmail || sendOrderEmailMutation.isPending}
+                                                onClick={handleSendOrderEmail}
                                             >
-                                                <Send className="w-4 h-4" /> Send Order by Email
+                                                {sendOrderEmailMutation.isPending ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <Send className="w-4 h-4" />
+                                                )}
+                                                {sendOrderEmailMutation.isPending ? "Sending..." : "Send Order by Email"}
                                             </Button>
+
+                                            {emailStatus && (
+                                                <p
+                                                    id={emailHelperId}
+                                                    className={cn(
+                                                        "text-sm",
+                                                        emailStatus.type === "error" ? "text-red-600" : "text-green-600"
+                                                    )}
+                                                >
+                                                    {emailStatus.message}
+                                                </p>
+                                            )}
+                                            {!emailStatus && showEmailError && (
+                                                <p id={emailHelperId} className="text-sm text-red-600">
+                                                    Enter a valid email address.
+                                                </p>
+                                            )}
                                         </div>
                                     }
                                 />
@@ -563,11 +658,16 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                                                 {!order.quickbooksInvoiceId && (
                                                     <Button
                                                         variant="default"
-                                                        disabled={!isAuthenticated}
+                                                        className="flex items-center gap-2"
+                                                        disabled={!isAuthenticated || createQuickbooksInvoiceMutation.isPending}
                                                         onClick={() => handleCreateQuickbooksInvoice(order.id)}
                                                     >
-                                                        <PlusCircle className="w-4 h-4" />
-                                                        Create QuickBooks Invoice
+                                                        {createQuickbooksInvoiceMutation.isPending ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <PlusCircle className="w-4 h-4" />
+                                                        )}
+                                                        {createQuickbooksInvoiceMutation.isPending ? "Creating..." : "Create QuickBooks Invoice"}
                                                     </Button>
                                                 )}
 
