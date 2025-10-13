@@ -42,7 +42,7 @@
     "@ag-grid-community/styles": "^33.0.3",
     "@auth/prisma-adapter": "^2.10.0",
     "@copilotkit/react-core": "^1.10.5",
-    "@copilotkit/react-ui": "^1.10.5",
+    "@copilotkit/react-ui": "^1.10.6",
     "@copilotkit/runtime": "^1.10.5",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "15.2.4",
