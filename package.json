@@ -117,7 +117,7 @@
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.2",
     "@types/string-similarity": "^4.0.2",
-    "@types/uuid": "^10.0.0",
+    "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
     "@typescript-eslint/typescript-estree": "^8.46.0",
