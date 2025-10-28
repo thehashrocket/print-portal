@@ -397,7 +397,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                                 );
                                 setLocalArtwork(updatedArtwork);
                             }}
-                            onDescriptionBlur={(fileUrl: string) => {
+                            onDescriptionBlur={(_fileUrl: string) => {
                                 updateArtwork({
                                     workOrderItemId: workOrderItem.id,
                                     artwork: localArtwork,

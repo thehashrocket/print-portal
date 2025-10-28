@@ -174,7 +174,7 @@ const OrdersTable: React.FC = () => {
     };
   };
 
-  const onFilterChanged = (event: FilterChangedEvent) => {
+  const onFilterChanged = (_event: FilterChangedEvent) => {
     if (!mounted.current || !gridApi) return;
     try {
       const filteredRowCount = gridApi.getDisplayedRowCount();

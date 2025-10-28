@@ -67,7 +67,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
         filter: true,
     }), []);
 
-    const actionsCellRenderer = (props: ICellRendererParams) => (
+    const handleEditRoles = useCallback((user: UserWithRoles) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    }, []);
+
+    const actionsCellRenderer = useCallback((props: ICellRendererParams) => (
         <div className="grid grid-cols-3 gap-2">
             <Button
                 size="sm"
@@ -92,12 +97,11 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
                 <Trash className="w-4 h-4 mr-2" />
             </Button>
         </div>
+    ), [deleteUser, handleEditRoles]);
 
-    );
-
-    const rolesCellRenderer = (props: ICellRendererParams) => (
+    const rolesCellRenderer = useCallback((props: ICellRendererParams) => (
         <span>{props.data.Roles.map((role: Role) => role.name).join(', ')}</span>
-    );
+    ), []);
 
     const columnDefs = useMemo<ColDef[]>(() => [
         { 
@@ -127,7 +131,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
             sortable: false, 
             filter: false 
         }
-    ], []);
+    ], [actionsCellRenderer, rolesCellRenderer]);
 
     useEffect(() => {
         if (updatedUsers) {
@@ -147,11 +151,6 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ initialUsers 
     const onFilterChanged = (event: FilterChangedEvent) => {
         const filteredRowCount = event.api.getDisplayedRowCount();
         console.log(`Filtered row count: ${filteredRowCount}`);
-    };
-
-    const handleEditRoles = (user: UserWithRoles) => {
-        setSelectedUser(user);
-        setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {

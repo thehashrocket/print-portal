@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
@@ -92,7 +92,7 @@ const WorkOrderForm: React.FC = () => {
         },
     });
     const createWalkInCustomerMutation = api.walkInCustomers.create.useMutation({
-        onSuccess: async (customer, variables, context) => {
+        onSuccess: async (customer, _variables, _context) => {
             if (newWorkOrderData) {
                 const workOrderData = {
                     ...newWorkOrderData,
@@ -112,7 +112,7 @@ const WorkOrderForm: React.FC = () => {
     const [newWorkOrderData, setNewWorkOrderData] = useState<any>(null);
     const [walkInOffice, setWalkInOffice] = useState<SerializedOffice | null>(null);
     // walk-in office data should be of type SerializedOffice
-    const { data: walkInOfficeData, isLoading: isWalkInOfficeLoading } = api.offices.getWalkInOffice.useQuery(undefined, {
+    const { data: walkInOfficeData } = api.offices.getWalkInOffice.useQuery(undefined, {
         retry: 3,
         staleTime: 0,
         refetchOnMount: true

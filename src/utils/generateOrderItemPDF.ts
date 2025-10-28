@@ -1,7 +1,7 @@
-import { ShippingInfo, ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from '@prisma/client';
 import { jsPDF } from 'jspdf';
-import { SerializedProcessingOptions, SerializedShippingInfo } from '~/types/serializedTypes';
-import { formatDate, formatTime } from '~/utils/formatters';
+import type { SerializedProcessingOptions, SerializedShippingInfo } from '~/types/serializedTypes';
+import { formatDate } from '~/utils/formatters';
 
 const loadSVG = async (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -20,16 +20,6 @@ const loadSVG = async (url: string): Promise<HTMLImageElement> => {
             newImg.src = canvas.toDataURL('image/png');
         };
         
-        img.onerror = (e) => reject(e);
-        img.src = url;
-    });
-};
-
-async (url: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => resolve(img);
         img.onerror = (e) => reject(e);
         img.src = url;
     });
@@ -170,28 +160,6 @@ export const generateOrderItemPDF = async (
         return currentY + spacing;
     };
 
-    // Modified addField function to handle text wrapping
-    const addWrappedField = (label: string, value: string, x: number, currentY: number, maxWidth: number, labelWidth: number = 20, fontSize: number = 14): number => {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(fontSize);
-        doc.text(label, x, currentY);
-        
-        // Calculate value position based on label length
-        // const labelWidth = doc.getTextWidth(label);
-        const valueX = x + labelWidth + 10;
-        
-        // Split the value text if it's too long
-        doc.setFont('helvetica', 'normal');
-        const availableWidth = maxWidth - (valueX - x);
-        const lines = doc.splitTextToSize(value || 'N/A', availableWidth);
-        
-        // Draw the wrapped text
-        doc.text(lines, valueX, currentY);
-        
-        // Return the Y position after this field (accounting for multiple lines)
-        return currentY + (lines.length * 7); // 7 units per line of text
-    };
-
     // Left column
     let leftY = yPos;
     leftY = addField('ORDER', `#${order.orderNumber}`, leftMargin, leftY, 10, 20, 13);
@@ -226,8 +194,6 @@ export const generateOrderItemPDF = async (
     rightY = addField('ITEM', `#${orderItem.orderItemNumber}`, rightColStart, rightY, 10, 30);
     rightY = addField('P.O. NUMBER', order.WorkOrder.purchaseOrderNumber || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('QUANTITY', orderItem.quantity.toString(), rightColStart, rightY, 10, 30, 13);
-    // Utilize the new addWrappedField function for Paper Stock
-    // rightY = addWrappedField('PAPER STOCK', orderItem.PaperProduct?.paperType + ' ' + orderItem.PaperProduct?.finish + ' ' + orderItem.PaperProduct?.weightLb + ' lbs' || 'N/A', rightColStart, rightY, pageWidth - rightColStart - leftMargin, 30, 13  );
     rightY = addField('SIZE', orderItem.size || 'N/A', rightColStart, rightY, 10, 30, 13);
     rightY = addField('COLOR', orderItem.ink || 'N/A', rightColStart, rightY, 10, 30, 13);
 

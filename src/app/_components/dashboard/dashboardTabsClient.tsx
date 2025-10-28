@@ -1,6 +1,6 @@
 // ~src/app/_components/dashboard/dashboardTabsClient.tsx
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import DraggableOrderItemsDash from "./orderItems/draggableOrderItemsDash";
 import DraggableOrdersDash from "./orders/draggableOrdersDash";
 import { type OrderDashboard } from "~/types/orderDashboard";
@@ -14,8 +14,6 @@ interface DashboardTabsClientProps {
 }
 
 export default function DashboardTabsClient({ orderItems, orders }: DashboardTabsClientProps) {
-    const [activeTab, setActiveTab] = useState("orders");
-
     return (
         <div className="flex flex-col">
             <Tabs defaultValue="orders" className="grow">

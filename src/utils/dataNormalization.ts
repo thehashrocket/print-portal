@@ -28,7 +28,7 @@ import {
     type Prisma,
     type PaperProduct,
     type ProductType,
-    OutsourcedOrderItemInfoFile,
+    type OutsourcedOrderItemInfoFile,
 } from "@prisma/client";
 
 import {
@@ -59,8 +59,8 @@ import {
     type SerializedProductType,
     type SerializedWalkInCustomer,
     type SerializedOffice,
-    SerializedOutsourcedOrderItemInfo,
-    SerializedOutsourcedOrderItemInfoFile
+    type SerializedOutsourcedOrderItemInfo,
+    type SerializedOutsourcedOrderItemInfoFile
 } from "~/types/serializedTypes";
 
 export function normalizeAddress(address: Address): SerializedAddress {

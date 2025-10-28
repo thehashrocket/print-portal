@@ -2,8 +2,8 @@
 
 import OrderItemPrintPreview from '~/app/_components/orders/orderItem/OrderItemPrintPreview';
 import { api } from '~/trpc/server';
-import { type SerializedOrderItem, type SerializedOrder, type SerializedShippingInfo, type SerializedTypesetting, type SerializedOrderItemStock, type SerializedProcessingOptions } from '~/types/serializedTypes';
-import { normalizeTypesetting, normalizeOrderItemStock, normalizeProcessingOptions } from '~/utils/dataNormalization';
+import { type SerializedOrderItem, type SerializedOrder, type SerializedShippingInfo, type SerializedTypesetting, type SerializedProcessingOptions } from '~/types/serializedTypes';
+import { normalizeTypesetting, normalizeProcessingOptions } from '~/utils/dataNormalization';
 import { formatPaperProductLabel } from '~/utils/formatters';
 
 export default async function OrderPrintPage(
@@ -35,8 +35,6 @@ export default async function OrderPrintPage(
             return paperProduct ? formatPaperProductLabel(paperProduct) : null;
         };
 
-        const normalizedOrderItemStocks = orderItemStocks ?? [];
-
         let orderPaperProducts: any[] = [];
         if (orderItemStocks) {
             // Build a list of paper products
@@ -48,7 +46,6 @@ export default async function OrderPrintPage(
             order={order as SerializedOrder}
             shippingInfo={shippingInfo as SerializedShippingInfo}
             normalizedTypesetting={normalizedTypesetting as SerializedTypesetting[]}
-            normalizedOrderItemStocks={normalizedOrderItemStocks as SerializedOrderItemStock[]}
             orderPaperProducts={orderPaperProducts as any[]}
             processingOptions={normalizedProcessingOptions as SerializedProcessingOptions[]} />;
     } catch (error) {

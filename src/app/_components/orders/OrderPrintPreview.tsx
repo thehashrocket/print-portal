@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { SerializedOrder } from '~/types/serializedTypes';
+import Image from "next/image";
+import type { SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '../ui/button';
 import { ShippingMethod } from '@prisma/client';
@@ -45,7 +46,14 @@ const OrderPrintPreview: React.FC<OrderPrintPreviewProps> = ({ order }) => {
             </div>
             <header className="flex items-start justify-between mb-8">
                 <div className="flex flex-col gap-2">
-                    <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
+                    <Image
+                        src="/images/thomson-pdf-logo.svg"
+                        alt="Thomson Logo"
+                        width={256}
+                        height={64}
+                        className="w-64 h-auto"
+                        priority
+                    />
                 </div>
                 <div className="flex flex-col gap-2 w-[40%]">
                     <h1 className="text-3xl font-bold text-green-700">Order Details</h1>

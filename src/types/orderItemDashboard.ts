@@ -1,5 +1,5 @@
 // ~src/types/orderItemDashboard.ts
-import { OrderStatus, type OrderItemStatus } from "@prisma/client";
+import type { OrderStatus, OrderItemStatus } from "@prisma/client";
 
 export interface OrderItemDashboard {
     amount: number | null;

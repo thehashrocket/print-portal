@@ -3,7 +3,7 @@ import { z } from "zod";
 import { OrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
 import { sendOrderStatusEmail } from "~/utils/sengrid";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
-import { normalizeOrderItem, normalizeOutsourcedOrderItemInfo } from "~/utils/dataNormalization";
+import { normalizeOrderItem } from "~/utils/dataNormalization";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),

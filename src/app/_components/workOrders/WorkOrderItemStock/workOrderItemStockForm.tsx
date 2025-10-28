@@ -12,7 +12,6 @@ import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField
 import { Input } from '~/app/_components/ui/input';
 import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
-import { CustomComboBox } from '../../../_components/shared/ui/CustomComboBox';
 import { type TempWorkOrderItemStock } from '~/app/store/workOrderItemStockStore';
 import { PaperProductDialog } from '~/app/_components/shared/paperProducts/paperProductDialog';
 import { formatPaperProductLabel } from '~/utils/formatters';
@@ -50,7 +49,7 @@ const WorkOrderItemStockForm: React.FC<WorkOrderItemStockFormProps> = ({
     onCancel,
     isTemporary = false
 }) => {
-    const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<WorkOrderItemStockFormData>({
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<WorkOrderItemStockFormData>({
         resolver: zodResolver(workOrderItemStockSchema) as any,
         defaultValues: {
             workOrderItemId,

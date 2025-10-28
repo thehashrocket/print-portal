@@ -11,7 +11,6 @@ import { toast } from "react-hot-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Loader2, Check } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "~/app/_components/ui/command";
-import { cn } from "~/lib/utils";
 import debounce from "lodash/debounce";
 
 const createUserSchema = z.object({
@@ -25,11 +24,6 @@ interface CreateUserModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-}
-
-interface Company {
-    id: string;
-    name: string;
 }
 
 interface Office {
@@ -48,8 +42,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [isSearching, setIsSearching] = useState(false);
-    const [showCompanyList, setShowCompanyList] = useState(false);
     const [offices, setOffices] = useState<Office[]>([]);
 
     const { data: companyData, isFetching: isLoadingCompanies } = api.companies.search.useQuery(
@@ -82,7 +74,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
     const debouncedSearch = useMemo(
         () => debounce((term: string) => {
             setSearchTerm(term);
-            setIsSearching(true);
         }, 300),
         []
     );
@@ -96,7 +87,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
     const handleCompanySelect = (companyId: string, companyName: string) => {
         setSelectedCompany(companyId);
         setSearchTerm(companyName);
-        setShowCompanyList(false);
         setFormData(prev => ({
             ...prev,
             companyId: companyId,
@@ -223,7 +213,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                                                 officeId: ''
                                             }));
                                         }
-                                        setShowCompanyList(true);
                                     }}
                                 />
                                 <CommandList className="max-h-[200px] overflow-y-auto">
@@ -250,7 +239,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
                                                 value={company.name}
                                                 onSelect={() => {
                                                     handleCompanySelect(company.id, company.name);
-                                                    setShowCompanyList(false);
                                                 }}
                                             >
                                                 <span>{company.name}</span>

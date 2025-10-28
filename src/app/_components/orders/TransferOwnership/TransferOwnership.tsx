@@ -14,7 +14,7 @@
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import React, { useEffect, useMemo } from 'react';
 // import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/app/_components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '~/app/_components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/app/_components/ui/dialog';
 import { Button } from '~/app/_components/ui/button';
 import { Label } from '~/app/_components/ui/label';
 import { Loader2 } from 'lucide-react';
@@ -58,7 +58,7 @@ const transferOwnershipSchema = z.object({
 type TransferOwnershipFormData = z.infer<typeof transferOwnershipSchema>;
 
 const TransferOwnership: React.FC<TransferOwnershipProps> = ({ orderId }) => {
-    const { register, handleSubmit, formState: { errors }, setValue, watch, clearErrors } = useForm<TransferOwnershipFormData>({
+    const { handleSubmit, formState: { errors }, setValue, watch, clearErrors } = useForm<TransferOwnershipFormData>({
         resolver: zodResolver(transferOwnershipSchema)
     });
     const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
@@ -69,7 +69,6 @@ const TransferOwnership: React.FC<TransferOwnershipProps> = ({ orderId }) => {
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [selectedOffice, setSelectedOffice] = useState<string | null>(null);
-    const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [offices, setOffices] = useState<Office[]>([]);
@@ -316,7 +315,6 @@ const TransferOwnership: React.FC<TransferOwnershipProps> = ({ orderId }) => {
                             onClick={() => {
                                 setSelectedCompany(null);
                                 setSelectedOffice(null);
-                                setSelectedEmployee(null);
                                 setValue('companyId', '');
                                 setValue('officeId', '');
                                 setValue('contactPersonId', '');

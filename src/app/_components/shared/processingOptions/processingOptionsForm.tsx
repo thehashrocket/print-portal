@@ -49,7 +49,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
     const {
         register,
         handleSubmit,
-        formState: { errors },
         watch,
         setValue
     } = useForm({
@@ -87,8 +86,6 @@ const ProcessingOptionsForm: React.FC<ProcessingOptionsFormProps> = ({
     };
 
     const inputClass = "input input-bordered w-full";
-    const errorClass = "text-error text-sm mt-1";
-
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <input type="hidden" {...register("id")} />

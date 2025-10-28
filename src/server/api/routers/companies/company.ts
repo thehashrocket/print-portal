@@ -3,8 +3,6 @@ import { z } from "zod";
 import { Prisma } from "@prisma/client"; // Import the Company model
 import { normalizeWorkOrder, normalizeOrder, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 
-const SALES_TAX = 0.07;
-
 export const companyRouter = createTRPCRouter({
     // Get a Company by ID
     getByID: protectedProcedure

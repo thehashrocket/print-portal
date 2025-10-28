@@ -1,7 +1,7 @@
 // ~/src/app/_components/invoices/invoicesTable.tsx
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import "@ag-grid-community/styles/ag-grid.css";
@@ -13,7 +13,7 @@ import {
     ModuleRegistry,
     type GridApi,
     type FilterChangedEvent,
-    ValueGetterParams,
+    type ValueGetterParams,
 } from "@ag-grid-community/core";
 import Link from "next/link";
 import { type InvoiceStatus } from "@prisma/client";
@@ -59,7 +59,7 @@ const InvoicesTable: React.FC = () => {
         filter: true,
     }), []);
 
-    const statusCellRenderer = (params: ICellRendererParams) => {
+    const statusCellRenderer = useCallback((params: ICellRendererParams) => {
         const status = params.value as InvoiceStatus;
         let colorClass = '';
         switch (status) {
@@ -70,13 +70,13 @@ const InvoicesTable: React.FC = () => {
             default: colorClass = 'text-black';
         }
         return <span className={`font-semibold ${colorClass}`}>{status}</span>;
-    };
+    }, []);
 
-    const handleSyncSuccess = () => {
+    const handleSyncSuccess = useCallback(() => {
         void utils.invoices.getAll.invalidate();
-    };
+    }, [utils.invoices.getAll]);
 
-    const actionCellRenderer = (props: { data: SerializedInvoice }) => (
+    const actionCellRenderer = useCallback((props: { data: SerializedInvoice }) => (
         <div className="flex gap-2">
             <Link href={`/invoices/${props.data.id}`}>
                 <Button
@@ -90,9 +90,9 @@ const InvoicesTable: React.FC = () => {
             </Link>
             <QuickbooksInvoiceButton invoice={props.data} onSyncSuccess={handleSyncSuccess} />
         </div>
-    );
+    ), [handleSyncSuccess]);
 
-    const quickbooksStatusRenderer = (params: { value: string | null }) => (
+    const quickbooksStatusRenderer = useCallback((params: { value: string | null }) => (
         <div className={`flex items-center ${params.value ? "text-green-600" : "text-red-600"}`}>
             {params.value ? (
                 <>
@@ -106,7 +106,7 @@ const InvoicesTable: React.FC = () => {
                 </>
             )}
         </div>
-    );
+    ), []);
 
     const columnDefs = useMemo<ColDef[]>(() => [
         { 
@@ -157,7 +157,7 @@ const InvoicesTable: React.FC = () => {
             sortable: false, 
             filter: false 
         }
-    ], []);
+    ], [actionCellRenderer, quickbooksStatusRenderer, statusCellRenderer]);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
         { 
@@ -188,7 +188,7 @@ const InvoicesTable: React.FC = () => {
             sortable: false, 
             filter: false 
         }
-    ], []);
+    ], [actionCellRenderer, statusCellRenderer]);
 
     useEffect(() => {
         if (invoices) {
@@ -206,7 +206,7 @@ const InvoicesTable: React.FC = () => {
         }
     };
 
-    const onFilterChanged = (event: FilterChangedEvent) => {
+    const onFilterChanged = (_event: FilterChangedEvent) => {
         if (!mounted.current || !gridApi) return;
         try {
             const filteredRowCount = gridApi.getDisplayedRowCount();

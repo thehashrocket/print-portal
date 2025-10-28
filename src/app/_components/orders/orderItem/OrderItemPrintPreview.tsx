@@ -1,8 +1,9 @@
 "use client";
 
 import React from 'react';
-import { SerializedOrderItem, SerializedOrder, SerializedShippingInfo, SerializedTypesetting, SerializedOrderItemStock, SerializedProcessingOptions } from '~/types/serializedTypes';
-import { formatCurrency, formatDate } from '~/utils/formatters';
+import Image from "next/image";
+import type { SerializedOrderItem, SerializedOrder, SerializedShippingInfo, SerializedTypesetting, SerializedProcessingOptions } from '~/types/serializedTypes';
+import { formatDate } from '~/utils/formatters';
 import { Button } from '~/app/_components/ui/button';
 import { OrderItemStatus, ShippingMethod } from '@prisma/client';
 import { ArrowLeft, Printer } from 'lucide-react';
@@ -13,7 +14,6 @@ interface OrderItemPrintPreviewProps {
   order: SerializedOrder;
   shippingInfo: SerializedShippingInfo;
   normalizedTypesetting: SerializedTypesetting[];
-  normalizedOrderItemStocks: SerializedOrderItemStock[];
   orderPaperProducts: any;
   processingOptions: SerializedProcessingOptions[];
 }
@@ -23,7 +23,6 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
   order,
   shippingInfo,
   normalizedTypesetting,
-  normalizedOrderItemStocks,
   orderPaperProducts,
   processingOptions
 }) => {
@@ -60,7 +59,14 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
       </div>
       {/* Row 1: Header with Logo and Status */}
       <div className="flex justify-between items-start mb-4">
-        <img src="/images/thomson-pdf-logo.svg" alt="Thomson Logo" className="w-64" />
+        <Image
+          src="/images/thomson-pdf-logo.svg"
+          alt="Thomson Logo"
+          width={256}
+          height={64}
+          className="w-64 h-auto"
+          priority
+        />
         <div className="flex flex-col gap-1">
           <div className="flex flex-row gap-1">
             <p className="w-32 text-xl font-bold">ORDER</p>
@@ -178,7 +184,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
               <div className="grid grid-cols-2">
                 {Object.entries(normalizedTypesetting[0] as unknown as Record<string, unknown>)
                   .filter(([key]) => !['createdAt', 'updatedAt', 'createdById', 'orderItemId', 'id', 'workOrderItemId', 'TypesettingOptions', 'TypesettingProofs'].includes(key))
-                  .map(([key, value], index) => {
+                  .map(([key, value]) => {
                     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
                     return (
                       <div key={key} className="flex">
@@ -196,8 +202,8 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
           {orderPaperProducts && orderPaperProducts.length > 0 && (
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-bold">Paper Stock</h2>
-              {orderPaperProducts.map((product: string, index: number) => (
-                <p className='text-sm' key={index}>{product}</p>
+              {orderPaperProducts.map((product: string, idx: number) => (
+                <p className='text-sm' key={`${product}-${idx}`}>{product}</p>
               ))}
             </div>
           )}

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { OrderItemStatus, type ProcessingOptions } from "@prisma/client";
+import { OrderItemStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
@@ -24,33 +24,14 @@ import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEdit
 import InfoCard from "../../shared/InfoCard/InfoCard";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
-import { formatPaperProductLabel } from "~/utils/formatters";
 import ItemStatusBadge from "./ItemStatusBadge";
 import OutsourcedOrderItemInfoForm from "./OutsourcedOrderItemInfoForm";
-import { z } from "zod";
+import type { OutsourcedOrderItemInfoFormData } from "./OutsourcedOrderItemInfoForm";
 
 type OrderItemPageProps = {
     orderId: string;
     orderItemId: string;
 };
-
-// Define the form schema to match OutsourcedOrderItemInfoForm
-const outsourcedOrderItemInfoSchema = z.object({
-    companyName: z.string().min(1, "Company name is required"),
-    contactName: z.string().min(1, "Contact name is required"),
-    contactPhone: z.string().min(1, "Contact phone is required"),
-    contactEmail: z.string().optional(),
-    jobDescription: z.string().optional(),
-    orderNumber: z.string().optional(),
-    estimatedDeliveryDate: z.string().optional(),
-    files: z.array(z.object({
-        fileUrl: z.string(),
-        description: z.string().optional(),
-    })).optional(),
-});
-
-// Define the form data type
-type OutsourcedOrderItemInfoFormData = z.infer<typeof outsourcedOrderItemInfoSchema>;
 
 const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     orderId,
@@ -61,7 +42,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: typesettingData, isLoading: typesettingLoading } = api.typesettings.getByOrderItemID.useQuery(orderItemId);
     const { data: processingOptions } = api.processingOptions.getByOrderItemId.useQuery(orderItemId);
     const { data: orderItemStocks } = api.orderItemStocks.getByOrderItemId.useQuery(orderItemId);
-    const { data: paperProducts } = api.paperProducts.getAll.useQuery();
     const { data: productTypes } = api.productTypes.getAll.useQuery();
     const utils = api.useUtils();
 
@@ -116,12 +96,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             void utils.orderItems.getByID.invalidate(orderItemId);
         },
     });
-
-    const findPaperProduct = (id: string) => {
-        if (!id) return null;
-        const paperProduct = paperProducts?.find(product => product.id === id);
-        return paperProduct ? formatPaperProductLabel(paperProduct) : null;
-    };
 
     const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
         onSuccess: () => {
@@ -291,12 +265,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     }
 
     const normalizedTypesetting = typesettingData ? typesettingData.map(normalizeTypesetting) : [];
-
-    let orderPaperProducts: any[] = [];
-    if (orderItemStocks) {
-        // Build a list of paper products
-        orderPaperProducts = orderItemStocks.map(stock => findPaperProduct(stock.paperProductId || ''));
-    }
 
     return (
         <>
@@ -596,7 +564,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         );
                                         setLocalArtwork(updatedArtwork);
                                     }}
-                                    onDescriptionBlur={(fileUrl: string) => {
+                                    onDescriptionBlur={(_fileUrl: string) => {
                                         updateArtwork({
                                             orderItemId: orderItem.id,
                                             artwork: localArtwork,

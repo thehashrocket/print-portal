@@ -1,6 +1,6 @@
 // ~/app/_components/workOrders/create/workOrderItemForm.tsx
 "use client";
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,7 +17,6 @@ import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { Textarea } from '../../ui/textarea';
-import { CustomComboBox } from '../../shared/ui/CustomComboBox';
 import { WorkOrderItemStockDialog } from '../WorkOrderItemStock/workOrderItemStockDialog';
 import { useWorkOrderItemStockStore } from '~/app/store/workOrderItemStockStore';
 import { CopilotPopup } from "@copilotkit/react-ui";

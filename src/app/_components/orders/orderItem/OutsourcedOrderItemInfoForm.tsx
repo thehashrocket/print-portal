@@ -8,7 +8,7 @@ import { Label } from "~/app/_components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/app/_components/ui/card";
 import { Textarea } from "~/app/_components/ui/textarea";
 import dayjs from "dayjs";
-import { SerializedOutsourcedOrderItemInfo, SerializedOutsourcedOrderItemInfoFile } from "~/types/serializedTypes";
+import type { SerializedOutsourcedOrderItemInfo, SerializedOutsourcedOrderItemInfoFile } from "~/types/serializedTypes";
 import FileUpload from "~/app/_components/shared/fileUpload";
 
 // Define the props interface
@@ -60,7 +60,7 @@ export default function OutsourcedOrderItemInfoForm({
   );
   
   // Initialize the form with the current info data
-  const { register, handleSubmit, control, formState: { errors, isDirty }, setValue } = useForm<OutsourcedOrderItemInfoFormData>({
+  const { register, handleSubmit, formState: { errors, isDirty }, setValue } = useForm<OutsourcedOrderItemInfoFormData>({
     resolver: zodResolver(outsourcedOrderItemInfoSchema),
     defaultValues: {
       companyName: info?.companyName || "",
