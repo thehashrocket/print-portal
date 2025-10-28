@@ -2,7 +2,7 @@
 // This is to avoid having to create a new paper product for each order.
 // Instead, we can just use the shared paper product.
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { type Prisma } from "@prisma/client";
 import { PaperBrand, PaperType, PaperFinish } from "@prisma/client";

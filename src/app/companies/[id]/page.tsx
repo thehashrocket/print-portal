@@ -9,7 +9,7 @@ import IndividualCompanyPage from "~/app/_components/companies/individualCompany
 import NoPermission from "~/app/_components/noPermission/noPermission"
 import HeaderClient from "~/app/_components/companies/HeaderClient";
 
-import { type SerializedCompany, type SerializedOffice } from "~/types/serializedTypes";
+import { type SerializedCompany } from "~/types/serializedTypes";
 
 const Breadcrumbs: React.FC<{ companyName: string }> = ({ companyName }) => (
     <nav className="flex mb-4" aria-label="Breadcrumb">

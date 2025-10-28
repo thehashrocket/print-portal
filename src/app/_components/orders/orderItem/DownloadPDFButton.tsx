@@ -1,4 +1,4 @@
-import { Download, FilePlus } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { Button } from '../../ui/button';
 
 export const DownloadPDFButton = ({ onClick }: { onClick: () => void }) => {

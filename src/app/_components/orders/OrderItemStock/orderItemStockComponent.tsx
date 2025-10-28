@@ -154,7 +154,7 @@ const OrderItemStockComponent: React.FC<OrderItemStockComponentProps> = ({ order
                 );
             }
         }
-    ], [findPaperProduct, handleEdit]);
+    ], [findPaperProduct, handleEdit, handleDelete]);
 
     // Default Column Definitions
     const defaultColDef = useMemo<ColDef<SerializedOrderItemStock>>(() => ({

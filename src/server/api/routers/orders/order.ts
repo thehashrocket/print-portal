@@ -1,11 +1,11 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus, OrderItem } from "@prisma/client";
-import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer, normalizeOrderItem } from "~/utils/dataNormalization";
+import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus } from "@prisma/client";
+import type { OrderItem } from "@prisma/client";
+import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
-import { transcode } from "buffer";
 const SALES_TAX = 0.07;
 
 export const orderRouter = createTRPCRouter({
@@ -490,7 +490,7 @@ export const orderRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(z.object({
     }).nullish())
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input: _input }) => {
 
       const orders = await ctx.db.order.findMany({
         orderBy: {
@@ -772,7 +772,7 @@ export const orderRouter = createTRPCRouter({
       contactPersonId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { orderId, companyId, officeId, contactPersonId } = input;
+      const { orderId, officeId, contactPersonId } = input;
 
       const updatedOrder = await ctx.db.order.update({
         where: { id: orderId },

@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
@@ -57,10 +57,10 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         }
     );
     
-    const handleDelete = (id: string) => {
+    const handleDelete = useCallback((id: string) => {
         setIsDeleting(true);
         deleteWorkOrderItemMutation.mutate(id);
-    };
+    }, [deleteWorkOrderItemMutation]);
 
     const defaultColDef = useMemo(() => ({
         resizable: true,
@@ -68,7 +68,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         filter: true,
     }), []);
 
-    const actionsRenderer = (props: { data: SerializedWorkOrderItem }) => (
+    const actionsRenderer = useCallback((props: { data: SerializedWorkOrderItem }) => (
         <div className="flex flex-row gap-2">
             <Link href={`/workOrders/${props.data.workOrderId}/workOrderItem/${props.data.id}`}>
                 <Button
@@ -98,12 +98,12 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
                 )}
             </Button>
         </div>
-    );
+    ), [handleDelete, isDeleting]);
 
-    const formatNumberAsCurrency = (params: ValueFormatterParams) => {
+    const formatNumberAsCurrency = useCallback((params: ValueFormatterParams) => {
         if (params.value === null) return "$0.00";
         return `$${Number(params.value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
-    };
+    }, []);
 
     const getRowStyle = (params: RowClassParams<SerializedWorkOrderItem>): { backgroundColor: string } | undefined => {
         if (!params.data) return undefined;
@@ -163,7 +163,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
             sortable: false,
             filter: false
         }
-    ], []);
+    ], [actionsRenderer, formatNumberAsCurrency]);
 
     const mobileColumnDefs = useMemo<ColDef[]>(() => [
         {
@@ -193,7 +193,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
             sortable: false,
             filter: false
         }
-    ], []);
+    ], [actionsRenderer, formatNumberAsCurrency]);
 
     // Cleanup function
     useEffect(() => {
@@ -263,7 +263,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         }
     };
 
-    const onFilterChanged = (event: FilterChangedEvent) => {
+    const onFilterChanged = (_event: FilterChangedEvent) => {
         if (!mounted.current || !gridApi) return;
 
         try {

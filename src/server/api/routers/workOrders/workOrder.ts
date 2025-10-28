@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { WorkOrderStatus, Prisma, ShippingMethod } from "@prisma/client";
+import { WorkOrderStatus, Prisma, type ShippingMethod } from "@prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
@@ -394,7 +394,7 @@ export const workOrderRouter = createTRPCRouter({
       officeId: z.string(),
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
-      const convertedWorkOrder = await convertWorkOrderToOrder(input.id, input.officeId);
+      await convertWorkOrderToOrder(input.id, input.officeId);
       const fullWorkOrder = await ctx.db.workOrder.findUnique({
         where: { id: input.id },
         include: {
