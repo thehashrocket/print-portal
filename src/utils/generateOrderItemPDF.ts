@@ -164,6 +164,7 @@ export const generateOrderItemPDF = async (
     let leftY = yPos;
     leftY = addField('ORDER', `#${order.orderNumber}`, leftMargin, leftY, 10, 20, 13);
     leftY = addField('COMPANY', order.Office?.Company.name || 'N/A', leftMargin, leftY, 10, 20, 13);
+    leftY = addField('OFFICE', order.Office?.name || 'N/A', leftMargin, leftY, 10, 20, 13);
     
     // Contact Information
     leftY += 10;

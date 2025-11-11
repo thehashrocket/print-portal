@@ -147,6 +147,7 @@ export const generateOrderPDF = async (order: SerializedOrder) => {
     yPos = leftY;
     // Left column
     leftY = addField('Company', order.Office?.Company.name || 'N/A', leftMargin, leftY);
+    leftY = addField('Office', order.Office?.name || 'N/A', leftMargin, leftY);
     leftY = addField('Contact', order.contactPerson?.name || 'N/A', leftMargin, leftY);
     leftY = addField('Email', order.contactPerson?.email || 'N/A', leftMargin, leftY);
     leftY = addField('Date', formatDate(order.updatedAt), leftMargin, leftY);

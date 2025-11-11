@@ -94,6 +94,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
             <div className="flex flex-col gap-1">
               <p className="w-32 text-xl font-bold">Company</p>
               <p className="text-xl font-bold">{order.Office.Company.name}</p>
+              <p className="text-xl font-bold">{order.Office.name}</p>
             </div>
             {order.Office.isWalkInOffice == false && (
               <div className="flex">
