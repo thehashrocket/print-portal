@@ -80,7 +80,7 @@
     "formidable": "^3.5.4",
     "iconv-lite": "^0.7.0",
     "intuit-oauth": "^4.2.1",
-    "jotai": "^2.15.0",
+    "jotai": "^2.15.1",
     "jspdf": "^3.0.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.548.0",
