@@ -110,7 +110,7 @@
     "@types/bcryptjs": "^3.0.0",
     "@types/eslint": "^9.6.1",
     "@types/formidable": "^3.4.6",
-    "@types/lodash": "^4.17.20",
+    "@types/lodash": "^4.17.21",
     "@types/node": "^24.10.1",
     "@types/nodemailer": "^7.0.4",
     "@types/pdfkit": "^0.17.3",
