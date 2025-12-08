@@ -80,11 +80,11 @@ async function importPaperCatalog() {
     const fileContent = fs.readFileSync(csvPath, 'utf-8');
 
     const records = await new Promise<PaperCatalogRow[]>((resolve, reject) => {
-      parse<PaperCatalogRow>(fileContent, {
+      parse(fileContent, {
         columns: true,
         skip_empty_lines: true,
         trim: true,
-      }, (err, parsedRecords) => {
+      }, (err, parsedRecords: PaperCatalogRow[]) => {
         if (err) {
           reject(err);
           return;
