@@ -25,7 +25,7 @@ const typesettingFormSchema = z.object({
     plateRan: z.string().nullable(),
     prepTime: z.number().nullable(),
     status: z.nativeEnum(TypesettingStatus, {
-        required_error: "Status is required",
+        error: "Status is required",
     }),
     timeIn: z.string().min(1, "Time In is required"),
     workOrderItemId: z.string().nullable(),

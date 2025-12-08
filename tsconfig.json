@@ -21,7 +21,7 @@
     "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "plugins": [
       {
         "name": "next"
@@ -45,7 +45,8 @@
     "**/*.cjs",
     "**/*.js",
     ".next/types/**/*.ts",
-    "src/server/api/routers/quickbooks"
+    "src/server/api/routers/quickbooks",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

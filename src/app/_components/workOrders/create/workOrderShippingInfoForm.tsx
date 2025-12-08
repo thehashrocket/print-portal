@@ -16,7 +16,7 @@ import { useCopilotReadable } from "@copilotkit/react-core";
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod, {
-        required_error: "Please select a shipping method",
+        error: "Please select a shipping method",
     }),
     instructions: z.string().optional(),
     addressId: z.string().optional(),

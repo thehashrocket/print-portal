@@ -75,7 +75,7 @@ export default function UserRegistration() {
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const formattedErrors: { [key: string]: string } = {};
-                error.errors.forEach((err) => {
+                error.issues.forEach((err) => {
                     if (err.path[0] !== undefined) {
                         formattedErrors[err.path[0].toString()] = err.message;
                     }

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { headers, type UnsafeUnwrappedHeaders } from "next/headers";
+import { headers } from "next/headers";
 import { cache } from "react";
 
 import { createCaller } from "~/server/api/root";
@@ -11,12 +11,8 @@ import { createTRPCContext } from "~/server/api/trpc";
  * handling a tRPC call from a React Server Component.
  */
 const createContext = cache(async () => {
-  const createHeaders = async () => {
-    const headerData = await headers();
-    return new Headers((headerData as unknown as UnsafeUnwrappedHeaders));
-  };
-
-  const heads = await createHeaders();
+  const headerData = await headers();
+  const heads = new Headers(headerData);
   heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({

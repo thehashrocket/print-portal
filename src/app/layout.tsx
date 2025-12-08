@@ -1,7 +1,6 @@
 import "~/styles/globals.css";
 import NavBar from "./_components/shared/navBar"; // Fix the casing of the file name
 
-import { Inter } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
@@ -10,11 +9,6 @@ import { InstallPWA } from '~/app/_components/installPWA'
 
 import { CopilotKit } from "@copilotkit/react-core";
 import "@copilotkit/react-ui/styles.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
 
 export const metadata = {
   title: "Thomson Printing Platform",
@@ -40,7 +34,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-title" content="Thomson Printing Portal" />
         <link rel="apple-touch-icon" href="/images/favicon-196x196.png" />
       </head>
-      <body className={`font-sans ${inter.variable}`}>
+      <body className="font-sans">
         <CopilotKit runtimeUrl="/api/copilotkit">
           <TRPCReactProvider>
             <Providers>

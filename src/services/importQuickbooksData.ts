@@ -170,14 +170,17 @@ async function importData() {
   const csvPath = path.join(process.cwd(), "prisma/import_data/quickbooks_client_export.csv");
   const fileContent = fs.readFileSync(csvPath, "utf-8");
 
-  const records: QuickbooksRow[] = await new Promise((resolve, reject) => {
-    parse(fileContent, {
+  const records = await new Promise<QuickbooksRow[]>((resolve, reject) => {
+    parse<QuickbooksRow>(fileContent, {
       columns: true,
       skip_empty_lines: true,
       trim: true,
-    }, (err, records) => {
-      if (err) reject(err);
-      else resolve(records);
+    }, (err, parsedRecords) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(parsedRecords ?? []);
     });
   });
 
