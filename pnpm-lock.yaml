@@ -217,6 +217,9 @@ importers:
         specifier: 5.0.8
         version: 5.0.8(@types/react@19.0.3)(immer@11.0.1)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.0.0
+        version: 3.3.3
       '@faker-js/faker':
         specifier: ^10.1.0
         version: 10.1.0
@@ -10131,7 +10134,7 @@ snapshots:
   axios@1.7.9(debug@4.4.3):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.3)
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
