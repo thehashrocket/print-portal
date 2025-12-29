@@ -1,3 +1,4 @@
+"use client";
 // ~/app_components/workOrders/create/expandableWorkOrderItemDetails.tsx
 "user client";
 import React from 'react';
