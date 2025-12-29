@@ -33,8 +33,6 @@ import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
 import { Input } from "../ui/input";
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import InfoCard from "../shared/InfoCard/InfoCard";
 import { Textarea } from "../ui/textarea";
 import TransferOwnership from "./TransferOwnership/TransferOwnership";
@@ -367,27 +365,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
             setIsOrderItemsLoading(false);
         }
     }, [orderItems]);
-
-    useCopilotReadable({
-        description: "The current order that is being viewed.",
-        value: order ?? null,
-    });
-
-    // Add more context for the AI assistant
-    useCopilotReadable({
-        description: "Order items in the current order",
-        value: orderItems ?? null,
-    });
-
-    useCopilotReadable({
-        description: "Shipping information for the order",
-        value: order?.ShippingInfo ?? null,
-    });
-
-    useCopilotReadable({
-        description: "Contact person information",
-        value: order?.contactPerson ?? null,
-    });
 
     if (isLoading) {
         return (
@@ -811,32 +788,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                     </section>
                 </main>
             </div>
-            <CopilotPopup
-                instructions={`You are an AI assistant helping with order management in a print portal system. You have access to:
-                    1. The complete order details including order number, status, and company information
-                    2. All order items and their specifications
-                    3. Shipping information and tracking details
-                    4. Contact person details
-                    5. Invoice and payment information
-
-                    Your role is to:
-                    - Answer questions about any aspect of this specific order
-                    - Explain calculations and pricing details
-                    - Help users understand the order status and available actions
-                    - Provide guidance on shipping, invoicing, and payment processes
-                    - Assist with understanding the order workflow
-
-                    When responding:
-                    - Reference specific details from the order data provided
-                    - Be precise with numbers and calculations
-                    - Explain technical terms when used
-                    - If asked about actions (like status changes or invoice creation), explain the requirements and implications`}
-                labels={{
-                    title: "Order Assistant",
-                    initial: "How can I help you with this order?",
-                    placeholder: "Ask about order details, shipping, invoices...",
-                }}
-            />
         </>
     );
 }

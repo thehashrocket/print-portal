@@ -22,8 +22,6 @@ import { SelectField } from "../../shared/ui/SelectField/SelectField";
 import { Printer } from "lucide-react";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 import InfoCard from "../../shared/InfoCard/InfoCard";
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 import ItemStatusBadge from "./ItemStatusBadge";
 import OutsourcedOrderItemInfoForm from "./OutsourcedOrderItemInfoForm";
 import type { OutsourcedOrderItemInfoFormData } from "./OutsourcedOrderItemInfoForm";
@@ -194,32 +192,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const { data: orderItemStocks } = api.orderItemStocks.getByOrderItemId.useQuery(orderItemId);
     const { data: productTypes } = api.productTypes.getAll.useQuery();
     const utils = api.useUtils();
-
-    // Add CopilotKit readable context at the top level
-    useCopilotReadable({
-        description: "The current order item being viewed, including its details, status, and specifications",
-        value: orderItem ?? null,
-    });
-
-    useCopilotReadable({
-        description: "The parent order containing this item",
-        value: order ?? null,
-    });
-
-    useCopilotReadable({
-        description: "Typesetting specifications and proofs for this order item",
-        value: typesettingData ?? null,
-    });
-
-    useCopilotReadable({
-        description: "Processing and bindery options for this order item",
-        value: processingOptions ?? null,
-    });
-
-    useCopilotReadable({
-        description: "Paper stock specifications for this order item",
-        value: orderItemStocks ?? null,
-    });
 
 
 
@@ -651,43 +623,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     </div>
                 </div>
             </div>
-            <CopilotPopup
-                instructions={`You are an AI assistant helping with print order item management. You have access to:
-                    1. The order item's complete details including:
-                       - Item number, quantity, and specifications
-                       - Current status and workflow position
-                       - Paper stock selections and specifications
-                       - Artwork and file attachments
-                       - Description and special instructions
-                    2. Typesetting information including:
-                       - Proof versions and artwork
-                       - Typesetting specifications
-                    3. Processing and bindery options including:
-                       - Cutting, folding, drilling specifications
-                       - Binding and finishing details
-                       - Special processing instructions
-                    4. Parent order context and shipping details
-
-                    Your role is to:
-                    - Answer questions about this specific order item's specifications
-                    - Explain technical printing terms and processes
-                    - Help users understand paper stock selections and implications
-                    - Guide users through typesetting and bindery options
-                    - Assist with file and artwork management
-                    - Explain status transitions and requirements
-
-                    When responding:
-                    - Be precise with technical printing terminology
-                    - Reference specific details from the order item data
-                    - Explain implications of processing choices
-                    - Provide practical printing industry insights
-                    - If discussing changes, explain their impact on production workflow`}
-                labels={{
-                    title: "Print Item Assistant",
-                    initial: "How can I help you with this print item?",
-                    placeholder: "Ask about specifications, paper, bindery options...",
-                }}
-            />
         </>
     );
 };

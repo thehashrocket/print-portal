@@ -7,9 +7,6 @@ import { Toaster } from "react-hot-toast";
 import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistration';
 import { InstallPWA } from '~/app/_components/installPWA'
 
-import { CopilotKit } from "@copilotkit/react-core";
-import "@copilotkit/react-ui/styles.css";
-
 export const metadata = {
   title: "Thomson Printing Platform",
   description: "Built by Jason Shultz",
@@ -35,17 +32,15 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/images/favicon-196x196.png" />
       </head>
       <body className="font-sans">
-        <CopilotKit runtimeUrl="/api/copilotkit">
-          <TRPCReactProvider>
-            <Providers>
-              <NavBar />
-              {children}
-              <InstallPWA />
-              <ServiceWorkerRegistration />
-            </Providers>
-            <Toaster />
-          </TRPCReactProvider>
-        </CopilotKit>
+        <TRPCReactProvider>
+          <Providers>
+            <NavBar />
+            {children}
+            <InstallPWA />
+            <ServiceWorkerRegistration />
+          </Providers>
+          <Toaster />
+        </TRPCReactProvider>
       </body>
     </html>
   );

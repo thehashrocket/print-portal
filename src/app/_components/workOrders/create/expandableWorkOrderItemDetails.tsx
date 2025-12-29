@@ -9,8 +9,6 @@ import ProcessingOptionsComponent from '../../shared/processingOptions/processin
 import WorkOrderItemStockComponent from '../../workOrders/WorkOrderItemStock/workOrderItemStockComponent';
 import { api } from '~/trpc/react';
 import { Button } from '~/app/_components/ui/button';
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 
 interface ExpandableWorkOrderItemDetailsProps {
     itemId: string;
@@ -19,36 +17,6 @@ interface ExpandableWorkOrderItemDetailsProps {
 
 const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsProps> = ({ itemId, onClose }) => {
     const { data: workOrderItem, isLoading, isError } = api.workOrderItems.getByID.useQuery(itemId);
-
-    // Add CopilotKit readable context for work order item details
-    useCopilotReadable({
-        description: "Current work order item details and specifications",
-        value: {
-            itemDetails: workOrderItem ? {
-                id: workOrderItem.id,
-                description: workOrderItem.description,
-                productType: workOrderItem.ProductType?.name,
-                status: workOrderItem.status,
-                quantity: workOrderItem.quantity,
-                amount: workOrderItem.amount,
-            } : null,
-            isLoading,
-            isError,
-        },
-    });
-
-    // Add CopilotKit readable context for processing options and typesetting
-    useCopilotReadable({
-        description: "Work order item processing and typesetting information",
-        value: {
-            hasProcessingOptions: (workOrderItem?.ProcessingOptions ?? []).length > 0,
-            hasTypesetting: (workOrderItem?.Typesetting ?? []).length > 0,
-            hasStockInfo: (workOrderItem?.WorkOrderItemStock ?? []).length > 0,
-            processingOptionsCount: workOrderItem?.ProcessingOptions?.length ?? 0,
-            typesettingCount: workOrderItem?.Typesetting?.length ?? 0,
-            stockCount: workOrderItem?.WorkOrderItemStock?.length ?? 0,
-        },
-    });
 
     if (isLoading) {
         return (
@@ -111,34 +79,6 @@ const ExpandableWorkOrderItemDetails: React.FC<ExpandableWorkOrderItemDetailsPro
                 </section>
             </div>
 
-            <CopilotPopup
-                instructions={`You are an AI assistant helping users understand and manage work order item details in a print portal system. You have access to:
-                    1. Complete work order item specifications
-                    2. Product type and description
-                    3. Bindery and processing options
-                    4. Typesetting specifications
-                    5. Stock information and requirements
-
-                    Your role is to:
-                    - Help users understand the item specifications
-                    - Explain bindery and processing options
-                    - Guide users through typesetting requirements
-                    - Assist with stock information management
-                    - Explain relationships between different specifications
-
-                    When responding:
-                    - Reference specific details from the current item
-                    - Explain technical terms and specifications
-                    - Help users understand processing requirements
-                    - Guide users through typesetting options
-                    - Assist with stock selection and management
-                    - Explain how different options affect the final product`}
-                labels={{
-                    title: "Work Order Item Details Assistant",
-                    initial: "How can I help you understand this item's specifications?",
-                    placeholder: "Ask about specifications, options, or requirements...",
-                }}
-            />
         </div>
     );
 };

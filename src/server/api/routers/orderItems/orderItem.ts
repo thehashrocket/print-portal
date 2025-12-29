@@ -296,7 +296,12 @@ export const orderItemRouter = createTRPCRouter({
     // Get all Outsourced Order Items for Dashboard
     dashboardOutsourced: protectedProcedure.query(async ({ ctx }) => {
         const orderItems = await ctx.db.orderItem.findMany({
-            where: { status: 'Outsourced' },
+            where: {
+                // Filter by outsourced info instead of status to avoid enum mismatch issues
+                OutsourcedOrderItemInfo: {
+                    some: {},
+                },
+            },
             include: {
                 OutsourcedOrderItemInfo: true,
                 Order: {

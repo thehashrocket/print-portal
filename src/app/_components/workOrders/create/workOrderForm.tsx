@@ -14,8 +14,6 @@ import { cn } from "~/lib/utils";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { CreateContactModal } from '~/app/_components/shared/contacts/createContactModal';
 import debounce from "lodash/debounce";
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 
 const workOrderSchema = z.object({
     dateIn: z.string().min(1, 'Date In is required'),
@@ -117,38 +115,6 @@ const WorkOrderForm: React.FC = () => {
         retry: 3,
         staleTime: 0,
         refetchOnMount: true
-    });
-    // Add CopilotKit readable context
-    useCopilotReadable({
-        description: "Current form values for the work order being created",
-        value: {
-            formValues: {
-                dateIn: watch('dateIn'),
-                inHandsDate: watch('inHandsDate'),
-                estimateNumber: watch('estimateNumber'),
-                purchaseOrderNumber: watch('purchaseOrderNumber'),
-                workOrderNumber: watch('workOrderNumber'),
-                invoicePrintEmail: watch('invoicePrintEmail'),
-                status: watch('status'),
-            },
-            formErrors: Object.keys(errors).length > 0 ? Object.fromEntries(
-                Object.entries(errors).map(([key, value]) => [key, value.message])
-            ) : {},
-            selectedCompany,
-            selectedOffice
-        },
-    });
-
-    useCopilotReadable({
-        description: "Available companies, offices, and employees for selection",
-        value: {
-            companies: companies.map(c => ({ id: c.id, name: c.name })),
-            offices: offices.map(o => ({ id: o.id, name: o.name })),
-            employees: employees.map(e => ({ id: e.id, name: e.name })),
-            isLoadingCompanies,
-            isLoadingOffices,
-            isLoadingEmployees
-        },
     });
 
     useEffect(() => {
@@ -580,32 +546,6 @@ const WorkOrderForm: React.FC = () => {
                     )}
                 </Button>
             </form>
-            <CopilotPopup
-                instructions={`You are an AI assistant helping users create a new work order in a print portal system. You have access to:
-                    1. The current form values and validation errors
-                    2. Selected company and office information
-                    3. Available companies, offices, and employees for selection
-                    4. Loading states for various form sections
-
-                    Your role is to:
-                    - Guide users through the work order creation process
-                    - Help users understand required fields and their purpose
-                    - Explain validation errors and how to resolve them
-                    - Assist with company, office, and contact person selection
-                    - Provide guidance on dates, invoice types, and status options
-
-                    When responding:
-                    - Reference specific form fields and their current values
-                    - Explain any validation errors in user-friendly terms
-                    - Provide clear steps for completing required information
-                    - Explain the implications of different choices (e.g., invoice types, status)
-                    - Help users understand the workflow and next steps`}
-                labels={{
-                    title: "Work Order Creation Assistant",
-                    initial: "How can I help you create your work order?",
-                    placeholder: "Ask about fields, requirements, or next steps...",
-                }}
-            />
         </div>
     );
 };

@@ -12,8 +12,6 @@ import { Input } from '../../ui/input';
 import { SelectField } from '../../shared/ui/SelectField/SelectField';
 import { PlusCircle } from "lucide-react";
 import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
-import { CopilotPopup } from "@copilotkit/react-ui";
-import { useCopilotReadable } from "@copilotkit/react-core";
 
 const shippingInfoSchema = z.object({
     shippingMethod: z.nativeEnum(ShippingMethod, {
@@ -51,56 +49,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
     const [isCreateAddressModalOpen, setIsCreateAddressModalOpen] = useState(false);
 
     const shippingMethod = watch('shippingMethod');
-
-    // Add CopilotKit readable context for form state
-    useCopilotReadable({
-        description: "Current shipping information form state",
-        value: {
-            formValues: {
-                shippingMethod: watch('shippingMethod'),
-                instructions: watch('instructions'),
-                addressId: watch('addressId'),
-                shippingCost: watch('shippingCost'),
-                shippingDate: watch('shippingDate'),
-                pickupDate: watch('pickupDate'),
-                pickupTime: watch('pickupTime'),
-                pickupContactName: watch('pickupContactName'),
-                pickupContactPhone: watch('pickupContactPhone'),
-            },
-            formErrors: Object.keys(errors).length > 0 ? Object.fromEntries(
-                Object.entries(errors).map(([key, value]) => [key, value.message])
-            ) : {},
-            selectedShippingMethod: shippingMethod,
-            needsAddress: shippingMethod !== ShippingMethod.Pickup && shippingMethod !== ShippingMethod.Other,
-        },
-    });
-
-    // Add CopilotKit readable context for available addresses
-    useCopilotReadable({
-        description: "Available shipping addresses and office information",
-        value: {
-            addresses: addresses.map(addr => ({
-                id: addr.id,
-                name: addr.name,
-                line1: addr.line1,
-                city: addr.city,
-                state: addr.state,
-                zipCode: addr.zipCode,
-            })),
-            officeId: workOrder.officeId,
-            officeName: officeData?.name,
-            isCreateAddressModalOpen,
-        },
-    });
-
-    // Add CopilotKit readable context for work order context
-    useCopilotReadable({
-        description: "Work order context and progress",
-        value: {
-            workOrder,
-            hasShippingInfo: !!workOrder?.shippingInfoId,
-        },
-    });
 
     useEffect(() => {
         if (officeData && officeData.Addresses) {
@@ -279,36 +227,6 @@ const WorkOrderShippingInfoForm: React.FC = () => {
                 </Button>
             </form>
 
-            <CopilotPopup
-                instructions={`You are an AI assistant helping users manage shipping information in a print portal system. You have access to:
-                    1. Current shipping form values and validation state
-                    2. Selected shipping method and requirements
-                    3. Available shipping addresses
-                    4. Office information and context
-                    5. Work order shipping status
-
-                    Your role is to:
-                    - Guide users through shipping information setup
-                    - Help with shipping method selection
-                    - Assist with address management
-                    - Explain pickup requirements and scheduling
-                    - Help with shipping instructions and notes
-                    - Guide users through validation issues
-
-                    When responding:
-                    - Reference current form values and selections
-                    - Explain shipping method requirements
-                    - Guide users through address selection or creation
-                    - Help with pickup scheduling and contact information
-                    - Explain validation errors clearly
-                    - Assist with shipping cost calculations
-                    - Help users understand the relationship between shipping choices`}
-                labels={{
-                    title: "Shipping Information Assistant",
-                    initial: "How can I help you with shipping information?",
-                    placeholder: "Ask about shipping methods, addresses, or requirements...",
-                }}
-            />
         </div>
     );
 };

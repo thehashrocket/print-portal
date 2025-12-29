@@ -14,7 +14,6 @@ import { Input } from '../../ui/input';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { toast } from 'react-hot-toast';
 import { CreateAddressModal } from '~/app/_components/shared/addresses/createAddressModal';
-import { useCopilotReadable } from '@copilotkit/react-core';
 import { Textarea } from '../../ui/textarea';
 
 const shippingInfoSchema = z.object({
@@ -91,20 +90,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
         },
     });
 
-    // Only provide form-specific context for the shipping editor
-    useCopilotReadable({
-        description: "Available shipping addresses for this office",
-        value: addresses?.map(addr => ({
-            id: addr.id,
-            name: addr.name,
-            line1: addr.line1,
-            line2: addr.line2,
-            city: addr.city,
-            state: addr.state,
-            zipCode: addr.zipCode
-        })) ?? [],
-    });
-
     const formValues = watch();
     const safeFormValues = {
         addressId: String(formValues.addressId ?? ''),
@@ -131,17 +116,6 @@ const ShippingInfoEditor: React.FC<ShippingInfoEditorProps> = ({
             { message: String(value?.message ?? '') }
         ])
     ) : null;
-
-    useCopilotReadable({
-        description: "Shipping form state and validation status",
-        value: {
-            isEditing,
-            isSubmitting,
-            isAddressBeingCreated,
-            formValues: safeFormValues,
-            formErrors: safeErrors
-        },
-    });
 
     const { data: officeData } = api.offices.getById.useQuery(officeId, { enabled: !!officeId });
 
