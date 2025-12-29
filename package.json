@@ -67,7 +67,7 @@
     "@trpc/server": "11.8.0",
     "ag-charts-community": "^12.3.1",
     "ag-charts-react": "^12.3.1",
-    "ag-grid-community": "^34.3.1",
+    "ag-grid-community": "^35.0.0",
     "axios": "^1.13.2",
     "bcryptjs": "3.0.2",
     "class-variance-authority": "^0.7.1",
