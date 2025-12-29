@@ -124,7 +124,7 @@
     "autoprefixer": "^10.4.23",
     "bcrypt": "^6.0.0",
     "daisyui": "^5.5.14",
-    "esbuild": "^0.27.1",
+    "esbuild": "^0.27.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.0.10",
     "postcss": "^8.5.6",
