@@ -34,6 +34,28 @@ const jobBorderColor = (dateString: string, status: OrderItemStatus): string => 
     }
 };
 
+
+interface CompanyFilterProps {
+    companies: { value: string; label: string }[];
+    selectedCompany: string;
+    onCompanyChange: (value: string) => void;
+}
+
+const CompanyFilter: React.FC<CompanyFilterProps> = ({ companies, selectedCompany, onCompanyChange }) => (
+    <div className="mb-4 p-4 bg-gray-700 rounded-lg">
+        <CustomComboBox
+            key='1'
+            options={[{ value: "", label: "All Companies" }, ...companies]}
+            value={selectedCompany}
+            onValueChange={onCompanyChange}
+            placeholder="Filter by Company..."
+            emptyText="No companies found"
+            searchPlaceholder="Search companies..."
+            className="w-[300px]"
+        />
+    </div>
+);
+
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
     const [originalItems] = useState<OrderItemDashboard[]>(initialOrderItems);
@@ -68,20 +90,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         }
     };
 
-    const CompanyFilter = () => (
-        <div className="mb-4 p-4 bg-gray-700 rounded-lg">
-            <CustomComboBox
-                key='1'
-                options={[{ value: "", label: "All Companies" }, ...companies]}
-                value={selectedCompany}
-                onValueChange={handleCompanyChange}
-                placeholder="Filter by Company..."
-                emptyText="No companies found"
-                searchPlaceholder="Search companies..."
-                className="w-[300px]"
-            />
-        </div>
-    );
+
 
     const handleOrderItemNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setOrderItemNumber(event.target.value);
@@ -249,7 +258,11 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     return (
         <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
-                <CompanyFilter />
+                <CompanyFilter
+                    companies={companies}
+                    selectedCompany={selectedCompany}
+                    onCompanyChange={handleCompanyChange}
+                />
                 <OrderItemNumberFilter
                     orderItemNumber={orderItemNumber}
                     onOrderItemNumberChange={handleOrderItemNumberChange}
@@ -257,10 +270,10 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                     onClear={clearOrderItemNumberFilter}
                 />
             </div>
-            
+
             {/* Mobile View: Vertical tabs for status columns */}
             <div className="block md:hidden mb-4">
-                <select 
+                <select
                     className="w-full p-2 bg-gray-700 rounded-lg"
                     value={selectedMobileStatus}
                     onChange={(e) => setSelectedMobileStatus(e.target.value as OrderItemStatus)}
@@ -269,10 +282,10 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                         <option key={status} value={status}>{status}</option>
                     ))}
                 </select>
-                
+
                 <div className="mt-4">
                     {(orderItemsByStatus[selectedMobileStatus as OrderItemStatus] || []).map(orderItem => (
-                        <JobCard 
+                        <JobCard
                             key={orderItem.id}
                             orderItem={orderItem}
                             onDragStart={onDragStart}
@@ -302,7 +315,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                     >
                         <h3 className="font-semibold mb-2">{status}</h3>
                         {(orderItemsByStatus[status] || []).map(orderItem => (
-                            <JobCard 
+                            <JobCard
                                 key={orderItem.id}
                                 orderItem={orderItem}
                                 onDragStart={onDragStart}
@@ -379,12 +392,12 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
         <div className='text-sm font-bold mb-1'>Job #: {orderItem.orderItemNumber}</div>
         <div className='text-sm font-bold mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
         <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
-        
+
         <div className="flex items-center mb-2">
             <CalendarDays className="w-5 h-5 mr-2" />
             <span className="text-sm">{formatDate(orderItem.expectedDate ?? new Date())}</span>
         </div>
-        
+
         <div className="flex items-center">
             <Eye className="w-5 h-5 mr-2" />
             <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline text-sm">

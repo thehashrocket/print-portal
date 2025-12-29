@@ -28,26 +28,21 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface WorkOrderItemsTableProps {
     workOrderItems: SerializedWorkOrderItem[];
+    workOrderId: string;
 }
 
-const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItems: initialWorkOrderItems }) => {
+const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItems, workOrderId }) => {
     const gridRef = useRef<AgGridReact>(null);
-    const [loading, setLoading] = useState(true);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const mounted = useRef(true);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [workOrderItems, setWorkOrderItems] = useState(initialWorkOrderItems);
     const utils = api.useUtils();
     const deleteWorkOrderItemMutation = api.workOrderItems.deleteWorkOrderItem.useMutation(
         {
             onSuccess: (_, deletedId) => {
                 setIsDeleting(false);
-                // Update local state by removing the deleted item
-                setWorkOrderItems((prevItems) => 
-                    prevItems.filter(item => item.id !== deletedId)
-                );
-                void utils.workOrderItems.getAll.invalidate();
+                void utils.workOrders.getByID.invalidate(workOrderId);
                 toast.success('Item deleted successfully');
             },
             onError: (error) => {
@@ -56,7 +51,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
             }
         }
     );
-    
+
     const handleDelete = useCallback((id: string) => {
         setIsDeleting(true);
         deleteWorkOrderItemMutation.mutate(id);
@@ -205,14 +200,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         };
     }, [gridApi]);
 
-    // Add debug logging
-    useEffect(() => {
-        console.log('WorkOrderItems prop:', workOrderItems);
-    }, [workOrderItems]);
 
-    useEffect(() => {
-        setLoading(false);
-    }, [workOrderItems]);
 
     // Separate effect for grid sizing
     useEffect(() => {
@@ -274,15 +262,7 @@ const WorkOrderItemsTable: React.FC<WorkOrderItemsTableProps> = ({ workOrderItem
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-            </div>
-        );
-    }
-
-    if (!loading && workOrderItems.length === 0) {
+    if (workOrderItems.length === 0) {
         return (
             <div className="flex justify-center items-center h-64">
                 <p>No items found</p>

@@ -86,20 +86,13 @@ interface WorkOrderDetailsProps {
 }
 
 export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: WorkOrderDetailsProps) {
-    const [workOrderItems, setWorkOrderItems] = useState<SerializedWorkOrderItem[]>([]);
-    const [isWorkOrderItemsLoading, setIsWorkOrderItemsLoading] = useState(true);
+
     const { data: workOrder, isLoading, isError, error } = api.workOrders.getByID.useQuery(workOrderId, {
         initialData: initialWorkOrder,
         refetchOnMount: true,
         refetchOnWindowFocus: true,
     });
     const utils = api.useUtils();
-    useEffect(() => {
-        if (workOrder?.WorkOrderItems) {
-            setWorkOrderItems(workOrder.WorkOrderItems);
-            setIsWorkOrderItemsLoading(false);
-        }
-    }, [workOrder?.WorkOrderItems]);
 
     // Add CopilotKit readable context for work order details
     useCopilotReadable({
@@ -130,7 +123,7 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
     useCopilotReadable({
         description: "Work order items and their details",
         value: {
-            items: workOrderItems.map(item => ({
+            items: workOrder?.WorkOrderItems?.map(item => ({
                 id: item.id,
                 description: item.description,
                 quantity: item.quantity,
@@ -139,9 +132,9 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                 hasTypesetting: (item.Typesetting?.length ?? 0) > 0,
                 hasProcessingOptions: (item.ProcessingOptions?.length ?? 0) > 0,
                 hasStockInfo: (item.WorkOrderItemStock?.length ?? 0) > 0,
-            })),
-            isLoading: isWorkOrderItemsLoading,
-            itemCount: workOrderItems.length,
+            })) ?? [],
+            isLoading: isLoading,
+            itemCount: workOrder?.WorkOrderItems?.length ?? 0,
         },
     });
 
@@ -357,12 +350,15 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             </Link>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-md">
-                            {isWorkOrderItemsLoading ? (
+                            {isLoading ? (
                                 <div className="flex justify-center items-center h-64">
                                     <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
                                 </div>
                             ) : (
-                                <WorkOrderItemsTable workOrderItems={workOrderItems} />
+                                <WorkOrderItemsTable
+                                    workOrderItems={workOrder?.WorkOrderItems ?? []}
+                                    workOrderId={workOrderId}
+                                />
                             )}
                         </div>
                     </section>

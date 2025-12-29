@@ -33,6 +33,156 @@ type OrderItemPageProps = {
     orderItemId: string;
 };
 
+type OrderArtworkSectionProps = {
+    orderItemId: string;
+    initialArtwork: { fileUrl: string; description: string }[];
+};
+
+const OrderArtworkSection: React.FC<OrderArtworkSectionProps> = ({ orderItemId, initialArtwork }) => {
+    const [localArtwork, setLocalArtwork] = useState(initialArtwork);
+    const utils = api.useUtils();
+
+    const { mutate: updateArtwork } = api.orderItems.updateArtwork.useMutation({
+        onSuccess: () => {
+            void utils.orderItems.getByID.invalidate(orderItemId);
+        },
+    });
+
+    return (
+        <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
+            <FileUpload
+                initialFiles={localArtwork}
+                onFileUploaded={(fileUrl: string, description: string) => {
+                    const newArtwork = { fileUrl, description };
+                    const updatedArtwork = [...localArtwork, newArtwork];
+                    setLocalArtwork(updatedArtwork);
+                    updateArtwork({
+                        orderItemId: orderItemId,
+                        artwork: updatedArtwork,
+                    }, {
+                        onSuccess: () => {
+                            toast.success('File uploaded successfully');
+                        },
+                        onError: (error) => {
+                            console.error('Error uploading file:', error);
+                            toast.error('Failed to upload file');
+                        },
+                    });
+                }}
+                onFileRemoved={(fileUrl: string) => {
+                    const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
+                    setLocalArtwork(updatedArtwork);
+                    updateArtwork({
+                        orderItemId: orderItemId,
+                        artwork: updatedArtwork,
+                    }, {
+                        onSuccess: () => {
+                            toast.success('File removed successfully');
+                        },
+                        onError: (error) => {
+                            console.error('Error removing file:', error);
+                            toast.error('Failed to remove file');
+                        },
+                    });
+                }}
+                onDescriptionChanged={(fileUrl: string, description: string) => {
+                    const updatedArtwork = localArtwork.map(art =>
+                        art.fileUrl === fileUrl ? { ...art, description } : art
+                    );
+                    setLocalArtwork(updatedArtwork);
+                }}
+                onDescriptionBlur={(_fileUrl: string) => {
+                    updateArtwork({
+                        orderItemId: orderItemId,
+                        artwork: localArtwork,
+                    }, {
+                        onSuccess: () => {
+                            toast.success('File description updated successfully');
+                        },
+                        onError: (error) => {
+                            console.error('Error updating file description:', error);
+                            toast.error('Failed to update file description');
+                        },
+                    });
+                }}
+            />
+        </div>
+    );
+};
+
+type OrderItemDescriptionSectionProps = {
+    orderItemId: string;
+    initialDescription: string;
+    initialSpecialInstructions: string;
+};
+
+const OrderItemDescriptionSection: React.FC<OrderItemDescriptionSectionProps> = ({
+    orderItemId,
+    initialDescription,
+    initialSpecialInstructions
+}) => {
+    const [jobDescription, setJobDescription] = useState(initialDescription);
+    const [specialInstructions, setSpecialInstructions] = useState(initialSpecialInstructions);
+    const utils = api.useUtils();
+
+    const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
+        onSuccess: () => {
+            toast.success('Item description updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update item description:', error);
+            toast.error('Failed to update item description');
+        }
+    });
+
+    const { mutate: updateInstructions } = api.orderItems.updateSpecialInstructions.useMutation({
+        onSuccess: () => {
+            toast.success('Special instructions updated successfully');
+            utils.orderItems.getByID.invalidate(orderItemId);
+        },
+        onError: (error) => {
+            console.error('Failed to update special instructions:', error);
+            toast.error('Failed to update special instructions');
+        }
+    });
+
+    const handleUpdateDescription = () => {
+        updateDescription({ id: orderItemId, description: jobDescription });
+    };
+
+    const handleUpdateSpecialInstructions = () => {
+        updateInstructions({ id: orderItemId, specialInstructions: specialInstructions });
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+            <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-700 mb-2">Item Description</h2>
+                <Textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                />
+                <Button variant="default" onClick={handleUpdateDescription}>
+                    Update Description
+                </Button>
+            </div>
+            <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-700 mb-2">Special Instructions</h2>
+                <Textarea
+                    value={specialInstructions}
+                    onChange={(e) => setSpecialInstructions(e.target.value)}
+                    className="bg-gray-50 p-4 rounded-lg w-full mb-4"
+                />
+                <Button variant="default" onClick={handleUpdateSpecialInstructions}>
+                    Update Special Instructions
+                </Button>
+            </div>
+        </div>
+    );
+};
+
 const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     orderId,
     orderItemId
@@ -71,9 +221,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         value: orderItemStocks ?? null,
     });
 
-    const [jobDescription, setJobDescription] = useState("");
-    const [specialInstructions, setSpecialInstructions] = useState("");
-    const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
+
+
     const [localOutsourcedFiles, setLocalOutsourcedFiles] = useState<{ fileUrl: string; description: string }[]>([]);
     const [editingField, setEditingField] = useState<string | null>(null);
     const [tempQuantity, setTempQuantity] = useState<number>(0);
@@ -81,32 +230,11 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
     const [tempCost, setTempCost] = useState<number>(0);
     const [tempAmount, setTempAmount] = useState<number>(0);
-    // Initialize local artwork state when orderItem changes
-    useEffect(() => {
-        if (orderItem?.artwork) {
-            setLocalArtwork(orderItem.artwork.map(art => ({
-                fileUrl: art.fileUrl,
-                description: art.description || '',
-            })));
-        }
-    }, [orderItem?.artwork]);
 
-    const { mutate: updateArtwork } = api.orderItems.updateArtwork.useMutation({
-        onSuccess: () => {
-            void utils.orderItems.getByID.invalidate(orderItemId);
-        },
-    });
 
-    const { mutate: updateDescription } = api.orderItems.updateDescription.useMutation({
-        onSuccess: () => {
-            toast.success('Item description updated successfully');
-            utils.orderItems.getByID.invalidate(orderItemId);
-        },
-        onError: (error) => {
-            console.error('Failed to update item description:', error);
-            toast.error('Failed to update item description');
-        }
-    });
+
+
+
 
     const { mutate: updateOutsourcedInfo } = api.orderItems.updateOutsourcedInfo.useMutation({
         onSuccess: () => {
@@ -119,16 +247,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         }
     });
 
-    const { mutate: updateInstructions } = api.orderItems.updateSpecialInstructions.useMutation({
-        onSuccess: () => {
-            toast.success('Special instructions updated successfully');
-            utils.orderItems.getByID.invalidate(orderItemId);
-        },
-        onError: (error) => {
-            console.error('Failed to update special instructions:', error);
-            toast.error('Failed to update special instructions');
-        }
-    });
+
 
     const { mutate: updateOrderItem } = api.orderItems.updateFields.useMutation({
         onSuccess: () => {
@@ -143,13 +262,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         }
     });
 
-    useEffect(() => {
-        if (orderItem) {
-            setTempQuantity(orderItem.quantity);
-            setTempInk(orderItem.ink ?? "");
-            setTempProductTypeId(orderItem.ProductType?.id ?? "");
-        }
-    }, [orderItem]);
+
 
     const handleSave = (field: string) => {
         if (!orderItem) return;
@@ -179,9 +292,8 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
         });
     };
 
-    const handleCancel = (field: string) => {
+    const startEditing = (field: string) => {
         if (!orderItem) return;
-
         switch (field) {
             case 'quantity':
                 setTempQuantity(orderItem.quantity);
@@ -192,24 +304,23 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             case 'productType':
                 setTempProductTypeId(orderItem.ProductType?.id ?? "");
                 break;
+            case 'cost':
+                setTempCost(Number(orderItem.cost ?? 0));
+                break;
+            case 'amount':
+                setTempAmount(Number(orderItem.amount ?? 0));
+                break;
         }
+        setEditingField(field);
+    };
+
+    const handleCancel = (_field: string) => {
         setEditingField(null);
     };
 
-    useEffect(() => {
-        if (orderItem && !jobDescription && !specialInstructions) {
-            setJobDescription(orderItem.description);
-            setSpecialInstructions(orderItem.specialInstructions ?? '');
-        }
-    }, [orderItem, jobDescription, specialInstructions]);
 
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setJobDescription(e.target.value);
-    };
 
-    const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setSpecialInstructions(e.target.value);
-    };
+
 
     const handleOusourcedOrderItemSave = async (data: OutsourcedOrderItemInfoFormData) => {
         console.log("Saving outsourced order info", data);
@@ -242,14 +353,6 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const handleFileDescriptionChanged = (fileUrl: string, description: string) => {
         console.log("File description changed", fileUrl, description);
         setLocalOutsourcedFiles(localOutsourcedFiles.map(file => file.fileUrl === fileUrl ? { ...file, description } : file));
-    };
-
-    const updateJobDescription = () => {
-        updateDescription({ id: orderItemId, description: jobDescription });
-    };
-
-    const updateSpecialInstructions = () => {
-        updateInstructions({ id: orderItemId, specialInstructions: specialInstructions });
     };
 
     if (orderLoading || itemLoading || typesettingLoading) {
@@ -291,7 +394,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 title="Item Quantity"
                                 content={orderItem.quantity}
                                 isEditing={editingField === 'quantity'}
-                                onEdit={() => setEditingField('quantity')}
+                                onEdit={() => startEditing('quantity')}
                                 onSave={() => handleSave('quantity')}
                                 onCancel={() => handleCancel('quantity')}
                                 editComponent={
@@ -308,7 +411,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 title="Color"
                                 content={orderItem.ink ?? 'N/A'}
                                 isEditing={editingField === 'ink'}
-                                onEdit={() => setEditingField('ink')}
+                                onEdit={() => startEditing('ink')}
                                 onSave={() => handleSave('ink')}
                                 onCancel={() => handleCancel('ink')}
                                 editComponent={
@@ -324,7 +427,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 title="Product Type"
                                 content={orderItem.ProductType?.name ?? 'N/A'}
                                 isEditing={editingField === 'productType'}
-                                onEdit={() => setEditingField('productType')}
+                                onEdit={() => startEditing('productType')}
                                 onSave={() => handleSave('productType')}
                                 onCancel={() => handleCancel('productType')}
                                 editComponent={
@@ -340,7 +443,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 title="Item Cost"
                                 content={orderItem.cost ?? 'N/A'}
                                 isEditing={editingField === 'cost'}
-                                onEdit={() => setEditingField('cost')}
+                                onEdit={() => startEditing('cost')}
                                 onSave={() => handleSave('cost')}
                                 onCancel={() => handleCancel('cost')}
                                 editComponent={
@@ -356,7 +459,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                 title="Amount we bill to customer"
                                 content={orderItem.amount ?? 'N/A'}
                                 isEditing={editingField === 'amount'}
-                                onEdit={() => setEditingField('amount')}
+                                onEdit={() => startEditing('amount')}
                                 onSave={() => handleSave('amount')}
                                 onCancel={() => handleCancel('amount')}
                                 editComponent={
@@ -455,30 +558,15 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     </div>
 
                     {/* Row 3 - Description and Instructions Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-2">Item Description</h2>
-                            <Textarea
-                                value={jobDescription}
-                                onChange={handleDescriptionChange}
-                                className="bg-gray-50 p-4 rounded-lg w-full mb-4"
-                            />
-                            <Button variant="default" onClick={updateJobDescription}>
-                                Update Description
-                            </Button>
-                        </div>
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-2">Special Instructions</h2>
-                            <Textarea
-                                value={specialInstructions}
-                                onChange={handleSpecialInstructionsChange}
-                                className="bg-gray-50 p-4 rounded-lg w-full mb-4"
-                            />
-                            <Button variant="default" onClick={updateSpecialInstructions}>
-                                Update Special Instructions
-                            </Button>
-                        </div>
-                    </div>
+                    <OrderItemDescriptionSection
+                        key={JSON.stringify({
+                            description: orderItem.description,
+                            specialInstructions: orderItem.specialInstructions
+                        })}
+                        orderItemId={orderItem.id}
+                        initialDescription={orderItem.description}
+                        initialSpecialInstructions={orderItem.specialInstructions ?? ''}
+                    />
 
                     {/* Status Section */}
                     <div className="mb-6">
@@ -523,64 +611,14 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                     <div className="mb-6">
                         <h2 className="mb-2 text-gray-600 text-xl font-semibold">Files</h2>
                         <div className="grid grid-cols-1 gap-4">
-                            <div className="rounded-lg bg-white p-4 md:p-6 shadow-md">
-                                <FileUpload
-                                    onFileUploaded={(fileUrl: string, description: string) => {
-                                        const newArtwork = { fileUrl, description };
-                                        const updatedArtwork = [...localArtwork, newArtwork];
-                                        setLocalArtwork(updatedArtwork);
-                                        updateArtwork({
-                                            orderItemId: orderItem.id,
-                                            artwork: updatedArtwork,
-                                        }, {
-                                            onSuccess: () => {
-                                                toast.success('File uploaded successfully');
-                                            },
-                                            onError: (error) => {
-                                                console.error('Error uploading file:', error);
-                                                toast.error('Failed to upload file');
-                                            },
-                                        });
-                                    }}
-                                    onFileRemoved={(fileUrl: string) => {
-                                        const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
-                                        setLocalArtwork(updatedArtwork);
-                                        updateArtwork({
-                                            orderItemId: orderItem.id,
-                                            artwork: updatedArtwork,
-                                        }, {
-                                            onSuccess: () => {
-                                                toast.success('File removed successfully');
-                                            },
-                                            onError: (error) => {
-                                                console.error('Error removing file:', error);
-                                                toast.error('Failed to remove file');
-                                            },
-                                        });
-                                    }}
-                                    onDescriptionChanged={(fileUrl: string, description: string) => {
-                                        const updatedArtwork = localArtwork.map(art =>
-                                            art.fileUrl === fileUrl ? { ...art, description } : art
-                                        );
-                                        setLocalArtwork(updatedArtwork);
-                                    }}
-                                    onDescriptionBlur={(_fileUrl: string) => {
-                                        updateArtwork({
-                                            orderItemId: orderItem.id,
-                                            artwork: localArtwork,
-                                        }, {
-                                            onSuccess: () => {
-                                                toast.success('File description updated successfully');
-                                            },
-                                            onError: (error) => {
-                                                console.error('Error updating file description:', error);
-                                                toast.error('Failed to update file description');
-                                            },
-                                        });
-                                    }}
-                                    initialFiles={localArtwork}
-                                />
-                            </div>
+                            <OrderArtworkSection
+                                key={JSON.stringify(orderItem.artwork)}
+                                orderItemId={orderItem.id}
+                                initialArtwork={orderItem.artwork ? orderItem.artwork.map(a => ({
+                                    fileUrl: a.fileUrl,
+                                    description: a.description || ''
+                                })) : []}
+                            />
                         </div>
                     </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';
@@ -22,6 +22,159 @@ import InfoCard from "../../shared/InfoCard/InfoCard";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { useCopilotReadable } from "@copilotkit/react-core";
 import { formatPaperProductLabel } from "~/utils/formatters";
+
+// Define the editor component to handle local state and avoid sync effects
+const DescriptionEditor = ({
+    workOrderItemId,
+    initialDescription,
+    initialInstructions,
+    onUpdate
+}: {
+    workOrderItemId: string,
+    initialDescription: string,
+    initialInstructions: string,
+    onUpdate: () => void
+}) => {
+    const [jobDescription, setJobDescription] = useState(initialDescription);
+    const [specialInstructions, setSpecialInstructions] = useState(initialInstructions);
+
+    // Update local state when initial props change (handled via key in parent, but good safety)
+    // Actually, with the key pattern, we don't need an effect here! 
+    // State is initialized only once per instance.
+
+    const { mutate: updateDescription } = api.workOrderItems.updateDescription.useMutation({
+        onSuccess: () => {
+            toast.success('Item description updated successfully');
+            onUpdate();
+        },
+        onError: (error) => {
+            console.error('Failed to update item description:', error);
+            toast.error('Failed to update item description');
+        }
+    });
+
+    const { mutate: updateInstructions } = api.workOrderItems.updateSpecialInstructions.useMutation({
+        onSuccess: () => {
+            toast.success('Special instructions updated successfully');
+            onUpdate();
+        },
+        onError: (error) => {
+            console.error('Failed to update special instructions:', error);
+            toast.error('Failed to update special instructions');
+        }
+    });
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setJobDescription(e.target.value);
+    };
+
+    const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSpecialInstructions(e.target.value);
+    };
+
+    const updateJobDescription = () => {
+        updateDescription({ id: workOrderItemId, description: jobDescription });
+    };
+
+    const updateSpecialInstructions = () => {
+        updateInstructions({ id: workOrderItemId, specialInstructions: specialInstructions });
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-4">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-700">Item Description</h2>
+                <Textarea
+                    value={jobDescription}
+                    onChange={handleDescriptionChange}
+                    className="bg-gray-50 p-3 rounded-lg w-full mb-2"
+                />
+                <Button
+                    variant="default"
+                    onClick={updateJobDescription}
+                    className="w-full md:w-auto"
+                >
+                    Update Description
+                </Button>
+            </div>
+            <div className="space-y-4">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-700">Special Instructions</h2>
+                <Textarea
+                    value={specialInstructions}
+                    onChange={handleSpecialInstructionsChange}
+                    className="bg-gray-50 p-3 rounded-lg w-full mb-2"
+                />
+                <Button
+                    variant="default"
+                    onClick={updateSpecialInstructions}
+                    className="w-full md:w-auto"
+                >
+                    Update Special Instructions
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+const ArtworkManager = ({
+    workOrderItemId,
+    initialArtwork,
+}: {
+    workOrderItemId: string,
+    initialArtwork: { fileUrl: string; description: string }[]
+}) => {
+    const [localArtwork, setLocalArtwork] = useState(initialArtwork);
+    const utils = api.useUtils();
+
+    const { mutate: updateArtwork } = api.workOrderItems.updateArtwork.useMutation({
+        onSuccess: () => {
+            void utils.workOrderItems.getByID.invalidate(workOrderItemId);
+            toast.success('Artwork updated successfully');
+        },
+        onError: (error) => {
+            console.error('Error updating artwork:', error);
+            toast.error('Failed to update artwork');
+        }
+    });
+
+    return (
+        <div className="rounded-lg bg-white p-4 shadow-md">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Files</h2>
+            <FileUpload
+                onFileUploaded={(fileUrl: string, description: string) => {
+                    const newArtwork = { fileUrl, description };
+                    const updatedArtwork = [...localArtwork, newArtwork];
+                    setLocalArtwork(updatedArtwork);
+                    updateArtwork({
+                        workOrderItemId: workOrderItemId,
+                        artwork: updatedArtwork,
+                    });
+                }}
+                onFileRemoved={(fileUrl: string) => {
+                    const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
+                    setLocalArtwork(updatedArtwork);
+                    updateArtwork({
+                        workOrderItemId: workOrderItemId,
+                        artwork: updatedArtwork,
+                    });
+                }}
+                onDescriptionChanged={(fileUrl: string, description: string) => {
+                    const updatedArtwork = localArtwork.map(art =>
+                        art.fileUrl === fileUrl ? { ...art, description } : art
+                    );
+                    setLocalArtwork(updatedArtwork);
+                }}
+                onDescriptionBlur={(_fileUrl: string) => {
+                    updateArtwork({
+                        workOrderItemId: workOrderItemId,
+                        artwork: localArtwork,
+                    });
+                }}
+                initialFiles={localArtwork}
+            />
+        </div>
+    );
+};
 
 const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -88,14 +241,13 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     workOrderId,
     workOrderItemId
 }) => {
-    const [jobDescription, setJobDescription] = useState("");
-    const [specialInstructions, setSpecialInstructions] = useState("");
-    const [localArtwork, setLocalArtwork] = useState<{ fileUrl: string; description: string }[]>([]);
     const { data: workOrder, isLoading: isWorkOrderLoading, error: workOrderError } = api.workOrders.getByID.useQuery(workOrderId);
     const { data: fetchedWorkOrderItem, isLoading: isItemLoading, error: itemError } = api.workOrderItems.getByID.useQuery(workOrderItemId);
-    const [workOrderItem, setWorkOrderItem] = useState<SerializedWorkOrderItem | null>(null);
+    // Removed redundant workOrderItem state and synced effects to prevent cascading renders
     const { data: typesettingData, isLoading: isTypesettingLoading } = api.typesettings.getByWorkOrderItemID.useQuery(workOrderItemId);
-    const [serializedTypesettingData, setSerializedTypesettingData] = useState<SerializedTypesetting[]>([]);
+    const serializedTypesettingData = useMemo(() => {
+        return typesettingData?.map(normalizeTypesetting) ?? [];
+    }, [typesettingData]);
     const utils = api.useUtils();
 
     // Get all paper products
@@ -106,91 +258,20 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         return paperProduct ? formatPaperProductLabel(paperProduct) : null;
     };
 
-    const { mutate: updateDescription } = api.workOrderItems.updateDescription.useMutation({
-        onSuccess: () => {
-            toast.success('Item description updated successfully');
-            utils.workOrderItems.getByID.invalidate(workOrderItemId);
-        },
-        onError: (error) => {
-            console.error('Failed to update item description:', error);
-            toast.error('Failed to update item description');
-        }
-    });
-
-    const { mutate: updateInstructions } = api.workOrderItems.updateSpecialInstructions.useMutation({
-        onSuccess: () => {
-            toast.success('Special instructions updated successfully');
-            utils.workOrderItems.getByID.invalidate(workOrderItemId);
-        },
-        onError: (error) => {
-            console.error('Failed to update special instructions:', error);
-            toast.error('Failed to update special instructions');
-        }
-    });
-
-    const { mutate: updateArtwork } = api.workOrderItems.updateArtwork.useMutation({
-        onSuccess: () => {
-            void utils.workOrderItems.getByID.invalidate(workOrderItemId);
-            toast.success('Artwork updated successfully');
-        },
-        onError: (error) => {
-            console.error('Error updating artwork:', error);
-            toast.error('Failed to update artwork');
-        }
-    });
-
-    useEffect(() => {
-        if (fetchedWorkOrderItem) {
-            setWorkOrderItem(fetchedWorkOrderItem);
-            setJobDescription(fetchedWorkOrderItem.description);
-            setSpecialInstructions(fetchedWorkOrderItem.specialInstructions ?? '');
-        }
-    }, [fetchedWorkOrderItem]);
-
-    useEffect(() => {
-        if (typesettingData) {
-            const serializedData = typesettingData.map(normalizeTypesetting);
-            setSerializedTypesettingData(serializedData);
-        }
-    }, [typesettingData]);
-
-    useEffect(() => {
-        if (fetchedWorkOrderItem?.artwork) {
-            setLocalArtwork(fetchedWorkOrderItem.artwork.map(art => ({
-                fileUrl: art.fileUrl,
-                description: art.description || '',
-            })));
-        }
-    }, [fetchedWorkOrderItem?.artwork]);
-
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setJobDescription(e.target.value);
-    };
-
-    const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setSpecialInstructions(e.target.value);
-    };
-
-    const updateJobDescription = () => {
-        updateDescription({ id: workOrderItemId, description: jobDescription });
-    };
-
-    const updateSpecialInstructions = () => {
-        updateInstructions({ id: workOrderItemId, specialInstructions: specialInstructions });
-    };
+    // Removed manual handlers for jobDescription and specialInstructions as they are now in DescriptionEditor
 
     // Add CopilotKit readable context for work order item details
     useCopilotReadable({
         description: "Current work order item details and specifications",
         value: {
-            workOrderItem: workOrderItem ? {
-                id: workOrderItem.id,
-                description: workOrderItem.description,
-                quantity: workOrderItem.quantity,
-                ink: workOrderItem.ink,
-                specialInstructions: workOrderItem.specialInstructions,
-                status: workOrderItem.status,
-                productType: workOrderItem.ProductType?.name,
+            workOrderItem: fetchedWorkOrderItem ? {
+                id: fetchedWorkOrderItem.id,
+                description: fetchedWorkOrderItem.description,
+                quantity: fetchedWorkOrderItem.quantity,
+                ink: fetchedWorkOrderItem.ink,
+                specialInstructions: fetchedWorkOrderItem.specialInstructions,
+                status: fetchedWorkOrderItem.status,
+                productType: fetchedWorkOrderItem.ProductType?.name,
                 workOrderNumber: workOrder?.workOrderNumber,
                 company: workOrder?.Office?.Company.name,
             } : null,
@@ -203,11 +284,11 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     useCopilotReadable({
         description: "Artwork and file attachments for the work order item",
         value: {
-            artwork: localArtwork.map(art => ({
+            artwork: fetchedWorkOrderItem?.artwork.map(art => ({
                 fileUrl: art.fileUrl,
                 description: art.description,
-            })),
-            hasFiles: localArtwork.length > 0,
+            })) ?? [],
+            hasFiles: (fetchedWorkOrderItem?.artwork.length ?? 0) > 0,
         },
     });
 
@@ -215,14 +296,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
     useCopilotReadable({
         description: "Paper stock information for the work order item",
         value: {
-            stocks: workOrderItem?.WorkOrderItemStock?.map(stock => ({
+            stocks: fetchedWorkOrderItem?.WorkOrderItemStock?.map(stock => ({
                 stockQty: stock.stockQty,
                 paperProduct: findPaperProduct(stock.paperProductId || ''),
                 supplier: stock.supplier,
                 status: stock.stockStatus,
                 expectedDate: stock.expectedDate,
             })) ?? [],
-            hasStocks: (workOrderItem?.WorkOrderItemStock?.length ?? 0) > 0,
+            hasStocks: (fetchedWorkOrderItem?.WorkOrderItemStock?.length ?? 0) > 0,
         },
     });
 
@@ -234,7 +315,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
         return <div className="text-red-500 text-center">Error loading data. Please try again.</div>;
     }
 
-    if (!workOrderItem) {
+    if (!fetchedWorkOrderItem) {
         return <div className="text-center">No order items found.</div>;
     }
 
@@ -246,8 +327,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <ul className="flex flex-wrap gap-1">
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/workOrders">Estimates</Link></li>
-                        <li><Link href={`/workOrders/${workOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
-                        <li>Item {workOrderItem.workOrderItemNumber}</li>
+                        <li><Link href={`/workOrders/${fetchedWorkOrderItem.workOrderId}`}>Estimate {workOrder?.workOrderNumber}</Link></li>
+                        <li>Item {fetchedWorkOrderItem.workOrderItemNumber}</li>
                     </ul>
                 </div>
             </div>
@@ -262,15 +343,15 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         />
                         <InfoCard
                             title="Item Quantity"
-                            content={workOrderItem.quantity ?? 'N/A'}
+                            content={fetchedWorkOrderItem.quantity ?? 'N/A'}
                         />
                         <InfoCard
                             title="Color"
-                            content={workOrderItem.ink ?? 'N/A'}
+                            content={fetchedWorkOrderItem.ink ?? 'N/A'}
                         />
                         <InfoCard
                             title="Product Type"
-                            content={workOrderItem.ProductType?.name ?? 'N/A'}
+                            content={fetchedWorkOrderItem.ProductType?.name ?? 'N/A'}
                         />
                     </div>
                 </div>
@@ -286,7 +367,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 {/* Paper Stock Section */}
                 <section className="mb-2">
                     <h2 className="text-xl md:text-2xl font-semibold mb-4">Paper Stock</h2>
-                    <WorkOrderItemStockComponent workOrderItemId={workOrderItem.id} />
+                    <WorkOrderItemStockComponent workOrderItemId={fetchedWorkOrderItem.id} />
                 </section>
 
                 {/* Shipping Info Section */}
@@ -294,9 +375,9 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div className="grid grid-cols-1 gap-4 mb-2">
                             <ShippingInfoEditor
-                                workOrderItemId={workOrderItem.id}
+                                workOrderItemId={fetchedWorkOrderItem.id}
                                 officeId={workOrder?.Office?.id ?? ''}
-                                currentShippingInfo={workOrderItem.ShippingInfo}
+                                currentShippingInfo={fetchedWorkOrderItem.ShippingInfo}
                                 onUpdate={() => {
                                     utils.workOrderItems.getByID.invalidate(workOrderItemId);
                                 }}
@@ -308,38 +389,16 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                 </div>
 
                 {/* Description and Instructions Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="space-y-4">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Item Description</h2>
-                        <Textarea
-                            value={jobDescription}
-                            onChange={handleDescriptionChange}
-                            className="bg-gray-50 p-3 rounded-lg w-full mb-2"
-                        />
-                        <Button
-                            variant="default"
-                            onClick={updateJobDescription}
-                            className="w-full md:w-auto"
-                        >
-                            Update Description
-                        </Button>
-                    </div>
-                    <div className="space-y-4">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700">Special Instructions</h2>
-                        <Textarea
-                            value={specialInstructions}
-                            onChange={handleSpecialInstructionsChange}
-                            className="bg-gray-50 p-3 rounded-lg w-full mb-2"
-                        />
-                        <Button
-                            variant="default"
-                            onClick={updateSpecialInstructions}
-                            className="w-full md:w-auto"
-                        >
-                            Update Special Instructions
-                        </Button>
-                    </div>
-                </div>
+                {/* Description and Instructions Section */}
+                <DescriptionEditor
+                    workOrderItemId={fetchedWorkOrderItem.id}
+                    initialDescription={fetchedWorkOrderItem.description}
+                    initialInstructions={fetchedWorkOrderItem.specialInstructions ?? ""}
+                    onUpdate={() => {
+                        utils.workOrderItems.getByID.invalidate(workOrderItemId);
+                    }}
+                    key={fetchedWorkOrderItem.updatedAt}
+                />
 
                 {/* Status Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -347,9 +406,9 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         title="Status"
                         content={
                             <StatusBadge
-                                id={workOrderItem.id}
-                                status={workOrderItem.status}
-                                workOrderId={workOrderItem.workOrderId ?? ''}
+                                id={fetchedWorkOrderItem.id}
+                                status={fetchedWorkOrderItem.status}
+                                workOrderId={fetchedWorkOrderItem.workOrderId ?? ''}
                             />
                         }
                     />
@@ -358,7 +417,7 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
 
                 {/* Edit Button */}
                 <div className="mb-6">
-                    <Link href={`/workOrders/${workOrderItem.workOrderId}/workOrderItem/${workOrderItem.id}/edit`}>
+                    <Link href={`/workOrders/${fetchedWorkOrderItem.workOrderId}/workOrderItem/${fetchedWorkOrderItem.id}/edit`}>
                         <Button
                             variant="default"
                             className="w-full md:w-auto"
@@ -371,41 +430,14 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
 
                 {/* Artwork Section */}
                 <div className="mb-6">
-                    <div className="rounded-lg bg-white p-4 shadow-md">
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Files</h2>
-                        <FileUpload
-                            onFileUploaded={(fileUrl: string, description: string) => {
-                                const newArtwork = { fileUrl, description };
-                                const updatedArtwork = [...localArtwork, newArtwork];
-                                setLocalArtwork(updatedArtwork);
-                                updateArtwork({
-                                    workOrderItemId: workOrderItem.id,
-                                    artwork: updatedArtwork,
-                                });
-                            }}
-                            onFileRemoved={(fileUrl: string) => {
-                                const updatedArtwork = localArtwork.filter(art => art.fileUrl !== fileUrl);
-                                setLocalArtwork(updatedArtwork);
-                                updateArtwork({
-                                    workOrderItemId: workOrderItem.id,
-                                    artwork: updatedArtwork,
-                                });
-                            }}
-                            onDescriptionChanged={(fileUrl: string, description: string) => {
-                                const updatedArtwork = localArtwork.map(art =>
-                                    art.fileUrl === fileUrl ? { ...art, description } : art
-                                );
-                                setLocalArtwork(updatedArtwork);
-                            }}
-                            onDescriptionBlur={(_fileUrl: string) => {
-                                updateArtwork({
-                                    workOrderItemId: workOrderItem.id,
-                                    artwork: localArtwork,
-                                });
-                            }}
-                            initialFiles={localArtwork}
-                        />
-                    </div>
+                    <ArtworkManager
+                        workOrderItemId={fetchedWorkOrderItem.id}
+                        initialArtwork={fetchedWorkOrderItem.artwork.map(art => ({
+                            fileUrl: art.fileUrl,
+                            description: art.description || '',
+                        }))}
+                        key={fetchedWorkOrderItem.updatedAt + '-artwork'}
+                    />
                 </div>
 
                 {/* Typesetting Section */}
@@ -416,8 +448,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                             <TypesettingProvider>
                                 <TypesettingComponent
-                                workOrderItemId={workOrderItem.id}
-                                orderItemId=""
+                                    workOrderItemId={fetchedWorkOrderItem.id}
+                                    orderItemId=""
                                     initialTypesetting={serializedTypesettingData}
                                 />
                             </TypesettingProvider>
@@ -427,8 +459,8 @@ const WorkOrderItemComponent: React.FC<WorkOrderItemPageProps> = ({
                     <section>
                         <h2 className="text-xl md:text-2xl font-semibold mb-4">Bindery Options</h2>
                         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-                            <ProcessingOptionsProvider workOrderItemId={workOrderItem.id}>
-                                <ProcessingOptionsComponent workOrderItemId={workOrderItem.id} />
+                            <ProcessingOptionsProvider workOrderItemId={fetchedWorkOrderItem.id}>
+                                <ProcessingOptionsComponent workOrderItemId={fetchedWorkOrderItem.id} />
                             </ProcessingOptionsProvider>
                         </div>
                     </section>
