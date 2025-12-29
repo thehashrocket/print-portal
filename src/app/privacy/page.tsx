@@ -1,7 +1,5 @@
 // Privacy Policy
 // ~/app/privacy/page.ts
-"use server"
-
 import React from 'react';
 
 const PrivacyPage = () => {

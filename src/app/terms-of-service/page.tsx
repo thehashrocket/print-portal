@@ -1,7 +1,5 @@
 // Terms of Service
 // ~/app/terms-of-service/page.tsx
-"use server"
-
 import React from 'react';
 
 const TermsOfServicePage = () => {

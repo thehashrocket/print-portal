@@ -1,7 +1,5 @@
 // End User License Agreement
 // ~/app/end-user-license/page.tsx
-"use server"
-
 import React from 'react';
 
 const EndUserLicensePage = () => {
