@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.0.1] - 2026-04-08
+
+### Changed
+- Reviewed 5 Dependabot PRs: merged safe patch (diff 4.0.2→4.0.4), closed 4 others requiring manual intervention
+- Added Prisma 7 upgrade plan to TODOS.md with 4 tracks: schema/config, Auth.js adapter, internal runtime imports, CLI/scripts
+- Added TODO to remove unused ag-charts-react dependency (zero imports in codebase)
+
 ## [0.1.0] - 2026-04-08
 
 ### Added
