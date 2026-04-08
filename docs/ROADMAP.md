@@ -52,5 +52,5 @@ The portal aims to digitize Thomson Printing's entire workflow from quote to pay
 
 ## See Also
 
-- [TODOS.md](./TODOS.md) — technical debt and deferred work items
+- [TODOS.md](../TODOS.md) — technical debt and deferred work items
 - [AI_CONTEXT.md](./AI_CONTEXT.md) — project overview and domain context

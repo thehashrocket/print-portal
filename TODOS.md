@@ -14,7 +14,7 @@
 ### P1 — Test Infrastructure
 No test framework is configured. All validation is manual (`pnpm lint` + smoke testing in dev). Risk: regressions go undetected until production.
 - **Action:** Set up Vitest (or similar), add tests for critical paths (order CRUD, invoice generation, QB sync)
-- **See:** [ROADMAP.md](./ROADMAP.md) — High Priority
+- **See:** [ROADMAP.md](./docs/ROADMAP.md) — High Priority
 
 ### P2 — README.md Cleanup
 The current README is the T3 Create App boilerplate. It references Drizzle ORM (not used — this project uses Prisma) and contains generic T3 documentation instead of project-specific content.
@@ -38,7 +38,7 @@ Error handling varies across routers — some throw TRPCError with codes, others
 
 ## Planned Improvements
 
-### Test Coverage (linked to [ROADMAP.md](./ROADMAP.md))
+### Test Coverage (linked to [ROADMAP.md](./docs/ROADMAP.md))
 - Unit tests for tRPC routers (input validation, business logic)
 - Integration tests for QuickBooks sync flow
 - Component tests for critical UI flows (order creation, invoice generation)
@@ -66,5 +66,5 @@ A service worker build script exists but PWA features are not actively used. Kee
 
 ## See Also
 
-- [ROADMAP.md](./ROADMAP.md) — feature roadmap and vision
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — current architecture reference
+- [ROADMAP.md](./docs/ROADMAP.md) — feature roadmap and vision
+- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) — current architecture reference
