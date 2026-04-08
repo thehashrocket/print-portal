@@ -144,13 +144,11 @@
       "@types/react-dom": "19.0.2"
     },
     "onlyBuiltDependencies": [
-      "@prisma/client",
       "@tailwindcss/oxide",
       "@unrs/resolver-binding-darwin-arm64",
       "bcrypt",
       "core-js",
       "esbuild",
-      "prisma",
       "sharp",
       "unrs-resolver"
     ]
