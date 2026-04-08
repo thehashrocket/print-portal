@@ -4,7 +4,8 @@ import React from 'react';
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import InvoiceDetailClient from '~/app/_components/invoices/InvoiceDetailClient';
-import { Decimal } from '@prisma/client/runtime/library';
+import { Decimal } from 'decimal.js';
+import { Prisma } from '~/generated/prisma/client';
 
 export default async function InvoiceDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -26,7 +27,7 @@ export default async function InvoiceDetailPage(props: { params: Promise<{ id: s
             return obj;
         }
 
-        if (obj instanceof Decimal) {
+        if (obj instanceof Decimal || obj instanceof Prisma.Decimal) {
             return obj.toString();
         }
 

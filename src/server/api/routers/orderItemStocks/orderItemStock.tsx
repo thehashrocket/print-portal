@@ -5,8 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { type SerializedOrderItemStock } from "~/types/serializedTypes";
 import { normalizeOrderItemStock } from "~/utils/dataNormalization";
-import { StockStatus, PaperBrand, PaperType, PaperFinish } from "@prisma/client";
-import type { Prisma } from "@prisma/client";
+import { StockStatus, PaperBrand, PaperType, PaperFinish, type Prisma } from "~/generated/prisma/client";
 
 const orderItemStockSchema = z.object({
     stockQty: z.number().int().positive(),

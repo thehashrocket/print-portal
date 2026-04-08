@@ -3,7 +3,7 @@
 "use client";
 import React, { useState, useMemo } from 'react';
 import { api } from "~/trpc/react";
-import { OrderItemStatus } from '@prisma/client';
+import { OrderItemStatus } from "~/generated/prisma/browser";
 import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";

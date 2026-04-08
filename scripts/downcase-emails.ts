@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '~/server/db';
 
 async function downcaseEmails() {
-  const prisma = new PrismaClient();
+  const prisma = createPrismaClient();
   
   try {
     // Get all users

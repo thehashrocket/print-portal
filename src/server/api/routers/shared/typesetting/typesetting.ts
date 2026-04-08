@@ -12,7 +12,7 @@
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { Prisma, TypesettingStatus } from "@prisma/client";
+import { Prisma, TypesettingStatus } from "~/generated/prisma/client";
 
 export const typesettingRouter = createTRPCRouter({
     getById: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {

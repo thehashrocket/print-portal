@@ -3,7 +3,7 @@
 import {
     type ValueFormatterParams,
 } from "@ag-grid-community/core";
-import type { PaperProduct } from "@prisma/client";
+import type { PaperProduct } from "~/generated/prisma/client";
 
 export const formatCurrency = (amount: number | string): string => {
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;

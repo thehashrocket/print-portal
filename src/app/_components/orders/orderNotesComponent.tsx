@@ -2,7 +2,7 @@
 
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { type OrderNote } from '@prisma/client';
+import { type OrderNote } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";

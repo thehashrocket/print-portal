@@ -1,7 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus } from "@prisma/client";
-import type { OrderItem } from "@prisma/client";
+import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus, type OrderItem } from "~/generated/prisma/client";
 import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";

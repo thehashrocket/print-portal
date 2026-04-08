@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { type SerializedAddress } from '~/types/serializedTypes';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';

@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { type WorkOrderItemStock } from "@prisma/client";
+import { type WorkOrderItemStock } from "~/generated/prisma/browser";
 
 type workOrderStockComponentProps = {
     workOrderStock: WorkOrderItemStock[];

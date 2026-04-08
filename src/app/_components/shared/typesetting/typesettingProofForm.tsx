@@ -4,7 +4,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/trpc/react";
-import { ProofMethod } from "@prisma/client";
+import { ProofMethod } from "~/generated/prisma/browser";
 import { useTypesettingContext } from "~/app/contexts/TypesettingContext";
 import { type SerializedTypesettingProof } from "~/types/serializedTypes";
 import { normalizeTypesettingProof } from "~/utils/dataNormalization";

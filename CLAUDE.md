@@ -1,5 +1,13 @@
 # Thomson Print Portal (Cancun V2)
 
+## Node.js
+
+This project uses **nvm** to manage Node.js versions. The required version is **24.2.0**.
+
+```bash
+nvm use 24.2.0
+```
+
 ## Skill routing
 
 When the user's request matches an available skill, ALWAYS invoke it using the Skill

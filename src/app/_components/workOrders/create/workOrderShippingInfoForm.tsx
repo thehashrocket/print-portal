@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { Button } from '~/app/_components/ui/button';
 import { Label } from '../../ui/label';
 import { Input } from '../../ui/input';

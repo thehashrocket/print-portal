@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { WorkOrderStatus, Prisma, type ShippingMethod } from "@prisma/client";
+import { WorkOrderStatus, Prisma, type ShippingMethod } from "~/generated/prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";

@@ -6,7 +6,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { PaperType, StockStatus } from '@prisma/client';
+import { PaperType, StockStatus } from "~/generated/prisma/browser";
 import { Button } from '~/app/_components/ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { Input } from '~/app/_components/ui/input';

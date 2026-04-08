@@ -5,7 +5,7 @@ import Image from "next/image";
 import type { SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import { Button } from '../ui/button';
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { ArrowLeft, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 interface OrderPrintPreviewProps {

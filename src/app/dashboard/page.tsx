@@ -11,7 +11,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Link from "next/link";
 import NoPermission from "../_components/noPermission/noPermission";
 import { formatDate } from "~/utils/formatters";
-import { type OrderItemStatus, type OrderStatus } from "@prisma/client";
+import { type OrderItemStatus, type OrderStatus } from "~/generated/prisma/client";
 import { type OrderDashboard } from "~/types/orderDashboard";
 import { type OrderItemDashboard } from "~/types/orderItemDashboard";
 dayjs.extend(utc);

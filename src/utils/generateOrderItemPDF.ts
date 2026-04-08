@@ -1,4 +1,4 @@
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { jsPDF } from 'jspdf';
 import type { SerializedProcessingOptions, SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatDate } from '~/utils/formatters';

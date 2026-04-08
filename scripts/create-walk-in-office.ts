@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '~/server/db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 async function createWalkInOffice() {
     try {

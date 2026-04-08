@@ -6,7 +6,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer
 } from 'recharts';
-import { type Company, type Office, type WorkOrder as PrismaWorkOrder, type Order as PrismaOrder, type WorkOrderStatus, type OrderStatus } from '@prisma/client';
+import { type Company, type Office, type WorkOrder as PrismaWorkOrder, type Order as PrismaOrder, type WorkOrderStatus, type OrderStatus } from "~/generated/prisma/browser";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 

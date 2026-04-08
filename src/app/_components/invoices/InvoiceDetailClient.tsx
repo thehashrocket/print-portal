@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '~/utils/formatters';
 import AddPaymentForm from '~/app/_components/invoices/AddPaymentForm';
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { type SerializedInvoice, type SerializedOrder } from '~/types/serializedTypes';
 import { toast } from 'react-hot-toast';
 import { Download, Send } from 'lucide-react';

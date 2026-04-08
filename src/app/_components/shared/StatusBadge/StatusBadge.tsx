@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Switch } from '~/app/_components/ui/switch';
 import { Input } from '../../ui/input';
-import { ShippingMethod } from '@prisma/client';
+import { ShippingMethod } from "~/generated/prisma/browser";
 import { Button } from '../../ui/button';
 import { SelectField } from '~/app/_components/shared/ui/SelectField/SelectField';
 import { Info, Save } from 'lucide-react';

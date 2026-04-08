@@ -3,7 +3,7 @@
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { WorkOrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
+import { WorkOrderItemStatus, ShippingMethod, type Prisma } from "~/generated/prisma/client";
 import { normalizeWorkOrderItem } from "~/utils/dataNormalization";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
 

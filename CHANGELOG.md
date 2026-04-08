@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.1.0] - 2026-04-08
+
+### Changed
+- Upgraded Prisma ORM from 6.x to 7.7.0 with PostgreSQL driver adapter (`@prisma/adapter-pg`)
+- Migrated all 85+ source files from `@prisma/client` imports to generated client at `~/generated/prisma`
+- Rewrote `src/server/db.ts` with `PrismaPg` driver adapter, exported `createPrismaClient` factory for scripts
+- Updated all 10 standalone scripts (seed, imports, migrations) to use shared Prisma factory
+- Refactored `qbCustomer.ts` to use `typeof db` instead of hard-coded Prisma generics
+- Replaced `@prisma/client/runtime/library` imports with `decimal.js` and `~/generated/prisma/browser`
+- Moved `prisma.seed` config from `package.json` to `prisma.config.ts`
+- Made SSL conditional (production only) in database adapter config
+
+### Added
+- `prisma.config.ts` for Prisma 7 configuration (schema path, seed command, datasource)
+- `vitest.config.ts` and test infrastructure with 3 targeted test suites
+- Decimal serialization tests covering both `decimal.js` and `Prisma.Decimal` class instances
+- `SKIP_ENV_VALIDATION=1` to all standalone script commands in `package.json`
+
 ## [0.1.0.1] - 2026-04-08
 
 ### Changed

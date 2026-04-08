@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { parse } from "csv-parse";
 import fs from "fs";
 import path from "path";
+import { createPrismaClient } from '~/server/db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 interface CompassHealthLocation {
   "Site ID": string;

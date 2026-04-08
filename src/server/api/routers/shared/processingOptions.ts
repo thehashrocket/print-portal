@@ -9,7 +9,7 @@ import {
     createTRPCRouter,
     protectedProcedure
 } from "~/server/api/trpc";
-import { BindingType } from "@prisma/client";
+import { BindingType } from "~/generated/prisma/client";
 
 export const processingOptionsRouter = createTRPCRouter({
     getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { OrderItemStatus } from "@prisma/client";
+import { OrderItemStatus } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { TypesettingProvider } from '~/app/contexts/TypesettingContext';

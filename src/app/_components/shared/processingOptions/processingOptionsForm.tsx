@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
-import { BindingType, type ProcessingOptions } from "@prisma/client";
+import { BindingType, type ProcessingOptions } from "~/generated/prisma/browser";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { type SerializedAddress } from "~/types/serializedTypes";
 import { api } from "~/trpc/react";
 import { MapPin, Plus, Trash } from "lucide-react";
-import { AddressType } from "@prisma/client";
+import { AddressType } from "~/generated/prisma/browser";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { SelectField } from "../shared/ui/SelectField/SelectField";

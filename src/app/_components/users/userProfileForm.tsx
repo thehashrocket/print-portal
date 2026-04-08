@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "~/trpc/react";
 import { type ExtendedUser } from "~/types/user";
-import { type Company, type Office, type Role } from "@prisma/client";
+import { type Company, type Office, type Role } from "~/generated/prisma/browser";
 import { Button } from "../ui/button";
 import { Pencil, User as UserIcon, Mail, Building2, Users } from "lucide-react";
 import { Input } from "~/app/_components/ui/input";

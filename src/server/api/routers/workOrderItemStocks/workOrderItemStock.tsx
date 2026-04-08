@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { type SerializedWorkOrderItemStock } from "~/types/serializedTypes";
 import { normalizeWorkOrderItemStock } from "~/utils/dataNormalization";
-import { StockStatus } from "@prisma/client";
+import { StockStatus } from "~/generated/prisma/client";
 
 const workOrderItemStockSchema = z.object({
     costPerM: z.number(),

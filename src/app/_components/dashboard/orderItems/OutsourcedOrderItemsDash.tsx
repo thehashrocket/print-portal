@@ -1,8 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { OrderItemStatus } from "@prisma/client";
-import type { OrderItem } from "@prisma/client";
+import { OrderItemStatus, type OrderItem } from "~/generated/prisma/browser";
 import { Building2, CalendarDays, Eye, Mail, Phone, User } from "lucide-react";
 import { formatDate } from "~/utils/formatters";
 

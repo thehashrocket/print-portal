@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { WorkOrderStatus } from "@prisma/client";
+import { WorkOrderStatus } from "~/generated/prisma/browser";
 import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import WorkOrderItemsTable from "../../_components/workOrders/workOrderItem/workOrderItemsTable";

@@ -1,7 +1,8 @@
-import { type PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus, WorkOrderItemStatus } from "@prisma/client";
+import { type PrismaClient, Prisma, OrderStatus, OrderItemStatus, WorkOrderStatus, WorkOrderItemStatus } from "~/generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
+import { db } from "~/server/db";
 
 const SALES_TAX = 0.07;
 
@@ -19,9 +20,7 @@ export async function convertWorkOrderToOrder(
     officeId: string,
     prisma?: PrismaClient
 ): Promise<SerializedWorkOrder & { Order: { id: string } }> {
-    // Import prisma client if not provided (for backward compatibility)
-    const { PrismaClient } = await import("@prisma/client");
-    const client = prisma || new PrismaClient();
+    const client = prisma || db;
 
     return await client.$transaction(async (tx) => {
         const workOrder = await getWorkOrder(tx, workOrderId);

@@ -2,7 +2,7 @@
 
 "use client";
 import React, { useState } from 'react';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { type OrderDashboard } from "~/types/orderDashboard";
 import OrderCard from '../OrderCard';

@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { ShippingMethod, type Address } from '@prisma/client';
+import { ShippingMethod, type Address } from "~/generated/prisma/browser";
 import { type SerializedShippingInfo } from '~/types/serializedTypes';
 import { formatCurrency, formatDate, formatTime } from '~/utils/formatters';
 import { Truck, MapPin, DollarSign, Calendar, Notebook, Package, FileText, FilePenLine, PlusCircle, X } from 'lucide-react';

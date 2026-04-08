@@ -1,7 +1,7 @@
 // ~/src/app/_components/users/EditUserRolesModal.tsx
 import React, { useState } from 'react';
 import { api } from "~/trpc/react";
-import { type User, type Role, RoleName } from "@prisma/client";
+import { type User, type Role, RoleName } from "~/generated/prisma/browser";
 import { Button } from '../ui/button';
 
 interface EditUserRolesModalProps {

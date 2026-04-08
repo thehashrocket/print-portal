@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useProcessingOptions } from "~/app/contexts/ProcessingOptionsContext";
 import ProcessingOptionsForm from "~/app/_components/shared/processingOptions/processingOptionsForm";
-import { type ProcessingOptions } from "@prisma/client";
+import { type ProcessingOptions } from "~/generated/prisma/browser";
 import { Button } from "../../ui/button";
 import { Pencil, Trash } from "lucide-react";
 

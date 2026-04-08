@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { OrderItemStatus, ShippingMethod, type Prisma } from "@prisma/client";
+import { OrderItemStatus, ShippingMethod, type Prisma } from "~/generated/prisma/client";
 import { sendOrderStatusEmail } from "~/utils/sengrid";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
 import { normalizeOrderItem } from "~/utils/dataNormalization";
