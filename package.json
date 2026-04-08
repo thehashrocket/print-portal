@@ -9,29 +9,27 @@
       "next/core-web-vitals"
     ]
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "scripts": {
     "build": "next build --webpack",
     "build-sw": "node scripts/build-sw.js",
-    "db:push": "prisma db push",
-    "db-seed": "NODE_ENV=development prisma db seed",
+    "db:push": "prisma generate && prisma db push",
+    "db-seed": "SKIP_ENV_VALIDATION=1 NODE_ENV=development prisma db seed",
     "db:studio": "prisma studio",
     "dev": "next dev --turbopack --port 3005",
     "postinstall": "prisma generate",
     "lint": "eslint src/**/*.{ts,tsx}",
     "start": "next start -p 3000",
-    "copy-purchase-order-numbers": "tsx scripts/copyPurchaseOrderNumbers.ts",
+    "copy-purchase-order-numbers": "SKIP_ENV_VALIDATION=1 tsx scripts/copyPurchaseOrderNumbers.ts",
     "generate-docs": "tsx scripts/generateApiDocs.ts",
     "generate-font": "node scripts/generateFontBase64.mjs",
-    "import-paper-products": "tsx scripts/importPaperProducts.ts",
-    "import-quickbooks": "tsx prisma/import-quickbooks.js",
-    "import-compass-health-locations": "tsx prisma/import-compass-health-locations.js",
-    "add-product-types": "tsx scripts/addProductTypes.ts",
-    "downcase-emails": "tsx scripts/downcaseEmails.ts",
-    "import-paper-catalog": "tsx scripts/importPaperCatalog.ts",
-    "setup-walk-in": "tsx scripts/create-walk-in-office.ts"
+    "import-paper-products": "SKIP_ENV_VALIDATION=1 tsx scripts/importPaperProducts.ts",
+    "import-quickbooks": "SKIP_ENV_VALIDATION=1 tsx prisma/import-quickbooks.js",
+    "import-compass-health-locations": "SKIP_ENV_VALIDATION=1 tsx prisma/import-compass-health-locations.js",
+    "add-product-types": "SKIP_ENV_VALIDATION=1 tsx scripts/addProductTypes.ts",
+    "downcase-emails": "SKIP_ENV_VALIDATION=1 tsx scripts/downcaseEmails.ts",
+    "import-paper-catalog": "SKIP_ENV_VALIDATION=1 tsx scripts/importPaperCatalog.ts",
+    "setup-walk-in": "SKIP_ENV_VALIDATION=1 tsx scripts/create-walk-in-office.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.9",
@@ -43,7 +41,8 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "16.1.1",
-    "@prisma/client": "^6.19.3",
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
@@ -84,6 +83,7 @@
     "next": "^16.2.2",
     "next-auth": "^4.24.13",
     "nodemailer": "^7.0.13",
+    "pg": "^8.16.0",
     "react": "^19.2.4",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.4",
@@ -126,11 +126,13 @@
     "postcss": "^8.5.9",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "prisma": "^6.19.3",
+    "@types/pg": "^8.15.4",
+    "prisma": "^7.7.0",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "ct3aMetadata": {
     "initVersion": "7.34.0"
@@ -143,11 +145,14 @@
     },
     "onlyBuiltDependencies": [
       "@prisma/client",
-      "@prisma/engines",
       "@tailwindcss/oxide",
+      "@unrs/resolver-binding-darwin-arm64",
+      "bcrypt",
+      "core-js",
       "esbuild",
       "prisma",
-      "sharp"
+      "sharp",
+      "unrs-resolver"
     ]
   }
 }
