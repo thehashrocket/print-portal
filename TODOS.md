@@ -53,6 +53,35 @@ Error handling varies across routers — some throw TRPCError with codes, others
 - Strengthen tRPC router return types (explicit instead of inferred from Prisma)
 - Add runtime validation for QB webhook payloads
 
+### P2 — Prisma 7 Upgrade
+Prisma 6.19.2 → 7.x is a major upgrade that cannot be handled by Dependabot alone. Prisma 7 drops the Rust engine (faster, smaller runtime), adds native ESM, and moves to a driver-adapter architecture. The upgrade requires coordinated changes across schema, config, and client instantiation.
+- **Track 1 — Schema & Config:**
+  - `prisma/schema.prisma`: Change generator from `prisma-client-js` to `prisma-client`, add `output` path, remove `shadowDatabaseUrl`
+  - Create `prisma.config.ts` for database connection configuration (env vars no longer auto-loaded)
+  - Install `@prisma/adapter-pg` driver adapter
+  - Update `src/server/db.ts`: Pass adapter to `PrismaClient` constructor
+- **Track 2 — Auth.js Adapter:**
+  - `@auth/prisma-adapter` (v2.11.1) still declares peer dep on `@prisma/client` v6 and imports PrismaClient from `@prisma/client`. Prisma 7's new output path may break this. Check for a compatible adapter version before upgrading, or pin the import path.
+  - `src/server/auth.ts:76` uses `PrismaAdapter(db)` — verify this still works with the new client
+- **Track 3 — Internal Prisma Runtime Imports:**
+  - `src/app/invoices/[id]/page.tsx:7` imports `Decimal` from `@prisma/client/runtime/library`
+  - `src/server/api/routers/quickbooks/qbCustomer.ts:7` imports `DefaultArgs` from `@prisma/client/runtime/library`
+  - These runtime paths change in Prisma 7. Replace with equivalents from the generated output path.
+- **Track 4 — CLI & Scripts:**
+  - `db push` no longer auto-runs `prisma generate` in v7
+  - `package.json` has `postinstall: prisma generate` and `prisma.seed` config — both need review
+  - @prisma/adapter-pg changes pooling/SSL behavior — test against real Postgres
+  - Bump both `prisma` and `@prisma/client` to 7.x together (version mismatch breaks builds)
+- **Scope:** 85 files import `@prisma/client`, but most imports won't change. Main changes: schema, config, db.ts, auth.ts, and 2 files with runtime imports.
+- **Dependabot PRs to close:** #423 (prisma CLI) and #424 (@prisma/client) — they only bump versions without the required code changes
+- **Effort:** human ~3 days / CC ~45 min (increased from original estimate due to Auth.js adapter investigation)
+- **Reference:** https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7
+
+### P3 — Remove Unused ag-charts-react Dependency
+`ag-charts-react` has zero imports in the codebase (verified across all .ts/.tsx/.js/.jsx files). The project uses `recharts` for charts and `@ag-grid-community/*` for grids. This dead dependency creates unnecessary Dependabot PRs and bloats install size.
+- **Action:** Remove `ag-charts-react` from `package.json`, run `pnpm install`
+- **Effort:** human ~5 min / CC ~2 min
+
 ## Deferred Work
 
 ### Migration to Prisma Migrate (Deferred)
