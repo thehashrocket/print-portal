@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.1.1] - 2026-04-08
+
+### Fixed
+- Reverted Prisma generator config broken by commit 17d3f9e: restored `provider` to `prisma-client` and `output` to `../src/generated/prisma` so all 80+ source file imports resolve correctly
+
 ## [0.1.1.0] - 2026-04-08
 
 ### Changed
