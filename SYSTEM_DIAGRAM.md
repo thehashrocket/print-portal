@@ -1,0 +1,125 @@
+# System Diagrams — Thomson Print Portal
+
+## High-Level Component Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Browser (React 19)                       │
+│  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌─────────┐ ┌────────┐ │
+│  │ Orders  │ │WorkOrders│ │ Invoices │ │Companies│ │Dashboard│ │
+│  └────┬────┘ └────┬─────┘ └────┬─────┘ └────┬────┘ └───┬────┘ │
+│       └───────────┴────────────┴─────────────┴──────────┘      │
+│                            │                                     │
+│              tRPC Client (react.tsx) + React Query               │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │ HTTPS
+┌────────────────────────────┴─────────────────────────────────────┐
+│                    Next.js 16 (App Router)                        │
+│                                                                   │
+│  ┌──────────────┐  ┌─────────────┐  ┌──────────────────────┐    │
+│  │ NextAuth 4.x │  │ tRPC Server │  │ API Routes (uploads) │    │
+│  │ JWT + RBAC   │  │ 32 routers  │  │                      │    │
+│  └──────┬───────┘  └──────┬──────┘  └──────────────────────┘    │
+│         │                 │                                       │
+│         └────────┬────────┘                                       │
+│                  │                                                │
+│           Prisma 6.19 ORM                                        │
+└──────────────────┬───────────────────────────────────────────────┘
+                   │ TCP
+┌──────────────────┴───────────┐
+│        PostgreSQL (Docker)    │
+│   38 models · 22 enums       │
+└──────────────────────────────┘
+
+External Services:
+┌──────────────┐  ┌──────────┐  ┌────────┐  ┌────────────┐
+│  QuickBooks  │  │ SendGrid │  │ Pusher │  │ Honeybadger│
+│  Online API  │  │  (SMTP)  │  │(WS/RT) │  │ (Errors)   │
+└──────────────┘  └──────────┘  └────────┘  └────────────┘
+```
+
+## Order Lifecycle Data Flow
+
+```
+┌───────────┐    ┌──────────┐    ┌───────────┐    ┌──────────────┐
+│  Work     │    │  Order   │    │  Order    │    │ Typesetting  │
+│  Order    ├───►│ Created  ├───►│  Items    ├───►│  (Prepress)  │
+│  (Draft)  │    │          │    │  Added    │    │              │
+└───────────┘    └──────────┘    └───────────┘    └──────┬───────┘
+                                                         │
+                                                         ▼
+┌───────────┐    ┌──────────┐    ┌───────────┐    ┌──────────────┐
+│  Invoice  │    │ Shipping │    │Production │    │   Proofs     │
+│  Created  │◄───┤ Arranged │◄───┤  (Press/  │◄───┤  (Approval)  │
+│           │    │          │    │  Bindery) │    │              │
+└─────┬─────┘    └──────────┘    └───────────┘    └──────────────┘
+      │
+      ▼
+┌───────────┐    ┌──────────┐
+│ QuickBooks│    │ Payment  │
+│   Sync    │◄───┤ Received │
+│           │    │          │
+└───────────┘    └──────────┘
+```
+
+### Status Transitions
+
+**Work Order:** `Draft` → `Pending` → `Approved` → (creates Order) | `Cancelled`
+
+**Order:** `Pending` → `Shipping` → `Invoiced` → `PaymentReceived` → `Completed` | `Cancelled`
+
+**Order Item:** `Pending` → `Prepress` → `Press` → `Bindery` → `Shipping` → `Invoiced` → `Completed` | `Hold` | `Outsourced` | `Cancelled`
+
+**Work Order Item:** `Draft` → `Pending` → `Proofing` → `Approved` | `Cancelled`
+
+**Typesetting:** `InProgress` → `WaitingApproval` → `Completed`
+
+## Auth Flow Diagram
+
+```
+┌──────────┐
+│  Browser  │
+└─────┬────┘
+      │ Login Request
+      ▼
+┌─────────────────────────────────────────┐
+│           NextAuth Handler               │
+│                                          │
+│  ┌────────────┐ ┌───────┐ ┌───────────┐│
+│  │   Google    │ │ Email │ │Credentials││
+│  │   OAuth     │ │ Magic │ │ (bcrypt)  ││
+│  │            │ │ Link  │ │           ││
+│  └─────┬──────┘ └───┬───┘ └─────┬─────┘│
+│        └────────────┼───────────┘       │
+│                     ▼                    │
+│           PrismaAdapter (User/Account)   │
+│                     │                    │
+│                     ▼                    │
+│              JWT Created                 │
+│          (token.sub = user.id)           │
+└─────────────────────┬───────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────┐
+│         Session Callback                 │
+│                                          │
+│  1. Extract userId from JWT token        │
+│  2. Fetch User with Roles & Permissions  │
+│  3. Enrich session:                      │
+│     - session.user.id                    │
+│     - session.user.Roles[]               │
+│     - session.user.Permissions[]         │
+└─────────────────────┬───────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────┐
+│        tRPC Protected Procedures         │
+│  Check session.user.Permissions          │
+│  before executing mutations              │
+└─────────────────────────────────────────┘
+```
+
+## See Also
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — tech stack and data model details
+- [REQUEST_FLOW.md](./REQUEST_FLOW.md) — detailed request lifecycle walkthrough
