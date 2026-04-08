@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import { parse } from "csv-parse";
 import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
+import { createPrismaClient } from '~/server/db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 interface QuickbooksRow {
   "Active Status": string;

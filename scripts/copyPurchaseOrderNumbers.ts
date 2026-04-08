@@ -1,8 +1,8 @@
 // This script copies the purchase order numbers from Work Orders to Orders
 
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from '~/server/db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 async function copyPurchaseOrderNumbers() {
     console.log('Starting purchase order number copy process...');

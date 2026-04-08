@@ -7,7 +7,6 @@ import {
   OrderStatus,
   PaymentMethod,
   Prisma,
-  PrismaClient,
   ProofMethod,
   type RoleName,
   ShippingMethod,
@@ -16,11 +15,12 @@ import {
   type WorkOrderItem,
   WorkOrderItemStatus,
   WorkOrderStatus,
-} from "@prisma/client";
+} from "~/generated/prisma/client";
+import { createPrismaClient } from "~/server/db";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 
-const prismaClient = new PrismaClient();
+const prismaClient = createPrismaClient();
 const randomElementFromArray = <T>(array: T[]): T => {
   if (array.length === 0) {
     throw new Error("Cannot select a random element from an empty array");

@@ -1,6 +1,7 @@
 import { parse } from 'csv-parse';
 import { createReadStream } from 'fs';
-import { PrismaClient, PaperBrand, PaperType, PaperFinish } from '@prisma/client';
+import { PaperBrand, PaperType, PaperFinish } from "~/generated/prisma/client";
+import { createPrismaClient } from '~/server/db';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,7 +9,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 interface RawPaperProduct {
   Size: string;

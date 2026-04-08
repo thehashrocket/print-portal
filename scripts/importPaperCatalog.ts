@@ -1,9 +1,10 @@
-import { PaperType, PaperBrand, PaperFinish, PrismaClient } from '@prisma/client';
+import { PaperType, PaperBrand, PaperFinish } from "~/generated/prisma/client";
 import { parse } from 'csv-parse';
 import fs from 'fs';
 import path from 'path';
+import { createPrismaClient } from '~/server/db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 interface PaperCatalogRow {
   Paper: string;
