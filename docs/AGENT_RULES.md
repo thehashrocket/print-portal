@@ -1,6 +1,6 @@
 # Agent Rules — Thomson Print Portal
 
-> **Read [AGENTS.md](./AGENTS.md) first.** It covers general repo guidelines (build commands, code style, commit conventions). This file covers AI-agent-specific behavioral rules.
+> **Read [AGENTS.md](../AGENTS.md) first.** It covers general repo guidelines (build commands, code style, commit conventions). This file covers AI-agent-specific behavioral rules.
 
 ## Context Loading Order
 
@@ -49,7 +49,7 @@ These areas require extra care. Read thoroughly before modifying, and call out c
 
 ## Testing Expectations
 
-- No test framework is configured yet (captured in [TODOS.md](./TODOS.md))
+- No test framework is configured yet (captured in [TODOS.md](../TODOS.md))
 - Run `pnpm lint` before every commit
 - Smoke test critical flows in `pnpm dev`: orders, invoices, QuickBooks sync
 - List manual QA steps in PR descriptions for UI changes
@@ -87,6 +87,6 @@ Many models use `deleted: Boolean @default(false)` instead of hard deletes. When
 
 ## See Also
 
-- [AGENTS.md](./AGENTS.md) — general repository guidelines
+- [AGENTS.md](../AGENTS.md) — general repository guidelines
 - [AI_CONTEXT.md](./AI_CONTEXT.md) — project overview and domain terminology
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — technical architecture reference
