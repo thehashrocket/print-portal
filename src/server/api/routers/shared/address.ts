@@ -1,7 +1,7 @@
 // used by Office, WorkOrders, and Orders.
 // Path: src/server/api/routers/shared/address.ts
 // Fields include: city, country, id, line1, line2, postalCode, state
-import { AddressType } from "@prisma/client";
+import { AddressType } from "~/generated/prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 

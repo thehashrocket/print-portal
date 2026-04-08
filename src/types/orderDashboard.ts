@@ -1,5 +1,4 @@
-import { type OrderItem, type OrderStatus } from "@prisma/client";
-import { type OrderItemStatus } from "@prisma/client";
+import { type OrderItem, type OrderStatus, type OrderItemStatus } from "~/generated/prisma/browser";
 
 // Define a type for the serialized order item with number values instead of Decimal
 interface SerializedOrderItem extends Omit<OrderItem, 'amount' | 'cost' | 'shippingAmount'> {

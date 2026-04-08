@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { type SerializedWorkOrderItem } from "~/types/serializedTypes";
-import { WorkOrderItemStatus } from "@prisma/client";
+import { WorkOrderItemStatus } from "~/generated/prisma/browser";
 import { Button } from "~/app/_components/ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "~/app/_components/ui/textarea";

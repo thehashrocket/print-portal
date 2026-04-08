@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { PaperBrand, PaperType, PaperFinish } from "@prisma/client";
+import { PaperBrand, PaperType, PaperFinish } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/app/_components/ui/dialog";
 import { Button } from "~/app/_components/ui/button";

@@ -1,7 +1,7 @@
 // ~/src/server/api/routers/userManagement.ts
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { RoleName } from "@prisma/client";
+import { RoleName } from "~/generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 export const userManagementRouter = createTRPCRouter({

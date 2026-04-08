@@ -8,7 +8,7 @@ import { api } from '~/trpc/react';
 import ExistingWorkOrderItemsList from './existingWorkOrderItemsList';
 import ExpandableWorkOrderItemDetails from './expandableWorkOrderItemDetails';
 import { WorkOrderContext } from '~/app/contexts/workOrderContext';
-import { WorkOrderItemStatus } from '@prisma/client'
+import { WorkOrderItemStatus } from "~/generated/prisma/browser"
 import FileUpload from '~/app/_components/shared/fileUpload';
 import { type SerializedWorkOrderItem } from '~/types/serializedTypes';
 import { useRouter } from 'next/navigation';

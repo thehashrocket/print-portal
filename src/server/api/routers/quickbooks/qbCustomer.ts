@@ -2,17 +2,19 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { refreshTokenIfNeeded } from "~/services/quickbooksService";
 import { z } from 'zod';
-import { type $Enums, type PrismaClient } from '@prisma/client';
+import { type $Enums } from "~/generated/prisma/client";
 import axios from 'axios';
-import { type DefaultArgs } from "@prisma/client/runtime/library";
 import { type ISODateString } from "next-auth";
+import { type db } from "~/server/db";
+
+type DbClient = typeof db;
 
 function sanitizeString(str: string): string {
     // Remove or replace invalid characters
     return str.replace(/[^\w\s-]/gi, '').trim();
 }
 
-async function pullFromQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
+async function pullFromQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: DbClient; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
     try {
         const response = await axios.get(
             `https://quickbooks.api.intuit.com/v3/company/${realmId}/customer/${office.quickbooksCustomerId}`,
@@ -38,7 +40,7 @@ async function pullFromQuickBooks(ctx: { session: { user: any; expires: ISODateS
 type Context = {
     session: { user: any; expires: ISODateString; };
     headers: Headers;
-    db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>;
+    db: DbClient;
 };
 
 type Office = {
@@ -168,7 +170,7 @@ async function updateOfficeWithQuickBooksData(
     return { company: updatedCompany, office: updatedOffice };
 }
 
-async function pushToQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: PrismaClient<{ log: ("query" | "warn" | "error")[]; }, never, DefaultArgs>; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
+async function pushToQuickBooks(ctx: { session: { user: any; expires: ISODateString; }; headers: Headers; db: DbClient; }, realmId: string, office: { Company: { quickbooksId: string | null; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; }; Addresses: { quickbooksId: string | null; city: string; country: string; line1: string; line2: string | null; officeId: string; telephoneNumber: string; zipCode: string; state: string; addressType: $Enums.AddressType; id: string; createdAt: Date; updatedAt: Date; }[]; } & { companyId: string; id: string; createdAt: Date; updatedAt: Date; name: string; syncToken: string | null; createdById: string; fullyQualifiedName: string | null; quickbooksCustomerId: string | null; }, accessToken: any) {
     const qbCustomerData = {
         DisplayName: `${office.Company.name}:${office.name}`,
         CompanyName: `${office.Company.name}:${office.name}`,

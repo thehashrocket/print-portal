@@ -17,7 +17,7 @@ import {
     type PaperFinish,
     type PaperType,
     type PaperBrand,
-} from "@prisma/client";
+} from "~/generated/prisma/browser";
 
 export interface SerializedAddress {
     name: string | null;

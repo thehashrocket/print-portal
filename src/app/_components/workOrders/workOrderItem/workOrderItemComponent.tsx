@@ -9,7 +9,7 @@ import ProcessingOptionsComponent from "~/app/_components/shared/processingOptio
 import { ProcessingOptionsProvider } from "~/app/contexts/ProcessingOptionsContext";
 import { type SerializedWorkOrderItem, type SerializedTypesetting } from "~/types/serializedTypes";
 import { normalizeTypesetting } from "~/utils/dataNormalization";
-import { WorkOrderItemStatus } from "@prisma/client";
+import { WorkOrderItemStatus } from "~/generated/prisma/browser";
 import WorkOrderItemStockComponent from "~/app/_components/workOrders/WorkOrderItemStock/workOrderItemStockComponent";
 import { Info, Pencil } from "lucide-react";
 import { Button } from "../../ui/button";

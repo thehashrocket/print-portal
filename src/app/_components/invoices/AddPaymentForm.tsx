@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { PaymentMethod } from '@prisma/client';
+import { PaymentMethod } from "~/generated/prisma/browser";
 import { Button } from '../ui/button';
 import { SelectField } from '../shared/ui/SelectField/SelectField';
 import { Label } from '../ui/label';

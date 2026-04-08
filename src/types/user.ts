@@ -1,4 +1,4 @@
-import { type User, type Company, type Office, type Role } from "@prisma/client";
+import { type User, type Company, type Office, type Role } from "~/generated/prisma/browser";
 
 export type ExtendedUser = User & {
     Roles: Role[];

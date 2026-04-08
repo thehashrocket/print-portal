@@ -2,7 +2,7 @@
 
 "use client";
 import React, { useState } from 'react';
-import { WorkOrderStatus } from '@prisma/client';
+import { WorkOrderStatus } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
 

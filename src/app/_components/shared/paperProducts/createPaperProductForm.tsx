@@ -3,7 +3,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '~/trpc/react';
-import { PaperBrand, PaperType, PaperFinish } from '@prisma/client';
+import { PaperBrand, PaperType, PaperFinish } from "~/generated/prisma/browser";
 import { Button } from '~/app/_components/ui/button';
 import { Input } from '~/app/_components/ui/input';
 import { Label } from '~/app/_components/ui/label';

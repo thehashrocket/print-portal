@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { type SerializedOffice, type SerializedAddress } from "~/types/serializedTypes";
 import { api } from "~/trpc/react";
 import { MapPin, Plus, Trash } from "lucide-react"; // Added Plus and Trash icons
-import { AddressType } from "@prisma/client";
+import { AddressType } from "~/generated/prisma/browser";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { SelectField } from "../shared/ui/SelectField/SelectField";

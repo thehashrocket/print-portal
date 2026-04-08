@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { OrderStatus, type ShippingMethod } from "@prisma/client";
+import { OrderStatus, type ShippingMethod } from "~/generated/prisma/browser";
 import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";

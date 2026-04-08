@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type StockStatus } from '@prisma/client';
+import { type StockStatus } from "~/generated/prisma/browser";
 
 export interface TempWorkOrderItemStock {
     stockQty: number;

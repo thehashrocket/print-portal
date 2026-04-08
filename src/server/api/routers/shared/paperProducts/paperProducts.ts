@@ -4,8 +4,7 @@
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { type Prisma } from "@prisma/client";
-import { PaperBrand, PaperType, PaperFinish } from "@prisma/client";
+import { type Prisma, PaperBrand, PaperType, PaperFinish } from "~/generated/prisma/client";
 
 export const paperProductsRouter = createTRPCRouter({
     getAll: protectedProcedure.query(async ({ ctx }) => {

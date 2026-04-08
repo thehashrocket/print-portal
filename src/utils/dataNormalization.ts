@@ -29,7 +29,7 @@ import {
     type PaperProduct,
     type ProductType,
     type OutsourcedOrderItemInfoFile,
-} from "@prisma/client";
+} from "~/generated/prisma/client";
 
 import {
     type SerializedOrder,

@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AddressType } from '@prisma/client';
+import { AddressType } from "~/generated/prisma/browser";
 import { api } from '~/trpc/react';
 import {
     Dialog,

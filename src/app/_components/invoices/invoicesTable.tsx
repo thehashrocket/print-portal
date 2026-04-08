@@ -16,7 +16,7 @@ import {
     type ValueGetterParams,
 } from "@ag-grid-community/core";
 import Link from "next/link";
-import { type InvoiceStatus } from "@prisma/client";
+import { type InvoiceStatus } from "~/generated/prisma/browser";
 import { type SerializedInvoice } from "~/types/serializedTypes";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 import { api } from "~/trpc/react";

@@ -13,7 +13,7 @@ import {
     type ICellRendererParams
 } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { type User, type Role } from "@prisma/client";
+import { type User, type Role } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import EditUserRolesModal from './editUserRolesModal';
 import Link from "next/link";

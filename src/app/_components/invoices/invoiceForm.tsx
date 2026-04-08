@@ -6,7 +6,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '~/trpc/react';
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus } from "~/generated/prisma/browser";
 import { type SerializedOrder } from '~/types/serializedTypes';
 import { formatCurrency } from '~/utils/formatters';
 import { Button } from '../ui/button';

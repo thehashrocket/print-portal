@@ -1,5 +1,5 @@
 import { api } from "~/trpc/react";
-import { OrderItemStatus } from "@prisma/client";
+import { OrderItemStatus } from "~/generated/prisma/browser";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { StatusBadge } from "../../shared/StatusBadge/StatusBadge";

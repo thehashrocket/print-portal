@@ -4,7 +4,7 @@
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { AddressType } from "@prisma/client"; // Import the Office model
+import { AddressType } from "~/generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeOffice } from "~/utils/dataNormalization";
 

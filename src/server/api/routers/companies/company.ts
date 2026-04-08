@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { Prisma } from "@prisma/client"; // Import the Company model
+import { Prisma } from "~/generated/prisma/client";
 import { normalizeWorkOrder, normalizeOrder, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 
 export const companyRouter = createTRPCRouter({

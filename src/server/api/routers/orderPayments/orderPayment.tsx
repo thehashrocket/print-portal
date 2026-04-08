@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { PaymentMethod } from "@prisma/client";
+import { PaymentMethod } from "~/generated/prisma/client";
 import { normalizeOrderPayment } from "~/utils/dataNormalization";
 
 const orderPaymentSchema = z.object({

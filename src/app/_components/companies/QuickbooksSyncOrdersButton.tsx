@@ -8,7 +8,7 @@ import React from 'react';
 import { api } from "~/trpc/react";
 import { toast } from 'react-hot-toast';
 import { useQuickbooksStore } from '~/store/useQuickbooksStore';
-import { type Office } from '@prisma/client';
+import { type Office } from "~/generated/prisma/browser";
 import { Button } from '../ui/button';
 import { RefreshCcw } from 'lucide-react';
 

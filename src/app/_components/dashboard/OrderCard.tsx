@@ -2,7 +2,7 @@
 import { Building2, CalendarDays, Eye } from 'lucide-react';
 import { formatDate } from '~/utils/formatters';
 import { type OrderDashboard } from "~/types/orderDashboard";
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from "~/generated/prisma/browser";
 
 
 const calculateDaysUntilDue = (dateString: string): number => {

@@ -5,7 +5,7 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { InvoiceStatus, OrderStatus, PaymentMethod } from "@prisma/client";
+import { InvoiceStatus, OrderStatus, PaymentMethod } from "~/generated/prisma/client";
 import { TRPCError } from "@trpc/server";
 import { normalizeInvoice, normalizeInvoicePayment } from "~/utils/dataNormalization";
 
