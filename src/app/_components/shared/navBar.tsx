@@ -1,5 +1,3 @@
-"use server";
-
 import React from "react";
 import Link from "next/link";
 import QuickbooksStatus from "~/app/_components/quickbooks/QuickbooksStatus";
@@ -12,17 +10,15 @@ import {
   SheetTrigger,
 } from "~/app/_components/ui/sheet";
 
-const NavBar = async () => {
-  const session = await getServerAuthSession();
-
-  const NavLinks = () => (
+function NavLinks({ isAuthenticated }: { isAuthenticated: boolean }) {
+  return (
     <>
-      {!session?.user && (
+      {!isAuthenticated && (
         <Link href="/">
           <span className="text-white hover:text-gray-100 transition-colors font-medium">Home</span>
         </Link>
       )}
-      {session?.user && (
+      {isAuthenticated && (
         <>
           <Link href="/companies">
             <span className="text-white hover:text-gray-100 transition-colors font-medium">Companies</span>
@@ -46,6 +42,11 @@ const NavBar = async () => {
       )}
     </>
   );
+}
+
+const NavBar = async () => {
+  const session = await getServerAuthSession();
+  const isAuthenticated = !!session?.user;
 
   return (
     <nav className="bg-[#6cab1f] py-4 px-6 no-print">
@@ -64,7 +65,7 @@ const NavBar = async () => {
                   <h2 className="text-lg font-semibold text-white">Navigation Menu</h2>
                 </div>
                 <div className="flex flex-col gap-6 mt-6">
-                  <NavLinks />
+                  <NavLinks isAuthenticated={isAuthenticated} />
                 </div>
               </SheetContent>
             </Sheet>
@@ -72,11 +73,11 @@ const NavBar = async () => {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex gap-8">
-            <NavLinks />
+            <NavLinks isAuthenticated={isAuthenticated} />
           </div>
 
           <div className="flex items-center gap-6">
-            {session?.user ? (
+            {isAuthenticated ? (
               <>
                 <Link href={`/users/${session.user.id}`}>
                   <Button
