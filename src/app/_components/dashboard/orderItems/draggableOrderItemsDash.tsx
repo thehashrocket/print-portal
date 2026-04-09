@@ -300,7 +300,7 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
 
         <div className="flex items-center mb-2">
             <CalendarDays className="w-4 h-4 mr-2 text-muted-foreground" />
-            <span className="text-xs">{formatDate(orderItem.expectedDate ?? new Date())}</span>
+            <span className="text-xs">{orderItem.expectedDate ? formatDate(orderItem.expectedDate) : 'No date set'}</span>
         </div>
 
         <div className="flex items-center mt-auto pt-2 border-t border-border">

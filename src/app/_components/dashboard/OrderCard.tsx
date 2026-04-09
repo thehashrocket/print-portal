@@ -20,7 +20,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
             onDragStart={(event) => onDragStart(event, order.id)}
             className="flex flex-col p-3 mb-2 border rounded-lg cursor-move bg-card text-card-foreground hover:bg-accent hover:shadow-md transition-all duration-200"
             style={{
-                borderColor: dueDateBorderColor(order.inHandsDate ?? '', order.status === OrderStatus.Completed),
+                borderColor: order.inHandsDate ? dueDateBorderColor(order.inHandsDate, order.status === OrderStatus.Completed) : undefined,
                 borderWidth: order.inHandsDate ? 3 : 1,
                 borderStyle: order.inHandsDate ? 'solid' : 'dashed',
             }}
