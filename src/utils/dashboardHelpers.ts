@@ -18,9 +18,9 @@ export const calculateDaysUntilDue = (dateString: string): number => {
  * - "red" if overdue (0 or fewer days)
  */
 export const dueDateBorderColor = (dateString: string, isCompleted: boolean): string => {
-    if (isCompleted) return 'green';
+    if (isCompleted) return 'hsl(142, 71%, 45%)';
     const daysUntilDue = calculateDaysUntilDue(dateString);
-    if (daysUntilDue === 1) return 'yellow';
-    if (daysUntilDue <= 0) return 'red';
-    return 'green';
+    if (daysUntilDue === 1) return 'hsl(45, 93%, 47%)';
+    if (daysUntilDue <= 0) return 'hsl(0, 84%, 60%)';
+    return 'hsl(142, 71%, 45%)';
 };
