@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.4.0] - 2026-04-08
+
+### Changed
+- Orders table migrated from manual fetch to tRPC `useQuery` with proper loading, error, and empty states
+- Status column now shows "Payment Received" (display-friendly) while filtering works correctly against both display and raw values
+- AG Grid resize listener properly cleaned up on unmount via ref-based pattern, preventing memory leaks
+
+### Fixed
+- Status filter mismatch: "PaymentReceived" rendered as "Payment Received" but AG Grid filtered on the raw enum value, so searching for "Payment Received" returned no results
+- Added error state UI so query failures show a clear message instead of an infinite skeleton loader
+- Removed dead `onFilterChanged` handler and unused `FilterChangedEvent` import
+
 ## [0.1.3.0] - 2026-04-08
 
 ### Changed
