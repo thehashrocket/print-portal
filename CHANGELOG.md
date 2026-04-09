@@ -23,6 +23,11 @@ See [VERSION](./VERSION) for the current version.
 ### Removed
 - Commented-out "Create New Estimate" button from work orders page
 
+## [0.1.4.2] - 2026-04-09
+
+### Fixed
+- Added missing `"use client"` directive to Button component (`button.tsx`) which imports `@radix-ui/react-slot`, a client-only API
+
 ## [0.1.4.1] - 2026-04-08
 
 ### Fixed
