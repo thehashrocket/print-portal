@@ -41,7 +41,10 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
     const [selectedMobileStatus, setSelectedMobileStatus] = useState<OrderItemStatus>(OrderItemStatus.Prepress);
-    const [showBanner, setShowBanner] = useState(true);
+    const [showBanner, setShowBanner] = useState(() => {
+        if (typeof window === 'undefined') return true;
+        return localStorage.getItem('dashboard-order-items-banner-dismissed') !== '1';
+    });
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 
@@ -233,13 +236,13 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
 
             {/* Desktop View: Horizontal columns */}
             {showBanner && (
-                <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
+                <div className="hidden md:flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
                     <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                     <p className="text-muted-foreground flex-1">
                         Drag and drop order item cards between columns to update their status.
                         Completed items are hidden after page refresh.
                     </p>
-                    <button onClick={() => setShowBanner(false)} className="text-muted-foreground hover:text-foreground flex-shrink-0">
+                    <button type="button" aria-label="Dismiss" onClick={() => { localStorage.setItem('dashboard-order-items-banner-dismissed', '1'); setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
@@ -300,11 +303,11 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
         </div>
         <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-xs mb-1">
             <span className="text-muted-foreground">Order #</span>
-            <span className="font-semibold text-foreground">{orderItem.orderNumber}</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.orderNumber}</span>
             <span className="text-muted-foreground">PO #</span>
-            <span className="font-semibold text-foreground">{orderItem.purchaseOrderNumber}</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.purchaseOrderNumber}</span>
             <span className="text-muted-foreground">Job #</span>
-            <span className="font-semibold text-foreground">{orderItem.orderItemNumber}</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.orderItemNumber}</span>
         </div>
         <div className='text-xs text-muted-foreground mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
         <div className="text-sm line-clamp-2 mb-2">{orderItem.description}</div>

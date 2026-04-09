@@ -31,9 +31,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
             </div>
             <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-xs mb-2">
                 <span className="text-muted-foreground">Order #</span>
-                <span className="font-semibold text-foreground">{order.orderNumber}</span>
+                <span className="font-semibold text-foreground min-w-0 truncate">{order.orderNumber}</span>
                 <span className="text-muted-foreground">PO #</span>
-                <span className="font-semibold text-foreground">{order.purchaseOrderNumber}</span>
+                <span className="font-semibold text-foreground min-w-0 truncate">{order.purchaseOrderNumber}</span>
             </div>
             <div className="flex items-center mb-2">
                 <CalendarDays className='w-4 h-4 mr-2 text-muted-foreground flex-shrink-0' />
@@ -42,8 +42,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
 
             {order.orderItems && order.orderItems.length > 0 && (
                 <div className="mb-2 pl-2 border-l-2 border-primary/30 space-y-0.5">
-                    {order.orderItems.map((item, index) => (
-                        <div key={index} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {order.orderItems.map((item) => (
+                        <div key={item.id} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <span className="w-1 h-1 rounded-full bg-muted-foreground flex-shrink-0" />
                             <span>{item.orderItemNumber}</span>
                             <span className="text-muted-foreground/60">{item.status}</span>
