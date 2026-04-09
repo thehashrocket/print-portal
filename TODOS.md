@@ -75,6 +75,10 @@ A service worker build script exists but PWA features are not actively used. Kee
 
 ## Completed
 
+### P3 — Audit Radix Components for Hydration Mismatches
+Audited all 14 files importing from `@radix-ui/*`. Found `button.tsx` missing `"use client"` directive (imports `@radix-ui/react-slot`). All other Radix UI wrapper components and consumer components already had proper client boundaries. Fixed `button.tsx` by adding the directive.
+- **Completed:** 2026-04-08
+
 ### P2 — Prisma 7 Upgrade
 Prisma 6.19.2 → 7.7.0 migration with driver adapter architecture, generated client output, shared factory for scripts, Decimal BYOL handling.
 - **Completed:** v0.1.1.0 (2026-04-08)
