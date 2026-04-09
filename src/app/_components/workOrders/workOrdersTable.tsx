@@ -216,7 +216,16 @@ const WorkOrdersTable: React.FC = () => {
     }
 
     if (!workOrders || workOrders.length === 0) {
-        return <div>No work orders found</div>;
+        return (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Eye className="w-12 h-12 text-gray-300 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No estimates yet</h3>
+                <p className="text-gray-500 mb-6">Create your first estimate to get started.</p>
+                <Link href="/workOrders/create">
+                    <Button variant="default" size="sm">Create Estimate</Button>
+                </Link>
+            </div>
+        );
     }
 
     return (
