@@ -15,7 +15,7 @@ const OrderNumberFilter: React.FC<OrderNumberFilterProps> = ({
     onSubmit,
     onClear
 }) => (
-    <div className="w-full md:w-auto mb-4 p-4 bg-muted border border-border rounded-lg">
+    <div className="w-full md:w-auto p-3 bg-muted border border-border rounded-lg">
         <Input
             type="text"
             value={orderNumber}

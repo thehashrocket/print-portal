@@ -11,7 +11,7 @@ interface CompanyNameFilterProps {
 
 const CompanyNameFilter: React.FC<CompanyNameFilterProps> = ({ companyName, onCompanyNameChange, onSubmit, onClear }) => {
     return (
-        <div className="w-full md:w-auto mb-4 p-4 bg-muted border border-border rounded-lg">
+        <div className="w-full md:w-auto p-3 bg-muted border border-border rounded-lg">
             <Input type="text" value={companyName} onChange={onCompanyNameChange} placeholder="Filter by Company Name..." className="w-[300px] mb-2" />
             <div className="flex gap-2">
                 <Button variant="default" onClick={onSubmit}>Filter</Button>
