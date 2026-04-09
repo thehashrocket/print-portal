@@ -1,7 +1,7 @@
 // ~/app/src/_components/dashboard/DraggableOrderItemsDash.tsx
 
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from "~/generated/prisma/browser";
@@ -41,10 +41,14 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
     const [selectedMobileStatus, setSelectedMobileStatus] = useState<OrderItemStatus>(OrderItemStatus.Prepress);
-    const [showBanner, setShowBanner] = useState(() => {
-        if (typeof window === 'undefined') return true;
-        return localStorage.getItem('dashboard-order-items-banner-dismissed') !== '1';
-    });
+    const [showBanner, setShowBanner] = useState(true);
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('dashboard-order-items-banner-dismissed') === '1') {
+                setShowBanner(false);
+            }
+        } catch { /* localStorage unavailable (private mode, etc.) */ }
+    }, []);
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 
@@ -242,7 +246,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                         Drag and drop order item cards between columns to update their status.
                         Completed items are hidden after page refresh.
                     </p>
-                    <button type="button" aria-label="Dismiss" onClick={() => { localStorage.setItem('dashboard-order-items-banner-dismissed', '1'); setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
+                    <button type="button" aria-label="Dismiss" onClick={() => { try { localStorage.setItem('dashboard-order-items-banner-dismissed', '1'); } catch { /* noop */ } setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
                         <X className="w-4 h-4" />
                     </button>
                 </div>

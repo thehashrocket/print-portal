@@ -1,7 +1,7 @@
 // ~/src/app/_components/dashboard/DraggableOrderItemsDash.tsx
 
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrderStatus } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { type OrderDashboard } from "~/types/orderDashboard";
@@ -26,10 +26,14 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     const [orderNumber, setOrderNumber] = useState<string>("");
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [companyName, setCompanyName] = useState<string>("");
-    const [showBanner, setShowBanner] = useState(() => {
-        if (typeof window === 'undefined') return true;
-        return localStorage.getItem('dashboard-orders-banner-dismissed') !== '1';
-    });
+    const [showBanner, setShowBanner] = useState(true);
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('dashboard-orders-banner-dismissed') === '1') {
+                setShowBanner(false);
+            }
+        } catch { /* localStorage unavailable (private mode, etc.) */ }
+    }, []);
     const allStatuses = [
         OrderStatus.Pending,
         OrderStatus.PaymentReceived,
@@ -171,7 +175,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         Drag and drop order cards between columns to update their status.
                         Completed orders are hidden after page refresh.
                     </p>
-                    <button type="button" aria-label="Dismiss" onClick={() => { localStorage.setItem('dashboard-orders-banner-dismissed', '1'); setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
+                    <button type="button" aria-label="Dismiss" onClick={() => { try { localStorage.setItem('dashboard-orders-banner-dismissed', '1'); } catch { /* noop */ } setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
