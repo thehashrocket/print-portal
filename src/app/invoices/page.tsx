@@ -13,20 +13,23 @@ export default async function InvoicesPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Invoices</h1>
-                {/* <Link href="/workOrders/create" className="btn btn-primary">
-                    Create New Estimate
-                </Link> */}
-            </div>
-            <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Search invoices..."
-                    className="input input-bordered w-full max-w-xs"
-                />
-            </div>
-            <InvoicesTable />
+            <header className="mb-8">
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-3xl font-bold">Invoices</h1>
+                </div>
+                <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li>Invoices</li>
+                    </ul>
+                </nav>
+            </header>
+            <main>
+                <section className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-semibold mb-4">Invoices List</h2>
+                    <InvoicesTable />
+                </section>
+            </main>
         </div>
     );
 }
