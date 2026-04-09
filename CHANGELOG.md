@@ -7,19 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
-## [0.1.5.1] - 2026-04-09
+## [0.1.6.0] - 2026-04-09
 
 ### Changed
-- Dashboard filter components now use theme tokens (`bg-muted`, `border-border`) instead of hardcoded `bg-gray-700`
-- Drag-and-drop column feedback uses theme `bg-accent` instead of hardcoded `bg-blue-600`
-- Drop indicator color uses `hsl(var(--primary))` instead of hardcoded `#60A5FA`
-- Status column headers display human-readable labels ("Payment Received" instead of "PaymentReceived")
-- Due-date border colors use explicit HSL values instead of CSS named colors for cross-browser consistency
-- Dashboard breadcrumbs now include "Dashboard" for proper navigation context
+- Dashboard card metadata fields now use a grid layout for better scanability
+- Kanban column headers styled with border separator, uppercase text, and primary-colored count badges
+- Filter bar spacing tightened with consistent padding across all filter components
+- Dashboard title uses direct heading instead of DaisyUI navbar wrapper for tighter spacing
+- Order item list bullets replaced with styled dots for a cleaner look
+- Drag-and-drop info banner is now dismissible and persists the dismissed state across sessions
+- Info banner hidden on mobile where drag-and-drop is not available
 
 ### Fixed
-- Excess whitespace below dashboard tab content caused by unnecessary `min-h-screen`
-- Stale JSDoc in `dueDateBorderColor` that still referenced named color strings after HSL migration
+- Long order/PO numbers no longer blow out card width (truncated with ellipsis)
+- Hardcoded `bg-gray-700` on OrderItemNumberFilter replaced with theme tokens for dark/light mode support
+- React key warning: order item list uses `item.id` instead of array index for proper reconciliation
+- Dismiss buttons now have proper `type="button"`, `aria-label`, and focus-visible ring for accessibility
+- SSR hydration mismatch on banner dismiss state resolved by deferring localStorage read to useEffect
+- Banner dismiss gracefully handles private browsing mode where localStorage is unavailable
 
 ## [0.1.5.0] - 2026-04-08
 

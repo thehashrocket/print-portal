@@ -1,7 +1,7 @@
 // ~/app/src/_components/dashboard/DraggableOrderItemsDash.tsx
 
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from "~/generated/prisma/browser";
@@ -10,7 +10,7 @@ import { formatDate } from "~/utils/formatters";
 import { dueDateBorderColor } from "~/utils/dashboardHelpers";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import OrderItemNumberFilter from './OrderItemNumberFilter';
-import { Building2, CalendarDays, Eye, Info } from 'lucide-react';
+import { Building2, CalendarDays, Eye, Info, X } from 'lucide-react';
 
 
 interface CompanyFilterProps {
@@ -41,6 +41,14 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
     const [selectedMobileStatus, setSelectedMobileStatus] = useState<OrderItemStatus>(OrderItemStatus.Prepress);
+    const [showBanner, setShowBanner] = useState(true);
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('dashboard-order-items-banner-dismissed') === '1') {
+                setShowBanner(false);
+            }
+        } catch { /* localStorage unavailable (private mode, etc.) */ }
+    }, []);
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 
@@ -231,13 +239,18 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
             </div>
 
             {/* Desktop View: Horizontal columns */}
-            <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
-                <Info className="w-4 h-4 text-primary mt-0.5" />
-                <p className="text-muted-foreground">
-                    Drag and drop order item cards between columns to update their status.
-                    Completed items are hidden after page refresh.
-                </p>
-            </div>
+            {showBanner && (
+                <div className="hidden md:flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
+                    <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-muted-foreground flex-1">
+                        Drag and drop order item cards between columns to update their status.
+                        Completed items are hidden after page refresh.
+                    </p>
+                    <button type="button" aria-label="Dismiss" onClick={() => { try { localStorage.setItem('dashboard-order-items-banner-dismissed', '1'); } catch { /* noop */ } setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
             <div className="hidden md:flex gap-4 overflow-x-auto pb-4">
                 {allStatuses.map((status) => (
                     <div key={status}
@@ -246,9 +259,9 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                         onDrop={(event) => onDrop(event, status)}
                         className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
                     >
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-sm">{status}</h3>
-                            <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+                            <h3 className="font-semibold text-sm tracking-wide uppercase text-muted-foreground">{status}</h3>
+                            <span className="text-xs font-medium bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                 {(orderItemsByStatus[status] || []).length}
                             </span>
                         </div>
@@ -292,9 +305,14 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
             <Building2 className='w-5 h-5 mr-2 text-muted-foreground' />
             <div className='text-sm font-semibold truncate'>{orderItem.companyName}</div>
         </div>
-        <div className='text-xs text-muted-foreground mb-0.5'>Order #: <span className="font-semibold text-foreground">{orderItem.orderNumber}</span></div>
-        <div className='text-xs text-muted-foreground mb-0.5'>PO #: <span className="font-semibold text-foreground">{orderItem.purchaseOrderNumber}</span></div>
-        <div className='text-xs text-muted-foreground mb-0.5'>Job #: <span className="font-semibold text-foreground">{orderItem.orderItemNumber}</span></div>
+        <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-xs mb-1">
+            <span className="text-muted-foreground">Order #</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.orderNumber}</span>
+            <span className="text-muted-foreground">PO #</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.purchaseOrderNumber}</span>
+            <span className="text-muted-foreground">Job #</span>
+            <span className="font-semibold text-foreground min-w-0 truncate">{orderItem.orderItemNumber}</span>
+        </div>
         <div className='text-xs text-muted-foreground mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
         <div className="text-sm line-clamp-2 mb-2">{orderItem.description}</div>
 

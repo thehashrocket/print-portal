@@ -1,7 +1,7 @@
 // ~/src/app/_components/dashboard/DraggableOrderItemsDash.tsx
 
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrderStatus } from "~/generated/prisma/browser";
 import { api } from "~/trpc/react";
 import { type OrderDashboard } from "~/types/orderDashboard";
@@ -9,7 +9,7 @@ import OrderCard from '../OrderCard';
 import OrderNumberFilter from './OrderNumberFilter';
 import OrderItemNumberFilter from './OrderItemNumberFilter';
 import CompanyNameFilter from './CompanyNameFilter';
-import { Info } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 
 const statusLabels: Record<string, string> = {
     Pending: 'Pending',
@@ -26,6 +26,14 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     const [orderNumber, setOrderNumber] = useState<string>("");
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [companyName, setCompanyName] = useState<string>("");
+    const [showBanner, setShowBanner] = useState(true);
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('dashboard-orders-banner-dismissed') === '1') {
+                setShowBanner(false);
+            }
+        } catch { /* localStorage unavailable (private mode, etc.) */ }
+    }, []);
     const allStatuses = [
         OrderStatus.Pending,
         OrderStatus.PaymentReceived,
@@ -160,13 +168,18 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                     onClear={clearOrderItemNumberFilter}
                 />
             </div>
-            <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
-                <Info className="w-4 h-4 text-primary mt-0.5" />
-                <p className="text-muted-foreground">
-                    Drag and drop order cards between columns to update their status.
-                    Completed orders are hidden after page refresh.
-                </p>
-            </div>
+            {showBanner && (
+                <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
+                    <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-muted-foreground flex-1">
+                        Drag and drop order cards between columns to update their status.
+                        Completed orders are hidden after page refresh.
+                    </p>
+                    <button type="button" aria-label="Dismiss" onClick={() => { try { localStorage.setItem('dashboard-orders-banner-dismissed', '1'); } catch { /* noop */ } setShowBanner(false); }} className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 flex-shrink-0">
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
             <div className="flex gap-4 overflow-x-auto pb-4">
                 {allStatuses.map((status) => (
                     <div key={status}
@@ -174,9 +187,9 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
                         className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-sm">{statusLabels[status] ?? status}</h3>
-                            <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+                            <h3 className="font-semibold text-sm tracking-wide uppercase text-muted-foreground">{statusLabels[status] ?? status}</h3>
+                            <span className="text-xs font-medium bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                 {(ordersByStatus[status] || []).length}
                             </span>
                         </div>

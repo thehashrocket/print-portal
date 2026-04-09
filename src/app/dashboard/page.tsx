@@ -73,15 +73,13 @@ export default async function DashboardPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="navbar bg-base-100">
-                <div className="flex-1">
-                    <h1 className="text-3xl font-bold">Dashboard</h1>
-                    <div className="text-sm breadcrumbs">
-                        <ul>
-                            <li><Link href="/">Home</Link></li>
-                            <li>Dashboard</li>
-                        </ul>
-                    </div>
+            <div className="mb-2">
+                <h1 className="text-2xl font-bold">Dashboard</h1>
+                <div className="text-sm breadcrumbs">
+                    <ul>
+                        <li><Link href="/">Home</Link></li>
+                        <li>Dashboard</li>
+                    </ul>
                 </div>
             </div>
             <DashboardTabsClient orderItems={serializedOrderItems} orders={serializedOrderData} />
