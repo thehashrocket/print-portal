@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.5.0] - 2026-04-08
+
+### Fixed
+- Font-face declarations now use correct `format('opentype')` for `.otf` files instead of `format('woff2')`, and invalid `font-style` values (`bold`, `light`) replaced with proper CSS values
+- Missing `width` and `height` on NoPermission page image, which caused layout shift
+- Invoices page now uses the shared NoPermission component instead of an inline error div
+- Breadcrumb "Home" link on invoices page uses Next.js `<Link>` for client-side navigation instead of a plain anchor tag
+
+### Changed
+- Loading spinner reduced from 128px to 40px and uses design system primary color instead of gray
+- Empty work orders state now shows a warm message with icon and call-to-action instead of bare text
+- Orders and invoices list pages aligned to the same layout pattern as work orders (semantic header, breadcrumbs, white card wrapper)
+
+### Removed
+- Commented-out "Create New Estimate" button from work orders page
+
 ## [0.1.4.2] - 2026-04-09
 
 ### Fixed

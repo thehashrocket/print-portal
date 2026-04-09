@@ -21,9 +21,6 @@ export default async function WorkOrdersPage() {
       <header className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Estimates</h1>
-          {/* <Link href="/workOrders/create" className="btn btn-primary">
-            Create New Estimate
-          </Link> */}
         </div>
         <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
           <ul>
