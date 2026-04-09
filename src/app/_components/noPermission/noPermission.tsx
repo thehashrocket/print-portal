@@ -13,6 +13,8 @@ const NoPermission = () => {
             <Image
                 src="https://placedog.net/500?random"
                 alt="Cute dog"
+                width={500}
+                height={500}
                 className="mx-auto mb-6 rounded-lg shadow-lg"
                 style={{ maxWidth: "400px" }}
             />
