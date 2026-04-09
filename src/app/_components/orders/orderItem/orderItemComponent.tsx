@@ -202,6 +202,7 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
     const [tempProductTypeId, setTempProductTypeId] = useState<string>("");
     const [tempCost, setTempCost] = useState<number>(0);
     const [tempAmount, setTempAmount] = useState<number>(0);
+    const [tempSize, setTempSize] = useState<string>("");
 
 
 
@@ -256,6 +257,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
             case 'amount':
                 updates.amount = tempAmount;
                 break;
+            case 'size':
+                updates.size = tempSize;
+                break;
         }
 
         updateOrderItem({
@@ -281,6 +285,9 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                 break;
             case 'amount':
                 setTempAmount(Number(orderItem.amount ?? 0));
+                break;
+            case 'size':
+                setTempSize(orderItem.size ?? "");
                 break;
         }
         setEditingField(field);
@@ -391,6 +398,22 @@ const OrderItemComponent: React.FC<OrderItemPageProps> = ({
                                         type="text"
                                         value={tempInk}
                                         onChange={(e) => setTempInk(e.target.value)}
+                                        className="w-full"
+                                    />
+                                }
+                            />
+                            <EditableInfoCard
+                                title="Size"
+                                content={orderItem.size ?? 'N/A'}
+                                isEditing={editingField === 'size'}
+                                onEdit={() => startEditing('size')}
+                                onSave={() => handleSave('size')}
+                                onCancel={() => handleCancel('size')}
+                                editComponent={
+                                    <Input
+                                        type="text"
+                                        value={tempSize}
+                                        onChange={(e) => setTempSize(e.target.value)}
                                         className="w-full"
                                     />
                                 }

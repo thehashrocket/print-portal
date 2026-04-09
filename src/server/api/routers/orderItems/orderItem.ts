@@ -447,15 +447,20 @@ export const orderItemRouter = createTRPCRouter({
             data: z.object({
                 quantity: z.number().optional(),
                 ink: z.string().optional(),
+                size: z.string().max(255).optional(),
                 productTypeId: z.string().optional(),
                 cost: z.number().optional(),
                 amount: z.number().optional(),
             })
         }))
         .mutation(async ({ ctx, input }) => {
+            const data = {
+                ...input.data,
+                ...(input.data.size !== undefined && { size: input.data.size.trim() || null }),
+            };
             return ctx.db.orderItem.update({
                 where: { id: input.id },
-                data: input.data,
+                data,
                 include: {
                     artwork: true,
                     PaperProduct: true,
