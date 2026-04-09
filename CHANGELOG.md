@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.4.1] - 2026-04-08
+
+### Fixed
+- Hydration mismatch error in NavBar caused by incorrect `"use server"` directive and nested component identity recreation on each render
+
 ## [0.1.4.0] - 2026-04-08
 
 ### Changed
