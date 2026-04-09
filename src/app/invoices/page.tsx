@@ -2,12 +2,13 @@
 import React from "react";
 import { getServerAuthSession } from "~/server/auth";
 import InvoicesTable from "../_components/invoices/invoicesTable";
+import NoPermission from "~/app/_components/noPermission/noPermission";
 
 export default async function InvoicesPage() {
     const session = await getServerAuthSession();
 
     if (!session || !session.user.Permissions.includes("invoice_read")) {
-        return <div className="alert alert-error">You do not have permission to view this page.</div>;
+        return <NoPermission />;
     }
 
     return (
