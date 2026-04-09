@@ -196,6 +196,6 @@
   }
 
   .drop-indicator {
-    border-bottom: 2px solid #60A5FA;
+    border-bottom: 2px solid hsl(var(--primary));
   }
 }
