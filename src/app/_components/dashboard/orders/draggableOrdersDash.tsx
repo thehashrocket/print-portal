@@ -174,8 +174,8 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
                         className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-sm">{statusLabels[status] ?? status}</h3>
+                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+                            <h3 className="font-semibold text-sm tracking-wide uppercase text-muted-foreground">{statusLabels[status] ?? status}</h3>
                             <span className="text-xs font-medium bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                 {(ordersByStatus[status] || []).length}
                             </span>
