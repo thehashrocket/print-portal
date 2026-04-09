@@ -2,35 +2,15 @@
 
 "use client";
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { api } from "~/trpc/react";
 import { OrderItemStatus } from "~/generated/prisma/browser";
 import type { OrderItemDashboard } from "~/types/orderItemDashboard";
 import { formatDate } from "~/utils/formatters";
+import { dueDateBorderColor } from "~/utils/dashboardHelpers";
 import { CustomComboBox } from "~/app/_components/shared/ui/CustomComboBox";
 import OrderItemNumberFilter from './OrderItemNumberFilter';
 import { Building2, CalendarDays, Eye, Info } from 'lucide-react';
-
-const calculateDaysUntilDue = (dateString: string): number => {
-    const targetDate = new Date(dateString);
-    const currentDate = new Date();
-    const timeDiff = targetDate.getTime() - currentDate.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return daysDiff;
-};
-
-const jobBorderColor = (dateString: string, status: OrderItemStatus): string => {
-    if (status === OrderItemStatus.Completed) {
-        return 'green';
-    }
-    const daysUntilDue = calculateDaysUntilDue(dateString);
-    if (daysUntilDue === 1) {
-        return 'yellow';
-    } else if (daysUntilDue <= 0) {
-        return 'red';
-    } else {
-        return 'green';
-    }
-};
 
 
 interface CompanyFilterProps {
@@ -40,7 +20,7 @@ interface CompanyFilterProps {
 }
 
 const CompanyFilter: React.FC<CompanyFilterProps> = ({ companies, selectedCompany, onCompanyChange }) => (
-    <div className="mb-4 p-4 bg-gray-700 rounded-lg">
+    <div className="mb-4 p-4 bg-muted rounded-lg">
         <CustomComboBox
             key='1'
             options={[{ value: "", label: "All Companies" }, ...companies]}
@@ -210,7 +190,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     }, {} as { [key in OrderItemStatus]?: OrderItemDashboard[] });
 
     return (
-        <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                 <CompanyFilter
                     companies={companies}
@@ -228,7 +208,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
             {/* Mobile View: Vertical tabs for status columns */}
             <div className="block md:hidden mb-4">
                 <select
-                    className="w-full p-2 bg-gray-700 rounded-lg"
+                    className="w-full p-2 bg-muted border border-border rounded-lg"
                     value={selectedMobileStatus}
                     onChange={(e) => setSelectedMobileStatus(e.target.value as OrderItemStatus)}
                 >
@@ -251,12 +231,11 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
             </div>
 
             {/* Desktop View: Horizontal columns */}
-            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
-                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
-                <p className="text-blue-700">
-                    Status is the current status of the order item.
-                    You can change the status of the order item by dragging and dropping the order item card into a new status.
-                    Order items placed in the completed status are not visible in the dashboard after they are completed and the page is refreshed.
+            <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
+                <Info className="w-4 h-4 text-primary mt-0.5" />
+                <p className="text-muted-foreground">
+                    Drag and drop order item cards between columns to update their status.
+                    Completed items are hidden after page refresh.
                 </p>
             </div>
             <div className="hidden md:flex gap-4 overflow-x-auto pb-4">
@@ -265,9 +244,14 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
+                        className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]"
                     >
-                        <h3 className="font-semibold mb-2">{status}</h3>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-sm">{status}</h3>
+                            <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+                                {(orderItemsByStatus[status] || []).length}
+                            </span>
+                        </div>
                         {(orderItemsByStatus[status] || []).map(orderItem => (
                             <JobCard
                                 key={orderItem.id}
@@ -297,33 +281,33 @@ const JobCard: React.FC<JobCardProps> = ({ orderItem, onDragStart }) => (
         data-item-container
         draggable
         onDragStart={(event) => onDragStart(event, orderItem.id, orderItem.status)}
-        className="flex flex-col p-3 mb-2 border rounded cursor-move bg-gray-600 hover:bg-gray-500 hover:shadow-md transition-all duration-200"
+        className="flex flex-col p-3 mb-2 border rounded-lg cursor-move bg-card text-card-foreground hover:bg-accent hover:shadow-md transition-all duration-200"
         style={{
-            borderColor: orderItem.expectedDate ? jobBorderColor(orderItem.expectedDate.toISOString(), orderItem.status) : undefined,
+            borderColor: orderItem.expectedDate ? dueDateBorderColor(orderItem.expectedDate.toISOString(), orderItem.status === OrderItemStatus.Completed) : undefined,
             borderWidth: orderItem.expectedDate ? 3 : 1,
             borderStyle: orderItem.expectedDate ? 'solid' : 'dashed',
         }}
     >
         <div className='flex items-center mb-2'>
-            <Building2 className='w-6 h-6 mr-2' />
-            <div className='text-sm font-bold mb-1 truncate'>{orderItem.companyName}</div>
+            <Building2 className='w-5 h-5 mr-2 text-muted-foreground' />
+            <div className='text-sm font-semibold truncate'>{orderItem.companyName}</div>
         </div>
-        <div className='text-sm font-bold mb-1'>Order #: {orderItem.orderNumber}</div>
-        <div className='text-sm font-bold mb-1'>PO #: {orderItem.purchaseOrderNumber}</div>
-        <div className='text-sm font-bold mb-1'>Job #: {orderItem.orderItemNumber}</div>
-        <div className='text-sm font-bold mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
-        <div className="text-sm font-medium line-clamp-2 mb-2">{orderItem.description}</div>
+        <div className='text-xs text-muted-foreground mb-0.5'>Order #: <span className="font-semibold text-foreground">{orderItem.orderNumber}</span></div>
+        <div className='text-xs text-muted-foreground mb-0.5'>PO #: <span className="font-semibold text-foreground">{orderItem.purchaseOrderNumber}</span></div>
+        <div className='text-xs text-muted-foreground mb-0.5'>Job #: <span className="font-semibold text-foreground">{orderItem.orderItemNumber}</span></div>
+        <div className='text-xs text-muted-foreground mb-1'>{orderItem.position} of {orderItem.totalItems} items</div>
+        <div className="text-sm line-clamp-2 mb-2">{orderItem.description}</div>
 
         <div className="flex items-center mb-2">
-            <CalendarDays className="w-5 h-5 mr-2" />
-            <span className="text-sm">{formatDate(orderItem.expectedDate ?? new Date())}</span>
+            <CalendarDays className="w-4 h-4 mr-2 text-muted-foreground" />
+            <span className="text-xs">{orderItem.expectedDate ? formatDate(orderItem.expectedDate) : 'No date set'}</span>
         </div>
 
-        <div className="flex items-center">
-            <Eye className="w-5 h-5 mr-2" />
-            <a href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-blue-400 hover:underline text-sm">
+        <div className="flex items-center mt-auto pt-2 border-t border-border">
+            <Eye className="w-4 h-4 mr-2 text-primary" />
+            <Link href={`/orders/${orderItem.orderId}/orderItem/${orderItem.id}`} className="text-primary hover:underline text-xs font-medium">
                 View Item
-            </a>
+            </Link>
         </div>
     </div>
 );

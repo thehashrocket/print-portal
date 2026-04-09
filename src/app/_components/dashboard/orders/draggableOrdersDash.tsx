@@ -132,7 +132,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     }, {} as { [key in OrderStatus]: OrderDashboard[] });
 
     return (
-        <div className="flex flex-col p-2 sm:p-5 bg-gray-800 text-white min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-end md:items-center gap-4 mb-4">
                 <CompanyNameFilter
                     companyName={companyName}
@@ -153,12 +153,11 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                     onClear={clearOrderItemNumberFilter}
                 />
             </div>
-            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
-                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
-                <p className="text-blue-700">
-                    Status is the current status of the order.
-                    You can change the status of the order by dragging and dropping the order card into a new status.
-                    Orders placed in the completed status are not visible in the dashboard after they are completed and the page is refreshed.
+            <div className="flex items-start gap-2 p-3 text-sm bg-muted border border-border rounded-md mb-4">
+                <Info className="w-4 h-4 text-primary mt-0.5" />
+                <p className="text-muted-foreground">
+                    Drag and drop order cards between columns to update their status.
+                    Completed orders are hidden after page refresh.
                 </p>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4">
@@ -167,8 +166,13 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
                         onDrop={(event) => onDrop(event, status)}
-                        className="flex-1 min-w-[280px] p-4 border border-gray-600 rounded-lg shadow-sm bg-gray-700 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
-                        <h3 className="font-semibold mb-2">{status}</h3>
+                        className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-sm">{status}</h3>
+                            <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+                                {(ordersByStatus[status] || []).length}
+                            </span>
+                        </div>
                         {(ordersByStatus[status] || []).map(order => (
                             <OrderCard key={order.id} order={order} onDragStart={onDragStart} />
                         ))}

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.3.0] - 2026-04-08
+
+### Changed
+- Dashboard cards now use the app's design system tokens (bg-card, bg-muted, text-muted-foreground) instead of hardcoded dark theme colors, so they respond to theme changes and match the rest of the app
+- Typography hierarchy on dashboard cards: labels are smaller and muted, values are semibold, company name is the visual anchor
+- Info banners use design system colors instead of light-mode blue that clashed with the dark kanban background
+- Column headers now show item count badges
+- Outsourced tab uses Building2 icon (instead of Mail) for company name, matching the other dashboard tabs
+
+### Fixed
+- Fixed `flex-column` typo to `flex flex-col` in OrderCard (was not applying flex layout)
+- Replaced raw `<a>` tags with Next.js `<Link>` across all dashboard cards for client-side navigation
+
+### Removed
+- Eliminated 3x duplicated `calculateDaysUntilDue` and `jobBorderColor` functions by extracting to shared `src/utils/dashboardHelpers.ts`
+
 ## [0.1.2.0] - 2026-04-08
 
 ### Added
