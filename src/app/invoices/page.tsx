@@ -1,5 +1,6 @@
 // ~/src/app/invoices/page.tsx
 import React from "react";
+import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
 import InvoicesTable from "../_components/invoices/invoicesTable";
 import NoPermission from "~/app/_components/noPermission/noPermission";
@@ -19,7 +20,7 @@ export default async function InvoicesPage() {
                 </div>
                 <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
                     <ul>
-                        <li><a href="/">Home</a></li>
+                        <li><Link href="/">Home</Link></li>
                         <li>Invoices</li>
                     </ul>
                 </nav>
