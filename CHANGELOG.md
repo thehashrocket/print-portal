@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.5.1] - 2026-04-09
+
+### Changed
+- Dashboard filter components now use theme tokens (`bg-muted`, `border-border`) instead of hardcoded `bg-gray-700`
+- Drag-and-drop column feedback uses theme `bg-accent` instead of hardcoded `bg-blue-600`
+- Drop indicator color uses `hsl(var(--primary))` instead of hardcoded `#60A5FA`
+- Status column headers display human-readable labels ("Payment Received" instead of "PaymentReceived")
+- Due-date border colors use explicit HSL values instead of CSS named colors for cross-browser consistency
+- Dashboard breadcrumbs now include "Dashboard" for proper navigation context
+
+### Fixed
+- Excess whitespace below dashboard tab content caused by unnecessary `min-h-screen`
+- Stale JSDoc in `dueDateBorderColor` that still referenced named color strings after HSL migration
+
 ## [0.1.5.0] - 2026-04-08
 
 ### Fixed
