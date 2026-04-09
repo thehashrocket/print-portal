@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.2.0] - 2026-04-08
+
+### Added
+- Size field is now viewable and editable on the order item detail page, matching the pattern used by quantity, ink, cost, and amount fields
+- Input validation for size: max 255 characters, whitespace trimming, empty string converts to null
+
 ## [0.1.1.1] - 2026-04-08
 
 ### Fixed
