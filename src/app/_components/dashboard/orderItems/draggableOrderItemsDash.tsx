@@ -190,7 +190,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     }, {} as { [key in OrderItemStatus]?: OrderItemDashboard[] });
 
     return (
-        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                 <CompanyFilter
                     companies={companies}
