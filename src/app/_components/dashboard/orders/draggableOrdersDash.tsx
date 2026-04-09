@@ -11,6 +11,13 @@ import OrderItemNumberFilter from './OrderItemNumberFilter';
 import CompanyNameFilter from './CompanyNameFilter';
 import { Info } from 'lucide-react';
 
+const statusLabels: Record<string, string> = {
+    Pending: 'Pending',
+    PaymentReceived: 'Payment Received',
+    Shipping: 'Shipping',
+    Invoiced: 'Invoiced',
+    Completed: 'Completed',
+};
 
 const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {
     // Keep original orders separate from filtered view
@@ -90,7 +97,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     };
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
     }
 
     const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
@@ -99,13 +106,13 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
 
     const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        event.currentTarget.classList.add('bg-blue-600');
+        event.currentTarget.classList.add('bg-accent');
     };
 
     const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderStatus) => {
         event.preventDefault();
         const id = event.dataTransfer.getData("text/plain");
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
         try {
             await updateOrderStatus.mutateAsync({ 
                 id, 
@@ -132,7 +139,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     }, {} as { [key in OrderStatus]: OrderDashboard[] });
 
     return (
-        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5">
             <div className="flex flex-col md:flex-row md:justify-end md:items-center gap-4 mb-4">
                 <CompanyNameFilter
                     companyName={companyName}
@@ -168,7 +175,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                         onDrop={(event) => onDrop(event, status)}
                         className="flex-1 min-w-[280px] p-4 border border-border rounded-lg shadow-sm bg-muted transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-200px)]">
                         <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-sm">{status}</h3>
+                            <h3 className="font-semibold text-sm">{statusLabels[status] ?? status}</h3>
                             <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
                                 {(ordersByStatus[status] || []).length}
                             </span>

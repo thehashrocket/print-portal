@@ -79,6 +79,7 @@ export default async function DashboardPage() {
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link href="/">Home</Link></li>
+                            <li>Dashboard</li>
                         </ul>
                     </div>
                 </div>

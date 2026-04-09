@@ -12,15 +12,15 @@ export const calculateDaysUntilDue = (dateString: string): number => {
 };
 
 /**
- * Returns a border color string based on how close an item is to its due date.
- * - "green" if completed or more than 1 day remaining
- * - "yellow" if exactly 1 day remaining
- * - "red" if overdue (0 or fewer days)
+ * Returns an HSL border color string based on how close an item is to its due date.
+ * - green HSL if completed or more than 1 day remaining
+ * - yellow HSL if exactly 1 day remaining
+ * - red HSL if overdue (0 or fewer days)
  */
 export const dueDateBorderColor = (dateString: string, isCompleted: boolean): string => {
-    if (isCompleted) return 'green';
+    if (isCompleted) return 'hsl(142, 71%, 45%)';
     const daysUntilDue = calculateDaysUntilDue(dateString);
-    if (daysUntilDue === 1) return 'yellow';
-    if (daysUntilDue <= 0) return 'red';
-    return 'green';
+    if (daysUntilDue === 1) return 'hsl(45, 93%, 47%)';
+    if (daysUntilDue <= 0) return 'hsl(0, 84%, 60%)';
+    return 'hsl(142, 71%, 45%)';
 };

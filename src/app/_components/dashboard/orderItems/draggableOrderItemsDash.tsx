@@ -20,7 +20,7 @@ interface CompanyFilterProps {
 }
 
 const CompanyFilter: React.FC<CompanyFilterProps> = ({ companies, selectedCompany, onCompanyChange }) => (
-    <div className="mb-4 p-4 bg-muted rounded-lg">
+    <div className="mb-4 p-4 bg-muted border border-border rounded-lg">
         <CustomComboBox
             key='1'
             options={[{ value: "", label: "All Companies" }, ...companies]}
@@ -93,7 +93,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     // Your existing helper functions
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
     }
 
     // First, add position tracking to the dragged items
@@ -103,7 +103,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
 
     const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderItemStatus) => {
         event.preventDefault();
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
 
         // Get the drop target
         const dropTarget = event.target as HTMLElement;
@@ -169,7 +169,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         if (itemContainer) {
             itemContainer.classList.add('drop-indicator');
         } else {
-            event.currentTarget.classList.add('bg-blue-600');
+            event.currentTarget.classList.add('bg-accent');
         }
     };
 
@@ -190,7 +190,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     }, {} as { [key in OrderItemStatus]?: OrderItemDashboard[] });
 
     return (
-        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                 <CompanyFilter
                     companies={companies}

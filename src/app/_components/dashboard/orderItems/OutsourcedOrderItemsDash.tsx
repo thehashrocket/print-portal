@@ -95,7 +95,7 @@ export default function OutsourcedOrderItemsDash() {
     const { data: orderItems } = api.orderItems.dashboardOutsourced.useQuery();
     
     return (
-        <div className="flex flex-col p-2 sm:p-5 min-h-screen">
+        <div className="flex flex-col p-2 sm:p-5">
             {orderItems?.map((orderItem) => (
                 <OutsourcedOrderItemCard key={orderItem.id} orderItem={orderItem as OutsourcedOrderItemWithRelations} />
             ))}
