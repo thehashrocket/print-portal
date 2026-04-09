@@ -29,11 +29,15 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onDragStart }) => {
                 <Building2 className='w-5 h-5 mr-2 text-muted-foreground' />
                 <div className="text-sm font-semibold truncate">{order.companyName}</div>
             </div>
-            <div className="text-xs text-muted-foreground mb-1">Order #: <span className="font-semibold text-foreground">{order.orderNumber}</span></div>
-            <div className="text-xs text-muted-foreground mb-1">PO #: <span className="font-semibold text-foreground">{order.purchaseOrderNumber}</span></div>
-            <div className="flex items-center mt-1 mb-2">
-                <CalendarDays className='w-4 h-4 mr-2 text-muted-foreground' />
-                <span className="text-xs">{order.inHandsDate ? formatDate(order.inHandsDate) : 'No date set'}</span>
+            <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-xs mb-2">
+                <span className="text-muted-foreground">Order #</span>
+                <span className="font-semibold text-foreground">{order.orderNumber}</span>
+                <span className="text-muted-foreground">PO #</span>
+                <span className="font-semibold text-foreground">{order.purchaseOrderNumber}</span>
+            </div>
+            <div className="flex items-center mb-2">
+                <CalendarDays className='w-4 h-4 mr-2 text-muted-foreground flex-shrink-0' />
+                <span className="text-xs text-muted-foreground">{order.inHandsDate ? formatDate(order.inHandsDate) : 'No date set'}</span>
             </div>
 
             {order.orderItems && order.orderItems.length > 0 && (
