@@ -20,7 +20,7 @@ interface CompanyFilterProps {
 }
 
 const CompanyFilter: React.FC<CompanyFilterProps> = ({ companies, selectedCompany, onCompanyChange }) => (
-    <div className="mb-4 p-4 bg-muted rounded-lg">
+    <div className="mb-4 p-4 bg-muted border border-border rounded-lg">
         <CustomComboBox
             key='1'
             options={[{ value: "", label: "All Companies" }, ...companies]}
