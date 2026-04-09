@@ -90,7 +90,7 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
     };
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
     }
 
     const onDragStart = (event: React.DragEvent<HTMLDivElement>, id: string) => {
@@ -99,13 +99,13 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
 
     const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        event.currentTarget.classList.add('bg-blue-600');
+        event.currentTarget.classList.add('bg-accent');
     };
 
     const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderStatus) => {
         event.preventDefault();
         const id = event.dataTransfer.getData("text/plain");
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
         try {
             await updateOrderStatus.mutateAsync({ 
                 id, 

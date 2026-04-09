@@ -93,7 +93,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
     // Your existing helper functions
 
     const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
     }
 
     // First, add position tracking to the dragged items
@@ -103,7 +103,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
 
     const onDrop = async (event: React.DragEvent<HTMLDivElement>, newStatus: OrderItemStatus) => {
         event.preventDefault();
-        event.currentTarget.classList.remove('bg-blue-600');
+        event.currentTarget.classList.remove('bg-accent');
 
         // Get the drop target
         const dropTarget = event.target as HTMLElement;
@@ -169,7 +169,7 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
         if (itemContainer) {
             itemContainer.classList.add('drop-indicator');
         } else {
-            event.currentTarget.classList.add('bg-blue-600');
+            event.currentTarget.classList.add('bg-accent');
         }
     };
 
