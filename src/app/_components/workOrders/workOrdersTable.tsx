@@ -210,7 +210,7 @@ const WorkOrdersTable: React.FC = () => {
     if (loading || isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
             </div>
         );
     }
