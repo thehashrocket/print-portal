@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Thomson Print Portal — Redesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles/tokens.css"/>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+  </script>
+  <script type="text/babel" src="components/data.jsx"></script>
+  <script type="text/babel" src="components/primitives.jsx"></script>
+  <script type="text/babel" src="components/shell.jsx"></script>
+  <script type="text/babel" src="components/page-dashboard.jsx"></script>
+  <script type="text/babel" src="components/pages.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAKS = /*EDITMODE-BEGIN*/{
+      "accent": "press-green",
+      "density": "comfortable",
+      "showCmyk": true
+    }/*EDITMODE-END*/;
+
+    const ROUTES = {
+      "login":         () => <Login onEnter={() => location.hash = "#dashboard"} />,
+      "dashboard":     () => <Dashboard />,
+      "orders":        () => <OrdersList />,
+      "order-detail":  () => <OrderDetail />,
+      "work-orders":   () => <WorkOrdersList />,
+      "create-wo":     () => <CreateWO />,
+      "companies":     () => <Placeholder title="Companies" />,
+      "paper":         () => <Placeholder title="Paper Catalog" />,
+      "typesetting":   () => <Placeholder title="Typesetting" />,
+      "shipping":      () => <Placeholder title="Shipping" />,
+      "reports":       () => <Placeholder title="Reports" />,
+      "settings":      () => <Placeholder title="Settings" />,
+    };
+
+    const Placeholder = ({ title }) => (
+      <>
+        <div className="page-head">
+          <div><div className="page-sub">Workspace</div><h1 className="page-title">{title}</h1></div>
+        </div>
+        <div className="card" style={{padding: 80, textAlign: "center"}}>
+          <div style={{color: "var(--ink-3)"}}><RegMark size={20}/></div>
+          <div className="uppercase-label" style={{marginTop: 12}}>This section uses the same design system</div>
+          <div style={{marginTop: 4, color: "var(--ink-3)", fontSize: 13}}>Detail screens for {title.toLowerCase()} follow the patterns established in Orders and Dashboard.</div>
+        </div>
+      </>
+    );
+
+    const accentMap = {
+      "press-green":  "42.0% 0.10 155",
+      "ink-black":    "18.0% 0.015 65",
+      "cyan-blue":    "48.0% 0.14 220",
+      "burgundy":     "38.0% 0.15 20",
+    };
+
+    const App = () => {
+      const [route, setRoute] = useState(() => (location.hash.slice(1) || localStorage.getItem("tpp_route") || "login"));
+      const [tweaks, setTweaks] = useState(TWEAKS);
+      const [tweaksOpen, setTweaksOpen] = useState(false);
+      const [tweaksAvail, setTweaksAvail] = useState(false);
+
+      useEffect(() => {
+        localStorage.setItem("tpp_route", route);
+        location.hash = "#" + route;
+      }, [route]);
+
+      useEffect(() => {
+        const onHash = () => {
+          const r = location.hash.slice(1);
+          if (r && ROUTES[r]) setRoute(r);
+        };
+        window.addEventListener("hashchange", onHash);
+        return () => window.removeEventListener("hashchange", onHash);
+      }, []);
+
+      // Tweaks protocol — register listener FIRST
+      useEffect(() => {
+        const onMsg = (e) => {
+          if (!e.data || !e.data.type) return;
+          if (e.data.type === "__activate_edit_mode") setTweaksOpen(true);
+          if (e.data.type === "__deactivate_edit_mode") setTweaksOpen(false);
+        };
+        window.addEventListener("message", onMsg);
+        window.parent.postMessage({type: "__edit_mode_available"}, "*");
+        setTweaksAvail(true);
+        return () => window.removeEventListener("message", onMsg);
+      }, []);
+
+      // Apply tweaks
+      useEffect(() => {
+        const r = document.documentElement;
+        r.style.setProperty("--press", `oklch(${accentMap[tweaks.accent] || accentMap["press-green"]})`);
+        r.style.setProperty("--stat-pad", tweaks.density === "compact" ? "12px 16px" : "18px 20px");
+      }, [tweaks]);
+
+      const updateTweak = (k, v) => {
+        const next = {...tweaks, [k]: v};
+        setTweaks(next);
+        window.parent.postMessage({type: "__edit_mode_set_keys", edits: {[k]: v}}, "*");
+      };
+
+      const Page = ROUTES[route] || ROUTES["dashboard"];
+
+      // Login is fullscreen
+      if (route === "login") {
+        return (
+          <>
+            <Page/>
+            {tweaksOpen && <TweaksPanel tweaks={tweaks} update={updateTweak}/>}
+          </>
+        );
+      }
+
+      return (
+        <>
+          <div className="app" data-screen-label={route}>
+            <Sidebar route={route} setRoute={setRoute}/>
+            <div className="main">
+              <Topbar route={route}/>
+              <div className="content">
+                {/* Secondary nav for demo — quick-jump */}
+                <QuickJump route={route} setRoute={setRoute}/>
+                <Page/>
+              </div>
+            </div>
+          </div>
+          {tweaksOpen && <TweaksPanel tweaks={tweaks} update={updateTweak}/>}
+        </>
+      );
+    };
+
+    // Small demo nav so the reviewer can hop between screens quickly
+    const QuickJump = ({ route, setRoute }) => {
+      const links = [
+        ["login", "Login"],
+        ["dashboard", "Dashboard"],
+        ["orders", "Orders list"],
+        ["order-detail", "Order detail"],
+        ["work-orders", "Work orders"],
+        ["create-wo", "Create WO"],
+      ];
+      return (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8, marginBottom: 20,
+          padding: "8px 12px", background: "var(--paper-2)",
+          border: "1px dashed var(--rule-2)", borderRadius: "var(--r-sm)",
+          fontSize: 11
+        }}>
+          <span className="uppercase-label" style={{margin: 0}}>Demo jump</span>
+          {links.map(([id, l]) => (
+            <button key={id} className={`btn sm ${route === id ? "primary" : ""}`} onClick={() => setRoute(id)}>{l}</button>
+          ))}
+        </div>
+      );
+    };
+
+    const TweaksPanel = ({ tweaks, update }) => (
+      <div style={{
+        position: "fixed", right: 16, bottom: 16, width: 300,
+        background: "var(--paper)", border: "1px solid var(--ink)",
+        borderRadius: "var(--r-md)", boxShadow: "0 12px 40px oklch(0% 0 0 / 0.2)",
+        zIndex: 1000, overflow: "hidden"
+      }}>
+        <div style={{padding: "12px 14px", background: "var(--ink)", color: "var(--paper)",
+          display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+          <span className="mono" style={{fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase"}}>Tweaks</span>
+          <RegMark size={12}/>
+        </div>
+        <div style={{padding: 16}}>
+          <div style={{marginBottom: 16}}>
+            <div className="uppercase-label" style={{marginBottom: 8}}>Accent color</div>
+            <div style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6}}>
+              {[
+                ["press-green", "Press"],
+                ["ink-black", "Ink"],
+                ["cyan-blue", "Cyan"],
+                ["burgundy", "Burg."],
+              ].map(([k, l]) => (
+                <button key={k} className={`btn sm ${tweaks.accent === k ? "primary" : ""}`}
+                  style={{justifyContent: "center", padding: "0 4px", fontSize: 10}}
+                  onClick={() => update("accent", k)}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{marginBottom: 16}}>
+            <div className="uppercase-label" style={{marginBottom: 8}}>Density</div>
+            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6}}>
+              {["comfortable", "compact"].map(k => (
+                <button key={k} className={`btn sm ${tweaks.density === k ? "primary" : ""}`}
+                  style={{justifyContent: "center"}}
+                  onClick={() => update("density", k)}>{k}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label style={{display: "flex", alignItems: "center", gap: 8, fontSize: 12}}>
+              <input type="checkbox" checked={tweaks.showCmyk}
+                onChange={e => update("showCmyk", e.target.checked)}/>
+              Show CMYK accents on stats
+            </label>
+          </div>
+        </div>
+      </div>
+    );
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
