@@ -1,6 +1,6 @@
 {
   "name": "thomson-print-portal",
-  "version": "0.1.0",
+  "version": "0.1.7.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -60,8 +60,6 @@
     "@trpc/next": "11.8.1",
     "@trpc/react-query": "11.7.1",
     "@trpc/server": "11.16.0",
-    "ag-charts-community": "^13.2.1",
-    "ag-charts-react": "^13.2.1",
     "ag-grid-community": "^35.2.1",
     "axios": "^1.15.0",
     "bcryptjs": "3.0.3",
