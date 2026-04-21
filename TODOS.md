@@ -15,6 +15,11 @@
 Vitest is configured with 3 test suites (Decimal serialization, db client, work order calculations). Expand coverage to critical paths.
 - **Action:** Add tests for order CRUD, invoice generation, QB sync
 - **See:** [ROADMAP.md](./docs/ROADMAP.md) — High Priority
+- **Partial (2026-04-21):** Added 15 new tests across 2 new suites:
+  - `src/server/api/routers/invoices/__tests__/invoice.test.ts` — `generateInvoiceNumber` (3), `formatItemDescription` (3), `addPayment` status logic (2), `getById` NOT_FOUND (1)
+  - `src/server/api/routers/orders/__tests__/order.test.ts` — `updateStatus` cascade to items for Cancelled/Completed/Invoiced/Pending (4), `order.update` called correctly (1), `getByID` null for missing order (1)
+  - Added `src/test/setup.ts` vitest setup file (mocks `~/server/db` and `~/server/auth` so router tests don't require real env vars)
+  - Remaining: QB sync integration tests, component tests for order creation/invoice generation
 
 ### P2 — README.md Cleanup
 The current README is the T3 Create App boilerplate. It references Drizzle ORM (not used — this project uses Prisma) and contains generic T3 documentation instead of project-specific content.
@@ -54,9 +59,14 @@ Error handling varies across routers — some throw TRPCError with codes, others
 - Lint markdown files for formatting consistency
 
 ### Type Safety Improvements
-- Audit `as unknown as` and other type assertions
+- Audit `as unknown as` and other type assertions — **Partial (2026-04-21):** Removed `as unknown as` from `upload/route.ts` (replaced with `instanceof File` guard) and `OrderItemPrintPreview.tsx` (downgraded to single-step `as Record<string, unknown>`). The `db.ts` usage is standard T3 `globalThis` boilerplate, acceptable as-is.
 - Strengthen tRPC router return types (explicit instead of inferred from Prisma)
 - Add runtime validation for QB webhook payloads
+
+### P2 — Invoice Number Race Condition
+`generateInvoiceNumber` in `src/server/api/routers/invoices/invoice.ts` reads the last invoice number and creates with the incremented value in two separate, non-atomic DB operations. Concurrent requests can read the same `lastInvoice` and produce duplicate `invoiceNumber` values.
+- **Action:** Add a unique constraint on `Invoice.invoiceNumber` in Prisma schema (already enforced at app level by the sequential query, but DB-level enforcement catches concurrent races and returns P2002/CONFLICT rather than creating a duplicate)
+- **Note:** Low probability in practice given single-tenant usage, but worth hardening before multi-tenant expansion
 
 ### P3 — DRY Decimal Total Calculations
 Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal arithmetic for computing totals. Extract a shared utility.
