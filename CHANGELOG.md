@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.10.0] - 2026-04-21
+
+### Added
+- **tRPC router test suites** — two new Vitest suites cover the invoice and order routers: `generateInvoiceNumber` sequencing, `formatItemDescription` composition, `addPayment` Paid/Sent status transitions, `getById` NOT_FOUND, `updateStatus` item cascade for Cancelled/Completed/Invoiced/Pending, and NOT_FOUND propagation when a nested relation is missing.
+- **Vitest global setup** — `src/test/setup.ts` mocks `~/server/db` and `~/server/auth` so router unit tests run without a database connection or real environment variables.
+
+### Fixed
+- **Upload route type safety** — `upload/route.ts` now uses `instanceof File` to narrow the `formData().get('file')` result instead of `as unknown as File`, correctly rejecting non-file form fields as 400.
+- **Print preview type cast** — `OrderItemPrintPreview.tsx` removed the unnecessary `as unknown as` intermediate cast when iterating typesetting fields.
+- **Invoice functions exported for testing** — `generateInvoiceNumber` and `formatItemDescription` in `invoice.ts` are now exported, enabling direct unit testing without router-level setup.
+
 ## [0.1.9.0] - 2026-04-20
 
 ### Changed

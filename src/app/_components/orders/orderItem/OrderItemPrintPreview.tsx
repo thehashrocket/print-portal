@@ -183,7 +183,7 @@ const OrderItemPrintPreview: React.FC<OrderItemPrintPreviewProps> = ({
             <div className="">
               <h2 className="text-xl font-bold">TYPESETTING DETAILS</h2>
               <div className="grid grid-cols-2">
-                {Object.entries(normalizedTypesetting[0] as unknown as Record<string, unknown>)
+                {Object.entries(normalizedTypesetting[0] as Record<string, unknown>)
                   .filter(([key]) => !['createdAt', 'updatedAt', 'createdById', 'orderItemId', 'id', 'workOrderItemId', 'TypesettingOptions', 'TypesettingProofs'].includes(key))
                   .map(([key, value]) => {
                     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());

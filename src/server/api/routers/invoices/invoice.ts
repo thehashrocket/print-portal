@@ -10,7 +10,7 @@ import { throwNotFound } from "~/server/api/errors";
 import { normalizeInvoice, normalizeInvoicePayment } from "~/utils/dataNormalization";
 
 
-function formatItemDescription(item: any): string {
+export function formatItemDescription(item: any): string {
     let description = item.description || '';
 
     if (item.OrderItemStock && item.OrderItemStock.length > 0) {
@@ -35,7 +35,7 @@ function formatItemDescription(item: any): string {
     return description;
 }
 
-async function generateInvoiceNumber(ctx: any): Promise<string> {
+export async function generateInvoiceNumber(ctx: any): Promise<string> {
     const currentYear = new Date().getFullYear();
     const lastInvoice = await ctx.db.invoice.findFirst({
         where: {
