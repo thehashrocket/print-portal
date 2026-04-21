@@ -1,6 +1,6 @@
 {
   "name": "thomson-print-portal",
-  "version": "0.1.7.0",
+  "version": "0.1.8.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -28,7 +28,8 @@
     "downcase-emails": "SKIP_ENV_VALIDATION=1 tsx scripts/downcaseEmails.ts",
     "import-paper-catalog": "SKIP_ENV_VALIDATION=1 tsx scripts/importPaperCatalog.ts",
     "setup-walk-in": "SKIP_ENV_VALIDATION=1 tsx scripts/create-walk-in-office.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:env": "node scripts/check-env.js"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.9",
