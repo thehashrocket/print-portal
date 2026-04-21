@@ -73,6 +73,19 @@ Currently using `prisma db push` for schema changes. Prisma Migrate would provid
 ### Service Worker (`scripts/build-sw.js`)
 A service worker build script exists but PWA features are not actively used. Keep the script but don't invest in PWA until the customer-facing portal is underway.
 
+## Press Room Redesign (post-migration cleanup)
+
+### P2 — Delete StatusBadge after migration complete
+`StatusBadge` at `src/app/_components/shared/StatusBadge/StatusBadge.tsx` is being kept alive during the redesign migration. New screens use the new `Pill` component. Once all screens (Dashboard, Orders, Order Detail, Work Orders, Create WO) are migrated, `StatusBadge` is dead code.
+- **Action:** `grep -r "StatusBadge" src/` to find remaining imports. Remove them. Delete the component and its directory.
+- **Blocked by:** All Phase 3–6 screens complete and verified.
+- **Context:** Two components doing the same job (status chip display) creates confusion. Clean up was intentionally deferred to avoid breaking un-migrated screens mid-migration.
+
+### P3 — Remove Bliss Pro font files after migration complete
+`public/fonts/` contains self-hosted Bliss Pro font files. Phase 0 of the redesign replaces the body font with Inter (via next/font). Once migration is complete and no component references `font-sans`, `font-light`, `font-bold`, `font-italic` Tailwind classes pointing to Bliss Pro, these files can be removed.
+- **Action:** `grep -r "font-sans\|font-light\|font-bold\|font-italic" src/` — confirm zero hits. Remove the Bliss Pro entries from `@theme` in `globals.css`. Delete `public/fonts/` Bliss Pro files.
+- **Note:** Bliss Pro is being replaced NOW in globals.css as part of Phase 0. This TODO is the cleanup pass to confirm nothing regressed and remove the dead `@theme` entries.
+
 ## Completed
 
 ### P3 — Audit Radix Components for Hydration Mismatches

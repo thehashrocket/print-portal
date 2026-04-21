@@ -135,13 +135,6 @@ export default function WorkOrderDetails({ initialWorkOrder, workOrderId }: Work
                             )}
                         </div>
                     </div>
-                    <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
-                        <ul>
-                            <li><Link href="/">Home</Link></li>
-                            <li><Link href="/workOrders">Estimates</Link></li>
-                            <li>Estimate {workOrder.workOrderNumber}</li>
-                        </ul>
-                    </nav>
                 </header>
 
                 <main className="space-y-8">
