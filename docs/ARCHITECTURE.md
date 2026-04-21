@@ -7,7 +7,7 @@
 | Framework | Next.js (App Router, Turbopack) | 16.1.3 |
 | Language | TypeScript | 5.9.3 |
 | API | tRPC + SuperJSON | 11.x |
-| ORM | Prisma | 6.19.2 |
+| ORM | Prisma | 7.7.0 |
 | Database | PostgreSQL | (Docker) |
 | Auth | NextAuth (JWT strategy) | 4.24.x |
 | UI | Tailwind CSS + shadcn/ui + DaisyUI | 4.x |
@@ -27,7 +27,7 @@
 ## Directory Layout
 
 ```
-cancun-v2/
+luxembourg-v3/
 ├── prisma/
 │   ├── schema.prisma          # 38 models, 22 enums
 │   ├── seed.ts                # Database seeding
@@ -68,7 +68,7 @@ cancun-v2/
 │   ├── types/                 # TypeScript type declarations
 │   └── utils/                 # Helper functions
 ├── next.config.js             # Turbopack, image remotes, externals
-├── package.json               # v0.1.0, scripts, dependencies
+├── package.json               # v0.1.10.0, scripts, dependencies
 ├── .nvmrc                     # Node 24.2.0
 └── start-database.sh          # Docker PostgreSQL launcher
 ```

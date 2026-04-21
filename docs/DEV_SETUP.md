@@ -14,7 +14,7 @@
 ```bash
 # 1. Clone and enter the project
 git clone <repo-url>
-cd cancun-v2
+cd luxembourg-v3
 
 # 2. Use the correct Node version
 nvm use
@@ -100,6 +100,7 @@ Environment validation is enforced at build/dev time via `@t3-oss/env-nextjs` + 
 | `pnpm db:push` | Push Prisma schema changes to database |
 | `pnpm db-seed` | Seed database with sample data |
 | `pnpm db:studio` | Open Prisma Studio (database GUI) |
+| `pnpm check:env` | Verify `.env.example` stays in sync with `src/env.js` |
 | `pnpm generate-docs` | Regenerate API docs in `docs/api/` |
 | `pnpm import-paper-products` | Import paper product catalog |
 | `pnpm import-paper-catalog` | Import paper catalog data |
