@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { Prisma } from "~/generated/prisma/client";
 import { normalizeWorkOrder, normalizeOrder, normalizeWalkInCustomer } from "~/utils/dataNormalization";
+import { calculateItemTotals } from "~/utils/orderCalculations";
 
 export const companyRouter = createTRPCRouter({
     // Get a Company by ID
@@ -133,21 +134,7 @@ export const companyRouter = createTRPCRouter({
                         updatedAt: address.updatedAt.toISOString()
                     })),
                     WorkOrders: office.WorkOrders.map(workOrder => {
-                        const totalItemAmount = workOrder.WorkOrderItems.reduce(
-                            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const totalCost = workOrder.WorkOrderItems.reduce(
-                            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const totalShippingAmount = workOrder.WorkOrderItems.reduce(
-                            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const calculatedSalesTax = totalItemAmount.mul(new Prisma.Decimal(0.07));
-                        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-                        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+                        const { totalItemAmount, totalCost, totalShippingAmount, calculatedSalesTax, calculatedSubTotal, totalAmount } = calculateItemTotals(workOrder.WorkOrderItems);
 
                         return normalizeWorkOrder({
                             ...workOrder,
@@ -160,21 +147,7 @@ export const companyRouter = createTRPCRouter({
                         });
                     }),
                     Orders: office.Orders.map(order => {
-                        const totalItemAmount = order.OrderItems.reduce(
-                            (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const totalCost = order.OrderItems.reduce(
-                            (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const totalShippingAmount = order.OrderItems.reduce(
-                            (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-                            new Prisma.Decimal(0)
-                        );
-                        const calculatedSalesTax = totalItemAmount.mul(new Prisma.Decimal(0.07));
-                        const calculatedSubTotal = totalItemAmount.add(totalShippingAmount);
-                        const totalAmount = totalItemAmount.add(totalShippingAmount).add(calculatedSalesTax);
+                        const { totalItemAmount, totalCost, totalShippingAmount, calculatedSalesTax, calculatedSubTotal, totalAmount } = calculateItemTotals(order.OrderItems);
                         const totalPaid = order.OrderPayments?.reduce(
                             (sum, payment) => sum.add(payment.amount || new Prisma.Decimal(0)),
                             new Prisma.Decimal(0)
