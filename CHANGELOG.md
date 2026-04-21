@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.9.0] - 2026-04-20
+
+### Changed
+- **Standardized tRPC error handling** — new `src/server/api/errors.ts` provides `throwNotFound`, `throwForbidden`, `throwUnauthorized`, `throwConflict`, and `handlePrismaError` helpers used across all routers.
+- **Global Prisma error middleware** — `withPrismaErrors` middleware now applied to every `publicProcedure` and `protectedProcedure`, converting Prisma P2025 to `NOT_FOUND`, P2002 to `CONFLICT`, and P2003 to `BAD_REQUEST` for the 20 routers that previously let database errors bubble as raw 500s.
+- **Router updates** — `order.ts`, `invoice.ts`, `office.ts`, `roles.ts`, `workOrder.ts`, and `userManagement.ts` now use shared error helpers instead of inline `TRPCError` construction.
+
 ## [0.1.8.0] - 2026-04-20
 
 ### Added
