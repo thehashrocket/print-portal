@@ -19,14 +19,17 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
 ### P2 — README.md Cleanup
 The current README is the T3 Create App boilerplate. It references Drizzle ORM (not used — this project uses Prisma) and contains generic T3 documentation instead of project-specific content.
 - **Action:** Rewrite README with project-specific overview, linking to the documentation suite
+- **Completed:** 2026-04-20
 
 ### P2 — Post Model Cleanup
 The `Post` model and `postRouter` are scaffolding from the T3 starter. They are not used in production features.
 - **Action:** Remove `Post` model from schema, remove `postRouter` from root.ts, clean up any remaining references
+- **Completed:** 2026-04-20
 
 ### P2 — Unused Drizzle Reference
 README references Drizzle ORM, but the project uses Prisma exclusively. No Drizzle dependencies exist.
 - **Action:** Remove Drizzle references when rewriting README
+- **Completed:** 2026-04-20 (fixed as part of README rewrite)
 
 ### P3 — Consistent Error Handling
 Error handling varies across routers — some throw TRPCError with codes, others let Prisma errors bubble up. Honeybadger is configured but not consistently used across all error paths.
@@ -60,7 +63,7 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 ### P3 — Remove Unused ag-charts-react Dependency
 `ag-charts-react` has zero imports in the codebase (verified across all .ts/.tsx/.js/.jsx files). The project uses `recharts` for charts and `@ag-grid-community/*` for grids. This dead dependency creates unnecessary Dependabot PRs and bloats install size.
 - **Action:** Remove `ag-charts-react` from `package.json`, run `pnpm install`
-- **Effort:** human ~5 min / CC ~2 min
+- **Completed:** 2026-04-20 (also removed `ag-charts-community` which was equally unused)
 
 ## Deferred Work
 
@@ -78,13 +81,12 @@ A service worker build script exists but PWA features are not actively used. Kee
 ### P2 — Delete StatusBadge after migration complete
 `StatusBadge` at `src/app/_components/shared/StatusBadge/StatusBadge.tsx` is being kept alive during the redesign migration. New screens use the new `Pill` component. Once all screens (Dashboard, Orders, Order Detail, Work Orders, Create WO) are migrated, `StatusBadge` is dead code.
 - **Action:** `grep -r "StatusBadge" src/` to find remaining imports. Remove them. Delete the component and its directory.
-- **Blocked by:** All Phase 3–6 screens complete and verified.
-- **Context:** Two components doing the same job (status chip display) creates confusion. Clean up was intentionally deferred to avoid breaking un-migrated screens mid-migration.
+- **Completed:** 2026-04-20 — Inlined the editing form into `OrderStatusBadge` (OrderDetailsComponent) and `ItemStatusBadge`. Deleted `src/app/_components/shared/StatusBadge/`.
 
 ### P3 — Remove Bliss Pro font files after migration complete
 `public/fonts/` contains self-hosted Bliss Pro font files. Phase 0 of the redesign replaces the body font with Inter (via next/font). Once migration is complete and no component references `font-sans`, `font-light`, `font-bold`, `font-italic` Tailwind classes pointing to Bliss Pro, these files can be removed.
 - **Action:** `grep -r "font-sans\|font-light\|font-bold\|font-italic" src/` — confirm zero hits. Remove the Bliss Pro entries from `@theme` in `globals.css`. Delete `public/fonts/` Bliss Pro files.
-- **Note:** Bliss Pro is being replaced NOW in globals.css as part of Phase 0. This TODO is the cleanup pass to confirm nothing regressed and remove the dead `@theme` entries.
+- **Completed:** 2026-04-20 — Verified zero usages of Bliss Pro-specific class names (`font-italic`, `font-light-bold`). The `--font-light/bold/normal` entries in `@theme` were shadowing standard Tailwind weight utilities (a bug). Removed all Bliss Pro `@theme` entries and `@font-face` declarations from `globals.css`. Deleted `public/fonts/`.
 
 ## Completed
 
