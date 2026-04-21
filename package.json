@@ -59,7 +59,7 @@
     "@trpc/client": "11.7.1",
     "@trpc/next": "11.8.1",
     "@trpc/react-query": "11.7.1",
-    "@trpc/server": "11.8.0",
+    "@trpc/server": "11.16.0",
     "ag-charts-community": "^13.2.1",
     "ag-charts-react": "^13.2.1",
     "ag-grid-community": "^35.2.1",
