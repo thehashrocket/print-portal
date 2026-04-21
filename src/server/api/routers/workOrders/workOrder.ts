@@ -4,7 +4,7 @@ import { WorkOrderStatus, Prisma, type ShippingMethod } from "~/generated/prisma
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
-import { throwUnauthorized } from "~/server/api/errors";
+import { throwNotFound, throwUnauthorized } from "~/server/api/errors";
 import { calculateItemTotals } from "~/utils/orderCalculations";
 
 export const workOrderRouter = createTRPCRouter({
