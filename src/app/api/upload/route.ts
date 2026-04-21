@@ -26,12 +26,13 @@ const allowedExtensions = [
 
 export async function POST(request: NextRequest) {
     const data = await request.formData();
-    const file: File | null = data.get('file') as unknown as File;
+    const rawFile = data.get('file');
     const fileType = request.headers.get('X-File-Type');
 
-    if (!file) {
+    if (!(rawFile instanceof File)) {
         return NextResponse.json({ success: false, message: 'No file uploaded' }, { status: 400 });
     }
+    const file = rawFile;
 
     const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
     
