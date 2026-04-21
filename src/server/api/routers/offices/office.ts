@@ -5,7 +5,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { z } from "zod";
 import { AddressType } from "~/generated/prisma/client";
-import { TRPCError } from "@trpc/server";
+import { throwForbidden, throwNotFound } from "~/server/api/errors";
 import { normalizeOffice } from "~/utils/dataNormalization";
 
 export const officeRouter = createTRPCRouter({
@@ -64,10 +64,7 @@ export const officeRouter = createTRPCRouter({
                 ctx.session.user.Permissions.includes("office_read");
 
             if (!canViewOffices) {
-                throw new TRPCError({
-                    code: "FORBIDDEN",
-                    message: "You don't have permission to view all offices",
-                });
+                throwForbidden("You don't have permission to view all offices");
             }
 
             return ctx.db.office.findMany({
@@ -249,10 +246,7 @@ export const officeRouter = createTRPCRouter({
             });
 
             if (!walkInOffice) {
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: "Walk-in office not found. Please configure a walk-in office in the system.",
-                });
+                throwNotFound("Walk-in office");
             }
 
             return normalizeOffice(walkInOffice);

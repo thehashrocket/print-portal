@@ -1,6 +1,6 @@
 // ~/src/server/api/routers/roles.ts
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { TRPCError } from "@trpc/server";
+import { throwForbidden } from "~/server/api/errors";
 
 export const rolesRouter = createTRPCRouter({
     getAll: protectedProcedure
@@ -10,10 +10,7 @@ export const rolesRouter = createTRPCRouter({
                 ctx.session.user.Permissions.includes("role_read");
 
             if (!canViewRoles) {
-                throw new TRPCError({
-                    code: "FORBIDDEN",
-                    message: "You don't have permission to view all roles",
-                });
+                throwForbidden("You don't have permission to view all roles");
             }
 
             return ctx.db.role.findMany();

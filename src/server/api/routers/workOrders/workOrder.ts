@@ -4,7 +4,7 @@ import { WorkOrderStatus, Prisma, type ShippingMethod } from "~/generated/prisma
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
-import { TRPCError } from "@trpc/server";
+import { throwUnauthorized } from "~/server/api/errors";
 import { calculateItemTotals } from "~/utils/orderCalculations";
 
 export const workOrderRouter = createTRPCRouter({
@@ -98,10 +98,7 @@ export const workOrderRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.user?.id) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'User not authenticated',
-        });
+        throwUnauthorized();
       }
 
       const data: Prisma.WorkOrderCreateInput = {

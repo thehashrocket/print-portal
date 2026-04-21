@@ -6,7 +6,7 @@ import {
     protectedProcedure,
 } from "~/server/api/trpc";
 import { InvoiceStatus, OrderStatus, PaymentMethod } from "~/generated/prisma/client";
-import { TRPCError } from "@trpc/server";
+import { throwNotFound } from "~/server/api/errors";
 import { normalizeInvoice, normalizeInvoicePayment } from "~/utils/dataNormalization";
 
 
@@ -103,10 +103,7 @@ export const invoiceRouter = createTRPCRouter({
             });
 
             if (!rawInvoice) {
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Invoice not found',
-                });
+                throwNotFound("Invoice");
             }
 
             return normalizeInvoice(rawInvoice);
@@ -141,10 +138,7 @@ export const invoiceRouter = createTRPCRouter({
             });
 
             if (!order) {
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Order not found',
-                });
+                throwNotFound("Order");
             }
 
             const invoice = await ctx.db.invoice.create({
@@ -228,10 +222,7 @@ export const invoiceRouter = createTRPCRouter({
             });
 
             if (!rawInvoice) {
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Invoice not found',
-                });
+                throwNotFound("Invoice");
             }
 
             return normalizeInvoice(rawInvoice);

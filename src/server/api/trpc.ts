@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { handlePrismaError } from "./errors";
 
 /**
  * 1. CONTEXT
@@ -78,6 +79,15 @@ export const createCallerFactory = t.createCallerFactory;
  */
 export const createTRPCRouter = t.router;
 
+// Converts Prisma errors to typed TRPCErrors for all procedures.
+const withPrismaErrors = t.middleware(async ({ next }) => {
+  try {
+    return await next();
+  } catch (error) {
+    handlePrismaError(error);
+  }
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -85,7 +95,7 @@ export const createTRPCRouter = t.router;
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure;
+export const publicProcedure = t.procedure.use(withPrismaErrors);
 
 /**
  * Protected (authenticated) procedure
@@ -95,7 +105,7 @@ export const publicProcedure = t.procedure;
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+export const protectedProcedure = t.procedure.use(withPrismaErrors).use(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
