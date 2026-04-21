@@ -8,7 +8,6 @@ import { orderItemRouter } from "./routers/orderItems/orderItem";
 import { orderNoteRouter } from "./routers/orders/orderNotes";
 import { orderPaymentRouter } from "./routers/orderPayments/orderPayment";
 import { orderRouter } from "./routers/orders/order";
-import { postRouter } from "~/server/api/routers/post";
 import { rolesRouter } from "./routers/roles/roles";
 import { orderItemStockRouter } from "./routers/orderItemStocks/orderItemStock";
 import { paperProductsRouter } from "./routers/shared/paperProducts/paperProducts";
@@ -48,7 +47,6 @@ export const appRouter = createTRPCRouter({
   orderNotes: orderNoteRouter,
   orderPayments: orderPaymentRouter,
   paperProducts: paperProductsRouter,
-  post: postRouter,
   processingOptions: processingOptionsRouter,
   productTypes: productTypeRouter,
   qbAuth: qbAuthRouter,
@@ -78,7 +76,6 @@ export type AppRouter = typeof appRouter;
  * Create a server-side caller for the tRPC API.
  * @example
  * const trpc = createCaller(createContext);
- * const res = await trpc.post.all();
- *       ^? Post[]
+ * const res = await trpc.orders.getAll();
  */
 export const createCaller = createCallerFactory(appRouter);

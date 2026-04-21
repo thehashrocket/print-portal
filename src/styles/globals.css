@@ -10,12 +10,6 @@
   --font-display: var(--font-fraunces, "Fraunces", "Iowan Old Style", Georgia, serif);
   --font-mono:    var(--font-jetbrains, "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace);
 
-  /* Legacy Bliss Pro — kept for unmigrated DaisyUI components */
-  --font-normal:     Bliss Pro, sans-serif;
-  --font-light:      Bliss Pro Light, sans-serif;
-  --font-bold:       Bliss Pro Bold, sans-serif;
-  --font-italic:     Bliss Pro Italic, sans-serif;
-  --font-light-bold: Bliss Pro Light Bold, sans-serif;
 
   /* shadcn/radix radius tokens */
   --radius-lg: var(--radius);
@@ -182,43 +176,6 @@
   /* Drop indicator (kanban) */
   .drop-indicator { border-bottom: 2px solid hsl(var(--primary)); }
 
-  /* Bliss Pro — legacy font-faces for unmigrated components */
-  @font-face {
-    font-family: 'Bliss Normal';
-    src: url('/fonts/BlissNormal.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Bliss Pro';
-    src: url('/fonts/BlissProRegular.otf') format('opentype');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Bliss Pro Bold';
-    src: url('/fonts/BlissProBold.otf') format('opentype');
-    font-weight: 700;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Bliss Pro Italic';
-    src: url('/fonts/BlissProItalic.otf') format('opentype');
-    font-weight: 400;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'Bliss Pro Light';
-    src: url('/fonts/BlissProLight.otf') format('opentype');
-    font-weight: 300;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Bliss Pro Light Bold';
-    src: url('/fonts/BlissProLightBold.otf') format('opentype');
-    font-weight: 700;
-    font-style: normal;
-  }
 }
 
 /* ── Press Room utility classes ── */

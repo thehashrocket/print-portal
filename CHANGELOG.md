@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.7.0] - 2026-04-20
+
+### Removed
+- **T3 boilerplate scaffolding** — removed unused `Post` model from Prisma schema, `postRouter` from the tRPC root, and the `create-post.tsx` component. None of these were used in production.
+- **Unused chart dependencies** — removed `ag-charts-react` and `ag-charts-community` from `package.json`. Both had zero imports across the codebase; the project uses Recharts for charts. Eliminates unnecessary Dependabot noise.
+- **Bliss Pro legacy fonts** — removed 15 self-hosted Bliss Pro font files from `public/fonts/`, along with the `@font-face` declarations and `@theme` entries in `globals.css`. The body font was migrated to Inter in the Press Room redesign; the legacy entries were also shadowing standard Tailwind font-weight utilities (`font-bold`, `font-light`, `font-normal`) with Bliss Pro font-family values.
+- **Shared `StatusBadge` component** — the generic `src/app/_components/shared/StatusBadge/StatusBadge.tsx` editing form has been removed. The status-change form logic is now inlined into `OrderDetailsComponent` and `ItemStatusBadge` where it is actually used, matching the pattern already in place for work order screens.
+
+### Changed
+- **README** — replaced T3 Create App boilerplate with project-specific overview: tech stack table, prerequisites, getting-started steps, available scripts, and links to the documentation suite.
+
 ## [0.1.6.0] - 2026-04-09
 
 ### Changed
