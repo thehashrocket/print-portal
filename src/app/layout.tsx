@@ -1,11 +1,29 @@
 import "~/styles/globals.css";
-import NavBar from "./_components/shared/navBar"; // Fix the casing of the file name
-
+import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistration';
-import { InstallPWA } from '~/app/_components/installPWA'
+import { InstallPWA } from '~/app/_components/installPWA';
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["opsz"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
 
 export const metadata = {
   title: "Thomson Printing Platform",
@@ -19,7 +37,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,10 +52,9 @@ export default function RootLayout({
         <meta name="mobile-web-app-title" content="Thomson Printing Portal" />
         <link rel="apple-touch-icon" href="/images/favicon-196x196.png" />
       </head>
-      <body className="font-sans">
+      <body>
         <TRPCReactProvider>
           <Providers>
-            <NavBar />
             {children}
             <InstallPWA />
             <ServiceWorkerRegistration />

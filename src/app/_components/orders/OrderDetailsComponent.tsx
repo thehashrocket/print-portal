@@ -404,13 +404,6 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                         <h1 className="text-3xl font-bold">Order Details</h1>
 
                     </div>
-                    <nav aria-label="breadcrumb" className="text-sm breadcrumbs">
-                        <ul>
-                            <li><Link href="/">Home</Link></li>
-                            <li><Link href="/orders">Orders</Link></li>
-                            <li>Order {order.orderNumber}</li>
-                        </ul>
-                    </nav>
                 </header>
 
                 <main className="space-y-8">
