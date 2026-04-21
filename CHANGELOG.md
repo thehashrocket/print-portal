@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.1.8.0] - 2026-04-20
+
+### Added
+- **`pnpm check:env` script** — new `scripts/check-env.js` validates that `.env.example` stays in sync with `src/env.js`. Exits non-zero if any variable is missing or stale. Run before onboarding new developers.
+- **Shared `calculateItemTotals()` utility** — `src/utils/orderCalculations.ts` is now the single source of truth for all Decimal arithmetic across order/work order totals (item amount, shipping, cost, subtotal, sales tax, total amount).
+
+### Fixed
+- **Work order totals included sales tax inconsistently** — three mutation handlers in `workOrders/workOrder.ts` computed `totalAmount` as `itemAmount + shipping` without adding `calculatedSalesTax`. These now correctly compute `totalAmount = subtotal + salesTax` via the shared utility.
+
+### Changed
+- **`.env.example` updated to match `src/env.js`** — rewritten to include all 31 required environment variables (QuickBooks, Pusher, full SendGrid SMTP config, OpenAI, Honeybadger). Removed 6 stale entries (Discord, old SendGrid keys, unused Honeybadger fields).
+- **Decimal calculations DRY'd across 3 routers** — replaced 12 duplicate inline calculation blocks in `order.ts`, `workOrder.ts`, and `company.ts` with calls to `calculateItemTotals()`.
+
 ## [0.1.7.0] - 2026-04-20
 
 ### Removed

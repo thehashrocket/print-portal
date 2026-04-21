@@ -38,6 +38,7 @@ Error handling varies across routers — some throw TRPCError with codes, others
 ### P3 — Environment Variable Documentation
 `.env.example` should be kept in sync with `src/env.js`. Currently there's no automated check.
 - **Action:** Add a CI check or script that validates `.env.example` has all vars from `env.js`
+- **Completed:** 2026-04-20 — Rewrote `.env.example` with all 31 vars. Added `scripts/check-env.js` and `pnpm check:env` script.
 
 ## Planned Improvements
 
@@ -59,6 +60,7 @@ Error handling varies across routers — some throw TRPCError with codes, others
 ### P3 — DRY Decimal Total Calculations
 Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal arithmetic for computing totals. Extract a shared utility.
 - **Action:** Create shared `calculateOrderTotals()` utility, update routers to use it
+- **Completed:** 2026-04-20 — Created `src/utils/orderCalculations.ts` with `calculateItemTotals()`. Replaced 12 duplicate blocks across order.ts (5), workOrder.ts (5), company.ts (2). Also fixed a bug in 3 workOrder mutation handlers where `totalAmount` was computed without sales tax.
 
 ### P3 — Remove Unused ag-charts-react Dependency
 `ag-charts-react` has zero imports in the codebase (verified across all .ts/.tsx/.js/.jsx files). The project uses `recharts` for charts and `@ag-grid-community/*` for grids. This dead dependency creates unnecessary Dependabot PRs and bloats install size.
