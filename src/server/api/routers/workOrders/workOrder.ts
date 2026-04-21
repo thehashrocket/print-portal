@@ -427,7 +427,7 @@ export const workOrderRouter = createTRPCRouter({
         },
       });
       if (!fullWorkOrder) {
-        throw new Error("Work order not found");
+        throwNotFound("Work order");
       }
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSalesTax, calculatedSubTotal, totalAmount } = calculateItemTotals(fullWorkOrder.WorkOrderItems);
 
@@ -488,7 +488,7 @@ export const workOrderRouter = createTRPCRouter({
       });
 
       if (!workOrder) {
-        throw new Error("Work order not found");
+        throwNotFound("Work order");
       }
 
       return await ctx.db.workOrder.update({

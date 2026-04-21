@@ -84,7 +84,7 @@ const withPrismaErrors = t.middleware(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
-    handlePrismaError(error);
+    return handlePrismaError(error);
   }
 });
 
