@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { RoleName } from "~/generated/prisma/client";
-import { TRPCError } from "@trpc/server";
+import { throwConflict } from "~/server/api/errors";
 import bcrypt from "bcryptjs";
 export const userManagementRouter = createTRPCRouter({
     getAllUsers: protectedProcedure
@@ -143,10 +143,7 @@ export const userManagementRouter = createTRPCRouter({
             });
 
             if (existingUser) {
-                throw new TRPCError({
-                    code: 'CONFLICT',
-                    message: 'User with this email already exists',
-                });
+                throwConflict("User with this email already exists");
             }
 
             // Create the user

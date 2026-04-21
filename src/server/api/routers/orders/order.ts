@@ -4,6 +4,7 @@ import { OrderStatus, OrderItemStatus, Prisma, ShippingMethod, TypesettingStatus
 import { normalizeOrder, normalizeOrderPayment, normalizeWalkInCustomer } from "~/utils/dataNormalization";
 import { type SerializedOrder } from "~/types/serializedTypes";
 import { TRPCError } from "@trpc/server";
+import { throwNotFound } from "~/server/api/errors";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 import { calculateItemTotals } from "~/utils/orderCalculations";
 
@@ -96,7 +97,7 @@ export const orderRouter = createTRPCRouter({
       });
 
       if (!order) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Order not found' });
+        throwNotFound("Order");
       }
       // Duplicate the order info and order items
 
@@ -708,10 +709,7 @@ export const orderRouter = createTRPCRouter({
         });
 
         if (!order) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Order not found',
-          });
+          throwNotFound("Order");
         }
 
         const emailHtml = `
@@ -938,10 +936,7 @@ export const orderRouter = createTRPCRouter({
       });
 
       if (!order) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Order not found',
-        });
+        throwNotFound("Order");
       }
 
       try {

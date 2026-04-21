@@ -34,6 +34,7 @@ README references Drizzle ORM, but the project uses Prisma exclusively. No Drizz
 ### P3 — Consistent Error Handling
 Error handling varies across routers — some throw TRPCError with codes, others let Prisma errors bubble up. Honeybadger is configured but not consistently used across all error paths.
 - **Action:** Standardize error handling pattern across all 32 routers
+- **Completed:** 2026-04-20 — Created `src/server/api/errors.ts` with `throwNotFound/throwForbidden/throwUnauthorized/throwConflict/handlePrismaError` helpers. Added `withPrismaErrors` middleware to `trpc.ts` applied to all procedures globally (converts Prisma P2025→NOT_FOUND, P2002→CONFLICT, P2003→BAD_REQUEST). Updated order.ts, invoice.ts, office.ts, roles.ts, workOrder.ts, userManagement.ts to use helpers instead of inline TRPCError construction.
 
 ### P3 — Environment Variable Documentation
 `.env.example` should be kept in sync with `src/env.js`. Currently there's no automated check.
