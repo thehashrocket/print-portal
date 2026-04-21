@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { OrderStatus, type ShippingMethod } from "~/generated/prisma/browser";
+import { OrderStatus, ShippingMethod } from "~/generated/prisma/browser";
 import OrderItemsTable from "~/app/_components/orders/orderItem/orderItemsTable";
 import { formatCurrency, formatDate } from "~/utils/formatters";
 import { api } from "~/trpc/react";
@@ -26,8 +26,11 @@ import {
     ReceiptIcon,
     PlusCircle,
     Loader2,
+    Info,
+    Save,
 } from "lucide-react";
-import { StatusBadge } from "../shared/StatusBadge/StatusBadge";
+import { Switch } from "~/app/_components/ui/switch";
+import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import ContactPersonEditor from "../shared/ContactPersonEditor/ContactPersonEditor";
 import { Button } from "../ui/button";
 import { generateOrderPDFData } from "~/app/_components/orders/OrderPDFGenerator";
@@ -46,6 +49,12 @@ import { cn } from "~/lib/utils";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: string }> = ({ id, status, orderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
+    const [sendEmail, setSendEmail] = useState(false);
+    const [emailOverride, setEmailOverride] = useState("");
+    const [statusToSave, setStatusToSave] = useState<OrderStatus>(status);
+    const [trackingNumber, setTrackingNumber] = useState("");
+    const [shippingMethod, setShippingMethod] = useState<ShippingMethod>(ShippingMethod.Other);
+
     const utils = api.useUtils();
     const { mutate: updateStatus } = api.orders.updateStatus.useMutation({
         onSuccess: () => {
@@ -58,8 +67,8 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
         }
     });
 
-    const getStatusColor = (status: OrderStatus): string => {
-        switch (status) {
+    const getStatusColor = (s: OrderStatus): string => {
+        switch (s) {
             case "Completed": return "bg-green-100 text-green-800";
             case "Cancelled": return "bg-red-100 text-red-800";
             case "Pending": return "bg-yellow-100 text-yellow-800";
@@ -70,35 +79,75 @@ const OrderStatusBadge: React.FC<{ id: string, status: OrderStatus, orderId: str
         }
     };
 
-    const handleStatusChange = (
-        newStatus: OrderStatus,
-        sendEmail: boolean,
-        emailOverride: string,
-        shippingDetails?: {
-            trackingNumber?: string[];
-            shippingMethod?: ShippingMethod;
-        }
-    ) => {
-        updateStatus({
-            id,
-            status: newStatus,
-            sendEmail,
-            emailOverride,
-            shippingDetails
-        });
-        setCurrentStatus(newStatus);
-    };
+    const isShippingStatus = statusToSave === "Shipping";
 
     return (
-        <StatusBadge<OrderStatus>
-            id={id}
-            status={status}
-            currentStatus={currentStatus}
-            orderId={orderId}
-            onStatusChange={handleStatusChange}
-            getStatusColor={getStatusColor}
-            statusOptions={Object.values(OrderStatus)}
-        />
+        <div className="space-y-4">
+            <div className="flex items-start gap-2 p-3 text-sm bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                <p className="text-blue-700">
+                    Select a new status from the dropdown, optionally notify the customer via email, then save.
+                </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <span className={`px-2 py-1 rounded-full text-sm font-semibold w-48 flex items-center justify-center ${getStatusColor(currentStatus)}`}>
+                    {currentStatus}
+                </span>
+                <SelectField
+                    options={(Object.values(OrderStatus) as string[]).map(s => ({ value: s, label: s }))}
+                    value={statusToSave}
+                    onValueChange={(value: string) => setStatusToSave(value as OrderStatus)}
+                    placeholder="Select status..."
+                    required={true}
+                />
+            </div>
+            {isShippingStatus && (
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                    <div className="flex flex-col space-y-2">
+                        <Input
+                            type="text"
+                            placeholder="Tracking Number"
+                            value={trackingNumber}
+                            onChange={(e) => setTrackingNumber(e.target.value)}
+                        />
+                        <SelectField
+                            options={(Object.values(ShippingMethod) as string[]).map(m => ({ value: m, label: m }))}
+                            value={shippingMethod}
+                            onValueChange={(value: string) => setShippingMethod(value as ShippingMethod)}
+                            placeholder="Select shipping method..."
+                            required={true}
+                        />
+                    </div>
+                </div>
+            )}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="flex items-center space-x-2">
+                    <Switch checked={sendEmail} onCheckedChange={setSendEmail} id="order-send-email" />
+                    <label htmlFor="order-send-email" className="text-sm text-gray-600">Notify customer via email</label>
+                </div>
+                <Input
+                    type="email"
+                    placeholder="Email address (optional)"
+                    value={emailOverride}
+                    onChange={(e) => setEmailOverride(e.target.value)}
+                />
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <Button
+                    variant="default"
+                    onClick={() => {
+                        const shippingDetails = isShippingStatus ? {
+                            trackingNumber: trackingNumber ? [trackingNumber] : undefined,
+                            shippingMethod,
+                        } : undefined;
+                        updateStatus({ id, status: statusToSave, sendEmail, emailOverride, shippingDetails });
+                        setCurrentStatus(statusToSave);
+                    }}
+                >
+                    <Save className="w-4 h-4" /> Save
+                </Button>
+            </div>
+        </div>
     );
 }
 
