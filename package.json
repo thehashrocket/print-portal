@@ -71,7 +71,7 @@
     "dayjs": "^1.11.20",
     "decimal.js": "^10.6.0",
     "dotenv": "^17.4.1",
-    "fast-xml-parser": "^5.5.11",
+    "fast-xml-parser": "^5.7.0",
     "formidable": "^3.5.4",
     "iconv-lite": "^0.7.2",
     "intuit-oauth": "^4.2.2",
