@@ -38,7 +38,7 @@
     "@ag-grid-community/infinite-row-model": "^32.3.9",
     "@ag-grid-community/react": "^32.3.9",
     "@ag-grid-community/styles": "^33.0.3",
-    "@auth/prisma-adapter": "^2.11.1",
+    "@auth/prisma-adapter": "^2.11.2",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "16.2.3",
     "@prisma/adapter-pg": "^7.7.0",
