@@ -41,7 +41,7 @@ if (modelMatches.length === 0) {
   fail(`docs/ARCHITECTURE.md: no model count claim found`);
 } else {
   for (const m of modelMatches) {
-    const claimed = parseInt(m[1], 10);
+    const claimed = parseInt(/** @type {string} */ (m[1]), 10);
     if (claimed !== actualModels) {
       fail(
         `docs/ARCHITECTURE.md: claims "${m[0].trim()}" but actual model count is ${actualModels} (schema.prisma)`
@@ -56,7 +56,7 @@ if (enumMatches.length === 0) {
   fail(`docs/ARCHITECTURE.md: no enum count claim found`);
 } else {
   for (const m of enumMatches) {
-    const claimed = parseInt(m[1], 10);
+    const claimed = parseInt(/** @type {string} */ (m[1]), 10);
     if (claimed !== actualEnums) {
       fail(
         `docs/ARCHITECTURE.md: claims "${m[0].trim()}" but actual enum count is ${actualEnums} (schema.prisma)`
@@ -71,7 +71,7 @@ if (routerMatches.length === 0) {
   fail(`docs/ARCHITECTURE.md: no tRPC router count claim found`);
 } else {
   for (const m of routerMatches) {
-    const claimed = parseInt(m[1], 10);
+    const claimed = parseInt(/** @type {string} */ (m[1]), 10);
     if (claimed !== actualRouters) {
       fail(
         `docs/ARCHITECTURE.md: claims "${m[0]}" but actual router count is ${actualRouters} (root.ts)`
@@ -127,7 +127,7 @@ for (const file of mdFiles) {
   const fileDir = dirname(file);
 
   for (const m of content.matchAll(linkPattern)) {
-    const href = m[1];
+    const href = /** @type {string} */ (m[1]);
     // Skip external URLs, same-page anchors, and mailto
     if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:"))
       continue;

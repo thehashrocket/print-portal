@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.3] - 2026-05-27
+
+### Fixed
+- Added remaining JSDoc `@type {string}` casts to `scripts/check-docs.js` capture-group variables (`href` on line 130) so all TypeScript strict-mode errors in the file are eliminated and production builds succeed
+
 ## [0.2.5.2] - 2026-05-27
 
 ### Fixed
