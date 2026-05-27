@@ -78,6 +78,11 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 - **Action:** Remove `ag-charts-react` from `package.json`, run `pnpm install`
 - **Completed:** 2026-04-20 (also removed `ag-charts-community` which was equally unused)
 
+### P3 — OrderVersion / OrderItemVersion Retention Policy
+`OrderVersion` and `OrderItemVersion` tables grow indefinitely with no current archival strategy. At high order volume this will affect query performance and storage costs.
+- **Action:** Add a monitoring alert when either table exceeds a row-count threshold (e.g. 500k rows). Implement a `scripts/archive-versions.ts` script using `deleteMany` to archive records older than a configurable window (e.g. 2 years). Schedule as a cron job once usage volume warrants it.
+- **Note:** Low urgency for current single-tenant scale; revisit before multi-tenant expansion or if `@@index` queries begin degrading.
+
 ## Deferred Work
 
 ### Migration to Prisma Migrate (Deferred)
