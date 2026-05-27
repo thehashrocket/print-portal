@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { WorkOrderStatus } from '~/generated/prisma/client';
+import { WorkOrderStatus, WorkOrderItemStatus } from '~/generated/prisma/client';
 import { TRPCError } from '@trpc/server';
 import { createCallerFactory } from '~/server/api/trpc';
 import { workOrderRouter } from '../workOrder';
@@ -177,7 +177,7 @@ describe('workOrderRouter.updateStatus — Cancelled cascade', () => {
         await caller.updateStatus({ id: 'wo-1', status: WorkOrderStatus.Cancelled });
         expect(db.workOrderItem.updateMany).toHaveBeenCalledWith({
             where: { workOrderId: 'wo-1' },
-            data: { status: 'Cancelled' },
+            data: { status: WorkOrderItemStatus.Cancelled },
         });
     });
 
@@ -342,5 +342,16 @@ describe('workOrderRouter.updateShippingInfo', () => {
         const updateData = db.workOrder.update.mock.calls[0][0].data;
         const pickupInUpdate = updateData.ShippingInfo.upsert.update.ShippingPickup;
         expect(pickupInUpdate).toEqual({ deleteMany: {} });
+    });
+
+    it('rejects invalid shippingMethod values not in ShippingMethod enum', async () => {
+        const db = makeDb({ workOrder: { findUnique: vi.fn().mockResolvedValue({ officeId: 'office-1' }) } });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+        await expect(
+            caller.updateShippingInfo({
+                workOrderId: 'wo-1',
+                shippingInfo: { shippingMethod: 'Ground' as any },
+            }),
+        ).rejects.toThrow();
     });
 });
