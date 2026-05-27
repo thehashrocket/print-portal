@@ -40,6 +40,7 @@ import InfoCard from "../shared/InfoCard/InfoCard";
 import { Textarea } from "../ui/textarea";
 import TransferOwnership from "./TransferOwnership/TransferOwnership";
 import DuplicateOrder from "./DuplicateOrder/DuplicateOrder";
+import OrderAuditTimeline from "./OrderAuditTimeline/OrderAuditTimeline";
 import { EditableInfoCard } from "../shared/editableInfoCard/EditableInfoCard";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -828,6 +829,7 @@ export default function OrderDetails({ initialOrder, orderId }: OrderDetailsProp
                             )}
                         </div>
                     </section>
+                    <OrderAuditTimeline orderId={orderId} />
                 </main>
             </div>
         </>
