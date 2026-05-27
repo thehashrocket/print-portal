@@ -45,12 +45,17 @@ function makeDb(overrides: Record<string, any> = {}) {
         order: {
             findMany: vi.fn().mockResolvedValue([]),
             findUnique: vi.fn().mockResolvedValue(null),
+            findUniqueOrThrow: vi.fn().mockResolvedValue({ status: 'Pending' }),
             update: vi.fn(),
             ...overrides.order,
         },
         orderItem: {
             updateMany: vi.fn().mockResolvedValue({ count: 0 }),
             ...overrides.orderItem,
+        },
+        orderVersion: {
+            create: vi.fn().mockResolvedValue({}),
+            ...overrides.orderVersion,
         },
     };
 }
@@ -135,6 +140,45 @@ describe('orderRouter.updateStatus — order.update', () => {
                 data: expect.objectContaining({ status: OrderStatus.Pending }),
             }),
         );
+    });
+
+    it('creates an OrderVersion record with previousStatus, newStatus, and changedById', async () => {
+        const db = makeDb({
+            order: {
+                findUniqueOrThrow: vi.fn().mockResolvedValue({ status: OrderStatus.Pending }),
+                update: vi.fn().mockResolvedValue(makeUpdatedOrder('Completed')),
+            },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await caller.updateStatus({ ...baseStatusInput, status: OrderStatus.Completed });
+
+        expect(db.orderVersion.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    orderId: 'order-1',
+                    changedById: 'user-1',
+                    previousStatus: OrderStatus.Pending,
+                    newStatus: OrderStatus.Completed,
+                }),
+            }),
+        );
+    });
+});
+
+// ─── updateStatus: order not found ───────────────────────────────────────────
+
+describe('orderRouter.updateStatus — order not found', () => {
+    it('throws NOT_FOUND when the order does not exist', async () => {
+        const notFound = new TRPCError({ code: 'NOT_FOUND', message: 'Record not found' });
+        const db = makeDb({
+            order: { findUniqueOrThrow: vi.fn().mockRejectedValue(notFound) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await expect(
+            caller.updateStatus({ ...baseStatusInput, status: OrderStatus.Pending }),
+        ).rejects.toMatchObject({ code: 'NOT_FOUND' });
     });
 });
 

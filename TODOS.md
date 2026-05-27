@@ -19,6 +19,10 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
   - `src/server/api/routers/invoices/__tests__/invoice.test.ts` — `generateInvoiceNumber` (3), `formatItemDescription` (3), `addPayment` status logic (2), `getById` NOT_FOUND (1)
   - `src/server/api/routers/orders/__tests__/order.test.ts` — `updateStatus` cascade to items for Cancelled/Completed/Invoiced/Pending (4), `order.update` called correctly (1), `getByID` null for missing order (1)
   - Added `src/test/setup.ts` vitest setup file (mocks `~/server/db` and `~/server/auth` so router tests don't require real env vars)
+- **Partial (2026-05-26):** Added 61 total tests across 5 suites (includes above plus):
+  - `src/server/api/routers/orderItemVersions/__tests__/orderItemVersions.test.ts` — `getStatusHistory` and `getByOrderId` procedure coverage
+  - `src/server/api/routers/orderItems/__tests__/orderItem.test.ts` — `updateStatus` version write instrumentation
+  - `src/server/api/routers/shared/__tests__/createVersion.test.ts` — `buildChangedFields`, `createOrderVersion`, `createOrderItemVersion` unit coverage
   - Remaining: QB sync integration tests, component tests for order creation/invoice generation
 
 ### P2 — README.md Cleanup
@@ -77,6 +81,11 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 `ag-charts-react` has zero imports in the codebase (verified across all .ts/.tsx/.js/.jsx files). The project uses `recharts` for charts and `@ag-grid-community/*` for grids. This dead dependency creates unnecessary Dependabot PRs and bloats install size.
 - **Action:** Remove `ag-charts-react` from `package.json`, run `pnpm install`
 - **Completed:** 2026-04-20 (also removed `ag-charts-community` which was equally unused)
+
+### P3 — OrderVersion / OrderItemVersion Retention Policy
+`OrderVersion` and `OrderItemVersion` tables grow indefinitely with no current archival strategy. At high order volume this will affect query performance and storage costs.
+- **Action:** Add a monitoring alert when either table exceeds a row-count threshold (e.g. 500k rows). Implement a `scripts/archive-versions.ts` script using `deleteMany` to archive records older than a configurable window (e.g. 2 years). Schedule as a cron job once usage volume warrants it.
+- **Note:** Low urgency for current single-tenant scale; revisit before multi-tenant expansion or if `@@index` queries begin degrading.
 
 ## Deferred Work
 

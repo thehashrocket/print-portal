@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.0.0] - 2026-05-26
+
+### Added
+- **Order version tracking** — Every status change on an order, order item, or invoice now writes an `OrderVersion` or `OrderItemVersion` record capturing who changed it, when, and what the previous and new statuses were. This powers audit trails and the printing API's status history queries.
+- **`orderItemVersions` tRPC router** — Two new protected procedures: `getStatusHistory` (filter version records by order item and optional status list) and `getByOrderId` (fetch all version records for an order's items). Both include the `changedBy` user and sort chronologically.
+- **`createVersion` shared utility** — `createOrderVersion`, `createOrderItemVersion`, and `buildChangedFields` are now a shared helper at `src/server/api/routers/shared/createVersion.ts`, ready for Phase 2 field-level change tracking.
+
+### Changed
+- **`orderItems.updateStatus`** — Pre-fetches the existing status before updating so the version record captures an accurate `previousStatus`.
+- **`orders.updateStatus`** — Same pre-fetch pattern; records an `OrderVersion` entry after each status transition.
+- **`invoices.create`** — Records an `OrderVersion` entry when an invoice is created and the order transitions to Invoiced status.
+
 ## [0.1.10.0] - 2026-04-21
 
 ### Added

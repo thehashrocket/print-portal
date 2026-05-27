@@ -7,6 +7,7 @@ import { TRPCError } from "@trpc/server";
 import { throwNotFound } from "~/server/api/errors";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 import { calculateItemTotals } from "~/utils/orderCalculations";
+import { createOrderVersion } from "../shared/createVersion";
 
 export const orderRouter = createTRPCRouter({
 
@@ -1092,6 +1093,11 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { shippingDetails } = input;
 
+      const existing = await ctx.db.order.findUniqueOrThrow({
+        where: { id: input.id },
+        select: { status: true },
+      });
+
       // Update order status
       const updatedOrder = await ctx.db.order.update({
         where: { id: input.id },
@@ -1176,6 +1182,14 @@ export const orderRouter = createTRPCRouter({
             }
           },
         },
+      });
+
+      await createOrderVersion({
+        db: ctx.db,
+        orderId: input.id,
+        changedById: ctx.session.user.id,
+        previousStatus: existing.status,
+        newStatus: input.status,
       });
 
       // If sendEmail is true, send status update email
