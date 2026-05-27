@@ -168,6 +168,116 @@ describe('invoiceRouter.create — OrderVersion', () => {
     });
 });
 
+// ─── invoice router: create (InvoiceItems mapping) ──────────────────────────
+
+describe('invoiceRouter.create — InvoiceItems mapping', () => {
+    const baseInput = {
+        orderId: 'order-1',
+        dateIssued: new Date('2026-01-01'),
+        dateDue: new Date('2026-02-01'),
+        subtotal: 100,
+        taxRate: 0.08,
+        taxAmount: 8,
+        total: 108,
+        status: InvoiceStatus.Sent,
+        items: [],
+    };
+
+    const mockInvoice = {
+        id: 'inv-1',
+        InvoiceItems: [],
+        InvoicePayments: [],
+        Order: { Office: { Company: {} } },
+        createdBy: {},
+    };
+
+    it('maps OrderItems to InvoiceItems with calculated unitPrice', async () => {
+        const mockOrderItem = { id: 'item-1', description: 'Business Cards', quantity: 10, amount: new Prisma.Decimal(100) };
+        const mockOrder = { id: 'order-1', status: OrderStatus.Pending, OrderItems: [mockOrderItem] };
+
+        const db = makeDb({
+            order: {
+                findUnique: vi.fn().mockResolvedValue(mockOrder),
+                findUniqueOrThrow: vi.fn().mockResolvedValue({ status: OrderStatus.Pending }),
+                update: vi.fn().mockResolvedValue(mockOrder),
+            },
+            invoice: { create: vi.fn().mockResolvedValue(mockInvoice) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await caller.create(baseInput);
+
+        expect(db.invoice.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    InvoiceItems: {
+                        create: expect.arrayContaining([
+                            expect.objectContaining({
+                                quantity: 10,
+                                unitPrice: 10,
+                                total: 100,
+                            }),
+                        ]),
+                    },
+                }),
+            }),
+        );
+    });
+
+    it('uses amount as unitPrice when quantity is 0 (avoids division by zero)', async () => {
+        const mockOrderItem = { id: 'item-1', description: 'Setup Fee', quantity: 0, amount: new Prisma.Decimal(50) };
+        const mockOrder = { id: 'order-1', status: OrderStatus.Pending, OrderItems: [mockOrderItem] };
+
+        const db = makeDb({
+            order: {
+                findUnique: vi.fn().mockResolvedValue(mockOrder),
+                findUniqueOrThrow: vi.fn().mockResolvedValue({ status: OrderStatus.Pending }),
+                update: vi.fn().mockResolvedValue(mockOrder),
+            },
+            invoice: { create: vi.fn().mockResolvedValue(mockInvoice) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await caller.create(baseInput);
+
+        expect(db.invoice.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    InvoiceItems: {
+                        create: expect.arrayContaining([
+                            expect.objectContaining({ unitPrice: 50 }),
+                        ]),
+                    },
+                }),
+            }),
+        );
+    });
+
+    it('creates invoice with empty InvoiceItems when order has no OrderItems', async () => {
+        const mockOrder = { id: 'order-1', status: OrderStatus.Pending, OrderItems: [] };
+
+        const db = makeDb({
+            order: {
+                findUnique: vi.fn().mockResolvedValue(mockOrder),
+                findUniqueOrThrow: vi.fn().mockResolvedValue({ status: OrderStatus.Pending }),
+                update: vi.fn().mockResolvedValue(mockOrder),
+            },
+            invoice: { create: vi.fn().mockResolvedValue(mockInvoice) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await caller.create(baseInput);
+
+        expect(db.invoice.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    InvoiceItems: { create: [] },
+                }),
+            }),
+        );
+    });
+});
+
 // ─── invoice router: addPayment ──────────────────────────────────────────────
 
 describe('invoiceRouter.addPayment', () => {
