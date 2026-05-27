@@ -39,18 +39,3 @@ CREATE INDEX "OrderItemVersion_orderItemId_newStatus_idx" ON "OrderItemVersion"(
 
 -- CreateIndex
 CREATE INDEX "OrderItemVersion_orderId_changedAt_idx" ON "OrderItemVersion"("orderId", "changedAt");
-
--- AddForeignKey
-ALTER TABLE "OrderVersion" ADD CONSTRAINT "OrderVersion_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderVersion" ADD CONSTRAINT "OrderVersion_changedById_fkey" FOREIGN KEY ("changedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderItemVersion" ADD CONSTRAINT "OrderItemVersion_orderItemId_fkey" FOREIGN KEY ("orderItemId") REFERENCES "OrderItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderItemVersion" ADD CONSTRAINT "OrderItemVersion_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderItemVersion" ADD CONSTRAINT "OrderItemVersion_changedById_fkey" FOREIGN KEY ("changedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
