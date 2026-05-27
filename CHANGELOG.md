@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.2] - 2026-05-27
+
+### Fixed
+- Added JSDoc type annotations to `scripts/check-docs.js` so TypeScript strict-mode type-checking no longer fails with implicit `any` errors, unblocking production builds
+
 ## [0.2.5.1] - 2026-05-27
 
 ### Added
