@@ -19,6 +19,10 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
   - `src/server/api/routers/invoices/__tests__/invoice.test.ts` — `generateInvoiceNumber` (3), `formatItemDescription` (3), `addPayment` status logic (2), `getById` NOT_FOUND (1)
   - `src/server/api/routers/orders/__tests__/order.test.ts` — `updateStatus` cascade to items for Cancelled/Completed/Invoiced/Pending (4), `order.update` called correctly (1), `getByID` null for missing order (1)
   - Added `src/test/setup.ts` vitest setup file (mocks `~/server/db` and `~/server/auth` so router tests don't require real env vars)
+- **Partial (2026-05-26):** Added 61 total tests across 5 suites (includes above plus):
+  - `src/server/api/routers/orderItemVersions/__tests__/orderItemVersions.test.ts` — `getStatusHistory` and `getByOrderId` procedure coverage
+  - `src/server/api/routers/orderItems/__tests__/orderItem.test.ts` — `updateStatus` version write instrumentation
+  - `src/server/api/routers/shared/__tests__/createVersion.test.ts` — `buildChangedFields`, `createOrderVersion`, `createOrderItemVersion` unit coverage
   - Remaining: QB sync integration tests, component tests for order creation/invoice generation
 
 ### P2 — README.md Cleanup

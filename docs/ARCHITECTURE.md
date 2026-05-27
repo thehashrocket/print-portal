@@ -27,7 +27,7 @@
 ## Directory Layout
 
 ```
-luxembourg-v3/
+missoula-v2/
 ├── prisma/
 │   ├── schema.prisma          # 38 models, 22 enums
 │   ├── seed.ts                # Database seeding
@@ -56,7 +56,7 @@ luxembourg-v3/
 │   ├── lib/                   # Utility libraries
 │   ├── server/
 │   │   ├── api/
-│   │   │   ├── root.ts        # 32 tRPC routers aggregated
+│   │   │   ├── root.ts        # 33 tRPC routers aggregated
 │   │   │   ├── trpc.ts        # tRPC context & procedures
 │   │   │   └── routers/       # Individual router modules
 │   │   ├── auth.ts            # NextAuth configuration
@@ -68,14 +68,14 @@ luxembourg-v3/
 │   ├── types/                 # TypeScript type declarations
 │   └── utils/                 # Helper functions
 ├── next.config.js             # Turbopack, image remotes, externals
-├── package.json               # v0.1.10.0, scripts, dependencies
+├── package.json               # v0.2.0.0, scripts, dependencies
 ├── .nvmrc                     # Node 24.2.0
 └── start-database.sh          # Docker PostgreSQL launcher
 ```
 
 ## Data Model Overview
 
-38 Prisma models organized by domain. See `prisma/schema.prisma` for full definitions. For visual data flows, see [SYSTEM_DIAGRAM.md](./SYSTEM_DIAGRAM.md).
+40 Prisma models organized by domain. See `prisma/schema.prisma` for full definitions. For visual data flows, see [SYSTEM_DIAGRAM.md](./SYSTEM_DIAGRAM.md).
 
 ### Core Business (Orders & Work Orders)
 
@@ -93,6 +93,8 @@ luxembourg-v3/
 | `OrderNote` | Notes/comments on an order |
 | `OrderItemStock` | Paper stock tracking for order items |
 | `OrderPayment` | Payment records against an order |
+| `OrderVersion` | Audit trail for order status changes (who, when, previous/new status) |
+| `OrderItemVersion` | Audit trail for order item status changes (who, when, previous/new status) |
 | `OutsourcedOrderItemInfo` | Tracking info for items sent to external vendors |
 | `OutsourcedOrderItemInfoFile` | File attachments for outsourced items |
 
@@ -144,7 +146,7 @@ luxembourg-v3/
 
 `AddressType`, `BindingType`, `FileType`, `InvoicePrintEmailOptions`, `InvoiceStatus`, `OrderStatus`, `OrderItemStatus`, `PaperBrand`, `PaperType`, `PaperFinish`, `PaymentMethod`, `PaymentStatus`, `PermissionName`, `ProofMethod`, `RoleName`, `ShippingMethod`, `ShippingType`, `StaticRoles`, `StockStatus`, `TypesettingStatus`, `WorkOrderItemStatus`, `WorkOrderStatus`
 
-## tRPC Routers (32)
+## tRPC Routers (33)
 
 | Router Key | Module Path | Domain |
 |-----------|-------------|--------|
@@ -155,11 +157,11 @@ luxembourg-v3/
 | `offices` | `offices/office` | Customers |
 | `orders` | `orders/order` | Orders |
 | `orderItems` | `orderItems/orderItem` | Orders |
+| `orderItemVersions` | `orderItemVersions/index` | Orders |
 | `orderItemStocks` | `orderItemStocks/orderItemStock` | Orders |
 | `orderNotes` | `orders/orderNotes` | Orders |
 | `orderPayments` | `orderPayments/orderPayment` | Billing |
 | `paperProducts` | `shared/paperProducts/paperProducts` | Production |
-| `post` | `post` | System |
 | `processingOptions` | `shared/processingOptions` | Production |
 | `productTypes` | `shared/productTypes/productType` | Production |
 | `qbAuth` | `quickbooks/qbAuth` | QuickBooks |

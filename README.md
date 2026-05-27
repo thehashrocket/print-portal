@@ -103,7 +103,7 @@ src/
 │   ├── users/           # User + role management
 │   └── workOrders/      # Work order management + typesetting
 ├── server/
-│   ├── api/             # 32 tRPC routers
+│   ├── api/             # 33 tRPC routers
 │   ├── auth.ts          # NextAuth config
 │   └── db.ts            # Prisma client singleton
 ├── services/            # QuickBooks OAuth + API service
@@ -115,7 +115,7 @@ src/
 
 ## Data Model
 
-38 Prisma models, 22 enums. Core models:
+40 Prisma models, 22 enums. Core models:
 
 - **WorkOrder** → **Order** → **OrderItem** (with `OrderItemArtwork`, `OrderItemStock`)
 - **Typesetting** → **TypesettingProof** → **TypesettingOption**
