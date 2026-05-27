@@ -101,6 +101,12 @@ a sandbox company) and OAuth token management in fixtures.
 - Automated check that cross-reference links in documentation files resolve
 - Verify model/router counts match source files
 - Lint markdown files for formatting consistency
+- **Completed (2026-05-27):** Added `scripts/check-docs.js` + `pnpm check:docs` script. CI step added to `ci.yml`. Validates: (1) all relative markdown links in `docs/` resolve, (2) Prisma model/enum counts in `docs/ARCHITECTURE.md` match `schema.prisma`, (3) tRPC router count matches `root.ts`. Fixed 3 stale count claims in ARCHITECTURE.md (38→39 models, 40→39 Prisma models, 32→33 routers) and added missing `orderVersions` router to table. Markdown lint deferred — separate TODO.
+
+### P3 — Markdown Lint (deferred from CI/CD Documentation Validation)
+Adding `markdownlint-cli` requires fixing existing violations across all docs before CI goes green. Low urgency.
+- **Action:** Add `markdownlint-cli` as devDep. Run against `docs/` to inventory violations. Fix and add `check:lint-docs` CI step.
+- **Depends on:** Nothing — but expect 30-60min to resolve existing formatting issues.
 
 ### Type Safety Improvements
 - Audit `as unknown as` and other type assertions — **Partial (2026-04-21):** Removed `as unknown as` from `upload/route.ts` (replaced with `instanceof File` guard) and `OrderItemPrintPreview.tsx` (downgraded to single-step `as Record<string, unknown>`). The `db.ts` usage is standard T3 `globalThis` boilerplate, acceptable as-is.

@@ -29,7 +29,7 @@
 ```
 irvine-v4/
 ├── prisma/
-│   ├── schema.prisma          # 38 models, 22 enums
+│   ├── schema.prisma          # 39 models, 22 enums
 │   ├── seed.ts                # Database seeding
 │   ├── import-quickbooks.js   # QB data import
 │   └── import-compass-health-locations.js
@@ -75,7 +75,7 @@ irvine-v4/
 
 ## Data Model Overview
 
-40 Prisma models organized by domain. See `prisma/schema.prisma` for full definitions. For visual data flows, see [SYSTEM_DIAGRAM.md](./SYSTEM_DIAGRAM.md).
+39 Prisma models organized by domain. See `prisma/schema.prisma` for full definitions. For visual data flows, see [SYSTEM_DIAGRAM.md](./SYSTEM_DIAGRAM.md).
 
 ### Core Business (Orders & Work Orders)
 
@@ -146,7 +146,7 @@ irvine-v4/
 
 `AddressType`, `BindingType`, `FileType`, `InvoicePrintEmailOptions`, `InvoiceStatus`, `OrderStatus`, `OrderItemStatus`, `PaperBrand`, `PaperType`, `PaperFinish`, `PaymentMethod`, `PaymentStatus`, `PermissionName`, `ProofMethod`, `RoleName`, `ShippingMethod`, `ShippingType`, `StaticRoles`, `StockStatus`, `TypesettingStatus`, `WorkOrderItemStatus`, `WorkOrderStatus`
 
-## tRPC Routers (32)
+## tRPC Routers (33)
 
 | Router Key | Module Path | Domain |
 |-----------|-------------|--------|
@@ -158,6 +158,7 @@ irvine-v4/
 | `orders` | `orders/order` | Orders |
 | `orderItems` | `orderItems/orderItem` | Orders |
 | `orderItemVersions` | `orderItemVersions/index` | Orders |
+| `orderVersions` | `orderVersions/index` | Orders |
 | `orderItemStocks` | `orderItemStocks/orderItemStock` | Orders |
 | `orderNotes` | `orders/orderNotes` | Orders |
 | `orderPayments` | `orderPayments/orderPayment` | Billing |

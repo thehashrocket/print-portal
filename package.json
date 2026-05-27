@@ -1,6 +1,6 @@
 {
   "name": "thomson-print-portal",
-  "version": "0.2.5.0",
+  "version": "0.2.5.1",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -31,7 +31,8 @@
     "setup-walk-in": "SKIP_ENV_VALIDATION=1 tsx scripts/create-walk-in-office.ts",
     "pretest": "prisma generate",
     "test": "vitest run",
-    "check:env": "node scripts/check-env.js"
+    "check:env": "node scripts/check-env.js",
+    "check:docs": "node scripts/check-docs.js"
   },
   "dependencies": {
     "@ag-grid-community/client-side-row-model": "^32.3.9",
