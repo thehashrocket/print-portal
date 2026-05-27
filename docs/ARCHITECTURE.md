@@ -27,7 +27,7 @@
 ## Directory Layout
 
 ```
-missoula-v2/
+irvine-v4/
 ├── prisma/
 │   ├── schema.prisma          # 38 models, 22 enums
 │   ├── seed.ts                # Database seeding
@@ -56,12 +56,12 @@ missoula-v2/
 │   ├── lib/                   # Utility libraries
 │   ├── server/
 │   │   ├── api/
-│   │   │   ├── root.ts        # 33 tRPC routers aggregated
+│   │   │   ├── root.ts        # 32 tRPC routers aggregated
 │   │   │   ├── trpc.ts        # tRPC context & procedures
 │   │   │   └── routers/       # Individual router modules
 │   │   ├── auth.ts            # NextAuth configuration
 │   │   └── db.ts              # Prisma client singleton
-│   ├── services/              # External service integrations (QuickBooks)
+│   ├── services/              # Business logic services (QuickBooks, workOrder conversion)
 │   ├── store/                 # Zustand stores
 │   ├── styles/                # Global CSS
 │   ├── trpc/                  # tRPC client setup (react.tsx)
@@ -146,7 +146,7 @@ missoula-v2/
 
 `AddressType`, `BindingType`, `FileType`, `InvoicePrintEmailOptions`, `InvoiceStatus`, `OrderStatus`, `OrderItemStatus`, `PaperBrand`, `PaperType`, `PaperFinish`, `PaymentMethod`, `PaymentStatus`, `PermissionName`, `ProofMethod`, `RoleName`, `ShippingMethod`, `ShippingType`, `StaticRoles`, `StockStatus`, `TypesettingStatus`, `WorkOrderItemStatus`, `WorkOrderStatus`
 
-## tRPC Routers (33)
+## tRPC Routers (32)
 
 | Router Key | Module Path | Domain |
 |-----------|-------------|--------|

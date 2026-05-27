@@ -1,11 +1,67 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { WorkOrderStatus, Prisma, type ShippingMethod } from "~/generated/prisma/client";
+import { WorkOrderStatus, type ShippingMethod } from "~/generated/prisma/client";
+import { Prisma } from "~/generated/prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder } from "~/types/serializedTypes";
-import { throwNotFound, throwUnauthorized } from "~/server/api/errors";
+import { throwNotFound } from "~/server/api/errors";
 import { calculateItemTotals } from "~/utils/orderCalculations";
+
+// Single source of truth for the full WorkOrder include shape.
+// Keeping this in one place prevents per-procedure drift (e.g. missing relations).
+const workOrderInclude = {
+  contactPerson: true,
+  createdBy: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  },
+  Office: {
+    include: {
+      Company: true,
+    },
+  },
+  Orders: true,
+  ShippingInfo: {
+    include: {
+      Address: true,
+      ShippingPickup: true,
+    },
+  },
+  WorkOrderItems: {
+    include: {
+      artwork: true,
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      Typesetting: {
+        include: {
+          TypesettingOptions: true,
+          TypesettingProofs: true,
+        },
+      },
+      ProcessingOptions: true,
+      ProductType: true,
+      ShippingInfo: {
+        include: {
+          Address: true,
+          ShippingPickup: true,
+        },
+      },
+      WorkOrderItemStock: true,
+    },
+  },
+  WorkOrderNotes: true,
+  WorkOrderVersions: true,
+  WalkInCustomer: true,
+} as const;
 
 export const workOrderRouter = createTRPCRouter({
   getByID: protectedProcedure
@@ -13,52 +69,7 @@ export const workOrderRouter = createTRPCRouter({
     .query(async ({ ctx, input }): Promise<SerializedWorkOrder | null> => {
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: input },
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              WorkOrderItemStock: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
-          WalkInCustomer: true,
-        },
+        include: workOrderInclude,
       });
 
       if (!workOrder) return null;
@@ -97,10 +108,6 @@ export const workOrderRouter = createTRPCRouter({
       walkInCustomerId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session?.user?.id) {
-        throwUnauthorized();
-      }
-
       const data: Prisma.WorkOrderCreateInput = {
         dateIn: input.dateIn,
         inHandsDate: input.inHandsDate,
@@ -152,57 +159,13 @@ export const workOrderRouter = createTRPCRouter({
   getAll: protectedProcedure
     .query(async ({ ctx }): Promise<SerializedWorkOrder[]> => {
       const workOrders = await ctx.db.workOrder.findMany({
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
-        },
+        include: workOrderInclude,
       });
 
       return Promise.all(workOrders.map(async workOrder => {
         const { totalItemAmount, totalCost, totalShippingAmount, calculatedSalesTax, calculatedSubTotal, totalAmount } = calculateItemTotals(workOrder.WorkOrderItems);
 
-        const normalized = normalizeWorkOrder({
+        return normalizeWorkOrder({
           ...workOrder,
           calculatedSalesTax,
           calculatedSubTotal,
@@ -211,8 +174,6 @@ export const workOrderRouter = createTRPCRouter({
           totalItemAmount,
           totalShippingAmount,
         });
-        return normalized;
-
       }));
     }),
 
@@ -225,54 +186,9 @@ export const workOrderRouter = createTRPCRouter({
       const updatedWorkOrder = await ctx.db.workOrder.update({
         where: { id: input.id },
         data: { status: input.status },
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
-        },
+        include: workOrderInclude,
       });
 
-      // If the status is 'Cancelled', update the work order items to 'Cancelled'
       if (input.status === 'Cancelled') {
         await ctx.db.workOrderItem.updateMany({
           where: { workOrderId: updatedWorkOrder.id },
@@ -304,51 +220,7 @@ export const workOrderRouter = createTRPCRouter({
         data: {
           ShippingInfo: { connect: { id: input.shippingInfoId } }
         },
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
-        },
+        include: workOrderInclude,
       });
 
       const { totalCost, totalItemAmount, calculatedSalesTax, totalShippingAmount, totalAmount, calculatedSubTotal } = calculateItemTotals(updatedWorkOrder.WorkOrderItems);
@@ -373,58 +245,7 @@ export const workOrderRouter = createTRPCRouter({
       await convertWorkOrderToOrder(input.id, input.officeId);
       const fullWorkOrder = await ctx.db.workOrder.findUnique({
         where: { id: input.id },
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: {
-            include: {
-              Company: true,
-            },
-          },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
-            },
-          },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              ProductType: true,
-              ShippingInfo: {
-                include: {
-                  Address: true,
-                  ShippingPickup: true,
-                },
-              },
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
-          WalkInCustomer: true,
-        },
+        include: workOrderInclude,
       });
       if (!fullWorkOrder) {
         throwNotFound("Work order");
@@ -480,7 +301,6 @@ export const workOrderRouter = createTRPCRouter({
       }),
     }))
     .mutation(async ({ ctx, input }) => {
-
       const { workOrderId, shippingInfo } = input;
       const workOrder = await ctx.db.workOrder.findUnique({
         where: { id: workOrderId },
@@ -490,6 +310,15 @@ export const workOrderRouter = createTRPCRouter({
       if (!workOrder) {
         throwNotFound("Work order");
       }
+
+      const pickupCreateData = shippingInfo.ShippingPickup ? {
+        pickupDate: shippingInfo.ShippingPickup.pickupDate,
+        pickupTime: shippingInfo.ShippingPickup.pickupTime,
+        contactName: shippingInfo.ShippingPickup.contactName,
+        contactPhone: shippingInfo.ShippingPickup.contactPhone,
+        notes: shippingInfo.ShippingPickup.notes,
+        createdById: ctx.session.user.id,
+      } : undefined;
 
       return await ctx.db.workOrder.update({
         where: { id: workOrderId },
@@ -507,12 +336,7 @@ export const workOrderRouter = createTRPCRouter({
                 createdById: ctx.session.user.id,
                 officeId: workOrder.officeId,
                 trackingNumber: shippingInfo.trackingNumber || [],
-                ShippingPickup: shippingInfo.ShippingPickup ? {
-                  create: {
-                    ...shippingInfo.ShippingPickup,
-                    createdById: ctx.session.user.id,
-                  }
-                } : undefined
+                ShippingPickup: pickupCreateData ? { create: pickupCreateData } : undefined,
               },
               update: {
                 addressId: shippingInfo.addressId,
@@ -523,56 +347,16 @@ export const workOrderRouter = createTRPCRouter({
                 shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
                 shippingOther: shippingInfo.shippingOther,
                 trackingNumber: shippingInfo.trackingNumber || [],
-                ShippingPickup: shippingInfo.ShippingPickup ? {
-                  create: {
-                    ...shippingInfo.ShippingPickup,
-                    createdById: ctx.session.user.id,
-                  }
-                } : undefined
-              }
-            }
-          }
-        },
-        include: {
-          contactPerson: true,
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          Office: { include: { Company: true } },
-          Orders: true,
-          ShippingInfo: {
-            include: {
-              Address: true,
-              ShippingPickup: true,
+                // deleteMany clears existing pickups before creating the new one,
+                // preventing duplicate ShippingPickup rows on repeated saves.
+                ShippingPickup: pickupCreateData
+                  ? { deleteMany: {}, create: pickupCreateData }
+                  : { deleteMany: {} },
+              },
             },
           },
-          WorkOrderItems: {
-            include: {
-              artwork: true,
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              },
-              Typesetting: {
-                include: {
-                  TypesettingOptions: true,
-                  TypesettingProofs: true,
-                }
-              },
-              ProcessingOptions: true,
-              WorkOrderItemStock: true,
-            },
-          },
-          WorkOrderNotes: true,
-          WorkOrderVersions: true,
         },
+        include: workOrderInclude,
       });
     }),
 });
