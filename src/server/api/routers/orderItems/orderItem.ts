@@ -4,7 +4,7 @@ import { OrderItemStatus, ShippingMethod, type Prisma } from "~/generated/prisma
 import { sendOrderStatusEmail } from "~/utils/sengrid";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
 import { normalizeOrderItem } from "~/utils/dataNormalization";
-import { createOrderItemVersion } from "../shared/createVersion";
+import { createOrderItemVersion, buildChangedFields } from "../shared/createVersion";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),
@@ -334,10 +334,28 @@ export const orderItemRouter = createTRPCRouter({
             description: z.string()
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.orderItem.update({
+            const existing = await ctx.db.orderItem.findUniqueOrThrow({
                 where: { id: input.id },
-                data: { description: input.description }
+                select: { description: true, orderId: true },
             });
+            const updated = await ctx.db.orderItem.update({
+                where: { id: input.id },
+                data: { description: input.description },
+            });
+            const changedFields = buildChangedFields(
+                { description: existing.description },
+                { description: input.description },
+            );
+            if (changedFields) {
+                await createOrderItemVersion({
+                    db: ctx.db,
+                    orderItemId: input.id,
+                    orderId: existing.orderId,
+                    changedById: ctx.session.user.id,
+                    changedFields,
+                });
+            }
+            return updated;
         }),
     updateSpecialInstructions: protectedProcedure
         .input(z.object({
@@ -345,10 +363,28 @@ export const orderItemRouter = createTRPCRouter({
             specialInstructions: z.string()
         }))
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.orderItem.update({
+            const existing = await ctx.db.orderItem.findUniqueOrThrow({
                 where: { id: input.id },
-                data: { specialInstructions: input.specialInstructions }
+                select: { specialInstructions: true, orderId: true },
             });
+            const updated = await ctx.db.orderItem.update({
+                where: { id: input.id },
+                data: { specialInstructions: input.specialInstructions },
+            });
+            const changedFields = buildChangedFields(
+                { specialInstructions: existing.specialInstructions },
+                { specialInstructions: input.specialInstructions },
+            );
+            if (changedFields) {
+                await createOrderItemVersion({
+                    db: ctx.db,
+                    orderItemId: input.id,
+                    orderId: existing.orderId,
+                    changedById: ctx.session.user.id,
+                    changedFields,
+                });
+            }
+            return updated;
         }),
     updateStatus: protectedProcedure
         .input(z.object({
@@ -469,11 +505,15 @@ export const orderItemRouter = createTRPCRouter({
             })
         }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.orderItem.findUniqueOrThrow({
+                where: { id: input.id },
+                select: { quantity: true, ink: true, size: true, productTypeId: true, cost: true, amount: true, orderId: true },
+            });
             const data = {
                 ...input.data,
                 ...(input.data.size !== undefined && { size: input.data.size.trim() || null }),
             };
-            return ctx.db.orderItem.update({
+            const updated = await ctx.db.orderItem.update({
                 where: { id: input.id },
                 data,
                 include: {
@@ -494,6 +534,20 @@ export const orderItemRouter = createTRPCRouter({
                     OrderItemStock: true,
                 }
             });
+            const changedFields = buildChangedFields<Record<string, unknown>>(
+                { quantity: existing.quantity, ink: existing.ink, size: existing.size, productTypeId: existing.productTypeId, cost: existing.cost, amount: existing.amount },
+                input.data,
+            );
+            if (changedFields) {
+                await createOrderItemVersion({
+                    db: ctx.db,
+                    orderItemId: input.id,
+                    orderId: existing.orderId,
+                    changedById: ctx.session.user.id,
+                    changedFields,
+                });
+            }
+            return updated;
         }),
     updateShippingInfo: protectedProcedure
         .input(z.object({
@@ -521,12 +575,20 @@ export const orderItemRouter = createTRPCRouter({
             const orderItem = await ctx.db.orderItem.findUnique({
                 where: { id: input.orderItemId },
                 include: {
-                    Order: {
+                    Order: { select: { officeId: true } },
+                    ShippingInfo: {
                         select: {
-                            officeId: true
-                        }
-                    }
-                }
+                            shippingMethod: true,
+                            shippingCost: true,
+                            shippingDate: true,
+                            addressId: true,
+                            instructions: true,
+                            shippingNotes: true,
+                            trackingNumber: true,
+                            shippingOther: true,
+                        },
+                    },
+                },
             });
 
             if (!orderItem?.Order) {
@@ -639,6 +701,28 @@ export const orderItemRouter = createTRPCRouter({
                     }
                 }
             });
+
+            const before = orderItem.ShippingInfo ?? {};
+            const after = {
+                shippingMethod: shippingInfo.shippingMethod,
+                shippingCost: shippingInfo.shippingCost,
+                shippingDate: shippingInfo.shippingDate,
+                addressId: shippingInfo.addressId,
+                instructions: shippingInfo.instructions,
+                shippingNotes: shippingInfo.shippingNotes,
+                trackingNumber: shippingInfo.trackingNumber,
+                shippingOther: shippingInfo.shippingOther,
+            };
+            const changedFields = buildChangedFields(before, after);
+            if (changedFields) {
+                await createOrderItemVersion({
+                    db: ctx.db,
+                    orderItemId: input.orderItemId,
+                    orderId: orderItem.orderId,
+                    changedById: ctx.session.user.id,
+                    changedFields,
+                });
+            }
 
             return updatedOrderItem;
         }),
