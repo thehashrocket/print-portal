@@ -41,18 +41,23 @@ function makeWorkOrder(overrides: Record<string, any> = {}) {
 }
 
 function makeDb(overrides: Record<string, any> = {}) {
+    const workOrderMock = {
+        findUnique: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
+        update: vi.fn().mockResolvedValue(makeWorkOrder()),
+        create: vi.fn().mockResolvedValue(makeWorkOrder()),
+        ...overrides.workOrder,
+    };
+    const workOrderItemMock = {
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+        ...overrides.workOrderItem,
+    };
     return {
-        workOrder: {
-            findUnique: vi.fn().mockResolvedValue(null),
-            findMany: vi.fn().mockResolvedValue([]),
-            update: vi.fn().mockResolvedValue(makeWorkOrder()),
-            create: vi.fn().mockResolvedValue(makeWorkOrder()),
-            ...overrides.workOrder,
-        },
-        workOrderItem: {
-            updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            ...overrides.workOrderItem,
-        },
+        workOrder: workOrderMock,
+        workOrderItem: workOrderItemMock,
+        $transaction: vi.fn((fn: (tx: any) => Promise<any>) =>
+            fn({ workOrder: workOrderMock, workOrderItem: workOrderItemMock }),
+        ),
     };
 }
 
@@ -271,7 +276,7 @@ describe('workOrderRouter.updateShippingInfo', () => {
     const baseShippingInput = {
         workOrderId: 'wo-1',
         shippingInfo: {
-            shippingMethod: 'Ground',
+            shippingMethod: 'Delivery' as const,
         },
     };
 
@@ -309,7 +314,7 @@ describe('workOrderRouter.updateShippingInfo', () => {
         await caller.updateShippingInfo({
             workOrderId: 'wo-1',
             shippingInfo: {
-                shippingMethod: 'Ground',
+                shippingMethod: 'Delivery' as const,
                 ShippingPickup: {
                     pickupDate: new Date('2026-02-01'),
                     pickupTime: '09:00',

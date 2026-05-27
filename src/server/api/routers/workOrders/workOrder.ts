@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { WorkOrderStatus, type ShippingMethod } from "~/generated/prisma/client";
+import { WorkOrderStatus, WorkOrderItemStatus, ShippingMethod } from "~/generated/prisma/client";
 import { Prisma } from "~/generated/prisma/client";
 import { convertWorkOrderToOrder } from "~/services/workOrderToOrderService";
 import { normalizeWorkOrder } from "~/utils/dataNormalization";
@@ -183,18 +183,22 @@ export const workOrderRouter = createTRPCRouter({
       status: z.nativeEnum(WorkOrderStatus),
     }))
     .mutation(async ({ ctx, input }): Promise<SerializedWorkOrder> => {
-      const updatedWorkOrder = await ctx.db.workOrder.update({
-        where: { id: input.id },
-        data: { status: input.status },
-        include: workOrderInclude,
-      });
-
-      if (input.status === 'Cancelled') {
-        await ctx.db.workOrderItem.updateMany({
-          where: { workOrderId: updatedWorkOrder.id },
-          data: { status: 'Cancelled' },
+      const updatedWorkOrder = await ctx.db.$transaction(async (tx) => {
+        const workOrder = await tx.workOrder.update({
+          where: { id: input.id },
+          data: { status: input.status },
+          include: workOrderInclude,
         });
-      }
+
+        if (input.status === 'Cancelled') {
+          await tx.workOrderItem.updateMany({
+            where: { workOrderId: workOrder.id },
+            data: { status: WorkOrderItemStatus.Cancelled },
+          });
+        }
+
+        return workOrder;
+      });
 
       const { totalCost, totalItemAmount, calculatedSalesTax, totalShippingAmount, calculatedSubTotal, totalAmount } = calculateItemTotals(updatedWorkOrder.WorkOrderItems);
 
@@ -287,7 +291,7 @@ export const workOrderRouter = createTRPCRouter({
         shippingCost: z.number().optional(),
         shippingDate: z.date().optional(),
         shippingNotes: z.string().optional(),
-        shippingMethod: z.string(),
+        shippingMethod: z.nativeEnum(ShippingMethod),
         shippingOther: z.string().optional(),
         trackingNumber: z.array(z.string()).optional(),
         ShippingPickup: z.object({
@@ -331,7 +335,7 @@ export const workOrderRouter = createTRPCRouter({
                 shippingCost: shippingInfo.shippingCost,
                 shippingDate: shippingInfo.shippingDate,
                 shippingNotes: shippingInfo.shippingNotes,
-                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                shippingMethod: shippingInfo.shippingMethod,
                 shippingOther: shippingInfo.shippingOther,
                 createdById: ctx.session.user.id,
                 officeId: workOrder.officeId,
@@ -344,7 +348,7 @@ export const workOrderRouter = createTRPCRouter({
                 shippingCost: shippingInfo.shippingCost,
                 shippingDate: shippingInfo.shippingDate,
                 shippingNotes: shippingInfo.shippingNotes,
-                shippingMethod: shippingInfo.shippingMethod as ShippingMethod,
+                shippingMethod: shippingInfo.shippingMethod,
                 shippingOther: shippingInfo.shippingOther,
                 trackingNumber: shippingInfo.trackingNumber || [],
                 // deleteMany clears existing pickups before creating the new one,
