@@ -77,6 +77,18 @@ Error handling varies across routers — some throw TRPCError with codes, others
 
 ## Planned Improvements
 
+### P3 — QB Sandbox Integration Tests
+Unit tests with mocked axios verify error paths and payload shape. They do NOT
+verify that the QB API actually accepts our payload. True integration tests
+require QB credentials in CI (QB_CLIENT_ID, QB_CLIENT_SECRET, QB_REALM_ID from
+a sandbox company) and OAuth token management in fixtures.
+- **Action:** Add QB sandbox credentials to CI secrets. Write integration test
+  suite that hits the QB sandbox API for: create invoice, sync invoice, create
+  customer. Verify round-trip (create in our DB → push to QB → QB returns valid ID).
+- **Depends on:** CI environment setup, QB sandbox company with valid credentials.
+- **Note:** Low urgency — unit tests cover the error-path risk. Integrate before
+  multi-tenant expansion where QB sync failures affect multiple customers.
+
 ### Test Coverage (linked to [ROADMAP.md](./docs/ROADMAP.md))
 - Unit tests for tRPC routers (input validation, business logic)
 - Integration tests for QuickBooks sync flow
