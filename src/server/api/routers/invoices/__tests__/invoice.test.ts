@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { Prisma, InvoiceStatus, PaymentMethod } from '~/generated/prisma/client';
+import { Prisma, InvoiceStatus, OrderStatus, PaymentMethod } from '~/generated/prisma/client';
 import { generateInvoiceNumber, formatItemDescription } from '../invoice';
 import { createCallerFactory } from '~/server/api/trpc';
 import { invoiceRouter } from '../invoice';
@@ -30,12 +30,17 @@ function makeDb(overrides: Record<string, any> = {}) {
         },
         order: {
             findUnique: vi.fn().mockResolvedValue(null),
+            findUniqueOrThrow: vi.fn().mockResolvedValue({ status: 'Pending' }),
             update: vi.fn(),
             ...overrides.order,
         },
         invoicePayment: {
             create: vi.fn(),
             ...overrides.invoicePayment,
+        },
+        orderVersion: {
+            create: vi.fn().mockResolvedValue({}),
+            ...overrides.orderVersion,
         },
     };
 }
@@ -107,6 +112,59 @@ describe('formatItemDescription', () => {
         expect(result).toContain('Processing: Die cut');
         expect(result).toContain('Typesetting: Full layout');
         expect(result).toContain('Quantity: 500');
+    });
+});
+
+// ─── invoice router: create ──────────────────────────────────────────────────
+
+describe('invoiceRouter.create — OrderVersion', () => {
+    const baseInput = {
+        orderId: 'order-1',
+        dateIssued: new Date('2026-01-01'),
+        dateDue: new Date('2026-02-01'),
+        subtotal: 100,
+        taxRate: 0.08,
+        taxAmount: 8,
+        total: 108,
+        status: InvoiceStatus.Sent,
+        items: [],
+    };
+
+    it('creates an OrderVersion record with newStatus Invoiced', async () => {
+        const mockOrder = { id: 'order-1', status: OrderStatus.Pending, OrderItems: [] };
+        const mockInvoice = { id: 'inv-1', InvoiceItems: [], InvoicePayments: [], Order: { Office: { Company: {} } }, createdBy: {} };
+        const db = makeDb({
+            order: {
+                findUnique: vi.fn().mockResolvedValue(mockOrder),
+                findUniqueOrThrow: vi.fn().mockResolvedValue({ status: OrderStatus.Pending }),
+                update: vi.fn().mockResolvedValue(mockOrder),
+            },
+            invoice: { create: vi.fn().mockResolvedValue(mockInvoice) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await caller.create(baseInput);
+
+        expect(db.orderVersion.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    orderId: 'order-1',
+                    changedById: 'user-1',
+                    previousStatus: OrderStatus.Pending,
+                    newStatus: OrderStatus.Invoiced,
+                }),
+            }),
+        );
+    });
+
+    it('throws NOT_FOUND when the order does not exist', async () => {
+        const notFound = new TRPCError({ code: 'NOT_FOUND', message: 'Record not found' });
+        const db = makeDb({
+            order: { findUniqueOrThrow: vi.fn().mockRejectedValue(notFound) },
+        });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+
+        await expect(caller.create(baseInput)).rejects.toMatchObject({ code: 'NOT_FOUND' });
     });
 });
 

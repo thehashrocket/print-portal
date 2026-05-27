@@ -8,6 +8,7 @@ import {
 import { InvoiceStatus, OrderStatus, PaymentMethod } from "~/generated/prisma/client";
 import { throwNotFound } from "~/server/api/errors";
 import { normalizeInvoice, normalizeInvoicePayment } from "~/utils/dataNormalization";
+import { createOrderVersion } from "../shared/createVersion";
 
 
 export function formatItemDescription(item: any): string {
@@ -180,10 +181,23 @@ export const invoiceRouter = createTRPCRouter({
                 },
             });
 
+            const existingOrder = await ctx.db.order.findUniqueOrThrow({
+                where: { id: input.orderId },
+                select: { status: true },
+            });
+
             // Update order status to Invoiced
             await ctx.db.order.update({
                 where: { id: input.orderId },
                 data: { status: OrderStatus.Invoiced },
+            });
+
+            await createOrderVersion({
+                db: ctx.db,
+                orderId: input.orderId,
+                changedById: ctx.session.user.id,
+                previousStatus: existingOrder.status,
+                newStatus: OrderStatus.Invoiced,
             });
 
             return normalizeInvoice(invoice);

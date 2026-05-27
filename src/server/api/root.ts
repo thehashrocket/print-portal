@@ -30,6 +30,7 @@ import { workOrderItemRouter } from "./routers/workOrderItems/workOrderItem";
 import { workOrderNoteRouter } from "./routers/workOrders/workOrderNote";
 import { workOrderRouter } from "./routers/workOrders/workOrder";
 import { walkInCustomerRouter } from "./routers/walkInCustomers/walkInCustomer";
+import { orderItemVersionsRouter } from "./routers/orderItemVersions";
 /**
  * This is the primary router for your server.
  *
@@ -43,6 +44,7 @@ export const appRouter = createTRPCRouter({
   offices: officeRouter,
   orders: orderRouter,
   orderItems: orderItemRouter,
+  orderItemVersions: orderItemVersionsRouter,
   orderItemStocks: orderItemStockRouter,
   orderNotes: orderNoteRouter,
   orderPayments: orderPaymentRouter,

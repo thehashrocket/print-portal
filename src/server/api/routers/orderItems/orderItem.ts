@@ -4,6 +4,7 @@ import { OrderItemStatus, ShippingMethod, type Prisma } from "~/generated/prisma
 import { sendOrderStatusEmail } from "~/utils/sengrid";
 import { type SerializedOrderItem } from "~/types/serializedTypes";
 import { normalizeOrderItem } from "~/utils/dataNormalization";
+import { createOrderItemVersion } from "../shared/createVersion";
 
 const artworkSchema = z.object({
     fileUrl: z.string(),
@@ -357,6 +358,11 @@ export const orderItemRouter = createTRPCRouter({
             emailOverride: z.string().optional()
         }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.orderItem.findUniqueOrThrow({
+                where: { id: input.id },
+                select: { status: true, orderId: true },
+            });
+
             const updatedItem = await ctx.db.orderItem.update({
                 where: {
                     id: input.id,
@@ -371,6 +377,15 @@ export const orderItemRouter = createTRPCRouter({
                         },
                     },
                 },
+            });
+
+            await createOrderItemVersion({
+                db: ctx.db,
+                orderItemId: input.id,
+                orderId: existing.orderId,
+                changedById: ctx.session.user.id,
+                previousStatus: existing.status,
+                newStatus: input.status,
             });
 
             // If sendEmail is true and we have a contact email, send status update
