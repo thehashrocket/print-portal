@@ -7,7 +7,7 @@ import { TRPCError } from "@trpc/server";
 import { throwNotFound } from "~/server/api/errors";
 import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 import { calculateItemTotals } from "~/utils/orderCalculations";
-import { createOrderVersion } from "../shared/createVersion";
+import { createOrderVersion, buildChangedFields } from "../shared/createVersion";
 
 export const orderRouter = createTRPCRouter({
 
@@ -779,6 +779,11 @@ export const orderRouter = createTRPCRouter({
       const { id, data } = input;
       const { deposit } = data;
 
+      const existing = await ctx.db.order.findUniqueOrThrow({
+        where: { id },
+        select: { deposit: true },
+      });
+
       const updatedOrder = await ctx.db.order.update({
         where: { id },
         data: { deposit },
@@ -856,6 +861,16 @@ export const orderRouter = createTRPCRouter({
         },
       });
 
+      const changedFields = buildChangedFields<Record<string, unknown>>({ deposit: existing.deposit }, { deposit });
+      if (changedFields) {
+        await createOrderVersion({
+          db: ctx.db,
+          orderId: id,
+          changedById: ctx.session.user.id,
+          changedFields,
+        });
+      }
+
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(updatedOrder.OrderItems, { filterCancelled: true });
       const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
       const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
@@ -897,10 +912,28 @@ export const orderRouter = createTRPCRouter({
       contactPersonId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.order.findUniqueOrThrow({
+        where: { id: input.orderId },
+        select: { contactPersonId: true },
+      });
+
       const updatedOrder = await ctx.db.order.update({
         where: { id: input.orderId },
         data: { contactPersonId: input.contactPersonId },
       });
+
+      const changedFields = buildChangedFields(
+        { contactPersonId: existing.contactPersonId },
+        { contactPersonId: input.contactPersonId },
+      );
+      if (changedFields) {
+        await createOrderVersion({
+          db: ctx.db,
+          orderId: input.orderId,
+          changedById: ctx.session.user.id,
+          changedFields,
+        });
+      }
 
       return updatedOrder;
     }),
@@ -927,21 +960,47 @@ export const orderRouter = createTRPCRouter({
       }),
     }))
     .mutation(async ({ ctx, input }) => {
-      console.log('Updating shipping info:', input);
-
       const { orderId, shippingInfo } = input;
 
       const order = await ctx.db.order.findUnique({
         where: { id: orderId },
-        select: { officeId: true },
+        select: {
+          officeId: true,
+          ShippingInfo: {
+            select: {
+              shippingMethod: true,
+              shippingCost: true,
+              shippingDate: true,
+              addressId: true,
+              instructions: true,
+              shippingNotes: true,
+              trackingNumber: true,
+              shippingOther: true,
+            },
+          },
+        },
       });
 
       if (!order) {
         throwNotFound("Order");
       }
 
+      const before = order?.ShippingInfo ?? {};
+      const after = {
+        shippingMethod: shippingInfo.shippingMethod,
+        shippingCost: shippingInfo.shippingCost,
+        shippingDate: shippingInfo.shippingDate,
+        addressId: shippingInfo.addressId,
+        instructions: shippingInfo.instructions,
+        shippingNotes: shippingInfo.shippingNotes,
+        trackingNumber: shippingInfo.trackingNumber,
+        shippingOther: shippingInfo.shippingOther,
+      };
+      const changedFields = buildChangedFields(before, after);
+
+      let updatedOrder;
       try {
-        const updatedOrder = await ctx.db.order.update({
+        updatedOrder = await ctx.db.order.update({
           where: { id: orderId },
           data: {
             ShippingInfo: {
@@ -1067,9 +1126,6 @@ export const orderRouter = createTRPCRouter({
             },
           },
         });
-
-        console.log('Order updated successfully:', updatedOrder);
-        return updatedOrder;
       } catch (error) {
         console.error('Error updating order:', error);
         throw new TRPCError({
@@ -1077,6 +1133,17 @@ export const orderRouter = createTRPCRouter({
           message: 'Failed to update shipping info',
         });
       }
+
+      if (changedFields) {
+        await createOrderVersion({
+          db: ctx.db,
+          orderId,
+          changedById: ctx.session.user.id,
+          changedFields,
+        });
+      }
+
+      return updatedOrder;
     }),
 
   updateStatus: protectedProcedure
@@ -1290,6 +1357,11 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, notes } = input;
 
+      const existing = await ctx.db.order.findUniqueOrThrow({
+        where: { id },
+        select: { notes: true },
+      });
+
       const updatedOrder = await ctx.db.order.update({
         where: { id: id },
         data: { notes: notes },
@@ -1372,6 +1444,16 @@ export const orderRouter = createTRPCRouter({
       const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
       const balance = totalAmount.sub(totalPaid);
 
+      const changedFields = buildChangedFields({ notes: existing.notes }, { notes });
+      if (changedFields) {
+        await createOrderVersion({
+          db: ctx.db,
+          orderId: id,
+          changedById: ctx.session.user.id,
+          changedFields,
+        });
+      }
+
       return normalizeOrder({
         ...updatedOrder,
         calculatedSalesTax,
@@ -1411,10 +1493,28 @@ export const orderRouter = createTRPCRouter({
       const { id, data } = input;
       const { purchaseOrderNumber, inHandsDate } = data;
 
+      const existing = await ctx.db.order.findUniqueOrThrow({
+        where: { id },
+        select: { purchaseOrderNumber: true, inHandsDate: true },
+      });
+
       const updatedOrder = await ctx.db.order.update({
         where: { id },
         data: { purchaseOrderNumber, inHandsDate },
       });
+
+      const changedFields = buildChangedFields(
+        { purchaseOrderNumber: existing.purchaseOrderNumber, inHandsDate: existing.inHandsDate },
+        { purchaseOrderNumber, inHandsDate },
+      );
+      if (changedFields) {
+        await createOrderVersion({
+          db: ctx.db,
+          orderId: id,
+          changedById: ctx.session.user.id,
+          changedFields,
+        });
+      }
 
       return updatedOrder;
     }),
