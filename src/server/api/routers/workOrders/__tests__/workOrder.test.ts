@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { WorkOrderStatus } from '~/generated/prisma/client';
+import { WorkOrderStatus, WorkOrderItemStatus } from '~/generated/prisma/client';
 import { TRPCError } from '@trpc/server';
 import { createCallerFactory } from '~/server/api/trpc';
 import { workOrderRouter } from '../workOrder';
@@ -41,18 +41,23 @@ function makeWorkOrder(overrides: Record<string, any> = {}) {
 }
 
 function makeDb(overrides: Record<string, any> = {}) {
+    const workOrderMock = {
+        findUnique: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
+        update: vi.fn().mockResolvedValue(makeWorkOrder()),
+        create: vi.fn().mockResolvedValue(makeWorkOrder()),
+        ...overrides.workOrder,
+    };
+    const workOrderItemMock = {
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+        ...overrides.workOrderItem,
+    };
     return {
-        workOrder: {
-            findUnique: vi.fn().mockResolvedValue(null),
-            findMany: vi.fn().mockResolvedValue([]),
-            update: vi.fn().mockResolvedValue(makeWorkOrder()),
-            create: vi.fn().mockResolvedValue(makeWorkOrder()),
-            ...overrides.workOrder,
-        },
-        workOrderItem: {
-            updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-            ...overrides.workOrderItem,
-        },
+        workOrder: workOrderMock,
+        workOrderItem: workOrderItemMock,
+        $transaction: vi.fn((fn: (tx: any) => Promise<any>) =>
+            fn({ workOrder: workOrderMock, workOrderItem: workOrderItemMock }),
+        ),
     };
 }
 
@@ -172,7 +177,7 @@ describe('workOrderRouter.updateStatus — Cancelled cascade', () => {
         await caller.updateStatus({ id: 'wo-1', status: WorkOrderStatus.Cancelled });
         expect(db.workOrderItem.updateMany).toHaveBeenCalledWith({
             where: { workOrderId: 'wo-1' },
-            data: { status: 'Cancelled' },
+            data: { status: WorkOrderItemStatus.Cancelled },
         });
     });
 
@@ -271,7 +276,7 @@ describe('workOrderRouter.updateShippingInfo', () => {
     const baseShippingInput = {
         workOrderId: 'wo-1',
         shippingInfo: {
-            shippingMethod: 'Ground',
+            shippingMethod: 'Delivery' as const,
         },
     };
 
@@ -309,7 +314,7 @@ describe('workOrderRouter.updateShippingInfo', () => {
         await caller.updateShippingInfo({
             workOrderId: 'wo-1',
             shippingInfo: {
-                shippingMethod: 'Ground',
+                shippingMethod: 'Delivery' as const,
                 ShippingPickup: {
                     pickupDate: new Date('2026-02-01'),
                     pickupTime: '09:00',
@@ -337,5 +342,16 @@ describe('workOrderRouter.updateShippingInfo', () => {
         const updateData = db.workOrder.update.mock.calls[0][0].data;
         const pickupInUpdate = updateData.ShippingInfo.upsert.update.ShippingPickup;
         expect(pickupInUpdate).toEqual({ deleteMany: {} });
+    });
+
+    it('rejects invalid shippingMethod values not in ShippingMethod enum', async () => {
+        const db = makeDb({ workOrder: { findUnique: vi.fn().mockResolvedValue({ officeId: 'office-1' }) } });
+        const caller = createCaller({ db: db as any, session: mockSession, headers: new Headers() });
+        await expect(
+            caller.updateShippingInfo({
+                workOrderId: 'wo-1',
+                shippingInfo: { shippingMethod: 'Ground' as any },
+            }),
+        ).rejects.toThrow();
     });
 });

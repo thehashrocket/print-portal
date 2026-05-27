@@ -68,10 +68,12 @@ Error handling varies across routers — some throw TRPCError with codes, others
 `updateStatus` in `workOrder.ts` runs two separate DB operations — `workOrder.update` then `workOrderItem.updateMany`. If the process fails between them, work order shows Cancelled but items retain their prior status (silent inconsistency).
 - **Action:** Wrap both operations in a `ctx.db.$transaction` call so they succeed or fail together.
 - **Note:** Pre-existing issue, low probability in single-tenant usage. Revisit before multi-tenant expansion.
+- **Completed:** 2026-05-26
 
 ### P3 — workOrderRouter: `shippingMethod` input should use `z.nativeEnum(ShippingMethod)`
 `updateShippingInfo` input schema uses `z.string()` for `shippingMethod` and casts with `as ShippingMethod` at two call sites (`workOrder.ts` lines 338, 352). The orders router uses `z.nativeEnum(ShippingMethod)` (correct pattern). Using `z.string()` allows invalid enum values through to a Prisma type cast with no runtime error.
 - **Action:** Import `ShippingMethod` enum value (not just the type) from `~/generated/prisma/client`, change `z.string()` to `z.nativeEnum(ShippingMethod)`, and remove both `as ShippingMethod` casts.
+- **Completed:** 2026-05-26 — Also removed redundant `as ShippingMethod` casts from `order.ts` (lines 953, 976) for consistency.
 
 ## Planned Improvements
 
