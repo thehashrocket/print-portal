@@ -15,7 +15,7 @@ const root = resolve(__dirname, "..");
 
 let exitCode = 0;
 
-function fail(msg) {
+function fail(/** @type {string} */ msg) {
   console.error(msg);
   exitCode = 1;
 }
@@ -82,7 +82,7 @@ if (routerMatches.length === 0) {
 
 // --- Resolve relative markdown links ---
 
-function collectMdFiles(dir, files = []) {
+function collectMdFiles(/** @type {string} */ dir, /** @type {string[]} */ files = []) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
