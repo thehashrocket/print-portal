@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.2.0] - 2026-05-26
+
+### Fixed
+- Work order `updateStatus` Cancelled cascade is now atomic: `workOrder.update` and `workOrderItem.updateMany` run inside a single `$transaction`, eliminating the silent inconsistency where a process crash between the two ops left the work order Cancelled but its items in their prior status
+- `updateShippingInfo` input schema now validates `shippingMethod` with `z.nativeEnum(ShippingMethod)` instead of `z.string()`, rejecting invalid enum values at the Zod layer before they reach Prisma; added `WorkOrderItemStatus` enum import so the Cancelled cascade uses the typed constant rather than a raw string literal
+- Removed redundant `as ShippingMethod` casts in `order.ts` (two sites) now that `z.nativeEnum` guarantees the correct type at the input boundary
+
 ## [0.2.1.0] - 2026-05-26
 
 ### Added
