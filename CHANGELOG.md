@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.1] - 2026-05-27
+
+### Added
+- `scripts/check-docs.js` — CI/CD documentation validation script that verifies Prisma model/enum counts and tRPC router count in `docs/ARCHITECTURE.md` match source files, and checks all relative markdown links in `docs/` resolve to existing files
+- `pnpm check:docs` script wired to the new validator
+- `Check docs` step added to `.github/workflows/ci.yml` — runs on every push and PR
+
+### Fixed
+- `docs/ARCHITECTURE.md` had three stale count claims: `38 models` (directory tree), `40 Prisma models` (prose), and `tRPC Routers (32)` (heading) — all corrected to reflect actual counts (39 models, 33 routers)
+- `orderVersions` router missing from tRPC routers table in `docs/ARCHITECTURE.md` — added
+
 ## [0.2.5.0] - 2026-05-27
 
 ### Added
