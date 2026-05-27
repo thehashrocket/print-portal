@@ -106,7 +106,7 @@ src/
 │   ├── api/             # 33 tRPC routers
 │   ├── auth.ts          # NextAuth config
 │   └── db.ts            # Prisma client singleton
-├── services/            # QuickBooks OAuth + API service
+├── services/            # Business logic services (QuickBooks OAuth, workOrder conversion)
 ├── hooks/               # Custom React hooks
 ├── store/               # Zustand global state
 ├── utils/               # Currency (Decimal.js), formatting, calculations
