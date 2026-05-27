@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.0] - 2026-05-27
+
+### Added
+- **Component test suites** for WorkOrderForm (9 tests) and InvoiceForm (8 tests) using jsdom + @testing-library/react — covers render, validation errors, walk-in customer toggle behavior, mutation chains, form pre-population from order items, and router redirect on success
+- `@testing-library/jest-dom`, `@testing-library/react`, `@testing-library/user-event`, and `jsdom` added as dev dependencies to support browser-environment component testing
+
+### Fixed
+- Vitest setup file now uses the Vitest-specific `@testing-library/jest-dom/vitest` import, ensuring jest-dom matchers are correctly registered against Vitest's `expect` regardless of global configuration
+
 ## [0.2.4.0] - 2026-05-26
 
 ### Added
