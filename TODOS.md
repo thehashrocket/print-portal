@@ -126,18 +126,10 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 - **Note:** Low urgency for current single-tenant scale; revisit before multi-tenant expansion or if `@@index` queries begin degrading.
 
 ### P3 — Version Tracking Phase 2: instrument non-status mutations with changedFields
-Phase 1 (PR #465) captures status transitions only. Phase 2 captures non-status field changes — deposit edits, notes updates, contact person changes, shipping updates, description changes, etc. The schema supports it: `changedFields Json?` exists on both `OrderVersion` and `OrderItemVersion`, and `buildChangedFields` is already implemented in `src/server/api/routers/shared/createVersion.ts`.
-- **Uninstrumented call sites (~10):** `order.ts` — `updateDeposit` (line 782), `updateContactPerson` (line 763), `updateNotes` (line 1293), `updatePurchaseOrderInfo` (line 1414), `updateShippingInfo` (line 133/944); `orderItem.ts` — `updateDescription` (line 337), `updateProofDescription` (line 348), `updateSpecialInstructions` (line ~355), `update` (line 431/476/595).
-- **Pattern:** Read the current record before update (already done at some sites), call `buildChangedFields(before, input.data)`, pass result to `createOrderVersion`/`createOrderItemVersion`.
-- **Why now:** The CSR audit trail use case ("who changed the deposit on order #1234?") is blocked on this. Wait until the audit timeline UI (see below) is being built — implement both together.
-- **Depends on:** Phase 1 instrumentation (complete), CSR audit timeline UI (below).
+- **Completed:** 2026-05-26 — Instrumented all 9 non-status mutation sites: `order.ts` (`updateDeposit`, `updateContactPerson`, `updateNotes`, `updateFields`, `updateShippingInfo`) and `orderItem.ts` (`updateDescription`, `updateSpecialInstructions`, `updateFields`, `updateShippingInfo`). Each fetches the current record before the update and calls `buildChangedFields(before, after)` to produce the diff. Also removed 2 stray `console.log` statements in `updateShippingInfo`.
 
 ### P3 — Version Tracking UI: CSR audit timeline
-`orderItemVersions.getStatusHistory` and `getByOrderId` tRPC procedures exist and return version data. No UI surfaces this to CSRs. The design doc called out "surface in a timeline UI later" as a secondary use case — CSRs seeing "who changed the deposit on order #1234 and when."
-- **Action:** Add a collapsible "History" section to the Order Detail page that renders a timeline of `OrderVersion` and `OrderItemVersion` records. Show: timestamp, changed-by user name, status transition (if any), and changed fields (from/to pairs).
-- **Design decisions needed first:** Where does it live in the order detail layout? Collapsed by default? Separate tab or inline? How verbose are field change labels (raw field name vs. human-readable)?
-- **Why now:** The data is being written. Build the UI once Phase 2 instrumentation is in place so the timeline shows both status transitions and field edits.
-- **Depends on:** Phase 2 instrumentation (above).
+- **Completed:** 2026-05-26 — Added `orderVersionsRouter` (`src/server/api/routers/orderVersions/index.ts`) with `getByOrderId` query. Added collapsible `OrderAuditTimeline` component (`src/app/_components/orders/OrderAuditTimeline/OrderAuditTimeline.tsx`) to Order Detail page. Timeline merges `OrderVersion` and `OrderItemVersion` records sorted by `changedAt`, showing timestamp, user, status transitions, and field-level from/to diffs. Lazy-loads on first expand.
 
 ## Deferred Work
 

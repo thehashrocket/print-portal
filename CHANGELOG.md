@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.4.0] - 2026-05-26
+
+### Added
+- **Change History timeline** on Order Detail page — CSRs can expand a collapsible panel to see a merged, chronological audit trail of every field change and status transition on an order and its line items
+- `orderVersionsRouter` (`getByOrderId`) — tRPC endpoint that returns `OrderVersion` records with the changing user's name, used to power the timeline UI
+- Non-status field change tracking for 5 order mutations (`updateDeposit`, `updateContactPerson`, `updateNotes`, `updateFields`, `updateShippingInfo`) and 4 order-item mutations (`updateDescription`, `updateSpecialInstructions`, `updateFields`, `updateShippingInfo`) — each now writes an `OrderVersion`/`OrderItemVersion` record with a before/after `changedFields` diff when the value actually changes
+
+### Fixed
+- Version write in `order.updateShippingInfo` no longer wraps `createOrderVersion` inside the try/catch that guards the DB update — a failing version write can no longer surface as a false shipping-update error to the client
+- No-op saves (user saves without changing a value) no longer write empty version rows: `createOrderVersion`/`createOrderItemVersion` are now guarded by `if (changedFields)` so audit rows are only created when a value actually changed
+- `OrderAuditTimeline` now shows a "Loading…" indicator while version data is fetching instead of prematurely showing "No change history recorded yet."
+- Fixed invalid HTML: `<h2>` inside `<button>` replaced with `<span>`; added `aria-expanded` to the toggle button for screen-reader accessibility
+- Field diff values of `null`/`undefined` now render as `—` instead of the literal strings `"null"`/`"undefined"`
+
 ## [0.2.3.0] - 2026-05-26
 
 ### Added
