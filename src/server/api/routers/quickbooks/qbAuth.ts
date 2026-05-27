@@ -21,7 +21,6 @@ export const qbAuthRouter = createTRPCRouter({
                 where: { id: ctx.session.user.id },
                 select: { quickbooksAccessToken: true, quickbooksTokenExpiry: true },
             });
-            console.log('User:', user);
             // Check if the token is expired
             const isTokenExpired = user?.quickbooksTokenExpiry && new Date() > user.quickbooksTokenExpiry;
             // If the token is expired, set quickbooksAccessToken, quickbooksRealmId, quickbooksRefreshToken, and quickbooksTokenExpiry to null
@@ -36,7 +35,6 @@ export const qbAuthRouter = createTRPCRouter({
                     }
                 });
             }
-            console.log('User after update:', user);
             return {
                 isAuthenticated: !!user?.quickbooksAccessToken && new Date() < user.quickbooksTokenExpiry!,
             };
@@ -65,7 +63,6 @@ export const qbAuthRouter = createTRPCRouter({
                         updatedAt: new Date(),
                     }
                 });
-                console.log('User authenticated with QuickBooks');
                 return { success: true, message: 'User authenticated with QuickBooks' };
             } catch (error) {
                 console.error('Error authenticating user with QuickBooks:', error);
@@ -78,8 +75,6 @@ export const qbAuthRouter = createTRPCRouter({
 
     getIntuitSignInUrl: protectedProcedure
         .mutation(async ({ }) => {
-            console.log('Getting Intuit sign-in URL');
-
             // https://appcenter.intuit.com/connect/oauth2?
             // client_id = <Client ID from developer portal >&
             // response_type=code &
@@ -94,8 +89,6 @@ export const qbAuthRouter = createTRPCRouter({
             const scope = 'com.intuit.quickbooks.accounting';
 
             const authUri = `https://appcenter.intuit.com/connect/oauth2?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
-
-            console.log('Generated Intuit sign-in URL:', authUri);
 
             return { signInUrl: authUri };
         }),
@@ -144,8 +137,6 @@ export const qbAuthRouter = createTRPCRouter({
                 const response = await axios.post(tokenEndpoint, data, config);
                 const tokenJson = response.data;
 
-                console.log('Token JSON:', tokenJson);
-
                 // Save tokens to your database here
                 await ctx.db.user.update({
                     where: { id: ctx.session.user.id },
@@ -173,14 +164,7 @@ export const qbAuthRouter = createTRPCRouter({
 
     initializeAuth: protectedProcedure
         .mutation(async ({  }) => {
-            console.log('Initializing QuickBooks auth');
-            console.log('QUICKBOOKS_CLIENT_ID:', process.env.QUICKBOOKS_CLIENT_ID);
-            console.log('QUICKBOOKS_CLIENT_SECRET:', process.env.QUICKBOOKS_CLIENT_SECRET ? '[REDACTED]' : 'Not set');
-            console.log('QUICKBOOKS_ENVIRONMENT:', process.env.QUICKBOOKS_ENVIRONMENT);
-            console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-
             const redirectUri = `${process.env.NEXTAUTH_URL}/api/quickbooks/callback`;
-            console.log('Redirect URI:', redirectUri);
 
             const oauthClient = new OAuthClient({
                 clientId: process.env.QUICKBOOKS_CLIENT_ID,
@@ -193,8 +177,6 @@ export const qbAuthRouter = createTRPCRouter({
                 scope: [OAuthClient.scopes.Accounting, OAuthClient.scopes.OpenId],
                 state: crypto.randomBytes(16).toString('hex'), // Consider generating a unique state for each request
             });
-
-            console.log('Generated authorization URL:', authUri);
 
             return { authorizationUrl: authUri };
         }),

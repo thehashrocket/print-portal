@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.3.0] - 2026-05-26
+
+### Added
+- QuickBooks router test suite: 30 tests across `qbCustomer`, `qbInvoice`, and `qbSyncCustomer` routers covering UNAUTHORIZED, NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR error paths and happy-path mutations
+- Invoice router: 3 additional tests for `InvoiceItems` mapping — unit price calculation from `amount/quantity`, division-by-zero guard when `quantity=0`, and empty `OrderItems` producing an empty `create` array
+
+### Fixed
+- Removed debug `console.log` statements from QB auth, customer, invoice, and sync-customer routers that were leaking OAuth access tokens, OAuth state parameters, and QuickBooks client credentials to server logs
+
+### Changed
+- TODOS.md: added P3 item tracking QB sandbox integration tests as a follow-up after multi-tenant expansion
+
 ## [0.2.2.0] - 2026-05-26
 
 ### Fixed
