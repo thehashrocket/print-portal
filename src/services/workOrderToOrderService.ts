@@ -4,79 +4,19 @@ import { normalizeWorkOrder } from "~/utils/dataNormalization";
 import { type SerializedWorkOrder, type SerializedWorkOrderItem } from "~/types/serializedTypes";
 import { db } from "~/server/db";
 
-const SALES_TAX = 0.07;
-
-interface CalculatedTotals {
-    totalCost: Prisma.Decimal;
-    totalItemAmount: Prisma.Decimal;
-    totalShippingAmount: Prisma.Decimal;
-    totalAmount: Prisma.Decimal;
-    calculatedSalesTax: Prisma.Decimal;
-    calculatedSubTotal: Prisma.Decimal;
-}
-
 export async function convertWorkOrderToOrder(
     workOrderId: string,
     officeId: string,
     prisma?: PrismaClient
-): Promise<SerializedWorkOrder & { Order: { id: string } }> {
+): Promise<void> {
     const client = prisma || db;
 
-    return await client.$transaction(async (tx) => {
+    await client.$transaction(async (tx) => {
         const workOrder = await getWorkOrder(tx, workOrderId);
         const order = await createOrder(tx, workOrder, officeId);
         await createOrderItems(tx, workOrder, order.id);
-        const updatedWorkOrder = await updateWorkOrder(tx, workOrderId, order.id);
-
-        // Calculate totals once using the updated work order items
-        const totals = calculateTotals(updatedWorkOrder.WorkOrderItems);
-
-        // Normalize the updated work order to ensure proper serialization
-        const normalizedWorkOrder = normalizeWorkOrder({
-            ...updatedWorkOrder,
-            ...totals,
-            Orders: [{ id: order.id }], // Use Orders array as expected by normalizeWorkOrder
-        });
-
-        return {
-            ...normalizedWorkOrder,
-            Order: { id: order.id }, // Add the Order property for the return type
-        };
+        await updateWorkOrder(tx, workOrderId, order.id);
     });
-}
-
-function calculateTotals(workOrderItems: Array<{
-    cost: Prisma.Decimal | null;
-    amount: Prisma.Decimal | null;
-    shippingAmount: Prisma.Decimal | null;
-}>): CalculatedTotals {
-    const totalCost = workOrderItems.reduce(
-        (sum, item) => sum.add(item.cost || new Prisma.Decimal(0)),
-        new Prisma.Decimal(0)
-    );
-
-    const totalItemAmount = workOrderItems.reduce(
-        (sum, item) => sum.add(item.amount || new Prisma.Decimal(0)),
-        new Prisma.Decimal(0)
-    );
-
-    const totalShippingAmount = workOrderItems.reduce(
-        (sum, item) => sum.add(item.shippingAmount || new Prisma.Decimal(0)),
-        new Prisma.Decimal(0)
-    );
-
-    const totalAmount = totalItemAmount.add(totalShippingAmount);
-    const calculatedSalesTax = totalItemAmount.mul(SALES_TAX);
-    const calculatedSubTotal = totalAmount.sub(calculatedSalesTax);
-
-    return {
-        totalCost,
-        totalItemAmount,
-        totalShippingAmount,
-        totalAmount,
-        calculatedSalesTax,
-        calculatedSubTotal,
-    };
 }
 
 async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): Promise<SerializedWorkOrder> {
@@ -135,22 +75,20 @@ async function getWorkOrder(tx: Prisma.TransactionClient, workOrderId: string): 
         });
     }
 
-    // Calculate totals for the work order
-    const totals = calculateTotals(workOrder.WorkOrderItems);
-
-    // Prepare the data for normalization
-    const workOrderData = {
+    return normalizeWorkOrder({
         ...workOrder,
-        ...totals,
-        Order: { id: workOrder.Orders?.[0]?.id ?? null },
+        totalAmount: null,
+        totalCost: null,
+        totalItemAmount: null,
+        calculatedSalesTax: null,
+        calculatedSubTotal: null,
+        totalShippingAmount: null,
         contactPerson: {
             id: workOrder.contactPerson?.id ?? '',
             name: workOrder.contactPerson?.name ?? null,
             email: workOrder.contactPerson?.email ?? null,
         },
-    };
-
-    return normalizeWorkOrder(workOrderData);
+    });
 }
 
 async function createOrder(tx: Prisma.TransactionClient, workOrder: SerializedWorkOrder, officeId: string) {
