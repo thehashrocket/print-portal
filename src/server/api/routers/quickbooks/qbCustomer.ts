@@ -340,12 +340,10 @@ export const qbCustomerRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const accessToken = await refreshTokenIfNeeded(ctx);
-            console.log('accessToken: ', accessToken);
             const user = await ctx.db.user.findUnique({
                 where: { id: ctx.session.user.id },
                 select: { quickbooksRealmId: true },
             });
-            console.log('user: ', user);
 
             if (!user?.quickbooksRealmId) {
                 throw new TRPCError({
@@ -353,13 +351,11 @@ export const qbCustomerRouter = createTRPCRouter({
                     message: 'Not authenticated with QuickBooks',
                 });
             }
-            console.log('user: ', user);
             // Fetch the company and office from our database
             const company = await ctx.db.company.findUnique({
                 where: { id: input.companyId },
                 include: { Offices: { include: { Addresses: true } } },
             });
-            console.log('company: ', company);
 
             if (!company || !company.quickbooksId || !company.syncToken) {
                 throw new TRPCError({
@@ -619,7 +615,6 @@ export const qbCustomerRouter = createTRPCRouter({
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
                     (qbCustomerData as any).Job = true;
                 }
-                console.log('qbCustomerData: ', qbCustomerData);
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {
@@ -648,7 +643,6 @@ export const qbCustomerRouter = createTRPCRouter({
 
             // Function to update a customer in QuickBooks
             async function updateCustomerInQB(customerData: any) {
-                console.log('Updating customer in QuickBooks: ', customerData);
                 if (!user) {
                     throw new TRPCError({
                         code: 'UNAUTHORIZED',
@@ -686,7 +680,6 @@ export const qbCustomerRouter = createTRPCRouter({
                     (qbCustomerData as any).ParentRef = customerData.ParentRef;
                     (qbCustomerData as any).Job = true;
                 }
-                console.log('qbCustomerData: ', qbCustomerData);
                 try {
                     const response = await axios.post(url, qbCustomerData, {
                         headers: {

@@ -21,7 +21,6 @@ async function fetchAllInvoices(ctx: any, accessToken: string, quickbooksRealmId
             'Accept': 'application/xml',
         }
     });
-    console.log(response.data);
 
     return response.data;
 };
@@ -50,7 +49,6 @@ async function fetchInvoicesForOffice(ctx: any, accessToken: string, quickbooksR
     const result = parser.parse(response.data);
     const invoices = result.IntuitResponse.QueryResponse.Invoice;
 
-    console.log('invoices', invoices);
     return invoices;
 }
 
@@ -401,7 +399,6 @@ export const qbInvoiceRouter = createTRPCRouter({
                     },
                 }
             );
-            console.log('response', response.data);
             return response.data;
 
         }),

@@ -24,7 +24,6 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
     const countUrl = `${baseUrl}/v3/company/${companyID}/query?query=${encodeURIComponent(countQuery)}`;
 
     try {
-        console.log('Fetching customer count...');
         const countResponse = await axios.get(countUrl, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -39,18 +38,13 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
         // </IntuitResponse>
         // Get the totalCount from the response
 
-        console.log('countResponse', countResponse.data);
-
         const parser = new XMLParser({
             ignoreAttributes: false,
             attributeNamePrefix: "",
             parseAttributeValue: true
         });
         const result = parser.parse(countResponse.data);
-        console.log('result', result);
         totalCount = result.IntuitResponse.QueryResponse.totalCount; // Accessing totalCount directly
-
-        console.log('totalCount', totalCount);
 
     } catch (error) {
         console.error('Error fetching customer count:', error);
@@ -61,11 +55,7 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
     }
 
     // Now fetch customers with pagination
-    console.log('startPosition', startPosition);
-    console.log('totalCount', totalCount);
     while (startPosition <= totalCount) {
-        console.log('startPosition', startPosition);
-        console.log('totalCount', totalCount);
         let query = `SELECT * FROM Customer WHERE Active IN (true, false)`;
         if (lastSyncTime) {
             query += ` AND Metadata.LastUpdatedTime > '${lastSyncTime}'`;
@@ -74,7 +64,6 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
         const url = `${baseUrl}/v3/company/${companyID}/query?query=${encodeURIComponent(query)}&startPosition=${startPosition}&maxResults=${pageSize}`;
 
         try {
-            console.log(`Fetching customers ${startPosition} to ${startPosition + pageSize - 1}...`);
             const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -90,7 +79,6 @@ async function fetchCustomers(ctx: any, accessToken: string, companyID: string, 
                     ? queryResponse.Customer
                     : [queryResponse.Customer];
 
-                console.log(`Processing ${customers.length} customers...`);
                 for (const customer of customers) {
                     await processAndSaveCustomer(ctx, customer);
                 }
@@ -268,7 +256,6 @@ export const qbSyncCustomerRouter = createTRPCRouter({
             pageSize: z.number().min(1).max(1000).default(100),
         }))
         .query(async ({ ctx, input }) => {
-            console.log('Starting customer sync...');
             const accessToken = await refreshTokenIfNeeded(ctx);
             const user = await ctx.db.user.findUnique({
                 where: { id: ctx.session.user.id },
@@ -282,10 +269,8 @@ export const qbSyncCustomerRouter = createTRPCRouter({
                 });
             }
 
-            console.log('Fetching and processing customers...');
             const lastSyncTime = input.lastSyncTime ? new Date(input.lastSyncTime).toISOString() : undefined;
             const customers = await fetchCustomers(ctx, accessToken, user.quickbooksRealmId, input.pageSize, lastSyncTime);
-            console.log(`Sync complete. Total customers processed: ${customers.length}`);
             return {
                 totalCustomers: customers.length,
                 message: `Successfully synced ${customers.length} customers from QuickBooks.`,
