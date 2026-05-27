@@ -168,6 +168,8 @@ model Order {
   OrderNotes          OrderNote[]
   OrderPayments       OrderPayment[]
   WalkInCustomer      WalkInCustomer?          @relation(fields: [walkInCustomerId], references: [id])
+  OrderVersions       OrderVersion[]
+  OrderItemVersions   OrderItemVersion[]       @relation("OrderItemVersionOrder")
 }
 
 model OrderItem {
@@ -206,6 +208,7 @@ model OrderItem {
   ProcessingOptions       ProcessingOptions[]
   Typesetting             Typesetting[]
   OutsourcedOrderItemInfo OutsourcedOrderItemInfo[]
+  OrderItemVersions       OrderItemVersion[]
 }
 
 model OrderPayment {
@@ -522,6 +525,8 @@ model User {
   WorkOrderNote           WorkOrderNote[]
   OutsourcedOrderItemInfo OutsourcedOrderItemInfo[]
   Roles                   Role[]                    @relation("RoleToUser")
+  OrderVersions           OrderVersion[]            @relation("OrderVersionChangedBy")
+  OrderItemVersions       OrderItemVersion[]        @relation("OrderItemVersionChangedBy")
 }
 
 model VerificationToken {
@@ -902,4 +907,37 @@ enum WorkOrderStatus {
   Cancelled
   Draft
   Pending
+}
+
+model OrderVersion {
+  id             String       @id @default(uuid())
+  orderId        String
+  changedById    String
+  changedAt      DateTime     @default(now())
+  previousStatus OrderStatus?
+  newStatus      OrderStatus?
+  changedFields  Json?
+  order          Order        @relation(fields: [orderId], references: [id])
+  changedBy      User         @relation("OrderVersionChangedBy", fields: [changedById], references: [id])
+
+  @@index([orderId, changedAt])
+  @@index([orderId, newStatus])
+}
+
+model OrderItemVersion {
+  id             String           @id @default(uuid())
+  orderItemId    String
+  orderId        String
+  changedById    String
+  changedAt      DateTime         @default(now())
+  previousStatus OrderItemStatus?
+  newStatus      OrderItemStatus?
+  changedFields  Json?
+  orderItem      OrderItem        @relation(fields: [orderItemId], references: [id])
+  order          Order            @relation("OrderItemVersionOrder", fields: [orderId], references: [id])
+  changedBy      User             @relation("OrderItemVersionChangedBy", fields: [changedById], references: [id])
+
+  @@index([orderItemId, changedAt])
+  @@index([orderItemId, newStatus])
+  @@index([orderId, changedAt])
 }
