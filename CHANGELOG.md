@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.0.1] - 2026-05-26
+
+### Added
+- **`pretest` hook** — `pnpm test` now automatically runs `prisma generate` before the test suite, so tests work from a fresh clone without a manual generation step.
+
+### Changed
+- **TODOS.md** — Added new items from engineering review: `pretest` hook (now complete), workOrders router test suite (P2), version tracking Phase 2 instrumentation (P3), and CSR audit timeline UI (P3). Marked Invoice.invoiceNumber unique constraint as completed (constraint already existed in schema).
+
 ## [0.2.0.0] - 2026-05-26
 
 ### Added
