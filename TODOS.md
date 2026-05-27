@@ -25,6 +25,19 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
   - `src/server/api/routers/shared/__tests__/createVersion.test.ts` — `buildChangedFields`, `createOrderVersion`, `createOrderItemVersion` unit coverage
   - Remaining: QB sync integration tests, component tests for order creation/invoice generation
 
+### P1 — Fix broken local test invocation (`pretest` hook)
+`pnpm test` fails on a fresh environment because `~/generated/prisma/client` doesn't exist until `prisma generate` runs. CI executes `pnpm dlx prisma generate` before tests (so CI passes), but there's no local equivalent — any dev who clones fresh, runs `git clean`, or switches branches sees 9 module-not-found failures and can't tell if the suite is broken or just ungenerated.
+- **Action:** Add `"pretest": "prisma generate"` to `package.json`. One-line change, matches CI behavior exactly. Adds ~150ms to every local test run.
+- **Why now:** Will hit every developer the first time they try to run tests locally.
+- **Depends on:** Nothing — standalone fix.
+- **Completed:** 2026-05-26
+
+### P2 — Add workOrders router test suite
+`src/server/api/routers/workOrders/workOrder.ts` is 578 lines with zero test coverage. It handles the work order → order conversion pipeline, work order item management, and totals calculations — a core business flow. A silent regression (wrong totals, missing items, bad status cascade) creates billing errors that are invisible until a user reports them.
+- **Action:** Create `src/server/api/routers/workOrders/__tests__/workOrder.test.ts` using the established pattern (vitest + mock db via `src/test/setup.ts` + `createCallerFactory`). Priority cases: WO→order conversion totals, item status cascade, `calculateItemTotals` integration.
+- **Why now:** The test pattern is established from orders/orderItems — this isn't starting from scratch. The WO→order path is the highest-risk untested flow.
+- **Depends on:** `src/test/setup.ts` (already exists).
+
 ### P2 — README.md Cleanup
 The current README is the T3 Create App boilerplate. It references Drizzle ORM (not used — this project uses Prisma) and contains generic T3 documentation instead of project-specific content.
 - **Action:** Rewrite README with project-specific overview, linking to the documentation suite
@@ -71,6 +84,7 @@ Error handling varies across routers — some throw TRPCError with codes, others
 `generateInvoiceNumber` in `src/server/api/routers/invoices/invoice.ts` reads the last invoice number and creates with the incremented value in two separate, non-atomic DB operations. Concurrent requests can read the same `lastInvoice` and produce duplicate `invoiceNumber` values.
 - **Action:** Add a unique constraint on `Invoice.invoiceNumber` in Prisma schema (already enforced at app level by the sequential query, but DB-level enforcement catches concurrent races and returns P2002/CONFLICT rather than creating a duplicate)
 - **Note:** Low probability in practice given single-tenant usage, but worth hardening before multi-tenant expansion
+- **Completed:** 2026-05-26 — `prisma/schema.prisma` line 70 already has `invoiceNumber String @unique`. DB-level enforcement is in place.
 
 ### P3 — DRY Decimal Total Calculations
 Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal arithmetic for computing totals. Extract a shared utility.
@@ -86,6 +100,20 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 `OrderVersion` and `OrderItemVersion` tables grow indefinitely with no current archival strategy. At high order volume this will affect query performance and storage costs.
 - **Action:** Add a monitoring alert when either table exceeds a row-count threshold (e.g. 500k rows). Implement a `scripts/archive-versions.ts` script using `deleteMany` to archive records older than a configurable window (e.g. 2 years). Schedule as a cron job once usage volume warrants it.
 - **Note:** Low urgency for current single-tenant scale; revisit before multi-tenant expansion or if `@@index` queries begin degrading.
+
+### P3 — Version Tracking Phase 2: instrument non-status mutations with changedFields
+Phase 1 (PR #465) captures status transitions only. Phase 2 captures non-status field changes — deposit edits, notes updates, contact person changes, shipping updates, description changes, etc. The schema supports it: `changedFields Json?` exists on both `OrderVersion` and `OrderItemVersion`, and `buildChangedFields` is already implemented in `src/server/api/routers/shared/createVersion.ts`.
+- **Uninstrumented call sites (~10):** `order.ts` — `updateDeposit` (line 782), `updateContactPerson` (line 763), `updateNotes` (line 1293), `updatePurchaseOrderInfo` (line 1414), `updateShippingInfo` (line 133/944); `orderItem.ts` — `updateDescription` (line 337), `updateProofDescription` (line 348), `updateSpecialInstructions` (line ~355), `update` (line 431/476/595).
+- **Pattern:** Read the current record before update (already done at some sites), call `buildChangedFields(before, input.data)`, pass result to `createOrderVersion`/`createOrderItemVersion`.
+- **Why now:** The CSR audit trail use case ("who changed the deposit on order #1234?") is blocked on this. Wait until the audit timeline UI (see below) is being built — implement both together.
+- **Depends on:** Phase 1 instrumentation (complete), CSR audit timeline UI (below).
+
+### P3 — Version Tracking UI: CSR audit timeline
+`orderItemVersions.getStatusHistory` and `getByOrderId` tRPC procedures exist and return version data. No UI surfaces this to CSRs. The design doc called out "surface in a timeline UI later" as a secondary use case — CSRs seeing "who changed the deposit on order #1234 and when."
+- **Action:** Add a collapsible "History" section to the Order Detail page that renders a timeline of `OrderVersion` and `OrderItemVersion` records. Show: timestamp, changed-by user name, status transition (if any), and changed fields (from/to pairs).
+- **Design decisions needed first:** Where does it live in the order detail layout? Collapsed by default? Separate tab or inline? How verbose are field change labels (raw field name vs. human-readable)?
+- **Why now:** The data is being written. Build the UI once Phase 2 instrumentation is in place so the timeline shows both status transitions and field edits.
+- **Depends on:** Phase 2 instrumentation (above).
 
 ## Deferred Work
 
