@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.4] - 2026-05-27
+
+### Fixed
+
+- Order status updates now work correctly — `OrderVersion` and `OrderItemVersion` tables were missing from the database because the Prisma migration was never generated after the schema models were added. The migration creates both tables with proper indexes and foreign keys.
+
 ## [0.2.5.3] - 2026-05-27
 
 ### Fixed
