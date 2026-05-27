@@ -37,6 +37,7 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
 - **Action:** Create `src/server/api/routers/workOrders/__tests__/workOrder.test.ts` using the established pattern (vitest + mock db via `src/test/setup.ts` + `createCallerFactory`). Priority cases: WO→order conversion totals, item status cascade, `calculateItemTotals` integration.
 - **Why now:** The test pattern is established from orders/orderItems — this isn't starting from scratch. The WO→order path is the highest-risk untested flow.
 - **Depends on:** `src/test/setup.ts` (already exists).
+- **Completed:** 2026-05-26 — Added 22 router tests + 13 service tests (35 total). Also fixed: (1) extracted `workOrderInclude` const eliminating 6x duplication and fixing missing `ProductType` in `updateShippingInfo`; (2) fixed silent `ShippingPickup` duplicate-create bug in `updateShippingInfo` update arm; (3) deleted dead `calculateTotals` function from `workOrderToOrderService.ts` (wrong formula, router discarded the return value). Suite now at 92 tests.
 
 ### P2 — README.md Cleanup
 The current README is the T3 Create App boilerplate. It references Drizzle ORM (not used — this project uses Prisma) and contains generic T3 documentation instead of project-specific content.
@@ -62,6 +63,15 @@ Error handling varies across routers — some throw TRPCError with codes, others
 `.env.example` should be kept in sync with `src/env.js`. Currently there's no automated check.
 - **Action:** Add a CI check or script that validates `.env.example` has all vars from `env.js`
 - **Completed:** 2026-04-20 — Rewrote `.env.example` with all 31 vars. Added `scripts/check-env.js` and `pnpm check:env` script.
+
+### P3 — workOrderRouter: non-atomic Cancelled cascade
+`updateStatus` in `workOrder.ts` runs two separate DB operations — `workOrder.update` then `workOrderItem.updateMany`. If the process fails between them, work order shows Cancelled but items retain their prior status (silent inconsistency).
+- **Action:** Wrap both operations in a `ctx.db.$transaction` call so they succeed or fail together.
+- **Note:** Pre-existing issue, low probability in single-tenant usage. Revisit before multi-tenant expansion.
+
+### P3 — workOrderRouter: `shippingMethod` input should use `z.nativeEnum(ShippingMethod)`
+`updateShippingInfo` input schema uses `z.string()` for `shippingMethod` and casts with `as ShippingMethod` at two call sites (`workOrder.ts` lines 338, 352). The orders router uses `z.nativeEnum(ShippingMethod)` (correct pattern). Using `z.string()` allows invalid enum values through to a Prisma type cast with no runtime error.
+- **Action:** Import `ShippingMethod` enum value (not just the type) from `~/generated/prisma/client`, change `z.string()` to `z.nativeEnum(ShippingMethod)`, and remove both `as ShippingMethod` casts.
 
 ## Planned Improvements
 

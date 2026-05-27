@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.1.0] - 2026-05-26
+
+### Added
+- Work order router test suite: 22 tRPC procedure tests covering `getByID`, `createWorkOrder`, `getAll`, `updateStatus`, `addShippingInfo`, `convertWorkOrderToOrder`, `updateContactPerson`, and `updateShippingInfo`
+- Work order conversion service test suite: 13 tests covering the `convertWorkOrderToOrder` transaction including artwork, ShippingInfo duplication, processing options, stock, and typesetting migration
+
+### Fixed
+- Silent `ShippingPickup` duplicate-create bug in `updateShippingInfo`: the upsert update arm now runs `deleteMany` before `create`, preventing duplicate rows on repeated saves
+- Removed dead `calculateTotals` function from `workOrderToOrderService.ts` (formula was wrong — missing sales tax — and the router discarded the return value entirely)
+- Removed redundant session guard in `createWorkOrder` (`protectedProcedure` middleware already enforces authentication before the handler runs)
+
+### Changed
+- Extracted `workOrderInclude` const in `workOrder.ts` as single source of truth for the Prisma include shape; eliminates 6× duplication and restores missing `ProductType` relation in `updateShippingInfo`
+- `convertWorkOrderToOrder` service now returns `Promise<void>` instead of a partial `SerializedWorkOrder` (the return value was never used by the caller)
+- Corrected directory name in `docs/ARCHITECTURE.md` from `missoula-v2/` to `irvine-v4/`
+
 ## [0.2.0.1] - 2026-05-26
 
 ### Added

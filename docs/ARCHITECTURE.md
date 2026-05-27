@@ -27,7 +27,7 @@
 ## Directory Layout
 
 ```
-missoula-v2/
+irvine-v4/
 ├── prisma/
 │   ├── schema.prisma          # 38 models, 22 enums
 │   ├── seed.ts                # Database seeding
