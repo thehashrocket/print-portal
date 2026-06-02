@@ -115,7 +115,7 @@ src/
 
 ## Data Model
 
-40 Prisma models, 22 enums. Core models:
+39 Prisma models, 22 enums. Core models:
 
 - **WorkOrder** → **Order** → **OrderItem** (with `OrderItemArtwork`, `OrderItemStock`)
 - **Typesetting** → **TypesettingProof** → **TypesettingOption**
