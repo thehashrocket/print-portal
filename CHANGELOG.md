@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.5] - 2026-06-02
+
+### Changed
+
+- Work order and work order item status badges now use the same `Pill` component as the rest of the app — consistent styling across all entity types. Pending work orders retain their yellow warning color so items needing action remain visually distinct.
+- Payment total calculations in the order router consolidated into a single shared helper — eliminates duplicated Decimal reduce logic that appeared in 5 separate procedures.
+
 ## [0.2.5.4] - 2026-05-27
 
 ### Fixed
