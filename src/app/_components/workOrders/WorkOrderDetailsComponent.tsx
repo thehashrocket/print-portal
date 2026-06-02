@@ -20,6 +20,7 @@ import { toast } from "react-hot-toast";
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { type AppRouter } from "~/server/api/root";
 import InfoCard from "../shared/InfoCard/InfoCard";
+import { Pill } from "~/app/_components/primitives/Pill";
 
 const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workOrderId: string }> = ({ id, status, workOrderId }) => {
     const [currentStatus, setCurrentStatus] = useState(status);
@@ -32,15 +33,6 @@ const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workO
             toast.error(error.message ?? "Failed to update status. Please try again.");
         }
     });
-
-    const getStatusColor = (status: WorkOrderStatus): string => {
-        switch (status) {
-            case WorkOrderStatus.Approved: return "bg-green-100 text-green-800";
-            case WorkOrderStatus.Cancelled: return "bg-red-100 text-red-800";
-            case WorkOrderStatus.Pending: return "bg-yellow-100 text-yellow-800";
-            default: return "bg-blue-100 text-blue-800";
-        }
-    };
 
     const handleStatusChange = (newStatus: WorkOrderStatus) => {
         updateStatus({ id, status: newStatus });
@@ -62,9 +54,7 @@ const EstimateStatusBadge: React.FC<{ id: string, status: WorkOrderStatus, workO
                 </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <span className={`px-2 py-1 rounded-full text-sm font-semibold w-48 flex items-center justify-center ${getStatusColor(currentStatus)}`}>
-                    {currentStatus}
-                </span>
+                <Pill status={currentStatus} tone={currentStatus === WorkOrderStatus.Pending ? "warn" : undefined} />
                 <SelectField
                     options={Object.values(WorkOrderStatus).map((status) => ({ value: status, label: status }))}
                     value={currentStatus}

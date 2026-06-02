@@ -16,6 +16,7 @@ import { Button } from "../../ui/button";
 import { SelectField } from "~/app/_components/shared/ui/SelectField/SelectField";
 import { Textarea } from "../../ui/textarea";
 import { toast } from "react-hot-toast";
+import { Pill } from "~/app/_components/primitives/Pill";
 import FileUpload from "../../shared/fileUpload";
 import ShippingInfoEditor from "../../shared/shippingInfoEditor/ShippingInfoEditor";
 import InfoCard from "../../shared/InfoCard/InfoCard";
@@ -188,15 +189,6 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
             toast.error('Failed to update status', { duration: 4000, position: 'top-right' });
         }
     });
-    const getStatusColor = (status: WorkOrderItemStatus): string => {
-        switch (status) {
-            case "Approved": return "bg-green-100 text-green-800";
-            case "Cancelled": return "bg-red-100 text-red-800";
-            case "Pending": return "bg-yellow-100 text-yellow-800";
-            default: return "bg-blue-100 text-blue-800";
-        }
-    };
-
     const handleStatusChange = async (newStatus: WorkOrderItemStatus) => {
         updateStatus({ id, status: newStatus });
         setCurrentStatus(newStatus);
@@ -214,9 +206,7 @@ const StatusBadge: React.FC<{ id: string, status: WorkOrderItemStatus, workOrder
                     You can override the email address to notify by entering an email address in the input field.
                 </p>
             </div>
-            <span className={`px-2 py-1 rounded-full text-sm font-semibold w-fit ${getStatusColor(currentStatus)}`}>
-                {currentStatus}
-            </span>
+            <Pill status={currentStatus} tone={currentStatus === WorkOrderItemStatus.Pending ? "warn" : undefined} />
             <div className="w-full md:w-48">
                 <SelectField
                     options={Object.values(WorkOrderItemStatus).map((status) => ({ value: status, label: status }))}

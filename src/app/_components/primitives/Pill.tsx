@@ -14,6 +14,9 @@ const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
   Outsourced: { label: "Outsourced",  tone: "info" },
   // Prisma OrderStatus
   PaymentReceived: { label: "Paid",   tone: "ok" },
+  // Prisma WorkOrderStatus / WorkOrderItemStatus
+  Approved: { label: "Approved",  tone: "ok" },
+  Proofing: { label: "Proofing",  tone: "info" },
   // Prisma InvoiceStatus
   Draft:    { label: "Draft",     tone: "" },
   Sent:     { label: "Sent",      tone: "info" },

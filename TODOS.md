@@ -123,6 +123,7 @@ Adding `markdownlint-cli` requires fixing existing violations across all docs be
 Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal arithmetic for computing totals. Extract a shared utility.
 - **Action:** Create shared `calculateOrderTotals()` utility, update routers to use it
 - **Completed:** 2026-04-20 — Created `src/utils/orderCalculations.ts` with `calculateItemTotals()`. Replaced 12 duplicate blocks across order.ts (5), workOrder.ts (5), company.ts (2). Also fixed a bug in 3 workOrder mutation handlers where `totalAmount` was computed without sales tax.
+- **Also completed:** 2026-06-02 — Extracted `sumOrderPayments` helper in `order.ts` (the `totalPaid` reduce pattern, separate from item totals, was repeated 5x and missed in the April extraction). Replaced all 5 instances with `sumOrderPayments(order.OrderPayments)` / `sumOrderPayments(updatedOrder.OrderPayments)`.
 
 ### P3 — Remove Unused ag-charts-react Dependency
 `ag-charts-react` has zero imports in the codebase (verified across all .ts/.tsx/.js/.jsx files). The project uses `recharts` for charts and `@ag-grid-community/*` for grids. This dead dependency creates unnecessary Dependabot PRs and bloats install size.
@@ -157,6 +158,7 @@ A service worker build script exists but PWA features are not actively used. Kee
 `StatusBadge` at `src/app/_components/shared/StatusBadge/StatusBadge.tsx` is being kept alive during the redesign migration. New screens use the new `Pill` component. Once all screens (Dashboard, Orders, Order Detail, Work Orders, Create WO) are migrated, `StatusBadge` is dead code.
 - **Action:** `grep -r "StatusBadge" src/` to find remaining imports. Remove them. Delete the component and its directory.
 - **Completed:** 2026-04-20 — Inlined the editing form into `OrderStatusBadge` (OrderDetailsComponent) and `ItemStatusBadge`. Deleted `src/app/_components/shared/StatusBadge/`.
+- **Also completed:** 2026-06-02 — Migrated `workOrderItemComponent.tsx` (StatusBadge) and `WorkOrderDetailsComponent.tsx` (EstimateStatusBadge) to use `<Pill>`. Deleted `getStatusColor` switch functions from both. Added `Approved` and `Proofing` entries to `Pill.tsx` STATUS_MAP. All entity types (orders, order items, work orders, work order items) now use Pill as the single source of truth for status display.
 
 ### P3 — Remove Bliss Pro font files after migration complete
 `public/fonts/` contains self-hosted Bliss Pro font files. Phase 0 of the redesign replaces the body font with Inter (via next/font). Once migration is complete and no component references `font-sans`, `font-light`, `font-bold`, `font-italic` Tailwind classes pointing to Bliss Pro, these files can be removed.

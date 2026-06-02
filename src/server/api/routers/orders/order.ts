@@ -9,6 +9,12 @@ import { sendOrderEmail, sendOrderStatusEmail } from "~/utils/sengrid";
 import { calculateItemTotals } from "~/utils/orderCalculations";
 import { createOrderVersion, buildChangedFields } from "../shared/createVersion";
 
+function sumOrderPayments(rawPayments: Parameters<typeof normalizeOrderPayment>[0][] | null | undefined): Prisma.Decimal {
+  return (rawPayments ?? [])
+    .map(normalizeOrderPayment)
+    .reduce((sum, p) => sum.add(new Prisma.Decimal(p.amount)), new Prisma.Decimal(0));
+}
+
 export const orderRouter = createTRPCRouter({
 
   // Order Dashbaord
@@ -409,8 +415,7 @@ export const orderRouter = createTRPCRouter({
       if (!order) return null;
 
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(order.OrderItems, { filterCancelled: true });
-      const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
-      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const totalPaid = sumOrderPayments(order.OrderPayments);
       const balance = totalAmount.sub(totalPaid);
 
       const normalizedOrder = {
@@ -582,8 +587,7 @@ export const orderRouter = createTRPCRouter({
 
       return Promise.all(orders.map(async order => {
         const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(order.OrderItems, { filterCancelled: true });
-        const totalOrderPayments = order.OrderPayments ? order.OrderPayments.map(normalizeOrderPayment) : [];
-        const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+        const totalPaid = sumOrderPayments(order.OrderPayments);
         const balance = totalAmount.sub(totalPaid);
 
         return normalizeOrder({
@@ -872,8 +876,7 @@ export const orderRouter = createTRPCRouter({
       }
 
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(updatedOrder.OrderItems, { filterCancelled: true });
-      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
-      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const totalPaid = sumOrderPayments(updatedOrder.OrderPayments);
       const balance = totalAmount.sub(totalPaid);
 
       return normalizeOrder({
@@ -1318,8 +1321,7 @@ export const orderRouter = createTRPCRouter({
       }
 
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(updatedOrder.OrderItems, { filterCancelled: true });
-      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
-      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const totalPaid = sumOrderPayments(updatedOrder.OrderPayments);
       const balance = totalAmount.sub(totalPaid);
 
       return normalizeOrder({
@@ -1440,8 +1442,7 @@ export const orderRouter = createTRPCRouter({
       });
 
       const { totalCost, totalItemAmount, totalShippingAmount, calculatedSubTotal, calculatedSalesTax, totalAmount } = calculateItemTotals(updatedOrder.OrderItems, { filterCancelled: true });
-      const totalOrderPayments = updatedOrder.OrderPayments ? updatedOrder.OrderPayments.map(normalizeOrderPayment) : [];
-      const totalPaid = totalOrderPayments.reduce((sum, payment) => sum.add(new Prisma.Decimal(payment.amount)), new Prisma.Decimal(0));
+      const totalPaid = sumOrderPayments(updatedOrder.OrderPayments);
       const balance = totalAmount.sub(totalPaid);
 
       const changedFields = buildChangedFields({ notes: existing.notes }, { notes });
