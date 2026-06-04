@@ -68,7 +68,7 @@ import type { OrderItemDashboard } from '~/types/orderItemDashboard';
 function makeOrder(overrides: Partial<OrderDashboard> = {}): OrderDashboard {
     return {
         id: 'order-1',
-        orderNumber: 1001,
+        orderNumber: '1001',
         status: 'Pending' as OrderDashboard['status'],
         orderItemStatus: 'Prepress' as OrderDashboard['orderItemStatus'],
         companyName: 'ACME',
