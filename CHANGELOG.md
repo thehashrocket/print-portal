@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.5.6] - 2026-06-04
+
+### Fixed
+
+- Dashboard Order Items tab now reflects status changes immediately when an order is completed, cancelled, or invoiced from the Orders tab — no page refresh needed. Previously, dragging an order to Completed updated the order in the database (and cascaded to its items) but the Order Items board still showed the old statuses until the page was reloaded.
+
 ## [0.2.5.5] - 2026-06-02
 
 ### Changed
