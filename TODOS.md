@@ -27,6 +27,8 @@ Vitest is configured with 3 test suites (Decimal serialization, db client, work 
   - `src/app/_components/workOrders/create/__tests__/workOrderForm.test.tsx` — 9 tests: render, validation, walk-in toggle, walk-in/regular mutation chain, redirect
   - `src/app/_components/invoices/__tests__/invoiceForm.test.tsx` — 8 tests: render, order select, validation, item add/remove, order pre-population, submit
   - Remaining: QB sync integration tests
+- **Partial (2026-06-04):** Added dashboard component tests (6 tests):
+  - `src/app/_components/dashboard/__tests__/dashboardTabsClient.test.tsx` — order status cascade logic: Completed, Cancelled, Invoiced cascade to items; non-cascade statuses ignored; cross-order isolation
 
 ### P1 — Fix broken local test invocation (`pretest` hook)
 `pnpm test` fails on a fresh environment because `~/generated/prisma/client` doesn't exist until `prisma generate` runs. CI executes `pnpm dlx prisma generate` before tests (so CI passes), but there's no local equivalent — any dev who clones fresh, runs `git clean`, or switches branches sees 9 module-not-found failures and can't tell if the suite is broken or just ungenerated.

@@ -109,7 +109,7 @@ describe('orderItemVersionsRouter.getStatusHistory', () => {
             expect.objectContaining({ where: { orderItemId: 'item-1' } }),
         );
         // newStatus should NOT appear in where clause for empty array
-        const call = (db.orderItemVersion.findMany as ReturnType<typeof vi.fn>).mock.calls[0][0];
+        const call = (db.orderItemVersion.findMany as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
         expect(call.where).not.toHaveProperty('newStatus');
     });
 
