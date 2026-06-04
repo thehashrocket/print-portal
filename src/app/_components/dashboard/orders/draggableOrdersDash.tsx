@@ -1,4 +1,4 @@
-// ~/src/app/_components/dashboard/DraggableOrderItemsDash.tsx
+// ~/src/app/_components/dashboard/orders/DraggableOrdersDash.tsx
 
 "use client";
 import React, { useState, useEffect } from 'react';
@@ -19,7 +19,7 @@ const statusLabels: Record<string, string> = {
     Completed: 'Completed',
 };
 
-const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ initialOrders }) => {
+const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[]; onOrderStatusChange?: (orderId: string, newStatus: string) => void }> = ({ initialOrders, onOrderStatusChange }) => {
     // Keep original orders separate from filtered view
     const [originalOrders] = useState<OrderDashboard[]>(initialOrders);
     const [orders, setOrders] = useState<OrderDashboard[]>(initialOrders);
@@ -122,8 +122,8 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
         const id = event.dataTransfer.getData("text/plain");
         event.currentTarget.classList.remove('bg-accent');
         try {
-            await updateOrderStatus.mutateAsync({ 
-                id, 
+            await updateOrderStatus.mutateAsync({
+                id,
                 status: newStatus,
                 sendEmail: false,
                 emailOverride: ""
@@ -134,6 +134,8 @@ const DraggableOrdersDash: React.FC<{ initialOrders: OrderDashboard[] }> = ({ in
                     order.id === id ? { ...order, status: newStatus } : order
                 )
             );
+
+            onOrderStatusChange?.(id, newStatus);
 
         } catch (error) {
             console.error('Failed to update Order status: ', error);

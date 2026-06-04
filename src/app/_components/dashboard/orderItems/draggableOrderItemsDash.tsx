@@ -36,7 +36,7 @@ const CompanyFilter: React.FC<CompanyFilterProps> = ({ companies, selectedCompan
 
 const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[] }> = ({ initialOrderItems }) => {
     // Keep original items separate from filtered view
-    const [originalItems] = useState<OrderItemDashboard[]>(initialOrderItems);
+    const [originalItems, setOriginalItems] = useState<OrderItemDashboard[]>(initialOrderItems);
     const [displayedItems, setDisplayedItems] = useState<OrderItemDashboard[]>(initialOrderItems);
     const [orderItemNumber, setOrderItemNumber] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<string>("");
@@ -49,6 +49,17 @@ const DraggableOrderItemsDash: React.FC<{ initialOrderItems: OrderItemDashboard[
             }
         } catch { /* localStorage unavailable (private mode, etc.) */ }
     }, []);
+
+    // Re-sync internal state when the parent updates order items (e.g., order completed from Orders tab)
+    useEffect(() => {
+        setOriginalItems(initialOrderItems);
+        setDisplayedItems(
+            selectedCompany
+                ? initialOrderItems.filter(item => item.companyName === selectedCompany)
+                : initialOrderItems
+        );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialOrderItems]);
 
     const updateOrderItemStatus = api.orderItems.updateStatus.useMutation();
 

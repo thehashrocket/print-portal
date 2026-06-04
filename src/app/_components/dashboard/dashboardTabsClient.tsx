@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import DraggableOrdersDash from "./orders/draggableOrdersDash";
 import DraggableOrderItemsDash from "./orderItems/draggableOrderItemsDash";
@@ -22,12 +22,29 @@ interface DashboardTabsClientProps {
 
 export default function DashboardTabsClient({ orderItems, orders }: DashboardTabsClientProps) {
   const [tab, setTab] = useState<Tab>("orders");
+  const [orderItemsState, setOrderItemsState] = useState<OrderItemDashboard[]>(orderItems);
+
+  // When an order is moved to a status that cascades to its items (Completed, Cancelled, Invoiced),
+  // update the order items tab state so users see the change without a page refresh.
+  const handleOrderStatusChange = useCallback((orderId: string, newStatus: string) => {
+    const cascadeMap: Record<string, OrderItemDashboard['status']> = {
+      Completed: "Completed",
+      Cancelled: "Cancelled",
+      Invoiced: "Invoiced",
+    };
+    const mappedStatus = cascadeMap[newStatus];
+    if (mappedStatus) {
+      setOrderItemsState(prev =>
+        prev.map(item => item.orderId === orderId ? { ...item, status: mappedStatus } : item)
+      );
+    }
+  }, []);
 
   // Derived stats
   const openOrders = orders.filter((o) => !TERMINAL.has(o.status as string)).length;
   const onPress = orders.filter((o) => (o.orderItemStatus as string) === "Press").length;
   const proofsAwaiting = orders.filter((o) => (o.orderItemStatus as string) === "Prepress").length;
-  const overdueProofs = orderItems.filter((i) => (i.status as string) === "Prepress" && new Date(i.expectedDate) < new Date()).length;
+  const overdueProofs = orderItemsState.filter((i) => (i.status as string) === "Prepress" && new Date(i.expectedDate) < new Date()).length;
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
@@ -92,7 +109,7 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
           <div className="stat-label">
             <span className="uppercase-label">Active Items</span>
           </div>
-          <div className="stat-value">{orderItems.length}</div>
+          <div className="stat-value">{orderItemsState.length}</div>
           <div className="stat-delta">Across all open orders</div>
         </div>
       </div>
@@ -110,7 +127,7 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
             className={`tab ${tab === "orderItems" ? "active" : ""}`}
             onClick={() => setTab("orderItems")}
           >
-            Order Items <span className="count">{orderItems.length}</span>
+            Order Items <span className="count">{orderItemsState.length}</span>
           </button>
           <button
             className={`tab ${tab === "outsourced" ? "active" : ""}`}
@@ -123,8 +140,8 @@ export default function DashboardTabsClient({ orderItems, orders }: DashboardTab
 
       {/* Tab content */}
       <div style={{ marginTop: 16 }}>
-        {tab === "orders" && <DraggableOrdersDash initialOrders={orders} />}
-        {tab === "orderItems" && <DraggableOrderItemsDash initialOrderItems={orderItems} />}
+        {tab === "orders" && <DraggableOrdersDash initialOrders={orders} onOrderStatusChange={handleOrderStatusChange} />}
+        {tab === "orderItems" && <DraggableOrderItemsDash initialOrderItems={orderItemsState} />}
         {tab === "outsourced" && <OutsourcedOrderItemsDash />}
       </div>
     </>
