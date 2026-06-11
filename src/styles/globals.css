@@ -105,7 +105,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 87 69.3% 39.6%;
+    --primary: 153.2 100% 20.2%; /* brand green — matches .bg-btn-primary */
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -762,4 +762,12 @@
   @media print {
     .no-print { display: none; }
   }
+}
+
+/* Pin the shadcn bridge tokens for legacy components. Unlayered so it wins
+   over DaisyUI's default theme, which otherwise repaints `bg-primary`
+   utilities (badges, checkboxes, switches) in its indigo. */
+:root {
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
 }
