@@ -105,7 +105,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 87 69.3% 39.6%;
+    --primary: 153.2 100% 20.2%; /* brand green — matches .bg-btn-primary */
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -171,16 +171,17 @@
 
   /* Legacy utility classes */
   .bg-btn-primary  { background-color: hsl(153.2, 100%, 20.2%); }
-  .bg-btn-secondary { background-color: hsl(87, 69.3%, 39.6%); }
+  .bg-btn-secondary { background-color: var(--paper-3); }
 
   /* Drop indicator (kanban) */
   .drop-indicator { border-bottom: 2px solid hsl(var(--primary)); }
 
 }
 
-/* ── Press Room utility classes ── */
-@layer components {
-  .mono    { font-family: var(--font-mono); font-feature-settings: "zero"; }
+/* ── Press Room utility classes ──
+   Unlayered on purpose: DaisyUI registers its own .btn/.card/.input/.tab in
+   cascade layers, and layered styles would override the design system. */
+.mono    { font-family: var(--font-mono); font-feature-settings: "zero"; }
   .tabnum  { font-variant-numeric: tabular-nums; }
 
   .uppercase-label {
@@ -756,10 +757,17 @@
     padding: 40px;
   }
   .auth-form { width: 100%; max-width: 380px; }
-}
 
 @layer utilities {
   @media print {
     .no-print { display: none; }
   }
+}
+
+/* Pin the shadcn bridge tokens for legacy components. Unlayered so it wins
+   over DaisyUI's default theme, which otherwise repaints `bg-primary`
+   utilities (badges, checkboxes, switches) in its indigo. */
+:root {
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
 }

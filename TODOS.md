@@ -154,6 +154,28 @@ Currently using `prisma db push` for schema changes. Prisma Migrate would provid
 ### Service Worker (`scripts/build-sw.js`)
 A service worker build script exists but PWA features are not actively used. Keep the script but don't invest in PWA until the customer-facing portal is underway.
 
+## Design Review Findings (deferred from /design-review, 2026-06-11)
+
+Full report with screenshots: `~/.gstack/projects/gianthat-thomson-print-portal/designs/design-audit-20260611/`. Fixed in the same session (branch `thehashrocket/design-review`): DaisyUI indigo/lime token leak, DaisyUI hijacking Press Room `.btn`/`.card`/`.input` via cascade layers, dashboard filter clipping + shadcn filters, lime secondary buttons, bare invoices empty state.
+
+### P1 — Mobile shell is broken
+The 240px sidebar stays expanded at phone widths leaving ~115px of clipped content; the only media query in `globals.css` is print. Needs an off-canvas sidebar + topbar toggle. Also `calc(100vh - 200px)` in the dashboard kanban should be `svh`-based (`draggableOrdersDash.tsx:191`).
+
+### P1 — Terminology split: "Work Orders" vs "Estimates"
+Sidebar/breadcrumb say Work Orders; `/workOrders` page title says "Esti*mates*" (section label "Sales"); CTAs vary between "+ New Work Order", "+ New Estimate", "Create New Estimate", "Create Estimate". Pick one term, sweep all surfaces.
+
+### P2 — Legacy theming migration (Tailwind/DaisyUI/shadcn → Press Room)
+600+ Tailwind utility usages, ~15 live DaisyUI classes, shadcn `ui/` still imported by forms/modals/detail pages, ~30 hardcoded hex (`#006739` in work-order forms, `text-red-500` validation), three parallel toast systems (DaisyUI alert / react-hot-toast / shadcn toaster), two AG Grid themes (alpine + quartz). Press Room classes are now unlayered so they win wherever adopted — migrate surface by surface.
+
+### P2 — Detail pages are stacked decorative cards
+`InfoCard`/`EditableInfoCard` wrap nearly every datum and nest inside more cards on order/work-order detail. Replace with the documented `.split` layout + `Meta` primitives where the card isn't the interaction.
+
+### P2 — Accessibility gaps in the shell
+No `<main>` landmark in `(authenticated)/layout.tsx`, topbar search input has no label, core controls are 26–34px tall (44px touch minimum), Companies grid encodes QuickBooks sync status with raw red/green text instead of `<Pill>`.
+
+### P3 — Dead design code
+`shared/navBar.tsx` (lime, unused — zero imports), unused shadcn components in `_components/ui/`, deprecated AG Grid `rowSelection` string API warnings in console. Also `prisma/seed.ts` computes the admin password hash but never writes it (`createAdminUser`), and re-running the seed fails on a non-idempotent role upsert.
+
 ## Press Room Redesign (post-migration cleanup)
 
 ### P2 — Delete StatusBadge after migration complete

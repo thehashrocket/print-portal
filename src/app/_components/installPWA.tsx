@@ -82,7 +82,7 @@ export function InstallPWA() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#6cab1f] text-white shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--press)] text-[var(--press-on)] shadow-lg">
       <div className="flex items-center justify-between max-w-(--breakpoint-xl) mx-auto">
         <div className="flex-1">
           <p className="font-semibold">Install Print Portal</p>
@@ -98,7 +98,7 @@ export function InstallPWA() {
           {!isIOS && (
             <button
               onClick={handleInstallClick}
-              className="px-4 py-2 bg-white text-[#6cab1f] rounded-lg font-semibold hover:bg-gray-100"
+              className="px-4 py-2 bg-[var(--paper)] text-[var(--press)] rounded-lg font-semibold hover:bg-[var(--paper-2)]"
             >
               Install
             </button>

@@ -4,7 +4,7 @@
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
-| Framework | Next.js (App Router, Turbopack) | 16.1.3 |
+| Framework | Next.js (App Router, Turbopack) | 16.2.6 |
 | Language | TypeScript | 5.9.3 |
 | API | tRPC + SuperJSON | 11.x |
 | ORM | Prisma | 7.7.0 |
@@ -13,7 +13,7 @@
 | UI | Tailwind CSS + shadcn/ui + DaisyUI | 4.x |
 | Icons | Lucide React | 0.548.x |
 | State | Zustand, Jotai, React Context | — |
-| Data Grids | AG Grid + AG Charts | 32.x–35.x / 12.x–13.x |
+| Data Grids | AG Grid | 32.x–35.x |
 | Charts | Recharts | 3.x |
 | Email | SendGrid (SMTP via Nodemailer) | — |
 | Real-time | Pusher | — |
@@ -68,7 +68,7 @@ irvine-v4/
 │   ├── types/                 # TypeScript type declarations
 │   └── utils/                 # Helper functions
 ├── next.config.js             # Turbopack, image remotes, externals
-├── package.json               # v0.2.5.6, scripts, dependencies
+├── package.json               # v0.2.6.0, scripts, dependencies
 ├── .nvmrc                     # Node 24.2.0
 └── start-database.sh          # Docker PostgreSQL launcher
 ```

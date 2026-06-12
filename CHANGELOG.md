@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.6.0] - 2026-06-11
+
+### Fixed
+
+- Dashboard filter popovers (Company Name, Order Number, Order Item Number) now render correctly as Press Room cards — previously they rendered as white shadcn boxes due to cascade layer conflicts between DaisyUI and the project's design system.
+- Press Room primary action buttons (Sign In, page-head CTAs) now reliably show the brand green background — DaisyUI's layered `.btn` styles were previously overriding them.
+- Kanban status badges and checkboxes on the dashboard now use brand green instead of DaisyUI's default purple/indigo — the `--primary` token was mis-pointed at an old lime value.
+- Secondary action buttons are now visible at the correct warm-gray contrast level — the previous `--secondary` token resolved to near-white, making Cancel/Reset buttons nearly invisible on the paper background.
+- Invoices page shows a helpful empty state when no invoices exist, with a link to create invoices from orders — previously showed a blank `div`.
+- Lime green eye button on the Users grid and PWA install banner background no longer use the off-palette lime `#6cab1f` — replaced with neutral and semantic tokens.
+
+### Added
+
+- Dashboard tab component tests covering all three order-status cascade scenarios (Completed, Cancelled, Invoiced), cross-order isolation, and stat counter sync.
+- Pill component tests covering the Approved, Proofing, and tone-override paths.
+- Invoices table tests covering the empty state render: icon, heading, explanation copy, and View Orders link.
+
 ## [0.2.5.6] - 2026-06-04
 
 ### Fixed
