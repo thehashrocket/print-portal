@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.6.2] - 2026-06-11
+
+### Fixed
+
+- Production installs no longer fail when the server cannot reach npmjs.org — font files (Inter, Fraunces, JetBrains Mono) are now committed directly to `src/fonts/` and the `@fontsource-variable` packages have been removed as dependencies.
+
 ## [0.2.6.1] - 2026-06-11
 
 ### Fixed
