@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.6.1] - 2026-06-11
+
+### Fixed
+
+- Production builds no longer fail when the server cannot reach Google Fonts — fonts (Inter, Fraunces, JetBrains Mono) are now self-hosted via `@fontsource-variable` packages and bundled at build time.
+
 ## [0.2.6.0] - 2026-06-11
 
 ### Fixed
