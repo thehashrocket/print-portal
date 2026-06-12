@@ -13,16 +13,15 @@ const OrderNumberFilter: React.FC<OrderNumberFilterProps> = ({
     onSubmit,
     onClear
 }) => (
-    <div className="card" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+    <div className="card p-3 flex flex-col gap-2">
         <input
-            className="input"
+            className="input w-60"
             type="text"
             value={orderNumber}
             onChange={onOrderNumberChange}
             placeholder="Filter by Order Number..."
-            style={{ width: 240 }}
         />
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="flex gap-2">
             <button className="btn primary sm" onClick={onSubmit}>Filter</button>
             <button className="btn sm" onClick={onClear}>Clear</button>
         </div>
