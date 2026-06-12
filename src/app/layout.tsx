@@ -7,19 +7,19 @@ import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistrati
 import { InstallPWA } from '~/app/_components/installPWA';
 
 const inter = localFont({
-  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+  src: "../fonts/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
   display: "swap",
 });
 
 const fraunces = localFont({
-  src: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2",
+  src: "../fonts/fraunces-latin-opsz-normal.woff2",
   variable: "--font-fraunces",
   display: "swap",
 });
 
 const jetbrainsMono = localFont({
-  src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
+  src: "../fonts/jetbrains-mono-latin-wght-normal.woff2",
   variable: "--font-jetbrains",
   display: "swap",
 });
