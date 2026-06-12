@@ -6,7 +6,7 @@ Thomson Print Portal uses a custom design system called **Press Room** — a pri
 
 ## Typography
 
-All fonts loaded via `next/font/google` in `src/app/layout.tsx`. CSS variables are set on `<html>` and referenced in `@theme`.
+All fonts loaded via `next/font/local` (from `@fontsource-variable` packages bundled in `node_modules`) in `src/app/layout.tsx`. CSS variables are set on `<html>` and referenced in `@theme`.
 
 | Role | Font | CSS Variable | Usage |
 |---|---|---|---|

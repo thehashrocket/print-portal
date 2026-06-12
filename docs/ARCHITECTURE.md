@@ -33,7 +33,7 @@ irvine-v4/
 │   ├── seed.ts                # Database seeding
 │   ├── import-quickbooks.js   # QB data import
 │   └── import-compass-health-locations.js
-├── public/                    # Static assets (images, fonts)
+├── public/                    # Static assets (images, PWA manifest, service worker)
 ├── scripts/                   # Automation (paper import, email fix, etc.)
 ├── docs/api/                  # Generated API documentation
 ├── src/
@@ -68,7 +68,7 @@ irvine-v4/
 │   ├── types/                 # TypeScript type declarations
 │   └── utils/                 # Helper functions
 ├── next.config.js             # Turbopack, image remotes, externals
-├── package.json               # v0.2.6.0, scripts, dependencies
+├── package.json               # v0.2.6.1, scripts, dependencies
 ├── .nvmrc                     # Node 24.2.0
 └── start-database.sh          # Docker PostgreSQL launcher
 ```
