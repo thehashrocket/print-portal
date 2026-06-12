@@ -130,7 +130,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.3",
     "jsdom": "^29.1.1",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.11",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.3",
     "prisma": "^7.7.0",
@@ -138,7 +138,7 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.34.0"
