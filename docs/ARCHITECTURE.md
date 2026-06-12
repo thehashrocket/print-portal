@@ -68,7 +68,7 @@ irvine-v4/
 │   ├── types/                 # TypeScript type declarations
 │   └── utils/                 # Helper functions
 ├── next.config.js             # Turbopack, image remotes, externals
-├── package.json               # v0.2.5.6, scripts, dependencies
+├── package.json               # v0.2.6.0, scripts, dependencies
 ├── .nvmrc                     # Node 24.2.0
 └── start-database.sh          # Docker PostgreSQL launcher
 ```
