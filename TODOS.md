@@ -159,7 +159,7 @@ A service worker build script exists but PWA features are not actively used. Kee
 Full report with screenshots: `~/.gstack/projects/gianthat-thomson-print-portal/designs/design-audit-20260611/`. Fixed in the same session (branch `thehashrocket/design-review`): DaisyUI indigo/lime token leak, DaisyUI hijacking Press Room `.btn`/`.card`/`.input` via cascade layers, dashboard filter clipping + shadcn filters, lime secondary buttons, bare invoices empty state.
 
 ### P1 — Mobile shell is broken
-The 220px sidebar stays expanded at phone widths leaving ~135px of clipped content; the only media query in `globals.css` is print. Needs an off-canvas sidebar + topbar toggle. Also `calc(100vh - 200px)` in the dashboard kanban should be `svh`-based (`draggableOrdersDash.tsx:191`).
+The 240px sidebar stays expanded at phone widths leaving ~115px of clipped content; the only media query in `globals.css` is print. Needs an off-canvas sidebar + topbar toggle. Also `calc(100vh - 200px)` in the dashboard kanban should be `svh`-based (`draggableOrdersDash.tsx:191`).
 
 ### P1 — Terminology split: "Work Orders" vs "Estimates"
 Sidebar/breadcrumb say Work Orders; `/workOrders` page title says "Esti*mates*" (section label "Sales"); CTAs vary between "+ New Work Order", "+ New Estimate", "Create New Estimate", "Create Estimate". Pick one term, sweep all surfaces.

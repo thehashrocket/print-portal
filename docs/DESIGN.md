@@ -80,9 +80,9 @@ Used by the `Pill` component and status indicators.
 
 ```
 <div class="app">
-  <Sidebar />           ← .sidebar (fixed, 220px)
+  <Sidebar />           ← .sidebar (fixed, 240px)
   <div class="main">
-    <Topbar />          ← .topbar (sticky, 48px)
+    <Topbar />          ← .topbar (sticky, 56px)
     <div class="content">
       {page content}    ← padding: 28px
     </div>
@@ -224,6 +224,8 @@ Located in `src/app/_components/primitives/`.
 | Status key | Label | Tone |
 |---|---|---|
 | `Pending` | Pending | _(neutral)_ |
+| `Approved` | Approved | ok |
+| `Proofing` | Proofing | info |
 | `Prepress` | Prepress | info |
 | `Press` | On Press | press |
 | `Bindery` | Bindery | press |
