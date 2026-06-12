@@ -171,7 +171,7 @@
 
   /* Legacy utility classes */
   .bg-btn-primary  { background-color: hsl(153.2, 100%, 20.2%); }
-  .bg-btn-secondary { background-color: hsl(var(--secondary)); }
+  .bg-btn-secondary { background-color: var(--paper-3); }
 
   /* Drop indicator (kanban) */
   .drop-indicator { border-bottom: 2px solid hsl(var(--primary)); }
