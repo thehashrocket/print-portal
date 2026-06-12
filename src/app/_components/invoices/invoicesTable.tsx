@@ -20,7 +20,7 @@ import { type InvoiceStatus } from "~/generated/prisma/browser";
 import { type SerializedInvoice } from "~/types/serializedTypes";
 import QuickbooksInvoiceButton from "./QuickbooksInvoiceButton";
 import { api } from "~/trpc/react";
-import { Eye, RefreshCcw, RefreshCwOff } from "lucide-react";
+import { Eye, FileSearch, RefreshCcw, RefreshCwOff } from "lucide-react";
 import { formatNumberAsCurrencyInTable, formatDateInTable } from "~/utils/formatters";
 import { Button } from "../ui/button";
 
@@ -225,7 +225,14 @@ const InvoicesTable: React.FC = () => {
     }
 
     if (!invoices || invoices.length === 0) {
-        return <div>No invoices found</div>;
+        return (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+                <FileSearch className="w-16 h-16 text-gray-300 mb-4" />
+                <h2 className="text-xl font-semibold text-gray-600 mb-2">No invoices found</h2>
+                <p className="text-gray-400 mb-6">Invoices will appear here once they are created from orders.</p>
+                <Link href="/orders" className="btn primary">View Orders</Link>
+            </div>
+        );
     }
 
     return (
