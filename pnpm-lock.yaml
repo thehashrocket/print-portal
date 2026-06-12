@@ -249,8 +249,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       '@types/pdfkit':
-        specifier: ^0.17.5
-        version: 0.17.5
+        specifier: ^0.17.6
+        version: 0.17.6
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
@@ -1987,8 +1987,8 @@ packages:
   '@types/pako@2.0.4':
     resolution: {integrity: sha512-VWDCbrLeVXJM9fihYodcLiIv0ku+AlOa/TQ1SvYOaBuyrSKgEcro95LJyIsJ4vSo6BXIxOKxiJAat04CmST9Fw==}
 
-  '@types/pdfkit@0.17.5':
-    resolution: {integrity: sha512-T3ZHnvF91HsEco5ClhBCOuBwobZfPcI2jaiSHybkkKYq4KhVIIurod94JVKvDIG0JXT6o3KiERC0X0//m8dyrg==}
+  '@types/pdfkit@0.17.6':
+    resolution: {integrity: sha512-tIwzxk2uWKp0Cq9JIluQXJid77lYhF52EsIOwhsMF4iWLA6YneoBR1xVKYYdAysHuepUB0OX4tdwMiUDdGKmig==}
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
@@ -6369,7 +6369,7 @@ snapshots:
 
   '@types/pako@2.0.4': {}
 
-  '@types/pdfkit@0.17.5':
+  '@types/pdfkit@0.17.6':
     dependencies:
       '@types/node': 25.6.0
 
