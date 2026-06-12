@@ -1,6 +1,4 @@
 import React from 'react';
-import { Input } from '../../ui/input';
-import { Button } from '../../ui/button';
 
 interface CompanyNameFilterProps {
     companyName: string;
@@ -11,11 +9,18 @@ interface CompanyNameFilterProps {
 
 const CompanyNameFilter: React.FC<CompanyNameFilterProps> = ({ companyName, onCompanyNameChange, onSubmit, onClear }) => {
     return (
-        <div className="w-full md:w-auto p-3 bg-muted border border-border rounded-lg">
-            <Input type="text" value={companyName} onChange={onCompanyNameChange} placeholder="Filter by Company Name..." className="w-[300px] mb-2" />
-            <div className="flex gap-2">
-                <Button variant="default" onClick={onSubmit}>Filter</Button>
-                <Button variant="outline" onClick={onClear}>Clear</Button>
+        <div className="card" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+            <input
+                className="input"
+                type="text"
+                value={companyName}
+                onChange={onCompanyNameChange}
+                placeholder="Filter by Company Name..."
+                style={{ width: 240 }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn primary sm" onClick={onSubmit}>Filter</button>
+                <button className="btn sm" onClick={onClear}>Clear</button>
             </div>
         </div>
     );

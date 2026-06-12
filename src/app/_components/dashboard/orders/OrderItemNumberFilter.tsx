@@ -1,6 +1,4 @@
 import React from 'react';
-import { Input } from '../../ui/input';
-import { Button } from '../../ui/button';
 
 interface OrderItemNumberFilterProps {
     orderItemNumber: string;
@@ -15,17 +13,18 @@ const OrderItemNumberFilter: React.FC<OrderItemNumberFilterProps> = ({
     onSubmit,
     onClear
 }) => (
-    <div className="w-full md:w-auto p-3 bg-muted border border-border rounded-lg">
-        <Input
+    <div className="card" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+        <input
+            className="input"
             type="text"
             value={orderItemNumber}
-            onChange={onOrderItemNumberChange}  
+            onChange={onOrderItemNumberChange}
             placeholder="Filter by Item Number..."
-            className="w-[300px] mb-2"
+            style={{ width: 240 }}
         />
-        <div className="flex gap-2">
-            <Button variant="default" onClick={onSubmit}>Filter</Button>
-            <Button variant="outline" onClick={onClear}>Clear</Button>
+        <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn primary sm" onClick={onSubmit}>Filter</button>
+            <button className="btn sm" onClick={onClear}>Clear</button>
         </div>
     </div>
 );

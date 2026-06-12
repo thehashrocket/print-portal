@@ -178,9 +178,10 @@
 
 }
 
-/* ── Press Room utility classes ── */
-@layer components {
-  .mono    { font-family: var(--font-mono); font-feature-settings: "zero"; }
+/* ── Press Room utility classes ──
+   Unlayered on purpose: DaisyUI registers its own .btn/.card/.input/.tab in
+   cascade layers, and layered styles would override the design system. */
+.mono    { font-family: var(--font-mono); font-feature-settings: "zero"; }
   .tabnum  { font-variant-numeric: tabular-nums; }
 
   .uppercase-label {
@@ -756,7 +757,6 @@
     padding: 40px;
   }
   .auth-form { width: 100%; max-width: 380px; }
-}
 
 @layer utilities {
   @media print {
