@@ -1,26 +1,25 @@
 import "~/styles/globals.css";
-import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import { ServiceWorkerRegistration } from './_components/ServiceWorkerRegistration';
 import { InstallPWA } from '~/app/_components/installPWA';
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
   display: "swap",
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
+const fraunces = localFont({
+  src: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2",
   variable: "--font-fraunces",
-  axes: ["opsz"],
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetbrainsMono = localFont({
+  src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
   variable: "--font-jetbrains",
   display: "swap",
 });
