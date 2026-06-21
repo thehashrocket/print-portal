@@ -121,7 +121,7 @@
     "@types/react-dom": "19.0.2",
     "@types/string-similarity": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^8.58.1",
-    "@typescript-eslint/parser": "^8.58.1",
+    "@typescript-eslint/parser": "^8.61.1",
     "@typescript-eslint/typescript-estree": "^8.58.1",
     "autoprefixer": "^10.4.27",
     "bcrypt": "^6.0.0",
