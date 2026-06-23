@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.6.4] - 2026-06-23
+
+### Security
+
+- Cleared the last remaining Dependabot alert deferred in v0.2.6.3: `uuid` <11.1.1 (GHSA-w5hq-g745-h8pq, moderate), pulled transitively via `next-auth` 4.24.13 → `uuid` 8.3.2. Added a `pnpm.overrides` entry pinning `uuid` to `>=11.1.1 <12`. `pnpm audit` now reports **0 vulnerabilities** (the only real exposure `pnpm audit` found across the open alerts).
+  - Safe under `next-auth`: the advisory's vulnerable path is a buffer-bounds bug in `v3/v5/v6` only when a `buf` argument is passed; `next-auth` calls bare `v4()` (`jwt/index.ts`), so it was never reachable. `v4` is exported identically in uuid v11 (the v9→v11 breaking changes were ESM/CJS packaging and the default export). Verified `next-auth/jwt` loads against `uuid@11.1.1`, `v4()` produces valid UUIDs, and all 171 tests pass.
+- Note: the other open Dependabot alerts are stale — the lockfile already resolves patched versions (axios, next, hono, dompurify, vitest, nodemailer, form-data, postcss, fast-xml-parser). Dependabot doesn't reconcile pnpm `overrides`-forced resolutions on its own; they will be re-scanned/dismissed after this lands. Tracked in gianthat/thomson-print-portal#505.
+
 ## [0.2.6.3] - 2026-06-23
 
 ### Security
