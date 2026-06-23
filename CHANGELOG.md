@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.7.0] - 2026-06-23
+
+### Security
+
+- **Locked down note read endpoints (#508):** `orderNote`/`workOrderNote` `getByID` and `getAll` were `publicProcedure`, exposing every note to unauthenticated callers. Both are now `protectedProcedure`. (These endpoints are currently unused by the UI; scoping `getAll` per-order or removing it is tracked as follow-up.)
+- **Added ownership checks to note mutations (#511):** note `update`/`delete` previously let any authenticated user edit or delete any note by id. Added a shared `assertNoteOwnership` guard (creator-or-Admin, tolerant of a missing `Roles` claim) applied to both note routers, with unit tests.
+- **Fixed QuickBooks token refresh swallowing failures (#510):** `qbAuth.refreshToken` returned `{ success: true }` while the token DB write ran in a detached `.then()`. It now awaits the refresh and the DB update inside the try/catch, returns `UNAUTHORIZED` when no refresh token is stored, and surfaces real failures as `TRPCError`.
+
+### Fixed
+
+- **Seed script is now idempotent and seeds a usable admin (#523):** `prisma/seed.ts` hashed the admin password but never persisted it (the seeded admin had no password), and created roles/admin with `create()` — failing P2002 on re-run. Roles and the admin user now `upsert`, and the admin password is written.
+
+### Changed
+
+- Linked open `TODOS.md` backlog items to their tracking issues (#508–#526).
+
 ## [0.2.6.4] - 2026-06-23
 
 ### Security
