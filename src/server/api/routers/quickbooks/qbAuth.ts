@@ -198,6 +198,12 @@ export const qbAuthRouter = createTRPCRouter({
                     message: 'User not found'
                 });
             }
+            if (!user.quickbooksRefreshToken) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'No QuickBooks refresh token on file — reconnect QuickBooks'
+                });
+            }
             try {
                 // Await the refresh AND the DB write so failures actually
                 // surface to the caller. Previously this ran in a detached

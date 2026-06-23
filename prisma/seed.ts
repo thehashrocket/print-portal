@@ -55,8 +55,17 @@ const maxFutureDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000)
 
 async function createAdminUser() {
   const hashedPassword = await hashPassword("your-password");
-  await prismaClient.user.create({
-    data: {
+  // Upsert (not create) so the seed is idempotent — the admin email is unique,
+  // so a re-run would otherwise fail P2002.
+  await prismaClient.user.upsert({
+    where: { email: "jason.shultz@1905newmedia.com" },
+    update: {
+      password: hashedPassword,
+      Roles: {
+        connect: [{ name: "Admin" }],
+      },
+    },
+    create: {
       name: "Jason Shultz",
       email: "jason.shultz@1905newmedia.com",
       password: hashedPassword,

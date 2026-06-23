@@ -15,14 +15,16 @@ import { throwForbidden, throwNotFound } from "~/server/api/errors";
  */
 export function assertNoteOwnership(
     existing: { createdById: string } | null,
-    ctx: { session: { user: { id: string; Roles: string[] } } },
+    ctx: { session: { user: { id: string; Roles?: string[] } } },
     resource: string,
 ): asserts existing is { createdById: string } {
     if (!existing) {
         throwNotFound(resource);
     }
     const isOwner = existing.createdById === ctx.session.user.id;
-    const isAdmin = ctx.session.user.Roles.includes("Admin");
+    // Roles is optional on the session type (next-auth.d.ts) — a degraded
+    // session lookup can omit it, so default to [] rather than throwing.
+    const isAdmin = (ctx.session.user.Roles ?? []).includes("Admin");
     if (!isOwner && !isAdmin) {
         throwForbidden("You can only modify notes you created");
     }
