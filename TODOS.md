@@ -154,6 +154,11 @@ Currently using `prisma db push` for schema changes. Prisma Migrate would provid
 ### Service Worker (`scripts/build-sw.js`)
 A service worker build script exists but PWA features are not actively used. Keep the script but don't invest in PWA until the customer-facing portal is underway.
 
+### P2 — `uuid` Dependabot alert (deferred from security sweep, 2026-06-23)
+One open Dependabot alert (medium) remains: `uuid` at 8.3.2, pulled in by `next-auth` 4.24.13. The only fix is an 8→11 **major** bump. Forcing a major `uuid` bump under the auth library via `pnpm.overrides` risks login breakage (worst case: users can't authenticate) for a medium-severity alert.
+- **Action:** Resolve when next upgrading `next-auth`, OR add the `uuid` override on a dedicated branch and verify the full login/session flow before merging.
+- **Context:** All other 37 alerts cleared in v0.2.6.3.
+
 ## Design Review Findings (deferred from /design-review, 2026-06-11)
 
 Full report with screenshots: `~/.gstack/projects/gianthat-thomson-print-portal/designs/design-audit-20260611/`. Fixed in the same session (branch `thehashrocket/design-review`): DaisyUI indigo/lime token leak, DaisyUI hijacking Press Room `.btn`/`.card`/`.input` via cascade layers, dashboard filter clipping + shadcn filters, lime secondary buttons, bare invoices empty state.

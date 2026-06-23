@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.6.3] - 2026-06-23
+
+### Security
+
+- Cleared 37 of 38 open Dependabot alerts by pinning vulnerable transitive dependencies to their patched versions via `pnpm.overrides`, each bounded to its current major so the change stays a minimal patch with no major-version blast radius:
+  - `hono` ≥4.12.25 (14 high) and `@hono/node-server` ≥1.19.13 — both pulled in by `@prisma/dev` (build tooling)
+  - `undici` ≥7.28.0 (7 high, test-only via jsdom/vitest)
+  - `dompurify` ≥3.4.11 (8 medium, runtime via jspdf)
+  - `vite` ≥7.3.5 (2 high, test-only) — also added as an explicit devDependency, since pnpm overrides do not apply to vitest's auto-installed peer
+  - `js-yaml` ≥4.2.0, `postcss` ≥8.5.10, `esbuild` ≥0.28.1, `@babel/core` ≥7.29.6, and `brace-expansion@5` ≥5.0.6 (scoped — the `1.x` instance is unaffected)
+- Deferred: the `uuid` alert (medium) remains open. The only fix is an 8→11 major bump, and `uuid` is pulled in by `next-auth` (production auth). Forcing a major bump under the auth library risks login breakage and needs a separate, tested change. Tracked in TODOS.md.
+
 ## [0.2.6.2] - 2026-06-11
 
 ### Fixed
