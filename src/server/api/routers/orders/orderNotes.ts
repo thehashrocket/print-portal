@@ -3,11 +3,11 @@ import { z } from "zod";
 import {
     createTRPCRouter,
     protectedProcedure,
-    publicProcedure,
 } from "~/server/api/trpc";
+import { assertNoteOwnership } from "~/server/api/routers/shared/noteOwnership";
 
 export const orderNoteRouter = createTRPCRouter({
-    getByID: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
         return ctx.db.orderNote.findUnique({
             where: {
                 id: input,
@@ -18,7 +18,7 @@ export const orderNoteRouter = createTRPCRouter({
         });
     }),
 
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return ctx.db.orderNote.findMany({
             include: {
                 createdBy: true
@@ -47,6 +47,12 @@ export const orderNoteRouter = createTRPCRouter({
             note: z.string(),
         }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.orderNote.findUnique({
+                where: { id: input.id },
+                select: { createdById: true },
+            });
+            assertNoteOwnership(existing, ctx, "Order note");
+
             return ctx.db.orderNote.update({
                 where: {
                     id: input.id
@@ -60,6 +66,12 @@ export const orderNoteRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.string())
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.orderNote.findUnique({
+                where: { id: input },
+                select: { createdById: true },
+            });
+            assertNoteOwnership(existing, ctx, "Order note");
+
             return ctx.db.orderNote.delete({
                 where: {
                     id: input

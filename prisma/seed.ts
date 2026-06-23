@@ -55,10 +55,20 @@ const maxFutureDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000)
 
 async function createAdminUser() {
   const hashedPassword = await hashPassword("your-password");
-  const user = await prismaClient.user.create({
-    data: {
+  // Upsert (not create) so the seed is idempotent — the admin email is unique,
+  // so a re-run would otherwise fail P2002.
+  await prismaClient.user.upsert({
+    where: { email: "jason.shultz@1905newmedia.com" },
+    update: {
+      password: hashedPassword,
+      Roles: {
+        connect: [{ name: "Admin" }],
+      },
+    },
+    create: {
       name: "Jason Shultz",
       email: "jason.shultz@1905newmedia.com",
+      password: hashedPassword,
       Roles: {
         connect: [{ name: "Admin" }],
       },
@@ -413,17 +423,25 @@ async function createRolesAndPermissions() {
     },
   ];
 
-  // Create roles with associated permissions
+  // Create roles with associated permissions. Upsert (not create) so the seed
+  // is idempotent — re-running previously failed with P2002 on the unique
+  // role.name. `set` reconciles the permission list on every run.
   for (const role of roles) {
-    await prismaClient.role.create({
-      data: {
+    await prismaClient.role.upsert({
+      where: { name: role.name as RoleName },
+      update: {
+        Permissions: {
+          set: role.Permissions.map((perm) => ({ name: perm.name })),
+        },
+      },
+      create: {
         name: role.name as RoleName,
         Permissions: {
           connect: role.Permissions.map((perm) => ({ name: perm.name })),
         },
       },
     });
-    console.log(`Role created: ${role.name}`);
+    console.log(`Role upserted: ${role.name}`);
   }
 
   console.log("Roles created with associated permissions");

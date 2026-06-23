@@ -198,29 +198,29 @@ export const qbAuthRouter = createTRPCRouter({
                     message: 'User not found'
                 });
             }
-            let refreshToken = '';
-            let accessToken = '';
-            let expiresIn = 0;
-
+            if (!user.quickbooksRefreshToken) {
+                throw new TRPCError({
+                    code: 'UNAUTHORIZED',
+                    message: 'No QuickBooks refresh token on file — reconnect QuickBooks'
+                });
+            }
             try {
-                oauthClient
-                .refreshUsingToken(user.quickbooksRefreshToken)
-                .then(async function (authResponse: { json: any; }) {
-                    refreshToken = authResponse.json.refresh_token;
-                    accessToken = authResponse.json.access_token;
-                    expiresIn = authResponse.json.expires_in;
-                    await ctx.db.user.update({
-                        where: { id: ctx.session.user.id },
-                        data: {
-                            quickbooksAccessToken: accessToken,
-                            quickbooksRefreshToken: refreshToken,
-                            quickbooksTokenExpiry: new Date(Date.now() + expiresIn * 1000),
-                        },
-                    });
-                })
-                .catch(function (e: { originalMessage: string; intuit_tid: any; }) {
-                    console.error('THE ERROR MESSAGE IS :' + e.originalMessage);
-                    console.error(e.intuit_tid);
+                // Await the refresh AND the DB write so failures actually
+                // surface to the caller. Previously this ran in a detached
+                // .then() chain, so the mutation returned success before the
+                // token was persisted (and swallowed any refresh error).
+                const authResponse = await oauthClient.refreshUsingToken(user.quickbooksRefreshToken);
+                const refreshToken = authResponse.json.refresh_token;
+                const accessToken = authResponse.json.access_token;
+                const expiresIn = authResponse.json.expires_in;
+
+                await ctx.db.user.update({
+                    where: { id: ctx.session.user.id },
+                    data: {
+                        quickbooksAccessToken: accessToken,
+                        quickbooksRefreshToken: refreshToken,
+                        quickbooksTokenExpiry: new Date(Date.now() + expiresIn * 1000),
+                    },
                 });
 
                 return { success: true, message: 'Access token refreshed' };
