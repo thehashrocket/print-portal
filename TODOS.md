@@ -9,11 +9,49 @@
 | **P2** | Quality/maintainability issue, should fix soon |
 | **P3** | Nice-to-have improvement, fix when convenient |
 
+## Newly Surfaced (plan-eng-review gap scan, 2026-06-23)
+
+Security and correctness gaps found scanning the codebase, not previously tracked.
+
+### P1 — Order & work-order notes are publicly readable
+**Issue:** [#508](https://github.com/gianthat/thomson-print-portal/issues/508)
+`getByID`/`getAll` on the notes routers are `publicProcedure` — any unauthenticated caller can read every note. (`orders/orderNotes.ts:10,21`, `workOrders/workOrderNote.ts:14,25`)
+- **Action:** Switch both queries to `protectedProcedure`; add ownership/parent-access scoping.
+- **Completed:** PR for #508/#510/#511/#523 — getByID/getAll now `protectedProcedure`.
+
+### P1 — User registration endpoint is a public unauthenticated procedure
+**Issue:** [#509](https://github.com/gianthat/thomson-print-portal/issues/509)
+`user.create` is `publicProcedure` (`user.ts:43`), wired to `userRegistration.tsx` — anyone can create an account on an internal tool.
+- **Resolution:** Self-signup is intended. Closed as working-as-designed (2026-06-23).
+
+### P1 — QB token refresh returns success before the async token write completes
+**Issue:** [#510](https://github.com/gianthat/thomson-print-portal/issues/510)
+`refreshToken` (`quickbooks/qbAuth.ts:~205-226`) returns `{ success: true }` synchronously while the DB token update runs in a detached `.then()`; errors only hit `console.error`. Client sees success even when refresh failed.
+- **Action:** `await` the refresh + DB update; surface failures as `TRPCError`.
+- **Completed:** PR for #508/#510/#511/#523 — refresh + DB write now awaited inside try/catch.
+
+### P2 — Order/work-order note update & delete lack ownership checks
+**Issue:** [#511](https://github.com/gianthat/thomson-print-portal/issues/511)
+`update`/`delete` are `protectedProcedure` but don't verify note ownership or parent access — any authenticated user can mutate any note by ID.
+- **Action:** Load the note, check ownership/parent access before mutating.
+- **Completed:** PR for #508/#510/#511/#523 — added `assertNoteOwnership` (creator-or-Admin) + tests.
+
+### P2 — QB OAuth callback logs full error object + request headers
+**Issue:** [#512](https://github.com/gianthat/thomson-print-portal/issues/512)
+`app/api/quickbooks/callback/route.ts:~45-54` dumps the error and request headers on failure — can leak OAuth state/tokens into prod logs.
+- **Action:** Log a sanitized message + `intuit_tid` only.
+
+### P2 — QB customer sync runs serial N+1 API/DB calls per office
+**Issue:** [#513](https://github.com/gianthat/thomson-print-portal/issues/513)
+`qbCustomer.ts:~765-797` loops over `company.Offices` with sequential awaited fetch + up to 2 DB calls each; sync time scales linearly, no timeout protection.
+- **Action:** Batch/parallelize with bounded concurrency; add timeouts.
+
 ## Technical Debt
 
 ### P1 — Test Infrastructure
 Vitest is configured with 3 test suites (Decimal serialization, db client, work order calculations). Expand coverage to critical paths.
 - **Action:** Add tests for order CRUD, invoice generation, QB sync
+- **Issue:** [#514](https://github.com/gianthat/thomson-print-portal/issues/514) (QB sync coverage), [#515](https://github.com/gianthat/thomson-print-portal/issues/515) (untested routers)
 - **See:** [ROADMAP.md](./docs/ROADMAP.md) — High Priority
 - **Partial (2026-04-21):** Added 15 new tests across 2 new suites:
   - `src/server/api/routers/invoices/__tests__/invoice.test.ts` — `generateInvoiceNumber` (3), `formatItemDescription` (3), `addPayment` status logic (2), `getById` NOT_FOUND (1)
@@ -83,6 +121,7 @@ Error handling varies across routers — some throw TRPCError with codes, others
 ## Planned Improvements
 
 ### P3 — QB Sandbox Integration Tests
+**Issue:** [#516](https://github.com/gianthat/thomson-print-portal/issues/516)
 Unit tests with mocked axios verify error paths and payload shape. They do NOT
 verify that the QB API actually accepts our payload. True integration tests
 require QB credentials in CI (QB_CLIENT_ID, QB_CLIENT_SECRET, QB_REALM_ID from
@@ -95,6 +134,7 @@ a sandbox company) and OAuth token management in fixtures.
   multi-tenant expansion where QB sync failures affect multiple customers.
 
 ### Test Coverage (linked to [ROADMAP.md](./docs/ROADMAP.md))
+**Issue:** [#514](https://github.com/gianthat/thomson-print-portal/issues/514), [#515](https://github.com/gianthat/thomson-print-portal/issues/515)
 - Unit tests for tRPC routers (input validation, business logic)
 - Integration tests for QuickBooks sync flow
 - Component tests for critical UI flows (order creation, invoice generation)
@@ -106,11 +146,13 @@ a sandbox company) and OAuth token management in fixtures.
 - **Completed (2026-05-27):** Added `scripts/check-docs.js` + `pnpm check:docs` script. CI step added to `ci.yml`. Validates: (1) all relative markdown links in `docs/` resolve, (2) Prisma model/enum counts in `docs/ARCHITECTURE.md` match `schema.prisma`, (3) tRPC router count matches `root.ts`. Fixed 3 stale count claims in ARCHITECTURE.md (38→39 models, 40→39 Prisma models, 32→33 routers) and added missing `orderVersions` router to table. Markdown lint deferred — separate TODO.
 
 ### P3 — Markdown Lint (deferred from CI/CD Documentation Validation)
+**Issue:** [#524](https://github.com/gianthat/thomson-print-portal/issues/524)
 Adding `markdownlint-cli` requires fixing existing violations across all docs before CI goes green. Low urgency.
 - **Action:** Add `markdownlint-cli` as devDep. Run against `docs/` to inventory violations. Fix and add `check:lint-docs` CI step.
 - **Depends on:** Nothing — but expect 30-60min to resolve existing formatting issues.
 
 ### Type Safety Improvements
+**Issue:** [#526](https://github.com/gianthat/thomson-print-portal/issues/526) (explicit return types + QB webhook validation)
 - Audit `as unknown as` and other type assertions — **Partial (2026-04-21):** Removed `as unknown as` from `upload/route.ts` (replaced with `instanceof File` guard) and `OrderItemPrintPreview.tsx` (downgraded to single-step `as Record<string, unknown>`). The `db.ts` usage is standard T3 `globalThis` boilerplate, acceptable as-is.
 - Strengthen tRPC router return types (explicit instead of inferred from Prisma)
 - Add runtime validation for QB webhook payloads
@@ -133,6 +175,7 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 - **Completed:** 2026-04-20 (also removed `ag-charts-community` which was equally unused)
 
 ### P3 — OrderVersion / OrderItemVersion Retention Policy
+**Issue:** [#525](https://github.com/gianthat/thomson-print-portal/issues/525)
 `OrderVersion` and `OrderItemVersion` tables grow indefinitely with no current archival strategy. At high order volume this will affect query performance and storage costs.
 - **Action:** Add a monitoring alert when either table exceeds a row-count threshold (e.g. 500k rows). Implement a `scripts/archive-versions.ts` script using `deleteMany` to archive records older than a configurable window (e.g. 2 years). Schedule as a cron job once usage volume warrants it.
 - **Note:** Low urgency for current single-tenant scale; revisit before multi-tenant expansion or if `@@index` queries begin degrading.
@@ -159,22 +202,29 @@ A service worker build script exists but PWA features are not actively used. Kee
 Full report with screenshots: `~/.gstack/projects/gianthat-thomson-print-portal/designs/design-audit-20260611/`. Fixed in the same session (branch `thehashrocket/design-review`): DaisyUI indigo/lime token leak, DaisyUI hijacking Press Room `.btn`/`.card`/`.input` via cascade layers, dashboard filter clipping + shadcn filters, lime secondary buttons, bare invoices empty state.
 
 ### P1 — Mobile shell is broken
+**Issue:** [#517](https://github.com/gianthat/thomson-print-portal/issues/517)
 The 240px sidebar stays expanded at phone widths leaving ~115px of clipped content; the only media query in `globals.css` is print. Needs an off-canvas sidebar + topbar toggle. Also `calc(100vh - 200px)` in the dashboard kanban should be `svh`-based (`draggableOrdersDash.tsx:191`).
 
 ### P1 — Terminology split: "Work Orders" vs "Estimates"
+**Issue:** [#518](https://github.com/gianthat/thomson-print-portal/issues/518)
 Sidebar/breadcrumb say Work Orders; `/workOrders` page title says "Esti*mates*" (section label "Sales"); CTAs vary between "+ New Work Order", "+ New Estimate", "Create New Estimate", "Create Estimate". Pick one term, sweep all surfaces.
 
 ### P2 — Legacy theming migration (Tailwind/DaisyUI/shadcn → Press Room)
+**Issue:** [#519](https://github.com/gianthat/thomson-print-portal/issues/519)
 600+ Tailwind utility usages, ~15 live DaisyUI classes, shadcn `ui/` still imported by forms/modals/detail pages, ~30 hardcoded hex (`#006739` in work-order forms, `text-red-500` validation), three parallel toast systems (DaisyUI alert / react-hot-toast / shadcn toaster), two AG Grid themes (alpine + quartz). Press Room classes are now unlayered so they win wherever adopted — migrate surface by surface.
 
 ### P2 — Detail pages are stacked decorative cards
+**Issue:** [#520](https://github.com/gianthat/thomson-print-portal/issues/520)
 `InfoCard`/`EditableInfoCard` wrap nearly every datum and nest inside more cards on order/work-order detail. Replace with the documented `.split` layout + `Meta` primitives where the card isn't the interaction.
 
 ### P2 — Accessibility gaps in the shell
+**Issue:** [#521](https://github.com/gianthat/thomson-print-portal/issues/521)
 No `<main>` landmark in `(authenticated)/layout.tsx`, topbar search input has no label, core controls are 26–34px tall (44px touch minimum), Companies grid encodes QuickBooks sync status with raw red/green text instead of `<Pill>`.
 
 ### P3 — Dead design code
+**Issue:** [#522](https://github.com/gianthat/thomson-print-portal/issues/522) (dead code), [#523](https://github.com/gianthat/thomson-print-portal/issues/523) (seed.ts bugs — promoted to P2)
 `shared/navBar.tsx` (lime, unused — zero imports), unused shadcn components in `_components/ui/`, deprecated AG Grid `rowSelection` string API warnings in console. Also `prisma/seed.ts` computes the admin password hash but never writes it (`createAdminUser`), and re-running the seed fails on a non-idempotent role upsert.
+- **Seed bugs completed:** PR for #508/#510/#511/#523 — admin password now persisted; role creation switched to idempotent `upsert`.
 
 ## Press Room Redesign (post-migration cleanup)
 
