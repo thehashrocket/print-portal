@@ -43,11 +43,11 @@ importers:
         specifier: ^33.0.3
         version: 33.0.3
       '@auth/prisma-adapter':
-        specifier: ^2.11.1
-        version: 2.11.1(@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3))(nodemailer@9.0.1)
+        specifier: ^2.11.2
+        version: 2.11.2(@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3))(nodemailer@9.0.1)
       '@hookform/resolvers':
         specifier: ^5.2.2
-        version: 5.2.2(react-hook-form@7.72.1(react@19.2.5))
+        version: 5.2.2(react-hook-form@7.80.0(react@19.2.5))
       '@next/env':
         specifier: 16.2.9
         version: 16.2.9
@@ -95,7 +95,7 @@ importers:
         version: 0.13.11(arktype@2.1.20)(typescript@5.9.3)(valibot@1.2.0(typescript@5.9.3))(zod@4.3.6)
       '@tailwindcss/line-clamp':
         specifier: ^0.4.4
-        version: 0.4.4(tailwindcss@4.2.3)
+        version: 0.4.4(tailwindcss@4.3.0)
       '@tanstack/react-query':
         specifier: ^5.100.5
         version: 5.100.5(react@19.2.5)
@@ -187,8 +187,8 @@ importers:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-hook-form:
-        specifier: ^7.72.1
-        version: 7.72.1(react@19.2.5)
+        specifier: ^7.74.0
+        version: 7.80.0(react@19.2.5)
       react-hot-toast:
         specifier: ^2.6.0
         version: 2.6.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -212,7 +212,7 @@ importers:
         version: 3.5.0
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.2.3)
+        version: 1.0.7(tailwindcss@4.3.0)
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -231,7 +231,7 @@ importers:
         version: 4.3.0
       '@tailwindcss/typography':
         specifier: ^0.5.19
-        version: 0.5.19(tailwindcss@4.2.3)
+        version: 0.5.19(tailwindcss@4.3.0)
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -281,8 +281,8 @@ importers:
         specifier: ^8.61.1
         version: 8.61.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/typescript-estree':
-        specifier: ^8.58.1
-        version: 8.58.1(typescript@5.9.3)
+        specifier: ^8.59.1
+        version: 8.61.1(typescript@5.9.3)
       autoprefixer:
         specifier: ^10.4.27
         version: 10.4.27(postcss@8.5.15)
@@ -317,8 +317,8 @@ importers:
         specifier: ^7.7.0
         version: 7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3)
       tailwindcss:
-        specifier: ^4.2.3
-        version: 4.2.3
+        specifier: ^4.2.4
+        version: 4.3.0
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@25.9.3)(typescript@5.9.3)
@@ -387,8 +387,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@auth/core@0.41.1':
-    resolution: {integrity: sha512-t9cJ2zNYAdWMacGRMT6+r4xr1uybIdmYa49calBPeTqwgAFPV/88ac9TEvCR85pvATiSPt8VaNf+Gt24JIT/uw==}
+  '@auth/core@0.41.2':
+    resolution: {integrity: sha512-Hx5MNBxN2fJTbJKGUKAA0wca43D0Akl3TvufY54Gn8lop7F+34vU1zA1pn0vQfIoVuLIrpfc2nkyjwIaPJMW7w==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
       '@simplewebauthn/server': ^9.0.2
@@ -401,8 +401,8 @@ packages:
       nodemailer:
         optional: true
 
-  '@auth/prisma-adapter@2.11.1':
-    resolution: {integrity: sha512-Ke7DXP0Fy0Mlmjz/ZJLXwQash2UkA4621xCM0rMtEczr1kppLc/njCbUkHkIQ/PnmILjqSPEKeTjDPsYruvkug==}
+  '@auth/prisma-adapter@2.11.2':
+    resolution: {integrity: sha512-GyNEUNtrPgDPs0M4xX6F5i7jTsCKwU6BXV9zutctcoo6K1Ud+juckrmQS11uyNgeWsw6sliextHbU/e+8lsizQ==}
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3 || >=4 || >=5 || >=6'
 
@@ -4175,8 +4175,8 @@ packages:
     peerDependencies:
       react: ^19.2.5
 
-  react-hook-form@7.72.1:
-    resolution: {integrity: sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==}
+  react-hook-form@7.80.0:
+    resolution: {integrity: sha512-4P+fk6oXsxY+6xSj7Euhc2sumQD8zQqCuVHoJwoyp9EchP+IUW9OESB7uHFJOKsIBQ4MQqYE84INJFqUCYNoOg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -4561,9 +4561,6 @@ packages:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
-
-  tailwindcss@4.2.3:
-    resolution: {integrity: sha512-fA/NX5gMf0ooCLISgB0wScaWgaj6rjTN2SVAwleURjiya7ITNkV+VMmoHtKkldP6CIZoYCZyxb8zP/e2TWoEtQ==}
 
   tailwindcss@4.3.0:
     resolution: {integrity: sha512-y6nxMGB1nMW9R6k96e5gdIFzcfL/gTJRNaqGes1YvkLnPVXzWgbqFF2yLC0T8G774n24cx3Pe8XrKoniCOAH+Q==}
@@ -5026,7 +5023,7 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@auth/core@0.41.1(nodemailer@9.0.1)':
+  '@auth/core@0.41.2(nodemailer@9.0.1)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.2.2
@@ -5036,9 +5033,9 @@ snapshots:
     optionalDependencies:
       nodemailer: 9.0.1
 
-  '@auth/prisma-adapter@2.11.1(@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3))(nodemailer@9.0.1)':
+  '@auth/prisma-adapter@2.11.2(@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3))(nodemailer@9.0.1)':
     dependencies:
-      '@auth/core': 0.41.1(nodemailer@9.0.1)
+      '@auth/core': 0.41.2(nodemailer@9.0.1)
       '@prisma/client': 7.7.0(prisma@7.7.0(@types/react-dom@19.0.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
@@ -5411,10 +5408,10 @@ snapshots:
     dependencies:
       hono: 4.12.27
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.72.1(react@19.2.5))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.80.0(react@19.2.5))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.72.1(react@19.2.5)
+      react-hook-form: 7.80.0(react@19.2.5)
 
   '@humanfs/core@0.19.1': {}
 
@@ -6268,9 +6265,9 @@ snapshots:
 
   '@tabby_ai/hijri-converter@1.0.5': {}
 
-  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.2.3)':
+  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.3.0)':
     dependencies:
-      tailwindcss: 4.2.3
+      tailwindcss: 4.3.0
 
   '@tailwindcss/node@4.3.0':
     dependencies:
@@ -6341,10 +6338,10 @@ snapshots:
       postcss: 8.5.15
       tailwindcss: 4.3.0
 
-  '@tailwindcss/typography@0.5.19(tailwindcss@4.2.3)':
+  '@tailwindcss/typography@0.5.19(tailwindcss@4.3.0)':
     dependencies:
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.2.3
+      tailwindcss: 4.3.0
 
   '@tanstack/query-core@5.100.5': {}
 
@@ -8773,7 +8770,7 @@ snapshots:
       react: 19.2.5
       scheduler: 0.27.0
 
-  react-hook-form@7.72.1(react@19.2.5):
+  react-hook-form@7.80.0(react@19.2.5):
     dependencies:
       react: 19.2.5
 
@@ -9212,11 +9209,9 @@ snapshots:
 
   tailwind-merge@3.5.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.2.3):
+  tailwindcss-animate@1.0.7(tailwindcss@4.3.0):
     dependencies:
-      tailwindcss: 4.2.3
-
-  tailwindcss@4.2.3: {}
+      tailwindcss: 4.3.0
 
   tailwindcss@4.3.0: {}
 
