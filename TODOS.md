@@ -154,11 +154,6 @@ Currently using `prisma db push` for schema changes. Prisma Migrate would provid
 ### Service Worker (`scripts/build-sw.js`)
 A service worker build script exists but PWA features are not actively used. Keep the script but don't invest in PWA until the customer-facing portal is underway.
 
-### P2 — `uuid` Dependabot alert (deferred from security sweep, 2026-06-23)
-One open Dependabot alert (medium) remains: `uuid` at 8.3.2, pulled in by `next-auth` 4.24.13. The only fix is an 8→11 **major** bump. Forcing a major `uuid` bump under the auth library via `pnpm.overrides` risks login breakage (worst case: users can't authenticate) for a medium-severity alert.
-- **Action:** Resolve when next upgrading `next-auth`, OR add the `uuid` override on a dedicated branch and verify the full login/session flow before merging.
-- **Context:** All other 37 alerts cleared in v0.2.6.3.
-
 ## Design Review Findings (deferred from /design-review, 2026-06-11)
 
 Full report with screenshots: `~/.gstack/projects/gianthat-thomson-print-portal/designs/design-audit-20260611/`. Fixed in the same session (branch `thehashrocket/design-review`): DaisyUI indigo/lime token leak, DaisyUI hijacking Press Room `.btn`/`.card`/`.input` via cascade layers, dashboard filter clipping + shadcn filters, lime secondary buttons, bare invoices empty state.
@@ -195,6 +190,10 @@ No `<main>` landmark in `(authenticated)/layout.tsx`, topbar search input has no
 - **Completed:** 2026-04-20 — Verified zero usages of Bliss Pro-specific class names (`font-italic`, `font-light-bold`). The `--font-light/bold/normal` entries in `@theme` were shadowing standard Tailwind weight utilities (a bug). Removed all Bliss Pro `@theme` entries and `@font-face` declarations from `globals.css`. Deleted `public/fonts/`.
 
 ## Completed
+
+### P2 — `uuid` Dependabot alert (deferred from security sweep, 2026-06-23)
+The last open Dependabot alert from the security sweep: `uuid` 8.3.2 (<11.1.1, GHSA-w5hq-g745-h8pq) via `next-auth` 4.24.13. Resolved on a dedicated branch by adding a `pnpm.overrides` entry pinning `uuid` to `>=11.1.1 <12`. The feared login breakage didn't materialize: `next-auth` only calls bare `v4()`, whose API is unchanged in uuid v11, and the advisory's vulnerable `buf` path was never reachable. Verified `next-auth/jwt` loads against `uuid@11.1.1`, `v4()` produces valid UUIDs, all 171 tests pass, and `pnpm audit` reports 0 vulnerabilities.
+- **Completed:** v0.2.6.4 (2026-06-23)
 
 ### P3 — Audit Radix Components for Hydration Mismatches
 Audited all 14 files importing from `@radix-ui/*`. Found `button.tsx` missing `"use client"` directive (imports `@radix-ui/react-slot`). All other Radix UI wrapper components and consumer components already had proper client boundaries. Fixed `button.tsx` by adding the directive.
