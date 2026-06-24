@@ -11,24 +11,10 @@ import {
 import { assertNoteOwnership } from "~/server/api/routers/shared/noteOwnership";
 
 export const workOrderNoteRouter = createTRPCRouter({
-    getByID: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
-        return ctx.db.workOrderNote.findUnique({
-            where: {
-                id: input,
-            },
-            include: {
-                createdBy: true
-            }
-        });
-    }),
-
-    getAll: protectedProcedure.query(async ({ ctx }) => {
-        return ctx.db.workOrderNote.findMany({
-            include: {
-                createdBy: true
-            }
-        });
-    }),
+    // Read endpoints removed (#528): getByID/getAll had zero call sites and
+    // getAll returned every note to any authenticated user. Notes are loaded
+    // via the parent work-order fetch. Re-add scoped (by workOrderId /
+    // createdById) if a note-list feature needs them.
 
     create: protectedProcedure
         .input(z.object({

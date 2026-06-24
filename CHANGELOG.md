@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.7.1] - 2026-06-24
+
+### Security
+
+- **Removed unused note read endpoints (#528):** `orderNote`/`workOrderNote` `getByID` and `getAll` had zero call sites, and `getAll` returned every note in the database to any authenticated user. Both are removed from both routers (notes are loaded via the parent order/work-order fetch). Re-add scoped by `orderId`/`workOrderId`/`createdById` if a note-list feature needs them. Follow-up to #508.
+
 ## [0.2.7.0] - 2026-06-23
 
 ### Security
