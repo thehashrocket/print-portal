@@ -18,6 +18,7 @@ Security and correctness gaps found scanning the codebase, not previously tracke
 `getByID`/`getAll` on the notes routers are `publicProcedure` — any unauthenticated caller can read every note. (`orders/orderNotes.ts:10,21`, `workOrders/workOrderNote.ts:14,25`)
 - **Action:** Switch both queries to `protectedProcedure`; add ownership/parent-access scoping.
 - **Completed:** PR for #508/#510/#511/#523 — getByID/getAll now `protectedProcedure`.
+- **Follow-up:** [#528](https://github.com/gianthat/thomson-print-portal/issues/528) — `getAll` is still unscoped (returns all notes to any authenticated user) and both endpoints are unused; scope or remove.
 
 ### P1 — User registration endpoint is a public unauthenticated procedure
 **Issue:** [#509](https://github.com/gianthat/thomson-print-portal/issues/509)
