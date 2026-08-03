@@ -42,7 +42,7 @@
     "@ag-grid-community/react": "^32.3.9",
     "@ag-grid-community/styles": "^33.0.3",
     "@auth/prisma-adapter": "^2.11.2",
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^5.5.7",
     "@next/env": "16.2.9",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
