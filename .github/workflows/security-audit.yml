@@ -1,0 +1,171 @@
+# Backstop for vulnerabilities Dependabot cannot open a PR for.
+#
+# Dependabot only bumps packages it can edit directly. A vulnerable *transitive*
+# dependency that is pinned through `pnpm.overrides` (or that no parent package
+# has released a fix for) produces an alert with no PR attached, which is how
+# such alerts sit unnoticed. This job audits the lockfile on a schedule and
+# files a GitHub issue so the alert lands somewhere a human looks.
+#
+# DESIGN RULE: this job must never fail silently. It is the only backstop for
+# advisories Dependabot cannot patch, so an inconclusive run (registry outage,
+# auth failure, changed pnpm output format) fails the workflow LOUDLY rather
+# than being rewritten to success.
+
+name: Security Audit
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # daily, 13:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+# A scheduled run and a manual re-run can otherwise both observe "no issue
+# exists" and each create one, fracturing audit history across duplicates.
+concurrency:
+  group: security-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Audit lockfile
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10.25.0"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.2.0"
+
+      # `pnpm audit` resolves against pnpm-lock.yaml, so no install is needed.
+      #
+      # Classified into exactly three outcomes. There is deliberately no
+      # "assume clean" branch: anything inconclusive becomes `error`.
+      - name: Run pnpm audit
+        id: audit
+        run: |
+          set +e
+          pnpm audit --audit-level=high 2>&1 | tee audit.txt
+          audit_status=${PIPESTATUS[0]}
+
+          # Production-only counts, reported alongside the full audit so a
+          # runtime-reachable advisory is distinguishable at a glance from a
+          # build/test-only one. Both are still reported -- the alerts this
+          # workflow exists to catch (undici via jsdom, fast-uri via prisma)
+          # were all dev-only, so filtering them out would defeat the purpose.
+          pnpm audit --audit-level=high --prod > audit-prod.txt 2>&1
+          prod_status=$?
+
+          # Classified three ways for the same reason as the main audit: a
+          # non-zero exit alone does NOT mean "production affected", it can also
+          # mean the prod audit never completed. Reporting that as
+          # runtime-reachable would be the same silent misclassification.
+          if grep -qE '^[0-9]+ vulnerabilit(y|ies) found' audit-prod.txt; then
+            echo "prod_scope=affected" >> "$GITHUB_OUTPUT"
+          elif [ "$prod_status" -eq 0 ]; then
+            echo "prod_scope=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "prod_scope=unknown" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Anchored on the leading count. A bare "vulnerabilities found" substring
+          # match is wrong: the clean output is "No known vulnerabilities found",
+          # which would file a bogus issue on every green run.
+          if grep -qE '^[0-9]+ vulnerabilit(y|ies) found' audit.txt; then
+            echo "result=advisories" >> "$GITHUB_OUTPUT"
+          elif [ "$audit_status" -eq 0 ]; then
+            echo "result=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=error" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update tracking issue
+        if: steps.audit.outputs.result == 'advisories'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: "Security: high/critical advisories with no Dependabot PR"
+          # Passed through env rather than interpolated into the script body:
+          # `${{ }}` is substituted before bash parses the line, so a branch name
+          # containing shell metacharacters would execute.
+          REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PROD_SCOPE: ${{ steps.audit.outputs.prod_scope }}
+        run: |
+          set -euo pipefail
+
+          case "$PROD_SCOPE" in
+            affected) scope="**Includes production dependencies** — runtime-reachable." ;;
+            clean)    scope="Build/test-only — no production dependency is affected." ;;
+            *)        scope="Unknown — the production-only audit did not complete. Do not assume build/test-only." ;;
+          esac
+
+          {
+            echo "\`pnpm audit\` found high or critical advisories on \`$REF_NAME\`."
+            echo
+            echo "Scope: $scope"
+            echo
+            echo "These are typically transitive dependencies Dependabot cannot bump on"
+            echo "its own. Fix by raising the floor in \`pnpm.overrides\` in"
+            echo "\`package.json\`, then running \`pnpm install\`."
+            echo
+            echo "<details><summary>full audit output</summary>"
+            echo
+            echo '```'
+            cat audit.txt
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "<details><summary>production-only audit</summary>"
+            echo
+            echo '```'
+            cat audit-prod.txt
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "_Generated by [security-audit]($RUN_URL)._"
+          } > body.md
+
+          # The create path hard-depends on this label existing; a fork or
+          # renamed clone would otherwise fail before filing anything.
+          gh label create security \
+            --color b60205 \
+            --description "Security / authz / data-exposure" 2>/dev/null || true
+
+          # GitHub's `in:title` search is tokenized, not exact, so it can match a
+          # different security-labelled issue. Filter to an exact title match.
+          existing=$(gh issue list \
+            --state open \
+            --label security \
+            --search "$TITLE in:title" \
+            --json number,title \
+            --jq '[.[] | select(.title == env.TITLE)][0].number // empty')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file body.md
+            echo "Commented on existing issue #$existing"
+          else
+            gh issue create \
+              --title "$TITLE" \
+              --label security \
+              --body-file body.md
+          fi
+
+      # Inconclusive run. Fails the workflow so it shows up as a red X and
+      # notifies, rather than passing quietly and leaving advisories undetected.
+      - name: Fail on inconclusive audit
+        if: steps.audit.outputs.result == 'error'
+        run: |
+          echo "::error::pnpm audit did not complete — treating as UNKNOWN, not clean."
+          echo "Registry outage, auth failure, or a changed pnpm output format."
+          echo "--- audit output ---"
+          cat audit.txt
+          exit 1

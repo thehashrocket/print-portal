@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.8.0] - 2026-08-05
+
+### Security
+
+- **Patched 7 advisories, all on transitive dependencies with no Dependabot PR.** Dependabot only bumps packages it can edit directly and will not touch `pnpm.overrides`, so every one of these alerts sat open with no PR attached. Both parents already permitted the patched versions, so these are lockfile re-resolutions rather than forced pins:
+  - `undici` 7.28.0 → 7.29.0 — 5 advisories including a high-severity cross-user information disclosure (reached via `jsdom`, dev-only).
+  - `fast-uri` 3.1.4 → 3.1.5 — high-severity host confusion via backslash authority introducer (reached via `prisma`, dev-only).
+  - `postcss` 8.5.10 → 8.5.25 — GHSA-fxqj-rqcc-2cmp, not yet alerted; found by the new audit workflow below.
+
+  `pnpm audit` now reports no known vulnerabilities.
+
+### Added
+
+- **A daily security audit that catches what Dependabot structurally cannot.** Dependabot cannot open a PR for a vulnerable transitive dependency pinned through `pnpm.overrides`, which is how the seven advisories above accumulated unnoticed. `.github/workflows/security-audit.yml` runs `pnpm audit` on a schedule and files (or refreshes) a GitHub issue so the alert lands somewhere a person looks. Verified against the pre-fix lockfile: it detects all 7 advisories and would have caught them.
+  - Never fails silently — an inconclusive run (registry outage, auth failure, changed output format) fails the workflow loudly instead of being recorded as clean.
+  - Reports production-only scope alongside the full audit, so a runtime-reachable advisory is distinguishable at a glance from a build/test-only one.
+  - Serialized so a scheduled run and a manual re-run cannot file duplicate issues.
+  - Targets its tracking issue by exact title, and passes branch names through the environment rather than into the script body, so it cannot comment on an unrelated issue or execute a crafted branch name.
+
+### Changed
+
+- **Security updates now arrive as their own labelled pull requests** instead of being buried among routine version bumps. Split production from development so a dev-tooling fix that breaks CI cannot hold a runtime-reachable fix hostage in the same PR. Neither group filters by update type, so a fix that only exists across a major boundary still surfaces.
+- **Routine version bumps are batched** by production/development for minor and patch releases. Major bumps still arrive individually so each gets its own migration assessment.
+- **GitHub Actions are now monitored.** The actions pinned in `.github/workflows` previously received no security updates at all.
+- Corrected `package-ecosystem` from `pnpm` to `npm`, the documented value covering npm, Yarn and pnpm. Version updates were already running here, so this is hygiene rather than a fix.
+
 ## [0.2.7.2] - 2026-07-30
 
 ### Security
