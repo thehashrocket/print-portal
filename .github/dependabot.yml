@@ -1,11 +1,71 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration.
+# Full reference:
+# https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+#
+# NOTE: Security-update PRs are driven by Dependabot alerts, not by the
+# `schedule` below (that only paces version updates). Alert-driven PRs require
+# "Dependabot security updates" to be ON in repo settings; the config here
+# controls how those PRs are grouped and labelled so they stand out from the
+# routine version-bump traffic.
+#
+# Dependabot can only fix a vulnerable package it is able to bump directly. It
+# will not edit `pnpm.overrides`, so alerts on pinned transitive dependencies
+# stay open with no PR. `.github/workflows/security-audit.yml` is the backstop
+# for those.
 
 version: 2
+
 updates:
-  - package-ecosystem: "pnpm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # ---------------------------------------------------------------- app deps
+  # "npm" is the correct ecosystem value for a pnpm project -- pnpm has no
+  # `package-ecosystem` value of its own, it is handled by the npm ecosystem,
+  # which detects pnpm-lock.yaml. (The previous value here was "pnpm", which is
+  # not in the supported list.)
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    groups:
+      # Everything Dependabot can patch for an open alert lands in ONE PR, so a
+      # security fix is never buried among routine bumps.
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      # Routine bumps are batched to keep the PR list short. Majors are
+      # deliberately excluded so they still arrive as individual, reviewable PRs.
+      production:
+        applies-to: version-updates
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development:
+        applies-to: version-updates
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ------------------------------------------------------------ CI workflows
+  # Previously unmonitored: the actions pinned in .github/workflows never
+  # received security updates.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
