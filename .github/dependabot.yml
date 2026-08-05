@@ -2,61 +2,109 @@
 # Full reference:
 # https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
 #
-# NOTE: Security-update PRs are driven by Dependabot alerts, not by the
-# `schedule` below (that only paces version updates). Alert-driven PRs require
-# "Dependabot security updates" to be ON in repo settings; the config here
-# controls how those PRs are grouped and labelled so they stand out from the
-# routine version-bump traffic.
+# Two things about this file that are easy to get wrong:
 #
-# Dependabot can only fix a vulnerable package it is able to bump directly. It
-# will not edit `pnpm.overrides`, so alerts on pinned transitive dependencies
-# stay open with no PR. `.github/workflows/security-audit.yml` is the backstop
-# for those.
+# 1. SECURITY updates do not depend on this file at all. They are driven by the
+#    advisory database and the "Dependabot security updates" repo setting, and
+#    when ungrouped they arrive auto-grouped under an `npm_and_yarn` group --
+#    that group name in a PR title is the tell. So "Dependabot is opening PRs"
+#    does NOT prove this file is valid. The `schedule` below paces VERSION
+#    updates only.
+#
+# 2. Dependabot only bumps packages it can edit directly. It will not touch
+#    `pnpm.overrides`, so an alert on a pinned transitive dependency produces
+#    an alert with NO PR attached, silently, forever. That is exactly how six
+#    alerts (undici, fast-uri) accumulated here.
+#    `.github/workflows/security-audit.yml` is the backstop for that class.
 
 version: 2
 
 updates:
   # ---------------------------------------------------------------- app deps
-  # "npm" is the correct ecosystem value for a pnpm project -- pnpm has no
-  # `package-ecosystem` value of its own, it is handled by the npm ecosystem,
-  # which detects pnpm-lock.yaml. (The previous value here was "pnpm", which is
-  # not in the supported list.)
+  # `npm` is the documented ecosystem for npm, Yarn AND pnpm -- the lockfile is
+  # what tells Dependabot which package manager is actually in use.
+  #
+  # This previously read "pnpm", which is not in the supported-ecosystems table.
+  # Unlike other repos where that mistake silently disabled version updates,
+  # here version updates demonstrably kept running for ~2 years, so GitHub does
+  # appear to accept it. Switched anyway: `npm` is the documented value and is
+  # correct whether or not the alias keeps working.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+
+    # Ungrouped, a multi-package advisory backlog arrives as N PRs that each
+    # conflict with the other N-1 on pnpm-lock.yaml, so the rational response is
+    # to ignore all of them. Grouping is what prevents that.
     open-pull-requests-limit: 10
+
     labels:
       - "dependencies"
+
     groups:
-      # Everything Dependabot can patch for an open alert lands in ONE PR, so a
-      # security fix is never buried among routine bumps.
-      security:
+      # ONE PR for all security updates, whatever the semver distance.
+      #
+      # Deliberately NOT split by update-type. A fix that only exists across a
+      # major boundary is precisely the case that must not be filtered out of
+      # view -- and this repo is genuinely exposed, because every
+      # `pnpm.overrides` entry carries a major upper bound that is ALREADY
+      # behind the current release (checked 2026-08-05):
+      #
+      #     undici      pinned <8   latest 8.10.0
+      #     vite        pinned <8   latest 8.2.0
+      #     fast-uri    pinned <4   latest 4.1.2
+      #     uuid        pinned <12  latest 14.0.1
+      #     @babel/core pinned <8   latest 8.0.1
+      #
+      # If an advisory's only fix ships in one of those newer majors, the
+      # override caps it and Dependabot finds no satisfying version to PR. The
+      # caps are intentional (an unbounded override drags a breaking major into
+      # a transitive dep), so the mitigation is visibility, not removal:
+      # `pnpm audit` still reports the package as vulnerable, and
+      # security-audit.yml turns that into an issue.
+      security-updates:
         applies-to: security-updates
         patterns:
           - "*"
-      # Routine bumps are batched to keep the PR list short. Majors are
-      # deliberately excluded so they still arrive as individual, reviewable PRs.
-      production:
+
+      # Routine bumps, split production/development so a runtime dependency is
+      # never buried in a batch of tooling churn. Minor and patch only.
+      production-minor-patch:
         applies-to: version-updates
         dependency-type: "production"
         update-types:
           - "minor"
           - "patch"
-      development:
+
+      development-minor-patch:
         applies-to: version-updates
         dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
 
+    # MAJORS ARE DELIBERATELY UNGROUPED -- they are not ignored.
+    #
+    # A group only collects the update-types it lists, so majors fall through
+    # and each gets its own PR. That is the intent: each needs its own migration
+    # assessment (typescript 5->6 is open right now). Grouping them would make
+    # one unreviewable PR; ignoring them would hide them.
+
   # ------------------------------------------------------------ CI workflows
-  # Previously unmonitored: the actions pinned in .github/workflows never
-  # received security updates.
+  # The actions in .github/workflows were previously unmonitored entirely.
+  #
+  # Caveat, so nobody is surprised: they are pinned by floating major tag
+  # (actions/checkout@v4), which already picks up patches automatically, so in
+  # practice Dependabot will only ever offer the NEXT MAJOR here. That is still
+  # worth seeing -- v4 is aging and the bump needs a human -- but expect a small
+  # burst of major-bump PRs on the first run, not a steady trickle.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     labels:
       - "dependencies"
       - "github-actions"
