@@ -175,6 +175,12 @@ Multiple tRPC routers (orders, workOrders, companies) have duplicated Decimal ar
 - **Action:** Remove `ag-charts-react` from `package.json`, run `pnpm install`
 - **Completed:** 2026-04-20 (also removed `ag-charts-community` which was equally unused)
 
+### P2 — `pnpm.overrides` major caps sit below current majors
+**Issue:** [#547](https://github.com/gianthat/thomson-print-portal/issues/547)
+Every `pnpm.overrides` entry has a major upper bound, and five are already behind the current release (2026-08-05): `undici` `<8` vs 8.10.0, `vite` `<8` vs 8.2.0, `fast-uri` `<4` vs 4.1.2, `uuid` `<12` vs 14.0.1, `@babel/core` `<8` vs 8.0.1. If an advisory's only fix ships in one of those majors, the cap blocks it and Dependabot has no satisfying version to PR — the same failure mode volunteerready.org hit with `@hono/node-server`.
+- **Mitigation in place:** not silent. `pnpm audit` still flags the package and `.github/workflows/security-audit.yml` files an issue, so the condition surfaces; it just needs a human to widen the cap.
+- **Action:** Walk the five caps and decide per package whether to widen. The caps are intentional (an unbounded override drags a breaking major into a transitive dep), so this is a judgment call each time. `uuid` is two majors behind and the best starting point.
+
 ### P3 — OrderVersion / OrderItemVersion Retention Policy
 **Issue:** [#525](https://github.com/gianthat/thomson-print-portal/issues/525)
 `OrderVersion` and `OrderItemVersion` tables grow indefinitely with no current archival strategy. At high order volume this will affect query performance and storage costs.
