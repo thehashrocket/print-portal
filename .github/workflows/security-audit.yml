@@ -62,7 +62,18 @@ jobs:
           # were all dev-only, so filtering them out would defeat the purpose.
           pnpm audit --audit-level=high --prod > audit-prod.txt 2>&1
           prod_status=$?
-          echo "prod_status=$prod_status" >> "$GITHUB_OUTPUT"
+
+          # Classified three ways for the same reason as the main audit: a
+          # non-zero exit alone does NOT mean "production affected", it can also
+          # mean the prod audit never completed. Reporting that as
+          # runtime-reachable would be the same silent misclassification.
+          if grep -qE '^[0-9]+ vulnerabilit(y|ies) found' audit-prod.txt; then
+            echo "prod_scope=affected" >> "$GITHUB_OUTPUT"
+          elif [ "$prod_status" -eq 0 ]; then
+            echo "prod_scope=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "prod_scope=unknown" >> "$GITHUB_OUTPUT"
+          fi
 
           # Anchored on the leading count. A bare "vulnerabilities found" substring
           # match is wrong: the clean output is "No known vulnerabilities found",
@@ -85,15 +96,15 @@ jobs:
           # containing shell metacharacters would execute.
           REF_NAME: ${{ github.ref_name }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PROD_STATUS: ${{ steps.audit.outputs.prod_status }}
+          PROD_SCOPE: ${{ steps.audit.outputs.prod_scope }}
         run: |
           set -euo pipefail
 
-          if [ "$PROD_STATUS" = "0" ]; then
-            scope="Build/test-only — no production dependency is affected."
-          else
-            scope="**Includes production dependencies** — runtime-reachable."
-          fi
+          case "$PROD_SCOPE" in
+            affected) scope="**Includes production dependencies** — runtime-reachable." ;;
+            clean)    scope="Build/test-only — no production dependency is affected." ;;
+            *)        scope="Unknown — the production-only audit did not complete. Do not assume build/test-only." ;;
+          esac
 
           {
             echo "\`pnpm audit\` found high or critical advisories on \`$REF_NAME\`."
