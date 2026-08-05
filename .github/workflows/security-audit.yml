@@ -5,6 +5,11 @@
 # has released a fix for) produces an alert with no PR attached, which is how
 # such alerts sit unnoticed. This job audits the lockfile on a schedule and
 # files a GitHub issue so the alert lands somewhere a human looks.
+#
+# DESIGN RULE: this job must never fail silently. It is the only backstop for
+# advisories Dependabot cannot patch, so an inconclusive run (registry outage,
+# auth failure, changed pnpm output format) fails the workflow LOUDLY rather
+# than being rewritten to success.
 
 name: Security Audit
 
@@ -16,6 +21,12 @@ on:
 permissions:
   contents: read
   issues: write
+
+# A scheduled run and a manual re-run can otherwise both observe "no issue
+# exists" and each create one, fracturing audit history across duplicates.
+concurrency:
+  group: security-audit
+  cancel-in-progress: false
 
 jobs:
   audit:
@@ -34,43 +45,66 @@ jobs:
           node-version: "24.2.0"
 
       # `pnpm audit` resolves against pnpm-lock.yaml, so no install is needed.
+      #
+      # Classified into exactly three outcomes. There is deliberately no
+      # "assume clean" branch: anything inconclusive becomes `error`.
       - name: Run pnpm audit
         id: audit
         run: |
           set +e
           pnpm audit --audit-level=high 2>&1 | tee audit.txt
           audit_status=${PIPESTATUS[0]}
-          # `pnpm audit` also exits non-zero on infrastructure failures (registry
-          # down, network error). Filing a "vulnerabilities found" issue for those
-          # trains people to ignore the issue, which defeats the backstop. Only
-          # report when the output actually names advisories.
-          if [ "$audit_status" != "0" ] && ! grep -q "vulnerabilities found" audit.txt; then
-            echo "audit exited $audit_status but reported no advisories - treating as infra failure"
-            audit_status=0
+
+          # Production-only counts, reported alongside the full audit so a
+          # runtime-reachable advisory is distinguishable at a glance from a
+          # build/test-only one. Both are still reported -- the alerts this
+          # workflow exists to catch (undici via jsdom, fast-uri via prisma)
+          # were all dev-only, so filtering them out would defeat the purpose.
+          pnpm audit --audit-level=high --prod > audit-prod.txt 2>&1
+          prod_status=$?
+          echo "prod_status=$prod_status" >> "$GITHUB_OUTPUT"
+
+          # Anchored on the leading count. A bare "vulnerabilities found" substring
+          # match is wrong: the clean output is "No known vulnerabilities found",
+          # which would file a bogus issue on every green run.
+          if grep -qE '^[0-9]+ vulnerabilit(y|ies) found' audit.txt; then
+            echo "result=advisories" >> "$GITHUB_OUTPUT"
+          elif [ "$audit_status" -eq 0 ]; then
+            echo "result=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=error" >> "$GITHUB_OUTPUT"
           fi
-          echo "exit_code=$audit_status" >> "$GITHUB_OUTPUT"
 
       - name: Open or update tracking issue
-        if: steps.audit.outputs.exit_code != '0'
+        if: steps.audit.outputs.result == 'advisories'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TITLE: "Security: high/critical advisories with no Dependabot PR"
           # Passed through env rather than interpolated into the script body:
           # `${{ }}` is substituted before bash parses the line, so a branch name
-          # containing shell metacharacters would execute. Repo-controlled values
-          # (server_url, repository, run_id) are safe to interpolate directly.
+          # containing shell metacharacters would execute.
           REF_NAME: ${{ github.ref_name }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PROD_STATUS: ${{ steps.audit.outputs.prod_status }}
         run: |
           set -euo pipefail
+
+          if [ "$PROD_STATUS" = "0" ]; then
+            scope="Build/test-only — no production dependency is affected."
+          else
+            scope="**Includes production dependencies** — runtime-reachable."
+          fi
 
           {
             echo "\`pnpm audit\` found high or critical advisories on \`$REF_NAME\`."
             echo
-            echo "These are likely transitive dependencies Dependabot cannot bump on its own."
-            echo "Fix by raising the floor in \`pnpm.overrides\` in \`package.json\`, then running \`pnpm install\`."
+            echo "Scope: $scope"
             echo
-            echo "<details><summary>audit output</summary>"
+            echo "These are typically transitive dependencies Dependabot cannot bump on"
+            echo "its own. Fix by raising the floor in \`pnpm.overrides\` in"
+            echo "\`package.json\`, then running \`pnpm install\`."
+            echo
+            echo "<details><summary>full audit output</summary>"
             echo
             echo '```'
             cat audit.txt
@@ -78,8 +112,22 @@ jobs:
             echo
             echo "</details>"
             echo
+            echo "<details><summary>production-only audit</summary>"
+            echo
+            echo '```'
+            cat audit-prod.txt
+            echo '```'
+            echo
+            echo "</details>"
+            echo
             echo "_Generated by [security-audit]($RUN_URL)._"
           } > body.md
+
+          # The create path hard-depends on this label existing; a fork or
+          # renamed clone would otherwise fail before filing anything.
+          gh label create security \
+            --color b60205 \
+            --description "Security / authz / data-exposure" 2>/dev/null || true
 
           # GitHub's `in:title` search is tokenized, not exact, so it can match a
           # different security-labelled issue. Filter to an exact title match.
@@ -99,3 +147,14 @@ jobs:
               --label security \
               --body-file body.md
           fi
+
+      # Inconclusive run. Fails the workflow so it shows up as a red X and
+      # notifies, rather than passing quietly and leaving advisories undetected.
+      - name: Fail on inconclusive audit
+        if: steps.audit.outputs.result == 'error'
+        run: |
+          echo "::error::pnpm audit did not complete — treating as UNKNOWN, not clean."
+          echo "Registry outage, auth failure, or a changed pnpm output format."
+          echo "--- audit output ---"
+          cat audit.txt
+          exit 1
