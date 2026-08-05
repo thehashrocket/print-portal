@@ -113,7 +113,7 @@
     "@types/eslint": "^9.6.1",
     "@types/formidable": "^3.5.1",
     "@types/lodash": "^4.17.25",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.1.2",
     "@types/nodemailer": "^8.0.1",
     "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.20.3",
