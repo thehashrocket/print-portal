@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.8.1] - 2026-08-05
+
+### Fixed
+
+- **TypeScript 6 no longer fails the type-check.** `baseUrl` is deprecated in TypeScript 6 and removed in 7, so `pnpm type-check` errored out with `TS5101` the moment the compiler was upgraded. Removed `baseUrl` from `tsconfig.json` and `prisma/tsconfig.json` rather than silencing it with `ignoreDeprecations`, which would only have deferred the same break to TypeScript 7. Both files already declare `paths` relative to their own directory, which TypeScript has resolved without `baseUrl` since 4.1, so the `~/*` alias is unchanged. Verified against every consumer that resolves the alias independently: `tsc` (5.9.3 and 6.0.3), the webpack production build, the Turbopack dev server, and `tsx`.
+
 ## [0.2.8.0] - 2026-08-05
 
 ### Security
