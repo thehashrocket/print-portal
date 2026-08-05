@@ -44,11 +44,21 @@ updates:
       - "dependencies"
 
     groups:
-      # ONE PR for all security updates, whatever the semver distance.
+      # Security updates, whatever the semver distance.
       #
-      # Deliberately NOT split by update-type. A fix that only exists across a
-      # major boundary is precisely the case that must not be filtered out of
-      # view -- and this repo is genuinely exposed, because every
+      # Split production/development, but NOT by update-type. The distinction
+      # matters: splitting by dependency-type only decides which PR a fix lands
+      # in, while splitting by update-type would filter fixes out of view
+      # entirely. Both groups still accept every update-type.
+      #
+      # The split exists because a dev-tooling security bump that breaks CI
+      # would otherwise hold a runtime-reachable fix hostage in the same PR --
+      # a real shape here, since vite, postcss and the vitest tree are all
+      # build/test-only yet security-pinned.
+      #
+      # A fix that only exists across a major boundary is precisely the case
+      # that must not be filtered out of view -- and this repo is genuinely
+      # exposed, because every
       # `pnpm.overrides` entry carries a major upper bound that is ALREADY
       # behind the current release (checked 2026-08-05):
       #
@@ -64,8 +74,15 @@ updates:
       # a transitive dep), so the mitigation is visibility, not removal:
       # `pnpm audit` still reports the package as vulnerable, and
       # security-audit.yml turns that into an issue.
-      security-updates:
+      security-production:
         applies-to: security-updates
+        dependency-type: "production"
+        patterns:
+          - "*"
+
+      security-development:
+        applies-to: security-updates
+        dependency-type: "development"
         patterns:
           - "*"
 
