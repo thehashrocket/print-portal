@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See [VERSION](./VERSION) for the current version.
 
+## [0.2.8.2] - 2026-09-03
+
+### Security
+
+- **Patched five newly-disclosed `fast-uri` HIGH-severity advisories** (including GHSA-jqff-g426-hqxp, host confusion via percent-encoded scheme normalization), all patched `>=3.1.6`. Reached via the existing `pnpm.overrides` entry, which had pinned the floor to the previously-patched `>=3.1.5` — that floor is now `>=3.1.6`. `fast-uri` resolves to `3.1.7` after re-resolution. `pnpm type-check`, `pnpm lint`, and `pnpm test` (177 tests) all pass unchanged.
+
 ## [0.2.8.1] - 2026-08-05
 
 ### Fixed
